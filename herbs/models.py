@@ -45,4 +45,8 @@ class HerbItem(MetaDataMixin):
     genus = models.ForeignKey(Genus, on_delete=models.SET_NULL, null=True)
     species = models.ForeignKey(Species, on_delete=models.SET_NULL, null=True)
     authorship = models.ManyToManyField(OrderedAuthor, blank=True, null=True)
+    # position
+    country = models.CharField(default='', blank=True, max_length=2, choices)
     
+    # Ecological factors
+    ecodescr = models.CharField(300, default='')
