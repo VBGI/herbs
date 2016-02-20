@@ -1,12 +1,29 @@
+
 from imagekit.models import ProcessedImageField
+from django.utils.text import capfirst
 
 from django.db import models
 from django.conf import settings
+from geoposition.fields import GeopositionField
 
 # Geopositionfield need to be imported!
 
 # where image files will be uploaded 
-HERB_UPLOADPATH = 'herbimgs/'
+HERB_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
+
+
+def get_taxonomy_string(obj, fieldname):
+    result = obj._meta.get_field(fieldname).name
+    authors = obj.authorship.all().order_by('priority')
+    howmany = authors.count()
+    if authors.count() > 1:
+        inside = [item for item in authors[:howmany-1]]
+    # order by priority : the older is put into bracets
+    if inside:
+        result += ' (%s) '% (' '.join([str(x) for x in inside]),)
+    if howmany:
+        result += '%s'%str(authors[howmany-1])
+    return result
 
 
 class MetaDataMixin(models.Model):
@@ -17,10 +34,10 @@ class MetaDataMixin(models.Model):
     updated = models.DateField(auto_now=True)
     createdby = models.ForeignKey(settings.AUTH_USER_MODEL,
                                   on_delete=models.SET_NULL,
-                                  null=True, blank=True)
+                                  null=True, blank=True, related_name='+')
     updatedby = models.ForeignKey(settings.AUTH_USER_MODEL,
                                   on_delete=models.SET_NULL,
-                                  null=True, blank=True)
+                                  null=True, blank=True, related_name='+')
     public = models.BooleanField(default=False)
     class Meta:
         abstract = True 
@@ -28,6 +45,13 @@ class MetaDataMixin(models.Model):
 
 class Author(models.Model):
     name = models.CharField(max_length=150, default='')
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.strip()
+        super(Model, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 
 class OrderedAuthor(models.Model):
@@ -50,6 +74,10 @@ class Family(models.Model):
         self.name = self.name.strip()
         super(Model, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return get_taxonomy_string(self, 'name')
+
+
 class Genus(models.Model):
     name = models.CharField(max_length=30, default='')
     authorship = models.ManyToManyField(OrderedAuthor, blank=True, null=True)
@@ -57,6 +85,10 @@ class Genus(models.Model):
     def save(self, *args, **kwargs):
         self.name = self.name.strip()
         super(Model, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return get_taxonomy_string(self, 'name')
+
 
 class Species(models.Model):
     name = models.CharField(max_length=30, default='')
@@ -68,9 +100,8 @@ class HerbSnapshot(models.Model):
     image = ProcessedImageField(upload_to=settings.HERB_UPLOADPATH,
                                       format='JPEG',
                                       options={'quality': 90})
-    models.ForeignKey('HerbItem', null=True, on_delete=SET_NULL, related_name='snapshots')
+    models.ForeignKey('HerbItem', null=True, on_delete=models.SET_NULL, related_name='snapshots')
     date = models.DateTimeField(auto_now=True)
-
 
 
 class HerbItem(MetaDataMixin):
@@ -84,7 +115,7 @@ class HerbItem(MetaDataMixin):
     itemcode = models.CharField(max_length=15, default='')
 
     # position
-    country = models.CharField(default='', blank=True, max_length=2, choices)
+    country = models.CharField(default='', blank=True, max_length=2)
     region = models.CharField(default='', blank=True, max_length=150)
     district = models.CharField(default='', blank=True, max_length=150)
     detailed = models.CharField(default='', max_length=300, blank=True)
@@ -108,3 +139,5 @@ class HerbItem(MetaDataMixin):
         self.itemcode = self.itemcode.strip()
         super(Model, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return get_taxonomy_string(self, 'genus')
