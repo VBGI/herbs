@@ -1,19 +1,21 @@
 
-from dal import autocomplete
+import autocomplete 
 
 from .models import Family, Genus, HerbItem
 
 from django import forms
 
 
-class FamilyForm(forms.ModelForm):
-    name = forms.ModelChoiceField(
-        queryset=Family.objects.all(),
-        widget=autocomplete.ModelSelect2(url='family-autocomplete')
-    )
+
+
+
+class HerbItemForm(autocomplete.ModelForm):
+    def __init__(self, *args, **kwargs):
+        
     class Meta:
-        model = Family
+        model = HerbItem
         fields = ('__all__')
+        
 
 
 class GenusForm(forms.ModelForm):

@@ -20,9 +20,9 @@ def get_taxonomy_string(obj, fieldname):
         inside = [item for item in authors[:howmany-1]]
     # order by priority : the older is put into bracets
     if inside:
-        result += ' (%s) '% (' '.join([str(x) for x in inside]),)
+        result += ' (%s) ' % (' '.join([str(x) for x in inside]), )
     if howmany:
-        result += '%s'%str(authors[howmany-1])
+        result += '%s' % str(authors[howmany-1])
     return result
 
 
