@@ -7,8 +7,6 @@ from .models import Family, Genus
 from .forms import FamilyForm, GenusForm, HerbItem
 
 
-
-
 class FamilyAdmin(admin.ModelAdmin):
     form = FamilyForm
 

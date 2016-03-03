@@ -71,7 +71,7 @@ class Family(models.Model):
     authorship = models.ManyToManyField(OrderedAuthor, blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.name = self.name.strip()
+        self.name = self.name.strip().lower()
         super(Model, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -83,7 +83,7 @@ class Genus(models.Model):
     authorship = models.ManyToManyField(OrderedAuthor, blank=True, null=True)
     
     def save(self, *args, **kwargs):
-        self.name = self.name.strip()
+        self.name = self.name.strip().lower()
         super(Model, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -93,7 +93,7 @@ class Genus(models.Model):
 class Species(models.Model):
     name = models.CharField(max_length=30, default='')
     def save(self, *args, **kwargs):
-        self.name = self.name.strip()
+        self.name = self.name.strip().lower()
         super(Model, self).save(*args, **kwargs)
 
 class HerbSnapshot(models.Model):
