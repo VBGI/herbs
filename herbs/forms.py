@@ -1,5 +1,5 @@
 
-import autocomplete 
+import autocomplete_light 
 
 from .models import Family, Genus, HerbItem
 
@@ -8,7 +8,6 @@ from django import forms
 
 
 class TaxonCleanerMixin(forms.ModelForm):
-
     def clean_name(self):
         data = self.cleaned_data['name']
         if self.Meta.model.objects.filter(name=data.lower()).exists():
@@ -40,8 +39,11 @@ class HerbItemForm(autocomplete.ModelForm):
             initial['identifiers'] = latest.identifiers
             initial['identified_s'] = latest.identified_s
             initial['identified_e'] = latest.identified_e
-        super(ArtefactForm, self).__init__(*args, **kwargs)
-
+        super(HerbItemForm, self).__init__(*args, **kwargs)
+    family = autocomplete_light.ModelChoiceField('AutocompleteFamily')
+    genus =  autocomplete_light.ModelChoiceField('AutocompleteGenus')
+    species =  autocomplete_light.ModelChoiceField('AutocompleteSpecies')
+    authorship = autocomplete_light.ModelChoiceField('AutocompleteAuthor')
     class Meta:
         model = HerbItem
         fields = ('__all__')
