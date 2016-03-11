@@ -5,6 +5,7 @@ from django.utils.text import capfirst
 from django.db import models
 from django.conf import settings
 from geoposition.fields import GeopositionField
+from django.utils.encoding import python_2_unicode_compatible
 
 # Geopositionfield need to be imported!
 
@@ -13,11 +14,13 @@ HERB_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
 
 
 def get_taxonomy_string(obj, fieldname):
-    result = obj._meta.get_field(fieldname).name
+    result = obj.__dict__[fieldname]
     authors = obj.authorship.all().order_by('priority')
     howmany = authors.count()
     if authors.count() > 1:
         inside = [item for item in authors[:howmany-1]]
+    else: 
+        inside = None
     # order by priority : the older is put into bracets
     if inside:
         result += ' (%s) ' % (' '.join([str(x) for x in inside]), )
@@ -34,21 +37,24 @@ class MetaDataMixin(models.Model):
     updated = models.DateField(auto_now=True)
     createdby = models.ForeignKey(settings.AUTH_USER_MODEL,
                                   on_delete=models.SET_NULL,
-                                  null=True, blank=True, related_name='+')
+                                  null=True, blank=True, related_name='+',
+                                  editable=False)
     updatedby = models.ForeignKey(settings.AUTH_USER_MODEL,
                                   on_delete=models.SET_NULL,
-                                  null=True, blank=True, related_name='+')
+                                  null=True, blank=True, related_name='+',
+                                  editable=False)
     public = models.BooleanField(default=False)
     class Meta:
         abstract = True 
 
 
+@python_2_unicode_compatible
 class Author(models.Model):
     name = models.CharField(max_length=150, default='')
 
     def save(self, *args, **kwargs):
         self.name = self.name.strip()
-        super(Model, self).save(*args, **kwargs)
+        super(Author, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -66,35 +72,42 @@ class OrderedAuthor(models.Model):
     priority = models.IntegerField(default=0)
 
 
+@python_2_unicode_compatible
 class Family(models.Model):
     name = models.CharField(max_length=30, default='')
     authorship = models.ManyToManyField(OrderedAuthor, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower()
-        super(Model, self).save(*args, **kwargs)
+        super(Family, self).save(*args, **kwargs)
 
     def __str__(self):
         return get_taxonomy_string(self, 'name')
 
 
+@python_2_unicode_compatible
 class Genus(models.Model):
     name = models.CharField(max_length=30, default='')
     authorship = models.ManyToManyField(OrderedAuthor, blank=True, null=True)
     
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower()
-        super(Model, self).save(*args, **kwargs)
+        super(Genus, self).save(*args, **kwargs)
 
     def __str__(self):
         return get_taxonomy_string(self, 'name')
 
 
+@python_2_unicode_compatible
 class Species(models.Model):
     name = models.CharField(max_length=30, default='')
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower()
-        super(Model, self).save(*args, **kwargs)
+        super(Species, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
 
 class HerbSnapshot(models.Model):
     image = ProcessedImageField(upload_to=settings.HERB_UPLOADPATH,
@@ -104,6 +117,7 @@ class HerbSnapshot(models.Model):
     date = models.DateTimeField(auto_now=True)
 
 
+@python_2_unicode_compatible
 class HerbItem(MetaDataMixin):
     family = models.ForeignKey(Family, on_delete=models.SET_NULL, null=True)
     genus = models.ForeignKey(Genus, on_delete=models.SET_NULL, null=True)
@@ -137,7 +151,7 @@ class HerbItem(MetaDataMixin):
         self.identifiers = self.identifiers.strip()
         self.gcode = self.gcode.strip()
         self.itemcode = self.itemcode.strip()
-        super(Model, self).save(*args, **kwargs)
+        super(HerbItem, self).save(*args, **kwargs)
 
     def __str__(self):
         return get_taxonomy_string(self, 'genus')
