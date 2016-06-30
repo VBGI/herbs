@@ -1,5 +1,4 @@
 from django.contrib import admin
-import autocomplete_light
 
 # Register your models here.
 
@@ -20,7 +19,6 @@ class GenusAdmin(admin.ModelAdmin):
 
 
 class HerbItemAdmin(admin.ModelAdmin):
-#     form = autocomplete_light.modelform_factory(HerbItem, fields='__all__')
     form = HerbItemForm
     list_display = ('gcode','itemcode','family', 'genus', 'species','collectors','collected_s')
     list_filter = ('family', 'genus', 'species')

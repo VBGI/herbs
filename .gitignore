@@ -3,3 +3,5 @@ tmp
 testprj
 env
 hh
+.project
+.pydevproject

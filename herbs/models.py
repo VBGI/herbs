@@ -50,6 +50,8 @@ class MetaDataMixin(models.Model):
 
 @python_2_unicode_compatible
 class Author(models.Model):
+    '''Genus or Family inventor
+    '''
     name = models.CharField(max_length=150, default='')
 
     def save(self, *args, **kwargs):

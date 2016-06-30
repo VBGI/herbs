@@ -1,6 +1,3 @@
-
-import autocomplete_light 
-
 from .models import Family, Genus, HerbItem, OrderedAuthor, Author, Species
 
 from django import forms
@@ -14,7 +11,7 @@ class TaxonCleanerMixin(forms.ModelForm):
         return data
 
 
-class HerbItemForm(autocomplete_light.modelform_factory(HerbItem, fields=('family','genus','species', 'authorship'))):
+class HerbItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         # fill initial values for all data
         if 'initial' in kwargs.keys():
@@ -39,13 +36,26 @@ class HerbItemForm(autocomplete_light.modelform_factory(HerbItem, fields=('famil
             except HerbItem.DoesNotExist:
                 pass 
         super(HerbItemForm, self).__init__(*args, **kwargs)
-#     family = autocomplete_light.ModelChoiceField('AutocompleFamilyHerb')
-#     genus =  autocomplete_light.ModelChoiceField('AutocompleGenusHerb')
-#     species =  autocomplete_light.ModelChoiceField('AutocompleSpeciesHerb')
-#     authorship = autocomplete_light.ModelChoiceField('AutocompleAuthorHerb')
+
     class Meta:
         model = HerbItem
         fields = '__all__'
+
+
+class SearchForm(forms.Form):
+    '''Common search form for ajax requests
+    '''
+    family = forms.CharField(required=False, label=_('Семейство'), max_length=30)
+    genus = forms.CharField(required=False, label=_('Род'), max_length=30)
+    species = forms.CharField(required=False, label=_('Вид'), max_legnth=30)
+    itemcode = forms.CharField(requred=False, lable=_('Код1'), max_length=15)
+    gcode = forms.CharField(requred=False, lable=_('Код2'), max_length=10)
+
+
+class ExtendedSearchForm(forms.Form):
+    collectors = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
+    country = forms.CharField(required=False, label=_('Страна'), max_length=30)
+    region = forms.CharField(required=False, label=_('Регион'), max_length=30)
 
 
 class GenusForm(TaxonCleanerMixin):
