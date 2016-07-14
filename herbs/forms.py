@@ -50,12 +50,11 @@ class SearchForm(forms.Form):
     species = forms.CharField(required=False, label=_('Вид'), max_legnth=30)
     itemcode = forms.CharField(requred=False, lable=_('Код1'), max_length=15)
     gcode = forms.CharField(requred=False, lable=_('Код2'), max_length=10)
-
-
-class ExtendedSearchForm(forms.Form):
     collectors = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     country = forms.CharField(required=False, label=_('Страна'), max_length=30)
     region = forms.CharField(required=False, label=_('Регион'), max_length=30)
+
+
 
 
 class GenusForm(TaxonCleanerMixin):

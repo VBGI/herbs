@@ -44,6 +44,7 @@ class MetaDataMixin(models.Model):
                                   null=True, blank=True, related_name='+',
                                   editable=False)
     public = models.BooleanField(default=False)
+    
     class Meta:
         abstract = True 
 
