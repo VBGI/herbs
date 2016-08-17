@@ -9,6 +9,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import gettext as _
 from django.utils.functional import cached_property
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Geopositionfield need to be imported!
 
@@ -71,6 +72,7 @@ class Author(models.Model):
         verbose_name = _('автор')
         verbose_name_plural = _('авторы')
 
+
 @python_2_unicode_compatible
 class FamilyAuthorship(models.Model):
     author = models.ForeignKey(Author,
@@ -91,6 +93,7 @@ class FamilyAuthorship(models.Model):
     class Meta:
         verbose_name = _('авторство')
         verbose_name_plural = _('авторство')
+
 
 @python_2_unicode_compatible
 class GenusAuthorship(models.Model):
@@ -135,6 +138,7 @@ class SpeciesAuthorship(models.Model):
         verbose_name = _('авторство')
         verbose_name_plural = _('авторство')
 
+
 @python_2_unicode_compatible
 class Family(models.Model):
     name = models.CharField(max_length=30, default='',
@@ -162,6 +166,7 @@ class Family(models.Model):
     class Meta:
         verbose_name = _('название семейства')
         verbose_name_plural = _('названия семейств')    
+
 
 @python_2_unicode_compatible
 class Genus(models.Model):
@@ -273,6 +278,7 @@ class HerbItem(MetaDataMixin):
         verbose_name_plural = _('гербарные образцы')
         ordering = ('family', 'genus', 'species')
 
+
 @python_2_unicode_compatible    
 class LoadPendingHerbs(HerbItem):
     checked = models.BooleanField(default=False, verbose_name=_('проверено'))
@@ -282,15 +288,18 @@ class LoadPendingHerbs(HerbItem):
         verbose_name = _('загруженный гербарный образец') 
         verbose_name_plural = _('загруженные гербарные образцы')
 
+
 @python_2_unicode_compatible
 class LoadedFiles(models.Model):
     datafile = models.FileField(upload_to=settings.HERB_DATA_UPLOADPATH, verbose_name=_('Файл'))
     created = models.DateField(auto_now_add=True, verbose_name=_('загружен'))
-    status = models.BooleanField(default=False, editable=False, verbose_name=_('Статус'))
+    status = models.BooleanField(default=False, editable=False, verbose_name=_('cтатус'))
     createdby = models.ForeignKey(settings.AUTH_USER_MODEL,
                                   on_delete=models.SET_NULL,
                                   null=True, blank=True, related_name='+',
                                   editable=False, verbose_name=_('создатель'))
+
+    
     def __str__(self):
         return os.path.basename(self.datafile.name) 
         
@@ -298,4 +307,10 @@ class LoadedFiles(models.Model):
         verbose_name = _('Файл с данными')
         verbose_name_plural = _('Файлы с данными')
         ordering = ('created', 'status', 'createdby')
+
+
+@receiver(post_save, sender=LoadedFiles)
+def evaluate_datafile(sender, instance, **kwargs):
+    herbfile = instance.datafile.open(mode='rb')
+    
         
