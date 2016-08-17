@@ -250,7 +250,8 @@ DATABASES = {
 }
 
 GEOPOSITION_GOOGLE_MAPS_API_KEY = 'AIzaSyBM1pdBk3gmpajpRoCnK6BUu5Jf3AkB6BA'
-HERB_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
+HERB_IMG_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
+HERB_DATA_UPLOADPATH = 'herbdata/%Y/%m/%d/'
 
 SOUTH_MIGRATION_MODULES = {
     

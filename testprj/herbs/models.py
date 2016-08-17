@@ -11,8 +11,8 @@ from django.utils.functional import cached_property
 # Geopositionfield need to be imported!
 
 # where image files will be uploaded 
-HERB_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
-
+# HERB_IMG_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
+# HERB_DATA_UPLOADPATH = 'herbdata/%Y/%m/%d/'
 
 def get_authorship_string(authors):
     result = ''
@@ -203,7 +203,7 @@ class Species(models.Model):
 
 
 class HerbSnapshot(models.Model):
-    image = ProcessedImageField(upload_to=settings.HERB_UPLOADPATH,
+    image = ProcessedImageField(upload_to=settings.HERB_IMG_UPLOADPATH,
                                       format='JPEG',
                                       options={'quality': 90})
     models.ForeignKey('HerbItem', null=True, on_delete=models.SET_NULL, related_name='snapshots')
@@ -281,11 +281,14 @@ class LoadPendingHerbs(HerbItem):
 
 
 class LoadedFiles(models.Model):
+    datafile = models.FileField(upload_to=settings.HERB_DATA_UPLOADPATH, verbose_name=_('Файл'))
     created = models.DateField(auto_now_add=True, verbose_name=_('загружен'))
-    datafile = models.FileField()
     status = models.BooleanField(default=False, editable=False)
-
+    createdby = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                  on_delete=models.SET_NULL,
+                                  null=True, blank=True, related_name='+',
+                                  editable=False, verbose_name=_('создатель'))
     class Meta:
         verbose_name = _('Файл с данными')
-        verbose_name = _('Файлы с данными')
+        verbose_name_plural = _('Файлы с данными')
         

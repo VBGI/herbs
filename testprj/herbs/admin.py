@@ -5,7 +5,7 @@ from django.contrib import admin
 
 from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
                      SpeciesAuthorship, LoadPendingHerbs,
-                     Author, HerbItem, Species)
+                     Author, HerbItem, Species, LoadedFiles)
 from .forms import (FamilyForm, GenusForm, HerbItemForm,
                     GenusAuthorshipForm, FamilyAuthorshipForm,  AuthorForm,
                     SpeciesForm, SpeciesAuthorshipForm
@@ -60,5 +60,4 @@ admin.site.register(HerbItem, HerbItemAdmin)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Species, SpeciesAdmin)
 admin.site.register(LoadPendingHerbs, LoadPendingHerbsAdmin)
-
-
+admin.site.register(LoadedFiles)
