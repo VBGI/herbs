@@ -271,3 +271,12 @@ class HerbItem(MetaDataMixin):
         verbose_name_plural = _('гербарные образцы')
     
     
+class LoadPendingHerbs(HerbItem):
+    checked = models.BooleanField(default=False, verbose_name=_('проверено'))
+
+    class Meta:
+        db_table = 'herbs_loadpendingherbs'
+        verbose_name = _('загруженный гербарный образец') 
+        verbose_name_plural = _('загруженные гербарные образцы')
+
+

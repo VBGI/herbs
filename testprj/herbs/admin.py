@@ -4,7 +4,7 @@ from django.contrib import admin
 
 
 from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
-                     SpeciesAuthorship,
+                     SpeciesAuthorship, LoadPendingHerbs,
                      Author, HerbItem, Species)
 from .forms import (FamilyForm, GenusForm, HerbItemForm,
                     GenusAuthorshipForm, FamilyAuthorshipForm,  AuthorForm,
@@ -43,7 +43,10 @@ class HerbItemAdmin(admin.ModelAdmin):
     list_filter = ('public', 'family', 'genus', 'species')
     
     
-
+class LoadPendingHerbsAdmin(admin.ModelAdmin):
+    model = LoadPendingHerbs
+    list_display = ('get_full_name', 'checked','itemcode','family', 'genus', 'species','collectors','collected_s')
+    list_filter = ('public', 'family', 'genus', 'species')
 
 
 
@@ -56,5 +59,6 @@ admin.site.register(Genus, GenusAdmin)
 admin.site.register(HerbItem, HerbItemAdmin)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Species, SpeciesAdmin)
+admin.site.register(LoadPendingHerbs, LoadPendingHerbsAdmin)
 
 
