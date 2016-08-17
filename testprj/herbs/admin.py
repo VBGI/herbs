@@ -49,6 +49,10 @@ class LoadPendingHerbsAdmin(admin.ModelAdmin):
     list_filter = ('public', 'family', 'genus', 'species')
 
 
+class LoadedFilesAdmin(admin.ModelAdmin):
+    model = LoadedFiles
+    list_display = ('datafile', 'status','createdby', 'created')
+    list_filter = ('status', 'createdby')
 
 class SpeciesAdmin(admin.ModelAdmin): 
     form = SpeciesForm
@@ -60,4 +64,4 @@ admin.site.register(HerbItem, HerbItemAdmin)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Species, SpeciesAdmin)
 admin.site.register(LoadPendingHerbs, LoadPendingHerbsAdmin)
-admin.site.register(LoadedFiles)
+admin.site.register(LoadedFiles, LoadedFilesAdmin)
