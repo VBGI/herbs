@@ -269,7 +269,7 @@ class HerbItem(MetaDataMixin):
         abstract = False
         verbose_name = _('гербарный образeц')
         verbose_name_plural = _('гербарные образцы')
-    
+        ordering = ('family', 'genus', 'species')
     
 class LoadPendingHerbs(HerbItem):
     checked = models.BooleanField(default=False, verbose_name=_('проверено'))
@@ -280,3 +280,12 @@ class LoadPendingHerbs(HerbItem):
         verbose_name_plural = _('загруженные гербарные образцы')
 
 
+class LoadedFiles(models.Model):
+    created = models.DateField(auto_now_add=True, verbose_name=_('загружен'))
+    datafile = models.FileField()
+    status = models.BooleanField(default=False, editable=False)
+
+    class Meta:
+        verbose_name = _('Файл с данными')
+        verbose_name = _('Файлы с данными')
+        
