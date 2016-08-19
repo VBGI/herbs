@@ -8,6 +8,7 @@ class TaxonEvaluationTestCase(TestCase):
         self.simple = 'SOMEFAMILY (Maxim.) L.'
         self.bad = 'SOMEFAMILY (Maxim. L.)'
         self.invalid_author = 'SOMEFAMILY jfkld>?'
+        self.unbalanced = 'SOMEFAMILY (Maxim. '
         
     def test_extract_simple(self):
         res = evaluate_taxons([self.simple])
@@ -27,3 +28,8 @@ class TaxonEvaluationTestCase(TestCase):
         self.assertEqual(res[0], 'somefamily')
         self.assertEqual(res[1][0], 'Invalid author string')
     
+    def test_unbalanced_auth_str(self):
+        res = evaluate_taxons([self.unbalanced])
+        res = res[0]
+        self.assertEqual(res[0], 'somefamily')
+        self.assertEqual(res[1][0], 'Unbalanced parenthesis')
