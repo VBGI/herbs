@@ -7,6 +7,8 @@ class TaxonEvaluationTestCase(TestCase):
     def setUp(self):
         self.simple = 'SOMEFAMILY (Maxim.) L.'
         self.bad = 'SOMEFAMILY (Maxim. L.)'
+        self.invalid_author = 'SOMEFAMILY jfkld>?'
+        
     def test_extract_simple(self):
         res = evaluate_taxons([self.simple])
         res = res[0]
@@ -19,4 +21,9 @@ class TaxonEvaluationTestCase(TestCase):
         self.assertEqual(res[0], 'somefamily')
         self.assertEqual(res[1], ('Auxiliary authors without primary authors are given', [(0, '(Maxim. L.)')]))
         
-        
+    def test_invalid_author_string(self):
+        res = evaluate_taxons([self.invalid_author])
+        res = res[0]
+        self.assertEqual(res[0], 'somefamily')
+        self.assertEqual(res[1][0], 'Invalid author string')
+    

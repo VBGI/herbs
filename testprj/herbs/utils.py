@@ -16,6 +16,9 @@ def get_authors(auth_str):
     if not _auth_str:
         err_msg = 'Author not provided'
         return (err_msg, [(0, '')])
+    elif not validate_auth_str_pat.match(_auth_str):
+        err_msg = 'Invalid author string'
+        return (err_msg, [(0, _auth_str)])
 
     if _auth_str.count('(') != _auth_str.count(')'):
         err_msg = 'Unbalanced parenthesis'
