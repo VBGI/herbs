@@ -33,3 +33,9 @@ class TaxonEvaluationTestCase(TestCase):
         res = res[0]
         self.assertEqual(res[0], 'somefamily')
         self.assertEqual(res[1][0], 'Unbalanced parenthesis')
+        
+class DateEvaluationTestCase(TestCase):
+    
+    def setUp(self):
+        self.simple = '67 января'
+        
