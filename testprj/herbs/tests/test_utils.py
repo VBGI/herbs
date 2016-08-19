@@ -37,5 +37,5 @@ class TaxonEvaluationTestCase(TestCase):
 class DateEvaluationTestCase(TestCase):
     
     def setUp(self):
-        self.simple = '67 января'
+        self.simple = '67 января 1900 г.'
         

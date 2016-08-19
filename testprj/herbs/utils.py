@@ -85,31 +85,34 @@ def evaluate_taxons(taxons, count=1):
 
 
 def evaluate_dates(dates):
+    '''Convert dates from strings to Python-date objects or leave unchanged if errors found.
+    '''
     result = []
     for item in dates:
-        year = year_pat.findall(item)
+        item_ = ' ' + item + ' '
+        year = year_pat.findall(item_)
         if len(year) != 1:
-            result.append(('Year not found', item))
+            result.append(('Year not found', item_))
             continue
         cmonth = None
         for month in monthes.keys():
-            if month in item:
+            if month in item_:
                 cmonth = monthes[month]
         if not cmonth:
-            result.append(('Month not found', item))
+            result.append(('Month not found', item_))
             continue
-        day = day_pat.findall(item)
+        day = day_pat.findall(item_)
         if len(day) != 1:
-            result.append(('Day not found', item))
+            result.append(('Day not found', item_))
             continue
         day = int(day)
         month = int(month)
         year = int(year)
         if not (0 < day < 32): 
-            result.append('Day not in range', item)
+            result.append('Day not in range', item_)
             continue 
         if year > 2050 or year < 1500:
-            result.append('Strange year', item)
+            result.append('Strange year', item_)
             continue
         cdate = date(year=year, day=day, month=month)
         result.append(('', cdate))
