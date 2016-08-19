@@ -1,8 +1,33 @@
 import re
+from datetime import date
 
+
+
+# --------------- Author string validation and extraction --------
 validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+$')
 parenthesis_pat = re.compile(r'\(([\sa-zA-Z\.\-]+)\)')
 after_parenthesis_pat = re.compile(r'\)([\sa-zA-Z\.\-]+)$')
+# ----------------------------------------------------------------
+
+# ----------------Date manipulations -----------------------------
+
+monthes = {u'янв': 1,
+           u'фев': 2,
+           u'мар': 3, 
+           u'апр': 4, 
+           u'май': 5,
+           u'мая': 5,
+           u'июн': 6,
+           u'июл': 7,
+           u'авг': 8,
+           u'сен': 9,
+           u'окт': 10,
+           u'ноя': 11,
+           u'дек': 12
+           }
+year_pat = re.compile('\d{4}')
+day_pat = re.compile('[\D]+(\d{1,2})[\D]+')
+# ----------------------------------------------------------------
 
 
 def get_authors(auth_str):
@@ -59,4 +84,33 @@ def evaluate_taxons(taxons, count=1):
     return result
 
 
-
+def evaluate_dates(dates):
+    result = []
+    for item in dates:
+        year = year_pat.findall(item)
+        if len(year) != 1:
+            result.append(('Year not found', item))
+            continue
+        cmonth = None
+        for month in monthes.keys():
+            if month in item:
+                cmonth = monthes[month]
+        if not cmonth:
+            result.append(('Month not found', item))
+            continue
+        day = day_pat.findall(item)
+        if len(day) != 1:
+            result.append(('Day not found', item))
+            continue
+        day = int(day)
+        month = int(month)
+        year = int(year)
+        if not (0 < day < 32): 
+            result.append('Day not in range', item)
+            continue 
+        if year > 2050 or year < 1500:
+            result.append('Strange year', item)
+            continue
+        cdate = date(year=year, day=day, month=month)
+        result.append(('', cdate))
+    return result
