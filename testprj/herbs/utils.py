@@ -1,3 +1,5 @@
+#coding: utf-8
+
 import re
 from datetime import date
 
@@ -89,7 +91,7 @@ def evaluate_dates(dates):
     '''
     result = []
     for item in dates:
-        item_ = ' ' + item + ' '
+        item_ = ' ' + unicode(item, 'utf-8') + ' '
         year = year_pat.findall(item_)
         if len(year) != 1:
             result.append(('Year not found', item_))
@@ -105,15 +107,14 @@ def evaluate_dates(dates):
         if len(day) != 1:
             result.append(('Day not found', item_))
             continue
-        day = int(day)
-        month = int(month)
-        year = int(year)
+        day = int(day.pop())
+        year = int(year.pop())
         if not (0 < day < 32): 
-            result.append('Day not in range', item_)
+            result.append(('Day not in range', item_))
             continue 
         if year > 2050 or year < 1500:
-            result.append('Strange year', item_)
+            result.append(('Strange year', item_))
             continue
-        cdate = date(year=year, day=day, month=month)
+        cdate = date(year=year, day=day, month=cmonth)
         result.append(('', cdate))
     return result

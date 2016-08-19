@@ -1,3 +1,5 @@
+#coding: utf-8
+
 from ..utils import get_authors, evaluate_taxons, evaluate_dates
 from unittest import TestCase
 from datetime import date
@@ -62,7 +64,7 @@ class DateEvaluationTestCase(TestCase):
         
     def test_no_year(self):
         res = evaluate_dates([self.no_year]).pop()
-        self.assertEqaul(res[0], 'Year not found')
+        self.assertEqual(res[0], 'Year not found')
 
     def test_no_day(self):
         res = evaluate_dates([self.no_day]).pop()
