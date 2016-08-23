@@ -10,7 +10,7 @@ from .forms import (FamilyForm, GenusForm, HerbItemForm,
                     GenusAuthorshipForm, FamilyAuthorshipForm,  AuthorForm,
                     SpeciesForm, SpeciesAuthorshipForm
                     )
-
+from ajax_select.admin import AjaxSelectAdmin
 
 class AuthorAdmin(admin.ModelAdmin):
     form = AuthorForm 
@@ -37,7 +37,7 @@ class GenusAdmin(admin.ModelAdmin):
         GenusAuthorshipInline,
         )
 
-class HerbItemAdmin(admin.ModelAdmin):
+class HerbItemAdmin(AjaxSelectAdmin):
     form = HerbItemForm
     list_display = ('get_full_name', 'gcode','itemcode','family', 'genus', 'species','collectors','collected_s')
     list_filter = ('public', 'family', 'genus', 'species')

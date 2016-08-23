@@ -6,7 +6,7 @@ from .models import (Family, Genus, HerbItem,
                      SpeciesAuthorship)
 from django.utils.translation import gettext as _
 from django import forms
-
+from ajax_select.fields import AutoCompleteSelectField, AutoCompleteSelectMultipleField
 
 class TaxonCleanerMixin(forms.ModelForm):
     pass
@@ -47,8 +47,11 @@ class HerbItemForm(forms.ModelForm):
 
     class Meta:
         model = HerbItem
-        
-
+    
+    family = AutoCompleteSelectField('family', required=False, help_text=None)
+    genus = AutoCompleteSelectField('genus', required=False, help_text=None)
+    species = AutoCompleteSelectField('species', required=False, help_text=None)
+#     authorship = AutoCompleteSelectMultipleField('authorship', required=False, help_text=None)
 
 class SearchForm(forms.Form):
     '''Common search form for ajax requests

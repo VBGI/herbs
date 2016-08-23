@@ -7,6 +7,7 @@ from django.conf.urls import include, patterns, url
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from ajax_select import urls as ajax_select_urls
 
 admin.autodiscover()
 
@@ -18,6 +19,7 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns('',
     url(r'^admin/', include(admin.site.urls)),  # NOQA
+    url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^', include('cms.urls')),
 )
 

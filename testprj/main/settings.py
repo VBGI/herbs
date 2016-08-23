@@ -192,7 +192,8 @@ INSTALLED_APPS = [
     'south',
     'reversion',
     'main',
-    'herbs'
+    'herbs',
+    'ajax_select'
 ]
 
 LANGUAGES = (
@@ -248,6 +249,16 @@ DATABASES = {
         'USER': ''
     }
 }
+
+AJAX_LOOKUP_CHANNELS = {
+      # auto-create a channel named 'person' that searches by name on the model Person
+
+      # str: tuple
+      'family': ('herbs.lookups', 'FamilyLookup'),
+      'genus': ('herbs.lookups', 'GenusLookup'),
+      'species': ('herbs.lookups', 'SpeciesLookup'),
+      }
+
 
 GEOPOSITION_GOOGLE_MAPS_API_KEY = 'AIzaSyBM1pdBk3gmpajpRoCnK6BUu5Jf3AkB6BA'
 HERB_IMG_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
