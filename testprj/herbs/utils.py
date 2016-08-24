@@ -2,8 +2,7 @@
 
 import re
 from datetime import date
-
-
+import pandas as pd
 
 # --------------- Author string validation and extraction --------
 validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+$')
@@ -29,6 +28,9 @@ monthes = {u'янв': 1,
            }
 year_pat = re.compile('\d{4}')
 day_pat = re.compile('[\D]+(\d{1,2})[\D]+')
+
+NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    district    place    coordinates    height    ecology    collected    collectedby    determined    determinedby    note    code1    code2    images'.split()
+
 # ----------------------------------------------------------------
 
 
@@ -64,28 +66,33 @@ def get_authors(auth_str):
                 return (err_msg, [(0, _auth_str)])
             if after_auth:
                 auth_array.append(after_auth)
-            for auth in flist[0].split():
-                auth_array.append(auth)
+            auth_array.append(flist[0])
     else:
         auth_array.append(_auth_str)
 
     return (err_msg, list(enumerate(reversed(auth_array))))
 
+def evaluate_family(taxons):
+    '''Could be changed in future; we don't follow dry principle here!'''
+    res = taxon.split()
+    authors = get_authors(' '.join(res[1:]))
+    family = res[0]
+    return (family, authors)
 
-def evaluate_taxons(taxons, count=1):
-    result = []
-    for item in taxons:
-        splitted = item.split()
-        if len(splitted) == 1:
-            result.append((splitted[0].strip().lower(),
-                           get_authors('')))
-        else:
-            family = ' '.join(splitted[:count]).lower()
-            authors = get_authors(' '.join(splitted[count:]))
-            result.append((family, authors))
-    return result
+def evaluate_genus(taxons):
+    '''Could be changed in future; we don't follow dry principle here!'''
+    res = taxon.split()
+    authors = get_authors(' '.join(res[1:]))
+    genus = res[0]
+    return (genus, authors)
 
-
+def evaluate_species(taxons):
+    '''Could be changed in future; we don't follow dry principle here!'''
+    res = taxon.split()
+    authors = get_authors(' '.join(res[2:]))
+    species = res[1]
+    return (species, authors)        
+        
 def evaluate_dates(dates):
     '''Convert dates from strings to Python-date objects or leave unchanged if errors found.
     '''
@@ -118,3 +125,16 @@ def evaluate_dates(dates):
         cdate = date(year=year, day=day, month=cmonth)
         result.append(('', cdate))
     return result
+
+
+def evluate_herb_dataframe(df):
+    '''It is assumed the dataframe has valid set of column names'''
+    errmsgs = []
+    newdf = pd.DataFrame.from_dict([{key: None for key in df.columns}])
+    for ind, item in df.iterrows():
+        try:
+            evaluate_family(item['family'])
+        except: 
+            errmsgs
+            
+    # TODO: Not completed;

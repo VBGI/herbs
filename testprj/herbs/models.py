@@ -10,6 +10,8 @@ from django.utils.translation import gettext as _
 from django.utils.functional import cached_property
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from .utils import NECESSARY_DATA_COLUMNS
+
 
 # Geopositionfield need to be imported!
 
@@ -280,11 +282,12 @@ class HerbItem(MetaDataMixin):
 
 
 @python_2_unicode_compatible    
-class LoadPendingHerbs(HerbItem):
+class PendingHerbs(HerbItem):
     checked = models.BooleanField(default=False, verbose_name=_('проверено'))
+    err_msg = models.TextField(blank=True, default=True)
 
     class Meta:
-        db_table = 'herbs_loadpendingherbs'
+        db_table = 'herbs_loadpendingherbs' # TODO: Should be changed!!!
         verbose_name = _('загруженный гербарный образец') 
         verbose_name_plural = _('загруженные гербарные образцы')
 
@@ -299,7 +302,6 @@ class LoadedFiles(models.Model):
                                   null=True, blank=True, related_name='+',
                                   editable=False, verbose_name=_('создатель'))
 
-    
     def __str__(self):
         return os.path.basename(self.datafile.name) 
         
@@ -309,8 +311,39 @@ class LoadedFiles(models.Model):
         ordering = ('created', 'status', 'createdby')
 
 
-@receiver(post_save, sender=LoadedFiles)
-def evaluate_datafile(sender, instance, **kwargs):
-    herbfile = instance.datafile.open(mode='rb')
+@python_2_unicode_compatible
+class ErrorLog(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    message = models.TextField(blank=True, default='', editable=False)
     
+    def __str__(self):
+        return self.datafile.name
+    
+    class Meta:
+        verbose_name = _('Ошибки загрузки файлов')
+        verbose_name_plural = _('Ошибки загрузки файлов')
+
+
+@receiver(post_save, sender=LoadedFiles)
+def load_datafile(sender, instance, **kwargs):
+    herbfile = instance.datafile.open(mode='rb')
+    # Trying
+    filename, file_extension = os.path.splitext(herbfile.name)
+    if 'xls' in file_extension:
+        data = pd.read_xls(herbfile.name)
+        ccolumns = set(data.columns)
+        ncolumns = set(NECESSARY_DATA_COLUMNS)
+        res = ncolumns - ccolumns
+        if len(res) > 0:
+            fields = ','.join(['<%s>'%item for item in res])
+            errlog = ErrorLog(message='Поля %s отсутствуют в файле %s' % (fields, filename))
+            errlog.save()
+            return
+    elif 'zip' in file_extension:
+        # Evluation of a zip file
+        pass
+         
+     
+#     tempdir = tempfile.mkdtemp()
+#     zipfile = ZipFile()
         
