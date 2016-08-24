@@ -10,19 +10,27 @@ from .forms import (FamilyForm, GenusForm, HerbItemForm,
                     GenusAuthorshipForm, FamilyAuthorshipForm,  AuthorForm,
                     SpeciesForm, SpeciesAuthorshipForm
                     )
-from ajax_select.admin import AjaxSelectAdmin
+from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline
 
 class AuthorAdmin(admin.ModelAdmin):
     form = AuthorForm 
 
 
-class FamilyAuthorshipInline(admin.TabularInline):
+class FamilyAuthorshipInline(AjaxSelectAdminTabularInline):
+    form = FamilyAuthorshipForm
     model = FamilyAuthorship
     extra = 0
 
-class GenusAuthorshipInline(admin.TabularInline):
+class GenusAuthorshipInline(AjaxSelectAdminTabularInline):
+    form = GenusAuthorshipForm
     model = GenusAuthorship
     extra = 0
+
+class SpeciesAuthorshipInline(AjaxSelectAdminTabularInline):
+    form = SpeciesAuthorshipForm
+    model = SpeciesAuthorship
+    extra = 0
+
 
 class FamilyAdmin(admin.ModelAdmin):
     form = FamilyForm
@@ -41,7 +49,9 @@ class HerbItemAdmin(AjaxSelectAdmin):
     form = HerbItemForm
     list_display = ('get_full_name', 'gcode','itemcode','family', 'genus', 'species','collectors','collected_s')
     list_filter = ('public', 'family', 'genus', 'species')
-    
+    inlines = (
+        SpeciesAuthorshipInline,
+        )
     
 class LoadPendingHerbsAdmin(admin.ModelAdmin):
     model = LoadPendingHerbs

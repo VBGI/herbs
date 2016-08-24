@@ -236,11 +236,11 @@ class HerbItem(MetaDataMixin):
     itemcode = models.CharField(max_length=15, default='', verbose_name=_('код образца'))
 
     # position
-    country = models.CharField(default='', blank=True, max_length=2, verbose_name=_('страна'))
+    country = models.CharField(default='', blank=True, max_length=255, verbose_name=_('страна'))
     region = models.CharField(default='', blank=True, max_length=150, verbose_name=_('регион'))
     district = models.CharField(default='', blank=True, max_length=150, verbose_name=_('район'))
     detailed = models.CharField(default='', max_length=300, blank=True, verbose_name=_('дополнительно'))
-    place = GeopositionField(verbose_name=_('координаты'))
+    place = GeopositionField(verbose_name=_('координаты'), blank=True)
 
     # Ecological factors
     ecodescr = models.CharField(max_length=300, default='', blank=True, verbose_name=_('экоусловия'))

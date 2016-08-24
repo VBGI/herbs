@@ -257,6 +257,12 @@ AJAX_LOOKUP_CHANNELS = {
       'family': ('herbs.lookups', 'FamilyLookup'),
       'genus': ('herbs.lookups', 'GenusLookup'),
       'species': ('herbs.lookups', 'SpeciesLookup'),
+      'authorlookup': ('herbs.lookups', 'AuthorLookup'),
+      'country': ('herbs.lookups', 'CountryLookup'),
+      'region': ('herbs.lookups', 'RegionLookup'),
+      'district': ('herbs.lookups', 'DistrictLookup'),
+      'collectors': ('herbs.lookups', 'CollectorsLookup'),
+      'identifiers': ('herbs.lookups', 'IdentifiersLookup'),
       }
 
 
