@@ -157,13 +157,13 @@ def evluate_herb_dataframe(df):
         # -----------------------------------------                      
                     
         # -------- Species evaluations -------------
-        genusok = False
+        speciesok = False
         try:
             cspecies, cspauthors = evaluate_species(item['species'])
             if cspauthors[0]:
                 errmsgs[-1].append('Ошибка в строке %s в поле вид: %s' % (ind + 1, cspauthors[0]))
             else:
-                genusok = True    
+                speciesok = True    
         except: 
             errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
         # -----------------------------------------  
