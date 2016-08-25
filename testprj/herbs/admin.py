@@ -52,6 +52,7 @@ class HerbItemAdmin(AjaxSelectAdmin):
     inlines = (
         SpeciesAuthorshipInline,
         )
+    search_fields = ('itemcode', 'gcode', 'collectedby', 'identifiedby', 'family')
     
 class LoadPendingHerbsAdmin(admin.ModelAdmin):
     model = LoadPendingHerbs
