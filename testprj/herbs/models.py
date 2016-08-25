@@ -330,7 +330,7 @@ def load_datafile(sender, instance, **kwargs):
     # Trying
     filename, file_extension = os.path.splitext(herbfile.name)
     if 'xls' in file_extension:
-        data = pd.read_xls(herbfile.name)
+        data = pd.read_xls(herbfile.name) # TODO: if error, try catch... 
         ccolumns = set(data.columns)
         ncolumns = set(NECESSARY_DATA_COLUMNS)
         res = ncolumns - ccolumns

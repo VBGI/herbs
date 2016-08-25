@@ -129,12 +129,59 @@ def evaluate_dates(dates):
 
 def evluate_herb_dataframe(df):
     '''It is assumed the dataframe has valid set of column names'''
-    errmsgs = []
+    errmsgs = [[]]
     newdf = pd.DataFrame.from_dict([{key: None for key in df.columns}])
     for ind, item in df.iterrows():
+        # -------- Family evaluations -------------
+        familyok = False
         try:
-            evaluate_family(item['family'])
+            cfamily, cfauthors = evaluate_family(item['family'])
+            if cfauthors[0]:
+                errmsgs[-1].append('Ошибка в строке %s в поле семейство: %s' % (ind + 1, cfauthors[0]))
+            else:
+                familyok = True    
         except: 
-            errmsgs
+            errmsgs[-1].append('Ошибка в строке %s в поле семейство' % (ind + 1, ))
+        # -----------------------------------------    
+
+        # -------- Genus evaluations -------------
+        genusok = False
+        try:
+            cgenus, cgauthors = evaluate_genus(item['genus'])
+            if cgauthors[0]:
+                errmsgs[-1].append('Ошибка в строке %s в поле род: %s' % (ind + 1, cgauthors[0]))
+            else:
+                genusok = True    
+        except: 
+            errmsgs[-1].append('Ошибка в строке %s в поле род' % (ind + 1, ))
+        # -----------------------------------------                      
+                    
+        # -------- Species evaluations -------------
+        genusok = False
+        try:
+            cspecies, cspauthors = evaluate_species(item['species'])
+            if cspauthors[0]:
+                errmsgs[-1].append('Ошибка в строке %s в поле вид: %s' % (ind + 1, cspauthors[0]))
+            else:
+                genusok = True    
+        except: 
+            errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
+        # -----------------------------------------  
+
+        # -------- Unconditioned evaluations -------------
+        item['country'][:255]
+        item['region'][:255]
+        item['district'][:255]
+        item['place'][:255]
+        item['ecology'][:255]
+        item['height'][:255]
+        item['collectedby'][:255]
+        item['determinedby'][:255]
+        item['note'][:255]
+        
+        # conditioned fields.. .
+        #coordinates  height collected determined code1 code2 images        
+        
+        
             
     # TODO: Not completed;
