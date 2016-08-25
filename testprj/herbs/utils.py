@@ -30,7 +30,7 @@ monthes = {u'янв': 1,
 year_pat = re.compile('\d{4}')
 day_pat = re.compile('[\D]+(\d{1,2})[\D]+')
 
-NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    district    place    coordinates    height    ecology    collected    collectedby    determined    determinedby    note    code1    code2    images'.split()
+NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    district    place    coordinates    height    ecology    collected    collectedby    identified    identifiedby    detailed    itemcode    gcode    images'.split()
 
 # ----------------------------------------------------------------
 
@@ -196,34 +196,34 @@ def evluate_herb_dataframe(df):
         
         
         # --------- Code1 is a string of digits only  --------
-        code1ok = False
-        if unique_code_pat.match(item['code1'].strip()):
-            code1ok = True
-            ccode1 = item['code1'].strip()
+        itemcodeok = False
+        if unique_code_pat.match(item['itemcode'].strip()):
+            itemcodeok = True
+            itemcode = item['itemcode'].strip()
         else:
             errmsgs[-1].append('Ошибка в строке %s в поле уникальный код' % (ind + 1, ))
         # -----------------------------------------
         
         # --------- Code2 is a string of digits only  --------
-        code2ok = False
-        if unique_code_pat.match(item['code2'].strip()):
-            code2ok = True
-            ccode2 = item['code2'].strip()
+        gcodeok = False
+        if unique_code_pat.match(item['gcode'].strip()):
+            gcodeok = True
+            gcode = item['gcode'].strip()
         else:
             errmsgs[-1].append('Ошибка в строке %s в поле код раздела' % (ind + 1, ))
         
         # -----------------------------------------
         if familyok & genusok & speciesok & collectedok & detdok &\
-            code1ok & code2ok:
+            itemcodeok & gcodeok:
             result.append({'family': cfamily,
                        'family_auth': cfauthors,
                        'genus': cgenus,
                        'genus_auth': cgauthors,
                        'species': cspecies,
                        'species_auth': cspauthors,
-                       'code1': ccode1, 
-                       'code2': ccode2,
-                       'determined': detdate,
+                       'itemcode': itemcode, 
+                       'gcode': ccode2,
+                       'identified': detdate,
                        'collected': coldate,
                        'country': item['country'].strip(), 
                        'region': item['region'].strip(),
@@ -232,7 +232,7 @@ def evluate_herb_dataframe(df):
                        'ecology': item['ecology'].strip(),
                        'height': item['height'].strip(),
                        'collectedby': item['collectedby'].strip(),
-                       'daterminedby': item['daterminedby'].strip(),
+                       'identifiedby': item['identifiedby'].strip(),
                        'note': item['note'].strip(),
                        'height': item['height'].strip(),
                        'images': item['images'].strip()
