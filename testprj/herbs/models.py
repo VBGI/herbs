@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from django.utils.functional import cached_property
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .utils import NECESSARY_DATA_COLUMNS
+from .utils import NECESSARY_DATA_COLUMNS, evluate_herb_dataframe
 
 
 # Geopositionfield need to be imported!
@@ -18,6 +18,8 @@ from .utils import NECESSARY_DATA_COLUMNS
 # where image files will be uploaded 
 # HERB_IMG_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
 # HERB_DATA_UPLOADPATH = 'herbdata/%Y/%m/%d/'
+
+UPLOAD_MAX_FILE_SIZE = 5 * 10 ** 6 # 5 MB defualt
 
 def get_authorship_string(authors):
     result = ''
@@ -235,7 +237,7 @@ class HerbItem(MetaDataMixin):
 
     # item specific codes (used in the herbarium store)
     gcode = models.CharField(max_length=10, default='', verbose_name=_('код подраздела'))
-    itemcode = models.CharField(max_length=15, default='', verbose_name=_('код образца'))
+    itemcode = models.CharField(max_length=15, default='', verbose_name=_('код образца'), unique=True)
 
     # position
     country = models.CharField(default='', blank=True, max_length=255, verbose_name=_('страна'))
@@ -243,23 +245,35 @@ class HerbItem(MetaDataMixin):
     district = models.CharField(default='', blank=True, max_length=150, verbose_name=_('район'))
     detailed = models.CharField(default='', max_length=300, blank=True, verbose_name=_('дополнительно'))
     place = GeopositionField(verbose_name=_('координаты'), blank=True)
+    coordinates = models.CharField(default='', blank=True, verbose_name=_('Координаты (строка)'), max_length=30)
 
     # Ecological factors
     ecodescr = models.CharField(max_length=300, default='', blank=True, verbose_name=_('экоусловия'))
 
     # Collection items
-    collectors = models.CharField(max_length=500, default='', blank=True, verbose_name=_('сборщики')) 
+    collectedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('сборщики')) 
     collected_s = models.DateField(blank=True, verbose_name=_('начало сбора'))
     collected_e = models.DateField(blank=True, verbose_name=_('конец сбора'))
-    identifiers = models.CharField(max_length=500, default='', blank=True, verbose_name=_('определил(и)'))
+    identifiedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('определил(и)'))
     identified_s = models.DateField(blank=True, verbose_name=_('начало определения'))
     identified_e = models.DateField(blank=True, verbose_name=_('конец определения'))
+
+    uhash =  models.CharField(blank=True, default='', max_length=32, editabel=False)
+    
+    def _hash(self):
+        tohash = self.family.name + self.genus.name +\
+                 self.species.name + self.country +\
+                 self.region + self.district + self.detailed +\
+                 + self.ecodescr + self.collectors + str(self.collected_s) +\
+                 str(self.identified_s) + self.identifiers
+        return md5.md5(tohash).hexdigest()
 
     def save(self, *args, **kwargs):
         self.collectors = self.collectors.strip()
         self.identifiers = self.identifiers.strip()
         self.gcode = self.gcode.strip()
         self.itemcode = self.itemcode.strip()
+        self.uhash = self._hash()
         super(HerbItem, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -322,15 +336,23 @@ class ErrorLog(models.Model):
     class Meta:
         verbose_name = _('Ошибки загрузки файлов')
         verbose_name_plural = _('Ошибки загрузки файлов')
-
+        ordering = ('created', 'message')
 
 @receiver(post_save, sender=LoadedFiles)
 def load_datafile(sender, instance, **kwargs):
     herbfile = instance.datafile.open(mode='rb')
     # Trying
     filename, file_extension = os.path.splitext(herbfile.name)
+    
+    if herbfile.size > UPLOAD_MAX_FILE_SIZE:
+        ErrorLog.objects.create(message='Превышен допустимый размер файла (%s байт), файл: %s' % (herbfile.size, filename))
+        return
     if 'xls' in file_extension:
-        data = pd.read_xls(herbfile.name) # TODO: if error, try catch... 
+        try:
+            data = pd.read_xls(herbfile.name) # TODO: if error, try catch...
+        except:
+            ErrorLog.objects.create(message='Не удалось прочитать файл %s' % (filename,))
+            return
         ccolumns = set(data.columns)
         ncolumns = set(NECESSARY_DATA_COLUMNS)
         res = ncolumns - ccolumns
@@ -339,8 +361,64 @@ def load_datafile(sender, instance, **kwargs):
             errlog = ErrorLog(message='Поля %s отсутствуют в файле %s' % (fields, filename))
             errlog.save()
             return
+        result, errors = evluate_herb_dataframe(data)
+        for err in errors:
+            if len(err) > 0:
+                resmsg = ';'.join(err)
+                ErrorLog.objects.create(message=resmsg)
+        
+        if len(result) > 0:
+            # chekign hash for uniquess
+            for item in result:
+                familyobj, cc_ = Family.objects.get_or_create(name=item['family'])
+                for ind, auth in item['family_auth']:
+                    authorobj = Author.objects.get_or_create(name=auth) 
+                    FamilyAuthorship.objects.get_or_create(author=authorobj,
+                                                           priority=ind,
+                                                           family=familyobj)
+                
+                genusobj, cc_ = Genus.objects.get_or_create(name=item['genus'])
+                for ind, auth in item['genus_auth']:
+                    authorobj = Author.objects.get_or_create(name=auth) 
+                    GenusAuthorship.objects.get_or_create(author=authorobj,
+                                                          priority=ind,
+                                                          genus=genusobj)
+                
+                speciesobj, cc_ = Species.objects.get_or_create(name=item['species'])
+                for ind, auth in item['species_auth']:
+                    authorobj = Author.objects.get_or_create(name=auth) 
+                    SpeciesAuthorship.objects.get_or_create(author=authorobj,
+                                                            priority=ind,
+                                                            species=speciesobj)                
+            pobj = PendingHerbs(family=familyobj,
+                                genus=genusobj, 
+                                species=speciesobj,
+                                gcode=item['code2'],
+                                itemcode=item['itemcode'],
+                                identified_s=item['identified'],
+                                identified_e=item['identified'],
+                                identifiedby=item['identifiedby'],
+                                collectedby=item['collectedby'],
+                                collected_s=item['collected'],
+                                collected_e=item['collected'],
+                                country=item['country'],
+                                region=item['region'],
+                                district=item['district'],
+                                coordinates=item['coordinates'],
+                                ecodescr=item['ecology'],
+                                detailed=item['note'],
+                                height=item['height'])
+            if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
+                pobj.err_msg += 'Запись с номером %s уже существует;' % pboj.itemcode
+            pobj.save()   
+
+        # Create items that are validated (primarily state)
+                
+        # data evaluation step
+                
+        
     elif 'zip' in file_extension:
-        # Evluation of a zip file
+        # Evluation of a zip file, do nothing .. yet
         pass
          
      
