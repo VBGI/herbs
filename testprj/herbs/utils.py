@@ -8,6 +8,7 @@ import pandas as pd
 validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+$')
 parenthesis_pat = re.compile(r'\(([\sa-zA-Z\.\-]+)\)')
 after_parenthesis_pat = re.compile(r'\)([\sa-zA-Z\.\-]+)$')
+unique_code_pat = re.compile(r'\d{1,10}')
 # ----------------------------------------------------------------
 
 # ----------------Date manipulations -----------------------------
@@ -93,44 +94,42 @@ def evaluate_species(taxons):
     species = res[1]
     return (species, authors)        
         
-def evaluate_dates(dates):
-    '''Convert dates from strings to Python-date objects or leave unchanged if errors found.
+def evaluate_date(date):
+    '''Make str to date convertion.
     '''
-    result = []
-    for item in dates:
-        item_ = ' ' + unicode(item, 'utf-8') + ' '
-        year = year_pat.findall(item_)
-        if len(year) != 1:
-            result.append(('Year not found', item_))
-            continue
-        cmonth = None
-        for month in monthes.keys():
-            if month in item_:
-                cmonth = monthes[month]
-        if not cmonth:
-            result.append(('Month not found', item_))
-            continue
-        day = day_pat.findall(item_)
-        if len(day) != 1:
-            result.append(('Day not found', item_))
-            continue
-        day = int(day.pop())
-        year = int(year.pop())
-        if not (0 < day < 32): 
-            result.append(('Day not in range', item_))
-            continue 
-        if year > 2050 or year < 1500:
-            result.append(('Strange year', item_))
-            continue
-        cdate = date(year=year, day=day, month=cmonth)
-        result.append(('', cdate))
-    return result
+    item_ = ' ' + unicode(item, 'utf-8') + ' '
+    year = year_pat.findall(item_)
+    if len(year) != 1:
+        result = ('Year not found', item_)
+        return result 
+    cmonth = None
+    for month in monthes.keys():
+        if month in item_:
+            cmonth = monthes[month]
+    if not cmonth:
+        result = ('Month not found', item_)
+        return result 
+    day = day_pat.findall(item_)
+    if len(day) != 1:
+        result = ('Day not found', item_)
+        return result 
+    day = int(day.pop())
+    year = int(year.pop())
+    if not (0 < day < 32): 
+        result = ('Day not in range', item_)
+        return result 
+    if year > 2050 or year < 1500:
+        result = ('Strange year', item_)
+        return result
+    cdate = date(year=year, day=day, month=cmonth)
+    return ('', cdate)
+    
 
 
 def evluate_herb_dataframe(df):
     '''It is assumed the dataframe has valid set of column names'''
     errmsgs = [[]]
-    newdf = pd.DataFrame.from_dict([{key: None for key in df.columns}])
+    result = []
     for ind, item in df.iterrows():
         # -------- Family evaluations -------------
         familyok = False
@@ -168,20 +167,75 @@ def evluate_herb_dataframe(df):
             errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
         # -----------------------------------------  
 
-        # -------- Unconditioned evaluations -------------
-        item['country'][:255]
-        item['region'][:255]
-        item['district'][:255]
-        item['place'][:255]
-        item['ecology'][:255]
-        item['height'][:255]
-        item['collectedby'][:255]
-        item['determinedby'][:255]
-        item['note'][:255]
+
+        # -------- Collected evaluations -------------
         
-        # conditioned fields.. .
-        #coordinates  height collected determined code1 code2 images        
+        collectedok = False
+        try:
+            colmsg, coldate = evaluate_date(item['collected'])
+            if colmsg:
+                errmsgs[-1].append('Ошибка в строке %s в поле вид: %s' % (ind + 1, colmsg))
+            else:
+                collectedok = True    
+        except: 
+            errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
+        # -----------------------------------------
+
+        # -------- Determined evaluations -------------
+        
+        detdok = False
+        try:
+            detmsg, detdate = evaluate_date(item['determined'])
+            if detmsg:
+                errmsgs[-1].append('Ошибка в строке %s в поле вид: %s' % (ind + 1, detmsg))
+            else:
+                detdok = True
+        except: 
+            errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
+        # -----------------------------------------
         
         
-            
-    # TODO: Not completed;
+        # --------- Code1 is a string of digits only  --------
+        code1ok = False
+        if unique_code_pat.match(item['code1'].strip()):
+            code1ok = True
+            ccode1 = item['code1'].strip()
+        else:
+            errmsgs[-1].append('Ошибка в строке %s в поле уникальный код' % (ind + 1, ))
+        # -----------------------------------------
+        
+        # --------- Code2 is a string of digits only  --------
+        code2ok = False
+        if unique_code_pat.match(item['code2'].strip()):
+            code2ok = True
+            ccode2 = item['code2'].strip()
+        else:
+            errmsgs[-1].append('Ошибка в строке %s в поле код раздела' % (ind + 1, ))
+        
+        # -----------------------------------------
+        if familyok & genusok & speciesok & collectedok & detdok &\
+            code1ok & code2ok:
+            result.append({'family': cfamily,
+                       'family_auth': cfauthors,
+                       'genus': cgenus,
+                       'genus_auth': cgauthors,
+                       'species': cspecies,
+                       'species_auth': cspauthors,
+                       'code1': ccode1, 
+                       'code2': ccode2,
+                       'determined': detdate,
+                       'collected': coldate,
+                       'country': item['country'].strip(), 
+                       'region': item['region'].strip(),
+                       'district': item['district'].strip(),
+                       'coordinates': item['place'].strip(),
+                       'ecology': item['ecology'].strip(),
+                       'height': item['height'].strip(),
+                       'collectedby': item['collectedby'].strip(),
+                       'daterminedby': item['daterminedby'].strip(),
+                       'note': item['note'].strip(),
+                       'height': item['height'].strip(),
+                       'images': item['images'].strip()
+                       }
+                      )
+    return result, errmsgs
