@@ -36,10 +36,10 @@ class HerbItemForm(forms.ModelForm):
                 initial['region'] = latest.region
                 initial['district'] = latest.district
                 initial['ecodescr'] = latest.ecodescr
-                initial['collectors'] = latest.collectors
+                initial['collectedby'] = latest.collectedby
                 initial['collected_s'] = latest.collected_s
                 initial['collected_e'] = latest.collected_e
-                initial['identifiers'] = latest.identifiers
+                initial['identifiedby'] = latest.identifiedby
                 initial['identified_s'] = latest.identified_s
                 initial['identified_e'] = latest.identified_e
                 kwargs['initial'] = initial 
@@ -58,8 +58,8 @@ class HerbItemForm(forms.ModelForm):
     country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
     region =  AutoCompleteField('region', required=False, help_text=None, label=_("Регион"))
     district =  AutoCompleteField('district', required=False, help_text=None, label=_("Район"))
-    collectors =  AutoCompleteField('collectors', required=False, help_text=None, label=_("Собрали"))
-    identifiers =  AutoCompleteField('identifiers', required=False, help_text=None, label=_("Собрали"))
+    collectedby =  AutoCompleteField('collectedby', required=False, help_text=None, label=_("Собрали"))
+    identifiedby =  AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Собрали"))
 
 class SearchForm(forms.Form):
     '''Common search form for ajax requests
@@ -69,7 +69,7 @@ class SearchForm(forms.Form):
     species = forms.CharField(required=False, label=_('Вид'), max_length=30)
     itemcode = forms.CharField(required=False, label=_('Код1'), max_length=15)
     gcode = forms.CharField(required=False, label=_('Код2'), max_length=10)
-    collectors = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
+    collectedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     country = forms.CharField(required=False, label=_('Страна'), max_length=30)
     region = forms.CharField(required=False, label=_('Регион'), max_length=30)
 

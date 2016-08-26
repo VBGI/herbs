@@ -1,5 +1,6 @@
 #coding: utf-8
 import os
+import md5
 from imagekit.models import ProcessedImageField
 from django.utils.text import capfirst
 from django.db import models
@@ -10,8 +11,8 @@ from django.utils.translation import gettext as _
 from django.utils.functional import cached_property
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .utils import NECESSARY_DATA_COLUMNS, evluate_herb_dataframe
-
+from .utils import NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicode
+import pandas as pd
 
 # Geopositionfield need to be imported!
 
@@ -237,7 +238,7 @@ class HerbItem(MetaDataMixin):
 
     # item specific codes (used in the herbarium store)
     gcode = models.CharField(max_length=10, default='', verbose_name=_('код подраздела'))
-    itemcode = models.CharField(max_length=15, default='', verbose_name=_('код образца'), unique=True)
+    itemcode = models.CharField(max_length=15, default='', verbose_name=_('код образца'))
 
     # position
     country = models.CharField(default='', blank=True, max_length=255, verbose_name=_('страна'))
@@ -258,19 +259,19 @@ class HerbItem(MetaDataMixin):
     identified_s = models.DateField(blank=True, verbose_name=_('начало определения'))
     identified_e = models.DateField(blank=True, verbose_name=_('конец определения'))
 
-    uhash =  models.CharField(blank=True, default='', max_length=32, editabel=False)
+    uhash =  models.CharField(blank=True, default='', max_length=32, editable=False)
     
     def _hash(self):
         tohash = self.family.name + self.genus.name +\
                  self.species.name + self.country +\
                  self.region + self.district + self.detailed +\
-                 + self.ecodescr + self.collectors + str(self.collected_s) +\
-                 str(self.identified_s) + self.identifiers
-        return md5.md5(tohash).hexdigest()
+                 self.ecodescr + self.collectedby + str(self.collected_s) +\
+                 str(self.identified_s) + self.identifiedby
+        return md5.md5(tohash.encode('utf8')).hexdigest()
 
     def save(self, *args, **kwargs):
-        self.collectors = self.collectors.strip()
-        self.identifiers = self.identifiers.strip()
+        self.collectedby = self.collectedby.strip()
+        self.identifiedby = self.identifiedby.strip()
         self.gcode = self.gcode.strip()
         self.itemcode = self.itemcode.strip()
         self.uhash = self._hash()
@@ -331,34 +332,34 @@ class ErrorLog(models.Model):
     message = models.TextField(blank=True, default='', editable=False)
     
     def __str__(self):
-        return self.datafile.name
+        return self.message
     
     class Meta:
         verbose_name = _('Ошибки загрузки файлов')
         verbose_name_plural = _('Ошибки загрузки файлов')
-        ordering = ('created', 'message')
+        ordering = ('-created', 'message')
 
 @receiver(post_save, sender=LoadedFiles)
 def load_datafile(sender, instance, **kwargs):
-    herbfile = instance.datafile.open(mode='rb')
     # Trying
+    herbfile = instance.datafile
     filename, file_extension = os.path.splitext(herbfile.name)
-    
-    if herbfile.size > UPLOAD_MAX_FILE_SIZE:
-        ErrorLog.objects.create(message='Превышен допустимый размер файла (%s байт), файл: %s' % (herbfile.size, filename))
+    fsize = herbfile.size
+    if fsize > UPLOAD_MAX_FILE_SIZE:
+        ErrorLog.objects.create(message=u'Превышен допустимый размер файла (%s байт), файл: %s' % (fsize, filename))
         return
     if 'xls' in file_extension:
         try:
-            data = pd.read_xls(herbfile.name) # TODO: if error, try catch...
+            data = pd.read_excel(os.path.join(settings.MEDIA_ROOT, herbfile.name))
         except:
-            ErrorLog.objects.create(message='Не удалось прочитать файл %s' % (filename,))
+            ErrorLog.objects.create(message=u'Не удалось прочитать файл %s' % (herbfile.name,))
             return
         ccolumns = set(data.columns)
         ncolumns = set(NECESSARY_DATA_COLUMNS)
         res = ncolumns - ccolumns
         if len(res) > 0:
             fields = ','.join(['<%s>'%item for item in res])
-            errlog = ErrorLog(message='Поля %s отсутствуют в файле %s' % (fields, filename))
+            errlog = ErrorLog(message=u'Поля %s отсутствуют в файле %s' % (fields, herbfile.name))
             errlog.save()
             return
         result, errors = evluate_herb_dataframe(data)
@@ -371,25 +372,25 @@ def load_datafile(sender, instance, **kwargs):
             # chekign hash for uniquess
             for item in result:
                 familyobj, cc_ = Family.objects.get_or_create(name=item['family'])
-                for ind, auth in item['family_auth']:
-                    authorobj = Author.objects.get_or_create(name=auth) 
+                for ind, auth in item['family_auth'][1]:
+                    authorobj, cc_ = Author.objects.get_or_create(name=auth) 
                     FamilyAuthorship.objects.get_or_create(author=authorobj,
                                                            priority=ind,
                                                            family=familyobj)
                 
                 genusobj, cc_ = Genus.objects.get_or_create(name=item['genus'])
-                for ind, auth in item['genus_auth']:
-                    authorobj = Author.objects.get_or_create(name=auth) 
+                for ind, auth in item['genus_auth'][1]:
+                    authorobj, cc_ = Author.objects.get_or_create(name=auth) 
                     GenusAuthorship.objects.get_or_create(author=authorobj,
                                                           priority=ind,
                                                           genus=genusobj)
                 
                 speciesobj, cc_ = Species.objects.get_or_create(name=item['species'])
-                for ind, auth in item['species_auth']:
-                    authorobj = Author.objects.get_or_create(name=auth) 
+                for ind, auth in item['species_auth'][1]:
+                    authorobj, cc_ = Author.objects.get_or_create(name=auth) 
                     SpeciesAuthorship.objects.get_or_create(author=authorobj,
                                                             priority=ind,
-                                                            species=speciesobj)                
+                                                            species=speciesobj)
             pobj = PendingHerbs(family=familyobj,
                                 genus=genusobj, 
                                 species=speciesobj,
@@ -415,8 +416,6 @@ def load_datafile(sender, instance, **kwargs):
         # Create items that are validated (primarily state)
                 
         # data evaluation step
-                
-        
     elif 'zip' in file_extension:
         # Evluation of a zip file, do nothing .. yet
         pass

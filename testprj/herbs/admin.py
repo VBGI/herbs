@@ -4,8 +4,9 @@ from django.contrib import admin
 
 
 from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
-                     SpeciesAuthorship, LoadPendingHerbs,
-                     Author, HerbItem, Species, LoadedFiles)
+                     SpeciesAuthorship, PendingHerbs,
+                     Author, HerbItem, Species, LoadedFiles,
+                     ErrorLog)
 from .forms import (FamilyForm, GenusForm, HerbItemForm,
                     GenusAuthorshipForm, FamilyAuthorshipForm,  AuthorForm,
                     SpeciesForm, SpeciesAuthorshipForm
@@ -32,7 +33,7 @@ class GenusAuthorshipInline(AjaxSelectAdminTabularInline):
 class SpeciesAuthorshipInline(AjaxSelectAdminTabularInline):
     form = SpeciesAuthorshipForm
     model = SpeciesAuthorship
-    extra = 0
+    extra = 1
 
 
 class FamilyAdmin(admin.ModelAdmin):
@@ -50,16 +51,16 @@ class GenusAdmin(admin.ModelAdmin):
 
 class HerbItemAdmin(AjaxSelectAdmin):
     form = HerbItemForm
-    list_display = ('get_full_name', 'gcode','itemcode','family', 'genus', 'species','collectors','collected_s')
+    list_display = ('get_full_name', 'gcode','itemcode','family', 'genus', 'species', 'collectedby', 'collected_s')
     list_filter = ('public', 'family', 'genus', 'species')
     inlines = (
         SpeciesAuthorshipInline,
         )
-    search_fields = ('itemcode', 'gcode', 'collectedby', 'identifiedby', 'family')
+    search_fields = ('itemcode', 'gcode', 'collectedby', 'identifiedby', 'family__name', 'genus__name')
     
-class LoadPendingHerbsAdmin(admin.ModelAdmin):
-    model = LoadPendingHerbs
-    list_display = ('get_full_name', 'checked','itemcode','family', 'genus', 'species','collectors','collected_s')
+class PendingHerbsAdmin(admin.ModelAdmin):
+    model = PendingHerbs
+    list_display = ('get_full_name', 'checked','itemcode','family', 'genus', 'species','collectedby','collected_s')
     list_filter = ('public', 'family', 'genus', 'species')
 
 
@@ -71,11 +72,19 @@ class LoadedFilesAdmin(admin.ModelAdmin):
 class SpeciesAdmin(admin.ModelAdmin): 
     form = SpeciesForm
 
+class ErrorLogAdmin(admin.ModelAdmin):
+    list_display = ('message', 'created')
+    readonly_fields = ('message', 'created')
+#     def show_messages(self, obj):
+#         return '<a href="%s">%s</a>' % (obj.firm_url, obj.firm_url)
+#     show_firm_url.allow_tags = True    
+
 
 admin.site.register(Family, FamilyAdmin)
 admin.site.register(Genus, GenusAdmin)
 admin.site.register(HerbItem, HerbItemAdmin)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Species, SpeciesAdmin)
-admin.site.register(LoadPendingHerbs, LoadPendingHerbsAdmin)
+admin.site.register(PendingHerbs, PendingHerbsAdmin)
 admin.site.register(LoadedFiles, LoadedFilesAdmin)
+admin.site.register(ErrorLog, ErrorLogAdmin)

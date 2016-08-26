@@ -13,19 +13,19 @@ unique_code_pat = re.compile(r'\d{1,10}')
 
 # ----------------Date manipulations -----------------------------
 
-monthes = {u'янв': 1,
-           u'фев': 2,
-           u'мар': 3, 
-           u'апр': 4, 
-           u'май': 5,
-           u'мая': 5,
-           u'июн': 6,
-           u'июл': 7,
-           u'авг': 8,
-           u'сен': 9,
-           u'окт': 10,
-           u'ноя': 11,
-           u'дек': 12
+monthes = {'янв': 1,
+           'фев': 2,
+           'мар': 3, 
+           'апр': 4, 
+           'май': 5,
+           'мая': 5,
+           'июн': 6,
+           'июл': 7,
+           'авг': 8,
+           'сен': 9,
+           'окт': 10,
+           'ноя': 11,
+           'дек': 12
            }
 year_pat = re.compile('\d{4}')
 day_pat = re.compile('[\D]+(\d{1,2})[\D]+')
@@ -34,6 +34,11 @@ NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    dis
 
 # ----------------------------------------------------------------
 
+def smart_unicode(s):
+    if type(s) is unicode:
+        return s.encode('utf-8')
+    else:
+        return str(s)
 
 def get_authors(auth_str):
     '''Evaluates an `author string` and returns list of authors and priorities 
@@ -73,35 +78,35 @@ def get_authors(auth_str):
 
     return (err_msg, list(enumerate(reversed(auth_array))))
 
-def evaluate_family(taxons):
+def evaluate_family(taxon):
     '''Could be changed in future; we don't follow dry principle here!'''
     res = taxon.split()
     authors = get_authors(' '.join(res[1:]))
     family = res[0]
     return (family, authors)
 
-def evaluate_genus(taxons):
+def evaluate_genus(taxon):
     '''Could be changed in future; we don't follow dry principle here!'''
     res = taxon.split()
     authors = get_authors(' '.join(res[1:]))
     genus = res[0]
     return (genus, authors)
 
-def evaluate_species(taxons):
+def evaluate_species(taxon):
     '''Could be changed in future; we don't follow dry principle here!'''
     res = taxon.split()
     authors = get_authors(' '.join(res[2:]))
     species = res[1]
     return (species, authors)        
         
-def evaluate_date(date):
+def evaluate_date(item):
     '''Make str to date convertion.
     '''
-    item_ = ' ' + unicode(item, 'utf-8') + ' '
+    item_ = ' ' + item + ' '
     year = year_pat.findall(item_)
     if len(year) != 1:
         result = ('Year not found', item_)
-        return result 
+        return result
     cmonth = None
     for month in monthes.keys():
         if month in item_:
@@ -131,6 +136,7 @@ def evluate_herb_dataframe(df):
     errmsgs = [[]]
     result = []
     for ind, item in df.iterrows():
+        item = {key: smart_unicode(item[key])  for key in item.keys()}
         # -------- Family evaluations -------------
         familyok = False
         try:
@@ -162,55 +168,56 @@ def evluate_herb_dataframe(df):
             if cspauthors[0]:
                 errmsgs[-1].append('Ошибка в строке %s в поле вид: %s' % (ind + 1, cspauthors[0]))
             else:
-                speciesok = True    
+                speciesok = True
         except: 
             errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
         # -----------------------------------------  
 
 
         # -------- Collected evaluations -------------
-        
         collectedok = False
         try:
             colmsg, coldate = evaluate_date(item['collected'])
             if colmsg:
-                errmsgs[-1].append('Ошибка в строке %s в поле вид: %s' % (ind + 1, colmsg))
+                errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора": %s' % (ind + 1, colmsg))
             else:
                 collectedok = True    
         except: 
-            errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
+            errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора"' % (ind + 1, ))
         # -----------------------------------------
 
         # -------- Determined evaluations -------------
         
         detdok = False
+        
         try:
-            detmsg, detdate = evaluate_date(item['determined'])
+            detmsg, detdate = evaluate_date(item['identified'])
             if detmsg:
-                errmsgs[-1].append('Ошибка в строке %s в поле вид: %s' % (ind + 1, detmsg))
+                errmsgs[-1].append('Ошибка в строке %s в поле дата определения: %s' % (ind + 1, detmsg))
             else:
                 detdok = True
         except: 
-            errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
+            errmsgs[-1].append('Ошибка в строке %s в поле дата определения' % (ind + 1, ))
         # -----------------------------------------
         
         
         # --------- Code1 is a string of digits only  --------
         itemcodeok = False
-        if unique_code_pat.match(item['itemcode'].strip()):
+        if unique_code_pat.match(str(item['itemcode']).strip()):
             itemcodeok = True
-            itemcode = item['itemcode'].strip()
+            itemcode = str(item['itemcode']).strip()
         else:
             errmsgs[-1].append('Ошибка в строке %s в поле уникальный код' % (ind + 1, ))
         # -----------------------------------------
         
         # --------- Code2 is a string of digits only  --------
         gcodeok = False
-        if unique_code_pat.match(item['gcode'].strip()):
+        if unique_code_pat.match(str(item['gcode']).strip()):
             gcodeok = True
-            gcode = item['gcode'].strip()
+            gcode = str(item['gcode']).strip()
         else:
             errmsgs[-1].append('Ошибка в строке %s в поле код раздела' % (ind + 1, ))
+        
         
         # -----------------------------------------
         if familyok & genusok & speciesok & collectedok & detdok &\
@@ -222,7 +229,7 @@ def evluate_herb_dataframe(df):
                        'species': cspecies,
                        'species_auth': cspauthors,
                        'itemcode': itemcode, 
-                       'gcode': ccode2,
+                       'gcode': gcode,
                        'identified': detdate,
                        'collected': coldate,
                        'country': item['country'].strip(), 
@@ -233,7 +240,7 @@ def evluate_herb_dataframe(df):
                        'height': item['height'].strip(),
                        'collectedby': item['collectedby'].strip(),
                        'identifiedby': item['identifiedby'].strip(),
-                       'note': item['note'].strip(),
+                       'detailed': item['detailed'].strip(),
                        'height': item['height'].strip(),
                        'images': item['images'].strip()
                        }

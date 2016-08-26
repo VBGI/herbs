@@ -59,8 +59,6 @@ def showherbs(request):
         pass
 
 
-
-
 class ShowHerbitems(ListView):
     model = HerbItem
     template_name = 'herbs/herbitemtable.html'
@@ -71,16 +69,10 @@ class ShowHerbitems(ListView):
         if not  self.request.is_ajax():
             return HerbItem.objects.all()
         page = self.request.POST.get('page','1')
-        
-
-        
         # extended search components
         sortfields = request.POST.get('sortfield', 'default')
         gcode = request.POST.get('gcode', '')
         itemcode = request.POST.get('itemcode', '')
-        
-        
-
         
         return object_filtered
  

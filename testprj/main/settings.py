@@ -261,8 +261,8 @@ AJAX_LOOKUP_CHANNELS = {
       'country': ('herbs.lookups', 'CountryLookup'),
       'region': ('herbs.lookups', 'RegionLookup'),
       'district': ('herbs.lookups', 'DistrictLookup'),
-      'collectors': ('herbs.lookups', 'CollectorsLookup'),
-      'identifiers': ('herbs.lookups', 'IdentifiersLookup'),
+      'collectedby': ('herbs.lookups', 'CollectorsLookup'),
+      'identifiedby': ('herbs.lookups', 'IdentifiersLookup'),
       }
 
 

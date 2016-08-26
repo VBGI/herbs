@@ -79,36 +79,36 @@ class DistrictLookup(LookupChannel):
     
     
     
-@register('collectors')
+@register('collectedby')
 class CollectorsLookup(LookupChannel):
     
     def get_query(self, q, request):
-        return HerbItem.objects.filter(collectors__icontains=q).order_by('updated', 'collectors')[:20]
+        return HerbItem.objects.filter(collectedby__icontains=q).order_by('updated', 'collectedby')[:20]
 
     def format_match(self, obj):
-        return escape(force_text(obj.collectors))
+        return escape(force_text(obj.collectedby))
     
     def get_result(self, obj):
-        return escape(force_text(obj.collectors))
+        return escape(force_text(obj.collectedby))
     
     def format_item_display(self, obj):
-        return escape(force_text(obj.collectors))
+        return escape(force_text(obj.collectedby))
     
 
     
-@register('identifiers')
+@register('identifiedby')
 class IdentifiersLookup(LookupChannel):
     
     def get_query(self, q, request):
-        return HerbItem.objects.filter(identifiers__icontains=q).order_by('updated', 'identifiers')[:20]
+        return HerbItem.objects.filter(identifiedby__icontains=q).order_by('updated', 'identifiedby')[:20]
 
     def format_match(self, obj):
-        return escape(force_text(obj.identifiers))
+        return escape(force_text(obj.identifiedby))
     
     def get_result(self, obj):
-        return escape(force_text(obj.identifiers))
+        return escape(force_text(obj.identifiedby))
     
     def format_item_display(self, obj):
-        return escape(force_text(obj.identifiers))    
+        return escape(force_text(obj.identifiedby))    
     
           
