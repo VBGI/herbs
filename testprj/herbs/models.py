@@ -129,7 +129,7 @@ class SpeciesAuthorship(models.Model):
                                on_delete=models.CASCADE,
                                blank=True,
                                verbose_name=_('автор'))
-    herbitem = models.ForeignKey('HerbItem', on_delete=models.CASCADE,
+    species = models.ForeignKey('Species', on_delete=models.CASCADE,
                                  verbose_name=_('гербарный образец'))
     priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
 
@@ -385,7 +385,7 @@ def load_datafile(sender, instance, **kwargs):
                                                           priority=ind,
                                                           genus=genusobj)
                 
-                speciesobj, cc_ = Species.objects.get_or_create(name=item['species'])
+                speciesobj = Species.objects.create(name=item['species'])
                 for ind, auth in item['species_auth'][1]:
                     authorobj, cc_ = Author.objects.get_or_create(name=auth) 
                     SpeciesAuthorship.objects.get_or_create(author=authorobj,
