@@ -1,6 +1,6 @@
 #coding: utf-8
 import os
-import md5
+from hashlib import md5
 from imagekit.models import ProcessedImageField
 from django.utils.text import capfirst
 from django.db import models
@@ -123,28 +123,6 @@ class GenusAuthorship(models.Model):
 
 
 @python_2_unicode_compatible
-class SpeciesAuthorship(models.Model):
-    author = models.ForeignKey(Author,
-                               null=True,
-                               on_delete=models.CASCADE,
-                               blank=True,
-                               verbose_name=_('автор'))
-    species = models.ForeignKey('Species', on_delete=models.CASCADE,
-                                 verbose_name=_('гербарный образец'))
-    priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
-
-    def __str__(self):
-        return str(self.author) + (' %s' % self.priority if self.priority > 0 else '') 
-
-    def get_name(self):
-        return capfirst(self.author.name)
-
-    class Meta:
-        verbose_name = _('авторство')
-        verbose_name_plural = _('авторство')
-
-
-@python_2_unicode_compatible
 class Family(models.Model):
     name = models.CharField(max_length=30, default='',
                             verbose_name=_('название'))
@@ -223,6 +201,27 @@ class HerbSnapshot(models.Model):
 
 
 @python_2_unicode_compatible
+class SpeciesAuthorship(models.Model):
+    author = models.ForeignKey(Author,
+                               null=True,
+                               on_delete=models.CASCADE,
+                               blank=True,
+                               verbose_name=_('автор'))
+    species = models.ForeignKey(Species, on_delete=models.CASCADE,
+                                 verbose_name=_('вид'))
+    priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
+
+    def __str__(self):
+        return str(self.author) + (' %s' % self.priority if self.priority > 0 else '') 
+
+    def get_name(self):
+        return capfirst(self.author.name)
+
+    class Meta:
+        verbose_name = _('авторство')
+        verbose_name_plural = _('авторство')
+
+@python_2_unicode_compatible
 class HerbItem(MetaDataMixin):
     family = models.ForeignKey(Family,
                                on_delete=models.SET_NULL,
@@ -232,9 +231,6 @@ class HerbItem(MetaDataMixin):
                               verbose_name=_('род'))
     species = models.ForeignKey(Species, on_delete=models.SET_NULL, null=True,
                                 verbose_name=_('вид'))
-    authorship = models.ManyToManyField(Author, blank=True,
-                                        null=True, through=SpeciesAuthorship,
-                                        verbose_name=_('авторство'))
 
     # item specific codes (used in the herbarium store)
     gcode = models.CharField(max_length=10, default='', verbose_name=_('код подраздела'))
@@ -267,7 +263,7 @@ class HerbItem(MetaDataMixin):
                  self.region + self.district + self.detailed +\
                  self.ecodescr + self.collectedby + str(self.collected_s) +\
                  str(self.identified_s) + self.identifiedby
-        return md5.md5(tohash.encode('utf8')).hexdigest()
+        return md5(tohash.encode('utf8')).hexdigest()
 
     def save(self, *args, **kwargs):
         self.collectedby = self.collectedby.strip()
