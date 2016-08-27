@@ -190,7 +190,7 @@ INSTALLED_APPS = [
     'cms.plugins.twitter',
     'cms.plugins.video',
     'south',
-    'reversion',
+#    'reversion',
     'main',
     'herbs',
     'ajax_select'

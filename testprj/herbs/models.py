@@ -1,25 +1,27 @@
 #coding: utf-8
-import os
 from hashlib import md5
+import os
+
 from imagekit.models import ProcessedImageField
-from django.utils.text import capfirst
-from django.db import models
+
 from django.conf import settings
-from geoposition.fields import GeopositionField
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import gettext as _
-from django.utils.functional import cached_property
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .utils import NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicode
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
+from django.utils.text import capfirst
+from django.utils.translation import gettext as _
+from geoposition.fields import GeopositionField
 import pandas as pd
 
-# Geopositionfield need to be imported!
+from .utils import NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicode
 
+
+# Geopositionfield need to be imported!
 # where image files will be uploaded 
 # HERB_IMG_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
 # HERB_DATA_UPLOADPATH = 'herbdata/%Y/%m/%d/'
-
 UPLOAD_MAX_FILE_SIZE = 5 * 10 ** 6 # 5 MB defualt
 
 def get_authorship_string(authors):
@@ -145,7 +147,7 @@ class Family(models.Model):
             author_string = ''
         return self.name + author_string
     get_full_name.short_description = _('полное имя семейства')
-    
+
     class Meta:
         verbose_name = _('название семейства')
         verbose_name_plural = _('названия семейств')    
@@ -155,7 +157,7 @@ class Family(models.Model):
 class Genus(models.Model):
     name = models.CharField(max_length=30, default='', verbose_name=_('название'))
     authorship = models.ManyToManyField(Author, blank=True, null=True, through=GenusAuthorship, verbose_name=_('авторство'))
-    
+
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower()
         super(Genus, self).save(*args, **kwargs)
@@ -176,38 +178,14 @@ class Genus(models.Model):
         verbose_name = _('название рода')
         verbose_name_plural = _('названия родов')
 
-
-@python_2_unicode_compatible
-class Species(models.Model):
-    name = models.CharField(max_length=30, default='')
-    def save(self, *args, **kwargs):
-        self.name = self.name.strip().lower()
-        super(Species, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = _('название вида')
-        verbose_name_plural = _('названия видов')
-
-
-class HerbSnapshot(models.Model):
-    image = ProcessedImageField(upload_to=settings.HERB_IMG_UPLOADPATH,
-                                      format='JPEG',
-                                      options={'quality': 90})
-    models.ForeignKey('HerbItem', null=True, on_delete=models.SET_NULL, related_name='snapshots')
-    date = models.DateTimeField(auto_now=True)
-
-
 @python_2_unicode_compatible
 class SpeciesAuthorship(models.Model):
-    author = models.ForeignKey(Author,
+    author = models.ForeignKey('Author',
                                null=True,
                                on_delete=models.CASCADE,
                                blank=True,
                                verbose_name=_('автор'))
-    species = models.ForeignKey(Species, on_delete=models.CASCADE,
+    species = models.ForeignKey('Species', on_delete=models.CASCADE,
                                  verbose_name=_('вид'))
     priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
 
@@ -220,6 +198,42 @@ class SpeciesAuthorship(models.Model):
     class Meta:
         verbose_name = _('авторство')
         verbose_name_plural = _('авторство')
+
+@python_2_unicode_compatible
+class Species(models.Model):
+    name = models.CharField(max_length=30, default='', verbose_name=_('название вида'))
+    genus = models.ForeignKey(Genus, null=False, blank=False, verbose_name=_('род'))
+    authorship = models.ManyToManyField(Author, blank=True, null=True,
+                                        through=SpeciesAuthorship,
+                                        verbose_name=_('авторство'))
+    def save(self, *args, **kwargs):
+        self.name = self.name.strip().lower()
+        super(Species, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return capfirst(self.get_full_name())
+
+    class Meta:
+        verbose_name = _('название вида')
+        verbose_name_plural = _('названия видов')
+
+    def get_full_name(self):
+        authors = [x for x in SpeciesAuthorship.objects.filter(species=self).order_by('priority')]
+        if len(authors) > 0:
+            author_string = ' ' + get_authorship_string(authors)
+        else:
+            author_string = ''
+        return self.name +self.genus.name + author_string
+    get_full_name.short_description = _('полное имя вида')
+
+class HerbSnapshot(models.Model):
+    image = ProcessedImageField(upload_to=settings.HERB_IMG_UPLOADPATH,
+                                      format='JPEG',
+                                      options={'quality': 90})
+    models.ForeignKey('HerbItem', null=True, on_delete=models.SET_NULL, related_name='snapshots')
+    date = models.DateTimeField(auto_now=True)
+
+
 
 @python_2_unicode_compatible
 class HerbItem(MetaDataMixin):
