@@ -2,8 +2,6 @@
 from hashlib import md5
 import os
 
-from imagekit.models import ProcessedImageField
-
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
@@ -54,10 +52,29 @@ class MetaDataMixin(models.Model):
                                   null=True, blank=True, related_name='+',
                                   editable=False, verbose_name=_('обновил'))
     public = models.BooleanField(default=False, verbose_name=_('опубликовано'))
-    
-    class Meta:
-        abstract = True 
 
+    class Meta:
+        abstract = True
+
+
+class AuthorshipMixin(models.Model):
+    author = models.ForeignKey('Author',
+                               null=True,
+                               on_delete=models.CASCADE,
+                               blank=True,
+                               verbose_name=_('автор'))
+    priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
+
+    def __str__(self):
+        return str(self.author) + (' %s' % self.priority if self.priority > 0 else '') 
+
+    def get_name(self):
+        return capfirst(self.author.name) if self.author else ''
+
+    class Meta:
+        verbose_name = _('авторство')
+        verbose_name_plural = _('авторство')    
+        abstract = True
 
 @python_2_unicode_compatible
 class Author(models.Model):
@@ -71,9 +88,9 @@ class Author(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def get_name(self):
-        return capfirst(self.name)
+        return capfirst(self.name) if self.name else ''
 
     class Meta:
         verbose_name = _('автор')
@@ -81,48 +98,14 @@ class Author(models.Model):
 
 
 @python_2_unicode_compatible
-class FamilyAuthorship(models.Model):
-    author = models.ForeignKey(Author,
-                               null=True,
-                               on_delete=models.CASCADE,
-                               blank=True,
-                               verbose_name=_('автор'))
+class FamilyAuthorship(AuthorshipMixin):
     family = models.ForeignKey('Family', on_delete=models.CASCADE, verbose_name=_('семейство'))
-    priority = models.IntegerField(default=0, verbose_name=_('приоритет'), 
-                                   help_text=_('низкий приоритет  соответствует более старой номенклатуре'))
-
-    def __str__(self):
-        return str(self.author) + (' %s' % self.priority if self.priority > 0 else '') 
-
-    def get_name(self):
-        return capfirst(self.author.name)
-
-    class Meta:
-        verbose_name = _('авторство')
-        verbose_name_plural = _('авторство')
 
 
 @python_2_unicode_compatible
-class GenusAuthorship(models.Model):
-    author = models.ForeignKey(Author,
-                               null=True,
-                               on_delete=models.CASCADE,
-                               blank=True,
-                               verbose_name=_('автор'))
+class GenusAuthorship(AuthorshipMixin):
     genus = models.ForeignKey('Genus', on_delete=models.CASCADE,
                               verbose_name=_('род'))
-    priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
-
-    def __str__(self):
-        return str(self.author) + (' %s' % self.priority if self.priority > 0 else '') 
-
-    def get_name(self):
-        return capfirst(self.author.name)
-
-    class Meta:
-        verbose_name = _('авторство')
-        verbose_name_plural = _('авторство')
-
 
 @python_2_unicode_compatible
 class Family(models.Model):
@@ -133,6 +116,7 @@ class Family(models.Model):
                                         verbose_name=_('авторство'))
 
     def save(self, *args, **kwargs):
+        print self.name
         self.name = self.name.strip().lower()
         super(Family, self).save(*args, **kwargs)
 
@@ -178,27 +162,12 @@ class Genus(models.Model):
         verbose_name = _('название рода')
         verbose_name_plural = _('названия родов')
 
+
 @python_2_unicode_compatible
-class SpeciesAuthorship(models.Model):
-    author = models.ForeignKey('Author',
-                               null=True,
-                               on_delete=models.CASCADE,
-                               blank=True,
-                               verbose_name=_('автор'))
+class SpeciesAuthorship(AuthorshipMixin):
     species = models.ForeignKey('Species', on_delete=models.CASCADE,
                                  verbose_name=_('вид'))
-    priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
-
-    def __str__(self):
-        return str(self.author) + (' %s' % self.priority if self.priority > 0 else '') 
-
-    def get_name(self):
-        return capfirst(self.author.name)
-
-    class Meta:
-        verbose_name = _('авторство')
-        verbose_name_plural = _('авторство')
-
+ 
 @python_2_unicode_compatible
 class Species(models.Model):
     name = models.CharField(max_length=30, default='', verbose_name=_('название вида'))
@@ -223,16 +192,8 @@ class Species(models.Model):
             author_string = ' ' + get_authorship_string(authors)
         else:
             author_string = ''
-        return self.name +self.genus.name + author_string
+        return self.genus.name + ' ' + self.name + author_string
     get_full_name.short_description = _('полное имя вида')
-
-class HerbSnapshot(models.Model):
-    image = ProcessedImageField(upload_to=settings.HERB_IMG_UPLOADPATH,
-                                      format='JPEG',
-                                      options={'quality': 90})
-    models.ForeignKey('HerbItem', null=True, on_delete=models.SET_NULL, related_name='snapshots')
-    date = models.DateTimeField(auto_now=True)
-
 
 
 @python_2_unicode_compatible
@@ -263,17 +224,17 @@ class HerbItem(MetaDataMixin):
 
     # Collection items
     collectedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('сборщики')) 
-    collected_s = models.DateField(blank=True, verbose_name=_('начало сбора'))
-    collected_e = models.DateField(blank=True, verbose_name=_('конец сбора'))
+    collected_s = models.DateField(blank=True, verbose_name=_('начало сбора'), null=True)
+    collected_e = models.DateField(blank=True, verbose_name=_('конец сбора'), null=True)
     identifiedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('определил(и)'))
-    identified_s = models.DateField(blank=True, verbose_name=_('начало определения'))
-    identified_e = models.DateField(blank=True, verbose_name=_('конец определения'))
+    identified_s = models.DateField(blank=True, verbose_name=_('начало определения'), null=True)
+    identified_e = models.DateField(blank=True, verbose_name=_('конец определения'), null=True)
 
     uhash =  models.CharField(blank=True, default='', max_length=32, editable=False)
-    
+
     def _hash(self):
-        tohash = self.family.name + self.genus.name +\
-                 self.species.name + self.country +\
+        tohash = self.family.name +\
+                 str(self.species) + self.country +\
                  self.region + self.district + self.detailed +\
                  self.ecodescr + self.collectedby + str(self.collected_s) +\
                  str(self.identified_s) + self.identifiedby
@@ -291,14 +252,17 @@ class HerbItem(MetaDataMixin):
         return capfirst(self.get_full_name())
 
     def get_full_name(self):
-        authors = [x for x in  SpeciesAuthorship.objects.filter(herbitem=self).order_by('priority')]
+        print self.genus.name
+        authors = [x for x in SpeciesAuthorship.objects.filter(species=self.species,
+                                                               species__genus=self.genus).order_by('priority')]
         if len(authors) > 0:
             author_string = ' ' + get_authorship_string(authors)
         else:
             author_string = ''
-        return capfirst(self.genus.name) + ' ' + self.species.name + author_string
+        return (capfirst(self.genus.name) if self.genus else '') +\
+            ' ' + (self.species.name if self.species else '') + author_string
     get_full_name.short_description = _('полное имя вида')
-    
+
     class Meta:
         abstract = False
         verbose_name = _('гербарный образeц')
@@ -329,7 +293,7 @@ class LoadedFiles(models.Model):
 
     def __str__(self):
         return os.path.basename(self.datafile.name) 
-        
+
     class Meta:
         verbose_name = _('Файл с данными')
         verbose_name_plural = _('Файлы с данными')
@@ -424,7 +388,7 @@ def load_datafile(sender, instance, **kwargs):
             pobj.save()   
 
         # Create items that are validated (primarily state)
-                
+
         # data evaluation step
     elif 'zip' in file_extension:
         # Evluation of a zip file, do nothing .. yet

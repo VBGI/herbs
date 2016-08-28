@@ -247,8 +247,10 @@ DATABASES = {
         'PASSWORD': '',
         'PORT': '',
         'USER': ''
-    }
+    },
+
 }
+
 
 AJAX_LOOKUP_CHANNELS = {
       # auto-create a channel named 'person' that searches by name on the model Person

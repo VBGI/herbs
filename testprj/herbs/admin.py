@@ -1,21 +1,17 @@
+from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline
 from django.contrib import admin
 
-# Register your models here.
-
-
+from .forms import (FamilyForm, GenusForm, HerbItemForm,
+                    GenusAuthorshipForm, FamilyAuthorshipForm, AuthorForm,
+                    SpeciesForm, SpeciesAuthorshipForm
+                    )
 from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
                      SpeciesAuthorship, PendingHerbs,
                      Author, HerbItem, Species, LoadedFiles,
                      ErrorLog)
-from .forms import (FamilyForm, GenusForm, HerbItemForm,
-                    GenusAuthorshipForm, FamilyAuthorshipForm,  AuthorForm,
-                    SpeciesForm, SpeciesAuthorshipForm
-                    )
-from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline
 
 
-
-
+# Register your models here.
 class AuthorAdmin(admin.ModelAdmin):
     form = AuthorForm 
 
@@ -25,15 +21,17 @@ class FamilyAuthorshipInline(AjaxSelectAdminTabularInline):
     model = FamilyAuthorship
     extra = 0
 
+
 class GenusAuthorshipInline(AjaxSelectAdminTabularInline):
     form = GenusAuthorshipForm
     model = GenusAuthorship
     extra = 0
 
+
 class SpeciesAuthorshipInline(AjaxSelectAdminTabularInline):
     form = SpeciesAuthorshipForm
     model = SpeciesAuthorship
-    extra = 1
+    extra = 0
 
 
 class FamilyAdmin(admin.ModelAdmin):
@@ -49,28 +47,31 @@ class GenusAdmin(admin.ModelAdmin):
         GenusAuthorshipInline,
         )
 
+
 class HerbItemAdmin(AjaxSelectAdmin):
     form = HerbItemForm
-    list_display = ('get_full_name', 'gcode','itemcode','family', 'genus', 'species', 'collectedby', 'collected_s')
+    list_display = ('family', 'get_full_name', 'gcode', 'itemcode', 'genus', 'species', 'collectedby', 'collected_s')
     list_filter = ('public', 'family', 'genus', 'species')
-    inlines = (
-        SpeciesAuthorshipInline,
-        )
     search_fields = ('itemcode', 'gcode', 'collectedby', 'identifiedby', 'family__name', 'genus__name')
-    
+    list_display_links = ('get_full_name',)
+
 class PendingHerbsAdmin(admin.ModelAdmin):
     model = PendingHerbs
     list_display = ('get_full_name', 'checked','itemcode','family', 'genus', 'species','collectedby','collected_s')
     list_filter = ('public', 'family', 'genus', 'species')
-
+    
 
 class LoadedFilesAdmin(admin.ModelAdmin):
     model = LoadedFiles
     list_display = ('datafile', 'status','createdby', 'created')
     list_filter = ('status', 'createdby')
 
+
 class SpeciesAdmin(admin.ModelAdmin): 
     form = SpeciesForm
+    inlines = (
+        SpeciesAuthorshipInline,
+        )
 
 class ErrorLogAdmin(admin.ModelAdmin):
     list_display = ('message', 'created')

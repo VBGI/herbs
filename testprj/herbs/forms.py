@@ -1,23 +1,33 @@
 #coding: utf-8
 
+import re
+
+from ajax_select.fields import (AutoCompleteSelectField,
+                                AutoCompleteSelectMultipleField,
+                               AutoCompleteField)
+from django import forms
+from django.utils.translation import gettext as _
+
 from .models import (Family, Genus, HerbItem,
                      FamilyAuthorship, GenusAuthorship,
                      Author, Species,
                      SpeciesAuthorship)
-from django.utils.translation import gettext as _
-from django import forms
-from ajax_select.fields import (AutoCompleteSelectField,
-                                AutoCompleteSelectMultipleField,
-                               AutoCompleteField)
+
+
+taxon_name_pat = re.compile(r'[a-z]+')
 
 
 class TaxonCleanerMixin(forms.ModelForm):
-    pass
-#     def clean_name(self):
-#         data = self.cleaned_data['name']
-#         if self.Meta.model.objects.filter(name=data.lower()).exists():
-#             raise forms.ValidationError("The name should be unique")
-#         return data
+    def clean_name(self):
+        data = self.cleaned_data['name']
+        if self.Meta.model.objects.filter(name=data.lower()).exists():
+            raise forms.ValidationError(_("имя должно быть уникально"))
+        if len(data.lower().split()) > 1:
+            raise forms.ValidationError(_("название таксона не должно содержать пробелов"))
+        if not taxon_name_pat.match(data.lower().strip()):
+            raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
+        return data
+
 
 class HerbItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -29,7 +39,6 @@ class HerbItemForm(forms.ModelForm):
                 initial['family'] = latest.family.pk
                 initial['genus'] = latest.genus.pk
                 initial['species'] = latest.species.pk
-                initial['authorship'] = [k.pk for k in latest.authorship.all()]
                 initial['gcode'] =  latest.gcode
                 initial['itemcode'] =  latest.itemcode
                 initial['country'] = latest.country
@@ -47,9 +56,10 @@ class HerbItemForm(forms.ModelForm):
                 pass 
         super(HerbItemForm, self).__init__(*args, **kwargs)
 
+
     class Meta:
         model = HerbItem
-    
+
     family = AutoCompleteSelectField('family', required=False, help_text=None, label=_("Семейство"))
     genus = AutoCompleteSelectField('genus', required=False, help_text=None, label=_("Род"))
     species = AutoCompleteSelectField('species', required=False, help_text=None, label=_("Вид"))
@@ -59,7 +69,8 @@ class HerbItemForm(forms.ModelForm):
     region =  AutoCompleteField('region', required=False, help_text=None, label=_("Регион"))
     district =  AutoCompleteField('district', required=False, help_text=None, label=_("Район"))
     collectedby =  AutoCompleteField('collectedby', required=False, help_text=None, label=_("Собрали"))
-    identifiedby =  AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Собрали"))
+    identifiedby =  AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Определили"))
+
 
 class SearchForm(forms.Form):
     '''Common search form for ajax requests
@@ -87,31 +98,46 @@ class FamilyForm(TaxonCleanerMixin):
 class FamilyAuthorshipForm(forms.ModelForm):
     class Meta:
         model = FamilyAuthorship
-    author = AutoCompleteSelectField('authorlookup', required=False, help_text=None, label=_("Автор"))
-        
+    author = AutoCompleteSelectField('authorlookup',
+                                     required=False,
+                                     help_text=None,
+                                     label=_("Автор"))
+
 
 class SpeciesAuthorshipForm(forms.ModelForm):
     class Meta:
-        model = SpeciesAuthorship  
-    author = AutoCompleteSelectField('authorlookup', required=False, help_text=None, label=_("Автор"))      
-        
+        model = SpeciesAuthorship
+    author = AutoCompleteSelectField('authorlookup',
+                                     required=False,
+                                     help_text=None,
+                                     label=_("Автор"))
+
+
 class GenusAuthorshipForm(forms.ModelForm):
     class Meta:
         model = GenusAuthorship
-    author = AutoCompleteSelectField('authorlookup', required=False, help_text=None, label=_("Автор"))
+    author = AutoCompleteSelectField('authorlookup',
+                                     required=False,
+                                     help_text=None,
+                                     label=_("Автор"))
+
 
 class AuthorForm(forms.ModelForm):
     def clean_name(self):
         data = self.cleaned_data['name'].lower()
         if self.Meta.model.objects.filter(name=data.lower()).exists():
-             raise forms.ValidationError("The name already exists.")
+             raise forms.ValidationError(_("имя уже существует"))
         return data
     class Meta:
         model = Author
-#         fields = '__all__'
+
 
 
 class SpeciesForm(forms.ModelForm):
     class Meta:
         model = Species
-#         fields = '__all__'
+
+    genus = AutoCompleteSelectField('genus',
+                                    required=False,
+                                    help_text=None,
+                                    label=_("Род"))
