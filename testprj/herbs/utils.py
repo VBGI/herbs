@@ -37,6 +37,7 @@ NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    dis
 # ----------------------------------------------------------------
 
 def smart_unicode(s):
+    # TODO: This should be checked for infinite recursion in Django
     if type(s) is unicode:
         return s.encode('utf-8')
     else:
@@ -137,6 +138,18 @@ def evaluate_date(item):
     return ('', cdate)
 
 
+def create_safely(model, fields=(), values=(), postamble='iexact'):
+    post = '__%s'%postamble if postamble else ''
+    kwargs = {'%s' % key + post: val for key, val in zip(fields, values)}
+    query = model.objects.filter(**kwargs)
+    if query.exists():
+        return query[0]
+    else:
+        newobj = model({key: val for key, val in zip(fields, values)})
+        newobj.save()
+        return newobj
+
+
 def evluate_herb_dataframe(df):
     '''It is assumed the dataframe has valid set of column names'''
     errmsgs = [[]]
@@ -181,21 +194,21 @@ def evluate_herb_dataframe(df):
 
 
         # -------- Collected evaluations -------------
+        colmsg, coldate = '', None
         try:
             colmsg, coldate = evaluate_date(item['collected'])
             if colmsg:
                 errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора": %s' % (ind + 1, colmsg))
-            else:
         except:
             errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора"' % (ind + 1, ))
         # -----------------------------------------
 
         # -------- Determined evaluations -------------
+        detmsg, detdate = '', None
         try:
             detmsg, detdate = evaluate_date(item['identified'])
             if detmsg:
                 errmsgs[-1].append('Ошибка в строке %s в поле дата определения: %s' % (ind + 1, detmsg))
-            else:
         except: 
             errmsgs[-1].append('Ошибка в строке %s в поле дата определения' % (ind + 1, ))
         # -----------------------------------------

@@ -13,7 +13,8 @@ from django.utils.translation import gettext as _
 from geoposition.fields import GeopositionField
 import pandas as pd
 
-from .utils import NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicode
+from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicode,
+                   create_safely)
 
 
 # Geopositionfield need to be imported!
@@ -344,28 +345,24 @@ def load_datafile(sender, instance, **kwargs):
         if len(result) > 0:
             # chekign hash for uniquess
             for item in result:
-                familyobj, cc_ = Family.objects.get_or_create(name__iexact=item['family'])
+                familyobj = create_safely(Family, ('name',), (item['family'],))
                 for ind, auth in item['family_auth'][1]:
-                    authorobj, cc_ = Author.objects.get_or_create(name__iexact=auth)
-                    FamilyAuthorship.objects.get_or_create(author=authorobj,
-                                                           priority=ind,
-                                                           family=familyobj)
-
-                genusobj, cc_ = Genus.objects.get_or_create(name__iexact=item['genus'])
+                    authorobj = create_safely(Author, ('name',), (auth,))
+                    create_safely(FamilyAuthorship, ('author', 'priority', 'family'), 
+                                  (authorobj, ind, familyobj), postamble='')
+                    
+                genusobj = create_safely(Genus, ('name',), (item['genus'],))
                 for ind, auth in item['genus_auth'][1]:
-                    authorobj, cc_ = Author.objects.get_or_create(name__iexact=auth)
-                    GenusAuthorship.objects.get_or_create(author=authorobj,
-                                                          priority=ind,
-                                                          genus=genusobj)
+                    authorobj = create_safely(Author, ('name',), (auth,))
+                    create_safely(GenusAuthorship, ('author', 'priority', 'genus'), 
+                                  (authorobj, ind, genusobj), postamble='')
 
-                speciesobj, cc_ = Species.objects.get_or_create(name__iexact=item['species'],
-                                                                genus=genusobj)
+                speciesobj = create_safely(Species, ('name',), (item['species'],))
                 for ind, auth in item['species_auth'][1]:
-                    authorobj, cc_ = Author.objects.get_or_create(name__iexact=auth)
-                    print authorobj, cc_, 'Current status'
-                    SpeciesAuthorship.objects.get_or_create(author=authorobj,
-                                                            priority=ind,
-                                                            species=speciesobj)
+                    authorobj = create_safely(Author, ('name',), (auth,))
+                    create_safely(SpeciesAuthorship, ('author', 'priority', 'species'), 
+                                  (authorobj, ind, speciesobj), postamble='')
+
             pobj = PendingHerbs(family=familyobj,
                                 genus=genusobj,
                                 species=speciesobj,
