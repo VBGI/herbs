@@ -1,8 +1,10 @@
 #coding: utf-8
 
-import re
 from datetime import date
+import re
+
 import pandas as pd
+
 
 # --------------- Author string validation and extraction --------
 validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+$')
@@ -30,7 +32,7 @@ monthes = {'янв': 1,
 year_pat = re.compile('\d{4}')
 day_pat = re.compile('[\D]+(\d{1,2})[\D]+')
 
-NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    district    place    coordinates    height    ecology    collected    collectedby    identified    identifiedby    detailed    itemcode    gcode    images'.split()
+NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    district    place    coordinates    height    ecology    collected    collectedby    identified    identifiedby    detailed    itemcode    gcode'.split()
 
 # ----------------------------------------------------------------
 
@@ -39,6 +41,7 @@ def smart_unicode(s):
         return s.encode('utf-8')
     else:
         return str(s)
+
 
 def get_authors(auth_str):
     '''Evaluates an `author string` and returns list of authors and priorities 
@@ -58,7 +61,7 @@ def get_authors(auth_str):
     if _auth_str.count('(') != _auth_str.count(')'):
         err_msg = 'Unbalanced parenthesis'
         return (err_msg, [(0, _auth_str)])
-    
+
     if _auth_str.count('(') > 0:
         flist = parenthesis_pat.findall(_auth_str)
         if len(flist) != 1:
@@ -78,12 +81,14 @@ def get_authors(auth_str):
 
     return (err_msg, list(enumerate(reversed(auth_array))))
 
+
 def evaluate_family(taxon):
     '''Could be changed in future; we don't follow dry principle here!'''
     res = taxon.split()
     authors = get_authors(' '.join(res[1:]))
     family = res[0]
     return (family, authors)
+
 
 def evaluate_genus(taxon):
     '''Could be changed in future; we don't follow dry principle here!'''
@@ -92,13 +97,15 @@ def evaluate_genus(taxon):
     genus = res[0]
     return (genus, authors)
 
+
 def evaluate_species(taxon):
     '''Could be changed in future; we don't follow dry principle here!'''
     res = taxon.split()
     authors = get_authors(' '.join(res[2:]))
     species = res[1]
     return (species, authors)        
-        
+
+
 def evaluate_date(item):
     '''Make str to date convertion.
     '''
@@ -128,7 +135,6 @@ def evaluate_date(item):
         return result
     cdate = date(year=year, day=day, month=cmonth)
     return ('', cdate)
-    
 
 
 def evluate_herb_dataframe(df):
@@ -242,7 +248,6 @@ def evluate_herb_dataframe(df):
                        'identifiedby': item['identifiedby'].strip(),
                        'detailed': item['detailed'].strip(),
                        'height': item['height'].strip(),
-                       'images': item['images'].strip()
                        }
                       )
     return result, errmsgs

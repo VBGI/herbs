@@ -341,7 +341,7 @@ def load_datafile(sender, instance, **kwargs):
             if len(err) > 0:
                 resmsg = ';'.join(err)
                 ErrorLog.objects.create(message=resmsg)
-        
+
         if len(result) > 0:
             # chekign hash for uniquess
             for item in result:
@@ -351,24 +351,25 @@ def load_datafile(sender, instance, **kwargs):
                     FamilyAuthorship.objects.get_or_create(author=authorobj,
                                                            priority=ind,
                                                            family=familyobj)
-                
+
                 genusobj, cc_ = Genus.objects.get_or_create(name=item['genus'])
                 for ind, auth in item['genus_auth'][1]:
                     authorobj, cc_ = Author.objects.get_or_create(name=auth) 
                     GenusAuthorship.objects.get_or_create(author=authorobj,
                                                           priority=ind,
                                                           genus=genusobj)
-                
-                speciesobj = Species.objects.create(name=item['species'])
+
+                speciesobj, cc_ = Species.objects.get_or_create(name=item['species'],
+                                                                genus=genusobj)
                 for ind, auth in item['species_auth'][1]:
-                    authorobj, cc_ = Author.objects.get_or_create(name=auth) 
+                    authorobj, cc_ = Author.objects.get_or_create(name=auth)
                     SpeciesAuthorship.objects.get_or_create(author=authorobj,
                                                             priority=ind,
                                                             species=speciesobj)
             pobj = PendingHerbs(family=familyobj,
-                                genus=genusobj, 
+                                genus=genusobj,
                                 species=speciesobj,
-                                gcode=item['code2'],
+                                gcode=item['gcode'],
                                 itemcode=item['itemcode'],
                                 identified_s=item['identified'],
                                 identified_e=item['identified'],
@@ -384,8 +385,8 @@ def load_datafile(sender, instance, **kwargs):
                                 detailed=item['note'],
                                 height=item['height'])
             if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
-                pobj.err_msg += 'Запись с номером %s уже существует;' % pboj.itemcode
-            pobj.save()   
+                pobj.err_msg += 'Запись с номером %s уже существует;' % pobj.itemcode
+            pobj.save()
 
         # Create items that are validated (primarily state)
 
