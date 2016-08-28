@@ -116,7 +116,6 @@ class Family(models.Model):
                                         verbose_name=_('авторство'))
 
     def save(self, *args, **kwargs):
-        print self.name
         self.name = self.name.strip().lower()
         super(Family, self).save(*args, **kwargs)
 
@@ -239,7 +238,7 @@ class HerbItem(MetaDataMixin):
                  self.region + self.district + self.detailed +\
                  self.ecodescr + self.collectedby + str(self.collected_s) +\
                  str(self.identified_s) + self.identifiedby
-        return md5(tohash.encode('utf8')).hexdigest()
+        return md5(tohash).hexdigest()
 
     def save(self, *args, **kwargs):
         self.collectedby = self.collectedby.strip()
@@ -253,7 +252,6 @@ class HerbItem(MetaDataMixin):
         return capfirst(self.get_full_name())
 
     def get_full_name(self):
-        print self.genus.name
         authors = [x for x in SpeciesAuthorship.objects.filter(species=self.species,
                                                                species__genus=self.genus).order_by('priority')]
         if len(authors) > 0:
@@ -346,24 +344,25 @@ def load_datafile(sender, instance, **kwargs):
         if len(result) > 0:
             # chekign hash for uniquess
             for item in result:
-                familyobj, cc_ = Family.objects.get_or_create(name=item['family'])
+                familyobj, cc_ = Family.objects.get_or_create(name__iexact=item['family'])
                 for ind, auth in item['family_auth'][1]:
-                    authorobj, cc_ = Author.objects.get_or_create(name=auth) 
+                    authorobj, cc_ = Author.objects.get_or_create(name__iexact=auth)
                     FamilyAuthorship.objects.get_or_create(author=authorobj,
                                                            priority=ind,
                                                            family=familyobj)
 
-                genusobj, cc_ = Genus.objects.get_or_create(name=item['genus'])
+                genusobj, cc_ = Genus.objects.get_or_create(name__iexact=item['genus'])
                 for ind, auth in item['genus_auth'][1]:
-                    authorobj, cc_ = Author.objects.get_or_create(name=auth) 
+                    authorobj, cc_ = Author.objects.get_or_create(name__iexact=auth)
                     GenusAuthorship.objects.get_or_create(author=authorobj,
                                                           priority=ind,
                                                           genus=genusobj)
 
-                speciesobj, cc_ = Species.objects.get_or_create(name=item['species'],
+                speciesobj, cc_ = Species.objects.get_or_create(name__iexact=item['species'],
                                                                 genus=genusobj)
                 for ind, auth in item['species_auth'][1]:
-                    authorobj, cc_ = Author.objects.get_or_create(name=auth)
+                    authorobj, cc_ = Author.objects.get_or_create(name__iexact=auth)
+                    print authorobj, cc_, 'Current status'
                     SpeciesAuthorship.objects.get_or_create(author=authorobj,
                                                             priority=ind,
                                                             species=speciesobj)
