@@ -218,6 +218,7 @@ class HerbItem(MetaDataMixin):
     detailed = models.CharField(default='', max_length=300, blank=True, verbose_name=_('дополнительно'))
     place = GeopositionField(verbose_name=_('координаты'), blank=True)
     coordinates = models.CharField(default='', blank=True, verbose_name=_('Координаты (строка)'), max_length=30)
+    height = models.CharField(default='', blank=True, max_length=50, verbose_name=_('высота'))
 
     # Ecological factors
     ecodescr = models.CharField(max_length=300, default='', blank=True, verbose_name=_('экоусловия'))
@@ -382,7 +383,7 @@ def load_datafile(sender, instance, **kwargs):
                                 district=item['district'],
                                 coordinates=item['coordinates'],
                                 ecodescr=item['ecology'],
-                                detailed=item['note'],
+                                detailed=item['detailed'],
                                 height=item['height'])
             if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
                 pobj.err_msg += 'Запись с номером %s уже существует;' % pobj.itemcode
