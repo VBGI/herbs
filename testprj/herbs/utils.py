@@ -166,7 +166,7 @@ def evluate_herb_dataframe(df):
         except: 
             errmsgs[-1].append('Ошибка в строке %s в поле род' % (ind + 1, ))
         # -----------------------------------------                      
-                    
+
         # -------- Species evaluations -------------
         speciesok = False
         try:
@@ -175,38 +175,31 @@ def evluate_herb_dataframe(df):
                 errmsgs[-1].append('Ошибка в строке %s в поле вид: %s' % (ind + 1, cspauthors[0]))
             else:
                 speciesok = True
-        except: 
+        except:
             errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
         # -----------------------------------------  
 
 
         # -------- Collected evaluations -------------
-        collectedok = False
         try:
             colmsg, coldate = evaluate_date(item['collected'])
             if colmsg:
                 errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора": %s' % (ind + 1, colmsg))
             else:
-                collectedok = True    
-        except: 
+        except:
             errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора"' % (ind + 1, ))
         # -----------------------------------------
 
         # -------- Determined evaluations -------------
-        
-        detdok = False
-        
         try:
             detmsg, detdate = evaluate_date(item['identified'])
             if detmsg:
                 errmsgs[-1].append('Ошибка в строке %s в поле дата определения: %s' % (ind + 1, detmsg))
             else:
-                detdok = True
         except: 
             errmsgs[-1].append('Ошибка в строке %s в поле дата определения' % (ind + 1, ))
         # -----------------------------------------
-        
-        
+
         # --------- Code1 is a string of digits only  --------
         itemcodeok = False
         if unique_code_pat.match(str(item['itemcode']).strip()):
@@ -215,7 +208,7 @@ def evluate_herb_dataframe(df):
         else:
             errmsgs[-1].append('Ошибка в строке %s в поле уникальный код' % (ind + 1, ))
         # -----------------------------------------
-        
+
         # --------- Code2 is a string of digits only  --------
         gcodeok = False
         if unique_code_pat.match(str(item['gcode']).strip()):
@@ -223,10 +216,10 @@ def evluate_herb_dataframe(df):
             gcode = str(item['gcode']).strip()
         else:
             errmsgs[-1].append('Ошибка в строке %s в поле код раздела' % (ind + 1, ))
-        
-        
+
+
         # -----------------------------------------
-        if familyok & genusok & speciesok & collectedok & detdok &\
+        if familyok & genusok & speciesok &\
             itemcodeok & gcodeok:
             result.append({'family': cfamily,
                        'family_auth': cfauthors,
