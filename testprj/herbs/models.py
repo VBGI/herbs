@@ -1,5 +1,5 @@
 #coding: utf-8
-from hashlib import md5
+
 import os
 
 from django.conf import settings
@@ -88,22 +88,11 @@ class HerbItemMixin(models.Model):
                                   editable=False, verbose_name=_('обновил'))
     public = models.BooleanField(default=False, verbose_name=_('опубликовано'))
 
-
-
-    def _hash(self):
-        tohash = self.family.name + self.genus.name + self.species.name
-#                  smart_unicode(self.species) + self.country +\
-#                  self.region + self.district + self.detailed +\
-#                  self.ecodescr + self.collectedby + str(self.collected_s) +\
-#                  str(self.identified_s) + str(self.identifiedby)
-        return md5(tohash).hexdigest()
-
     def save(self, *args, **kwargs):
         self.collectedby = self.collectedby.strip()
         self.identifiedby = self.identifiedby.strip()
         self.gcode = self.gcode.strip()
         self.itemcode = self.itemcode.strip()
-        self.uhash = self._hash()
         super(HerbItemMixin, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -310,6 +299,7 @@ class ErrorLog(models.Model):
         verbose_name_plural = _('Ошибки загрузки файлов')
         ordering = ('-created', 'message')
 
+
 @receiver(post_save, sender=LoadedFiles)
 def load_datafile(sender, instance, **kwargs):
     # Trying
@@ -348,8 +338,6 @@ def load_datafile(sender, instance, **kwargs):
             ErrorLog.objects.create(message=';'.join([str(item) for item in err]))
 
     if len(result) > 0:
-        print 'The number of items', len(result)
-        # chekign hash for uniquess
         for item in result:
             familyobj = create_safely(Family, ('name',), (item['family'],))
             for ind, auth in item['family_auth'][1]:
