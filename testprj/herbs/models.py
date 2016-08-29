@@ -23,6 +23,15 @@ from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicod
 # HERB_DATA_UPLOADPATH = 'herbdata/%Y/%m/%d/'
 UPLOAD_MAX_FILE_SIZE = 5 * 10 ** 6 # 5 MB defualt
 
+_fields_to_copy = ('family', 'genus',  'species',
+                   'gcode', 'itemcode', 'identified_s',
+                   'identified_e', 'identifiedby',
+                   'collected_s', 'collected_e',
+                   'country', 'region', 'district',
+                   'coordinates', 'ecodescr',
+                   'detailed', 'height', 'note')
+
+
 
 class HerbItemMixin(models.Model):
     '''
@@ -361,26 +370,27 @@ def load_datafile(sender, instance, **kwargs):
                 authorobj = create_safely(Author, ('name',), (auth,))
                 create_safely(SpeciesAuthorship, ('author', 'priority', 'species'), 
                               (authorobj, ind, speciesobj), postamble='')
-
-            pobj = PendingHerbs(family=familyobj,
-                            genus=genusobj,
-                            species=speciesobj,
-                            gcode=item['gcode'],
-                            itemcode=item['itemcode'],
-                            identified_s=item['identified'],
-                            identified_e=item['identified'],
-                            identifiedby=item['identifiedby'],
-                            collectedby=item['collectedby'],
-                            collected_s=item['collected'],
-                            collected_e=item['collected'],
-                            country=item['country'],
-                            region=item['region'],
-                            district=item['district'],
-                            coordinates=item['coordinates'],
-                            ecodescr=item['ecology'],
-                            detailed=item['detailed'],
-                            height=item['height'],
-                            note=item['note'])
-            if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
-                pobj.err_msg += u'Запись с номером %s уже существует;' % pobj.itemcode
-            pobj.save()
+            query_fields = {'family':familyobj,
+                            'genus':genusobj,
+                            'species':speciesobj,
+                            'gcode':item['gcode'],
+                            'itemcode':item['itemcode'],
+                            'identified_s':item['identified'],
+                            'identified_e':item['identified'],
+                            'identifiedby':item['identifiedby'],
+                            'collectedby':item['collectedby'],
+                            'collected_s':item['collected'],
+                            'collected_e':item['collected'],
+                            'country':item['country'],
+                            'region':item['region'],
+                            'district':item['district'],
+                            'coordinates':item['coordinates'],
+                            'ecodescr':item['ecology'],
+                            'detailed':item['detailed'],
+                            'height':item['height'],
+                            'note':item['note']}
+            if not PendingHerbs.objects.filter(**query_fields).exists():
+                pobj = PendingHerbs.objects.create(**query_fields)
+                if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
+                    pobj.err_msg += u'Запись с номером %s уже существует;' % pobj.itemcode
+                    pobj.save()
