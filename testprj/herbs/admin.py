@@ -10,7 +10,7 @@ from .forms import (FamilyForm, GenusForm, HerbItemForm,
 from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
                      SpeciesAuthorship, PendingHerbs,
                      Author, HerbItem, Species, LoadedFiles,
-                     ErrorLog)
+                     ErrorLog, _fields_to_copy)
 
 # ------------------- Actions for publishing HerbItems ----------------------
 
@@ -31,13 +31,6 @@ unpublish_herbitem.short_description = "Снять с публикации"
 
 
 # ------------------- Herbitem creation -------------------------------------
-_fields_to_copy = ('family', 'genus',  'species',
-                   'gcode', 'itemcode', 'identified_s',
-                   'identified_e', 'identifiedby',
-                   'collected_s', 'collected_e',
-                   'country', 'region', 'district',
-                   'coordinates', 'ecodescr',
-                   'detailed', 'height', 'note')
 def move_pending_herbs(modeladmin, request, queryset):
     total = queryset.count()
     count = 0
