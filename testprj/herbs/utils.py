@@ -10,9 +10,9 @@ from django.utils.text import capfirst
 
 
 # --------------- Author string validation and extraction --------
-validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+$')
+validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+')
 parenthesis_pat = re.compile(r'\(([\sa-zA-Z\.\-]+)\)')
-after_parenthesis_pat = re.compile(r'\)([\sa-zA-Z\.\-]+)$')
+after_parenthesis_pat = re.compile(r'\)([\sa-zA-Z\.\-]+)')
 unique_code_pat = re.compile(r'\d{1,10}')
 # ----------------------------------------------------------------
 
@@ -43,9 +43,9 @@ def smart_unicode(s):
     # TODO: This should be checked for infinite recursion in Django
     res = ''
     if type(s) is unicode:
-        res = s.encode('utf-8')
+        res = s.encode('utf-8').strip()
     else:
-        res = str(s)
+        res = str(s).strip()
     if 'nan' == res.lower().strip():
         res = ''
     return res
