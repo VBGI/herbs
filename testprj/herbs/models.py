@@ -38,6 +38,7 @@ def get_authorship_string(authors):
     return capfirst(result)
 
 
+
 class MetaDataMixin(models.Model):
     '''
     Common item properties
@@ -57,7 +58,7 @@ class MetaDataMixin(models.Model):
     class Meta:
         abstract = True
 
-
+@python_2_unicode_compatible
 class AuthorshipMixin(models.Model):
     author = models.ForeignKey('Author',
                                null=True,
@@ -98,12 +99,9 @@ class Author(models.Model):
         verbose_name_plural = _('авторы')
 
 
-@python_2_unicode_compatible
 class FamilyAuthorship(AuthorshipMixin):
     family = models.ForeignKey('Family', on_delete=models.CASCADE, verbose_name=_('семейство'))
 
-
-@python_2_unicode_compatible
 class GenusAuthorship(AuthorshipMixin):
     genus = models.ForeignKey('Genus', on_delete=models.CASCADE,
                               verbose_name=_('род'))
@@ -163,7 +161,7 @@ class Genus(models.Model):
         verbose_name_plural = _('названия родов')
 
 
-@python_2_unicode_compatible
+
 class SpeciesAuthorship(AuthorshipMixin):
     species = models.ForeignKey('Species', on_delete=models.CASCADE,
                                  verbose_name=_('вид'))
@@ -196,7 +194,7 @@ class Species(models.Model):
     get_full_name.short_description = _('полное имя вида')
 
 
-@python_2_unicode_compatible
+
 class HerbItem(MetaDataMixin):
     family = models.ForeignKey(Family,
                                on_delete=models.SET_NULL,
@@ -235,10 +233,10 @@ class HerbItem(MetaDataMixin):
 
     def _hash(self):
         tohash = self.family.name +\
-                 str(self.species) + self.country +\
+                 smart_unicode(self.species) + self.country +\
                  self.region + self.district + self.detailed +\
-                 self.ecodescr + self.collectedby + str(self.collected_s) +\
-                 str(self.identified_s) + self.identifiedby
+                 self.ecodescr + self.collectedby + smart_unicode(self.collected_s) +\
+                 smart_unicode(self.identified_s) + self.identifiedby
         return md5(tohash).hexdigest()
 
     def save(self, *args, **kwargs):
@@ -246,10 +244,10 @@ class HerbItem(MetaDataMixin):
         self.identifiedby = self.identifiedby.strip()
         self.gcode = self.gcode.strip()
         self.itemcode = self.itemcode.strip()
-        self.uhash = self._hash()
+#         self.uhash = self._hash()
         super(HerbItem, self).save(*args, **kwargs)
 
-    def __str__(self):
+    def __unicode__(self):
         return capfirst(self.get_full_name())
 
     def get_full_name(self):
@@ -268,15 +266,15 @@ class HerbItem(MetaDataMixin):
         verbose_name = _('гербарный образeц')
         verbose_name_plural = _('гербарные образцы')
         ordering = ('family', 'genus', 'species')
+        db_table = 'herbs_herbitem'
 
-
-@python_2_unicode_compatible    
+    
 class PendingHerbs(HerbItem):
     checked = models.BooleanField(default=False, verbose_name=_('проверено'))
-    err_msg = models.TextField(blank=True, default=True)
+    err_msg = models.TextField(blank=True, default='')
 
     class Meta:
-        db_table = 'herbs_loadpendingherbs' # TODO: Should be changed!!!
+        db_table = 'herbs_loadpendingherbs'
         verbose_name = _('загруженный гербарный образец') 
         verbose_name_plural = _('загруженные гербарные образцы')
 
@@ -338,11 +336,11 @@ def load_datafile(sender, instance, **kwargs):
             return
         result, errors = evluate_herb_dataframe(data)
         for err in errors:
-            if len(err) > 0:
-                resmsg = ';'.join(err)
-                ErrorLog.objects.create(message=resmsg)
+            if err:
+                ErrorLog.objects.create(message=';'.join([str(item) for item in err]))
 
         if len(result) > 0:
+            print 'The number of items', len(result)
             # chekign hash for uniquess
             for item in result:
                 familyobj = create_safely(Family, ('name',), (item['family'],))
@@ -357,13 +355,15 @@ def load_datafile(sender, instance, **kwargs):
                     create_safely(GenusAuthorship, ('author', 'priority', 'genus'), 
                                   (authorobj, ind, genusobj), postamble='')
 
-                speciesobj = create_safely(Species, ('name',), (item['species'],))
+                speciesobj = create_safely(Species, ('name', 'genus'),
+                                           (item['species'].strip().lower(), genusobj),
+                                           postamble='')
                 for ind, auth in item['species_auth'][1]:
                     authorobj = create_safely(Author, ('name',), (auth,))
                     create_safely(SpeciesAuthorship, ('author', 'priority', 'species'), 
                                   (authorobj, ind, speciesobj), postamble='')
 
-            pobj = PendingHerbs(family=familyobj,
+                pobj = PendingHerbs(family=familyobj,
                                 genus=genusobj,
                                 species=speciesobj,
                                 gcode=item['gcode'],
@@ -381,9 +381,9 @@ def load_datafile(sender, instance, **kwargs):
                                 ecodescr=item['ecology'],
                                 detailed=item['detailed'],
                                 height=item['height'])
-            if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
-                pobj.err_msg += 'Запись с номером %s уже существует;' % pobj.itemcode
-            pobj.save()
+                if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
+                    pobj.err_msg += u'Запись с номером %s уже существует;' % pobj.itemcode
+                pobj.save()
 
         # Create items that are validated (primarily state)
 

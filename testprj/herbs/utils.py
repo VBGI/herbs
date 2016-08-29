@@ -145,17 +145,18 @@ def create_safely(model, fields=(), values=(), postamble='iexact'):
     if query.exists():
         return query[0]
     else:
-        newobj = model({key: val for key, val in zip(fields, values)})
+        newobj = model(**{key: val for key, val in zip(fields, values)})
         newobj.save()
         return newobj
 
 
 def evluate_herb_dataframe(df):
     '''It is assumed the dataframe has valid set of column names'''
-    errmsgs = [[]]
+    errmsgs = []
     result = []
     for ind, item in df.iterrows():
         item = {key: smart_unicode(item[key])  for key in item.keys()}
+        errmsgs.append([])
         # -------- Family evaluations -------------
         familyok = False
         try:
@@ -194,23 +195,25 @@ def evluate_herb_dataframe(df):
 
 
         # -------- Collected evaluations -------------
-        colmsg, coldate = '', None
         try:
             colmsg, coldate = evaluate_date(item['collected'])
             if colmsg:
                 errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора": %s' % (ind + 1, colmsg))
+                coldate = None
         except:
             errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора"' % (ind + 1, ))
+            coldate = None
         # -----------------------------------------
 
         # -------- Determined evaluations -------------
-        detmsg, detdate = '', None
         try:
             detmsg, detdate = evaluate_date(item['identified'])
             if detmsg:
                 errmsgs[-1].append('Ошибка в строке %s в поле дата определения: %s' % (ind + 1, detmsg))
+                detdate = None
         except: 
             errmsgs[-1].append('Ошибка в строке %s в поле дата определения' % (ind + 1, ))
+            detdate = None
         # -----------------------------------------
 
         # --------- Code1 is a string of digits only  --------

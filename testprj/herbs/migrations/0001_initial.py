@@ -19,8 +19,8 @@ class Migration(SchemaMigration):
         db.create_table(u'herbs_familyauthorship', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Author'], null=True, blank=True)),
-            ('family', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Family'])),
             ('priority', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('family', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Family'])),
         ))
         db.send_create_signal(u'herbs', ['FamilyAuthorship'])
 
@@ -28,8 +28,8 @@ class Migration(SchemaMigration):
         db.create_table(u'herbs_genusauthorship', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Author'], null=True, blank=True)),
-            ('genus', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Genus'])),
             ('priority', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('genus', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Genus'])),
         ))
         db.send_create_signal(u'herbs', ['GenusAuthorship'])
 
@@ -51,8 +51,8 @@ class Migration(SchemaMigration):
         db.create_table(u'herbs_speciesauthorship', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Author'], null=True, blank=True)),
-            ('species', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Species'])),
             ('priority', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('species', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Species'])),
         ))
         db.send_create_signal(u'herbs', ['SpeciesAuthorship'])
 
@@ -64,16 +64,8 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'herbs', ['Species'])
 
-        # Adding model 'HerbSnapshot'
-        db.create_table(u'herbs_herbsnapshot', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('image', self.gf('imagekit.models.fields.ProcessedImageField')(max_length=100)),
-            ('date', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-        ))
-        db.send_create_signal(u'herbs', ['HerbSnapshot'])
-
         # Adding model 'HerbItem'
-        db.create_table(u'herbs_herbitem', (
+        db.create_table('herbs_herbitem', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateField')(auto_now=True, blank=True)),
@@ -91,13 +83,14 @@ class Migration(SchemaMigration):
             ('detailed', self.gf('django.db.models.fields.CharField')(default='', max_length=300, blank=True)),
             ('place', self.gf('geoposition.fields.GeopositionField')(max_length=42, blank=True)),
             ('coordinates', self.gf('django.db.models.fields.CharField')(default='', max_length=30, blank=True)),
+            ('height', self.gf('django.db.models.fields.CharField')(default='', max_length=50, blank=True)),
             ('ecodescr', self.gf('django.db.models.fields.CharField')(default='', max_length=300, blank=True)),
             ('collectedby', self.gf('django.db.models.fields.CharField')(default='', max_length=500, blank=True)),
-            ('collected_s', self.gf('django.db.models.fields.DateField')(blank=True)),
-            ('collected_e', self.gf('django.db.models.fields.DateField')(blank=True)),
+            ('collected_s', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('collected_e', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('identifiedby', self.gf('django.db.models.fields.CharField')(default='', max_length=500, blank=True)),
-            ('identified_s', self.gf('django.db.models.fields.DateField')(blank=True)),
-            ('identified_e', self.gf('django.db.models.fields.DateField')(blank=True)),
+            ('identified_s', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('identified_e', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('uhash', self.gf('django.db.models.fields.CharField')(default='', max_length=32, blank=True)),
         ))
         db.send_create_signal(u'herbs', ['HerbItem'])
@@ -106,7 +99,7 @@ class Migration(SchemaMigration):
         db.create_table('herbs_loadpendingherbs', (
             (u'herbitem_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['herbs.HerbItem'], unique=True, primary_key=True)),
             ('checked', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('err_msg', self.gf('django.db.models.fields.TextField')(default=True, blank=True)),
+            ('err_msg', self.gf('django.db.models.fields.TextField')(default='', blank=True)),
         ))
         db.send_create_signal(u'herbs', ['PendingHerbs'])
 
@@ -151,11 +144,8 @@ class Migration(SchemaMigration):
         # Deleting model 'Species'
         db.delete_table(u'herbs_species')
 
-        # Deleting model 'HerbSnapshot'
-        db.delete_table(u'herbs_herbsnapshot')
-
         # Deleting model 'HerbItem'
-        db.delete_table(u'herbs_herbitem')
+        db.delete_table('herbs_herbitem')
 
         # Deleting model 'PendingHerbs'
         db.delete_table('herbs_loadpendingherbs')
@@ -243,8 +233,8 @@ class Migration(SchemaMigration):
         },
         u'herbs.herbitem': {
             'Meta': {'ordering': "('family', 'genus', 'species')", 'object_name': 'HerbItem'},
-            'collected_e': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
-            'collected_s': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
+            'collected_e': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'collected_s': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'collectedby': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '500', 'blank': 'True'}),
             'coordinates': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '30', 'blank': 'True'}),
             'country': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255', 'blank': 'True'}),
@@ -256,9 +246,10 @@ class Migration(SchemaMigration):
             'family': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['herbs.Family']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
             'gcode': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '10'}),
             'genus': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['herbs.Genus']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
+            'height': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '50', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'identified_e': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
-            'identified_s': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
+            'identified_e': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'identified_s': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'identifiedby': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '500', 'blank': 'True'}),
             'itemcode': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '15'}),
             'place': ('geoposition.fields.GeopositionField', [], {'max_length': '42', 'blank': 'True'}),
@@ -268,12 +259,6 @@ class Migration(SchemaMigration):
             'uhash': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '32', 'blank': 'True'}),
             'updated': ('django.db.models.fields.DateField', [], {'auto_now': 'True', 'blank': 'True'}),
             'updatedby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['auth.User']"})
-        },
-        u'herbs.herbsnapshot': {
-            'Meta': {'object_name': 'HerbSnapshot'},
-            'date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'image': ('imagekit.models.fields.ProcessedImageField', [], {'max_length': '100'})
         },
         u'herbs.loadedfiles': {
             'Meta': {'ordering': "('created', 'status', 'createdby')", 'object_name': 'LoadedFiles'},
@@ -286,7 +271,7 @@ class Migration(SchemaMigration):
         u'herbs.pendingherbs': {
             'Meta': {'ordering': "('family', 'genus', 'species')", 'object_name': 'PendingHerbs', 'db_table': "'herbs_loadpendingherbs'", '_ormbases': [u'herbs.HerbItem']},
             'checked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'err_msg': ('django.db.models.fields.TextField', [], {'default': 'True', 'blank': 'True'}),
+            'err_msg': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
             u'herbitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['herbs.HerbItem']", 'unique': 'True', 'primary_key': 'True'})
         },
         u'herbs.species': {
