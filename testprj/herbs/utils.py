@@ -1,9 +1,12 @@
 #coding: utf-8
 
-from datetime import date
 import re
 
 import pandas as pd
+
+from datetime import date
+
+from django.utils.text import capfirst
 
 
 # --------------- Author string validation and extraction --------
@@ -32,16 +35,20 @@ monthes = {'янв': 1,
 year_pat = re.compile('\d{4}')
 day_pat = re.compile('[\D]+(\d{1,2})[\D]+')
 
-NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    district    place    coordinates    height    ecology    collected    collectedby    identified    identifiedby    detailed    itemcode    gcode'.split()
+NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    district    place    coordinates    height    ecology    collected    collectedby    identified    identifiedby itemcode  gcode note'.split()
 
 # ----------------------------------------------------------------
 
 def smart_unicode(s):
     # TODO: This should be checked for infinite recursion in Django
+    res = ''
     if type(s) is unicode:
-        return s.encode('utf-8')
+        res = s.encode('utf-8')
     else:
-        return str(s)
+        res = str(s)
+    if 'nan' == res.lower().strip():
+        res = ''
+    return res
 
 
 def get_authors(auth_str):
@@ -263,13 +270,14 @@ def evluate_herb_dataframe(df):
                        'country': item['country'].strip(), 
                        'region': item['region'].strip(),
                        'district': item['district'].strip(),
-                       'coordinates': item['place'].strip(),
+                       'coordinates': item['coordinates'].strip(),
                        'ecology': item['ecology'].strip(),
                        'height': item['height'].strip(),
                        'collectedby': item['collectedby'].strip(),
                        'identifiedby': item['identifiedby'].strip(),
-                       'detailed': item['detailed'].strip(),
+                       'detailed': item['place'].strip(),
                        'height': item['height'].strip(),
+                       'note': item['note'].strip(),
                        }
                       )
     return result, errmsgs

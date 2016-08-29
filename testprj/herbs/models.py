@@ -62,6 +62,8 @@ class HerbItemMixin(models.Model):
     identified_s = models.DateField(blank=True, verbose_name=_('начало определения'), null=True)
     identified_e = models.DateField(blank=True, verbose_name=_('конец определения'), null=True)
 
+    note = models.CharField(max_length=1000, blank=True, default='')
+
     uhash =  models.CharField(blank=True, default='', max_length=32, editable=False)
 
     
@@ -77,6 +79,8 @@ class HerbItemMixin(models.Model):
                                   editable=False, verbose_name=_('обновил'))
     public = models.BooleanField(default=False, verbose_name=_('опубликовано'))
 
+
+
     def _hash(self):
         tohash = self.family.name + self.genus.name + self.species.name
 #                  smart_unicode(self.species) + self.country +\
@@ -91,7 +95,7 @@ class HerbItemMixin(models.Model):
         self.gcode = self.gcode.strip()
         self.itemcode = self.itemcode.strip()
         self.uhash = self._hash()
-        super(HerbItem, self).save(*args, **kwargs)
+        super(HerbItemMixin, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return capfirst(self.get_full_name())
@@ -366,7 +370,8 @@ def load_datafile(sender, instance, **kwargs):
                                 coordinates=item['coordinates'],
                                 ecodescr=item['ecology'],
                                 detailed=item['detailed'],
-                                height=item['height'])
+                                height=item['height'],
+                                note=item['note'])
                 if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
                     pobj.err_msg += u'Запись с номером %s уже существует;' % pobj.itemcode
                 pobj.save()

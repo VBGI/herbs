@@ -51,6 +51,8 @@ class HerbItemForm(forms.ModelForm):
                 initial['identifiedby'] = latest.identifiedby
                 initial['identified_s'] = latest.identified_s
                 initial['identified_e'] = latest.identified_e
+                initial['note'] = latest.note
+                initial['coordinates'] = latest.coordinates
                 kwargs['initial'] = initial 
             except HerbItem.DoesNotExist:
                 pass 
@@ -65,6 +67,7 @@ class HerbItemForm(forms.ModelForm):
     species = AutoCompleteSelectField('species', required=False, help_text=None, label=_("Вид"))
     ecodescr = forms.CharField(widget=forms.Textarea, required=False, label=_('Экоусловия'))
     detailed = forms.CharField(widget=forms.Textarea, required=False, label=_('Дополнительно'))
+    note = forms.CharField(widget=forms.Textarea, required=False, label=_('Заметки'))
     country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
     region =  AutoCompleteField('region', required=False, help_text=None, label=_("Регион"))
     district =  AutoCompleteField('district', required=False, help_text=None, label=_("Район"))

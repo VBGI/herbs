@@ -8,178 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Author'
-        db.create_table(u'herbs_author', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(default='', max_length=150)),
-        ))
-        db.send_create_signal(u'herbs', ['Author'])
+        # Adding field 'HerbItem.note'
+        db.add_column(u'herbs_herbitem', 'note',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=1000, blank=True),
+                      keep_default=False)
 
-        # Adding model 'FamilyAuthorship'
-        db.create_table(u'herbs_familyauthorship', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Author'], null=True, blank=True)),
-            ('priority', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('family', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Family'])),
-        ))
-        db.send_create_signal(u'herbs', ['FamilyAuthorship'])
-
-        # Adding model 'GenusAuthorship'
-        db.create_table(u'herbs_genusauthorship', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Author'], null=True, blank=True)),
-            ('priority', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('genus', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Genus'])),
-        ))
-        db.send_create_signal(u'herbs', ['GenusAuthorship'])
-
-        # Adding model 'Family'
-        db.create_table(u'herbs_family', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(default='', max_length=30)),
-        ))
-        db.send_create_signal(u'herbs', ['Family'])
-
-        # Adding model 'Genus'
-        db.create_table(u'herbs_genus', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(default='', max_length=30)),
-        ))
-        db.send_create_signal(u'herbs', ['Genus'])
-
-        # Adding model 'SpeciesAuthorship'
-        db.create_table(u'herbs_speciesauthorship', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Author'], null=True, blank=True)),
-            ('priority', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('species', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Species'])),
-        ))
-        db.send_create_signal(u'herbs', ['SpeciesAuthorship'])
-
-        # Adding model 'Species'
-        db.create_table(u'herbs_species', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(default='', max_length=30)),
-            ('genus', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Genus'])),
-        ))
-        db.send_create_signal(u'herbs', ['Species'])
-
-        # Adding model 'HerbItem'
-        db.create_table(u'herbs_herbitem', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('family', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Family'], null=True, on_delete=models.SET_NULL)),
-            ('genus', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Genus'], null=True, on_delete=models.SET_NULL)),
-            ('species', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Species'], null=True, on_delete=models.SET_NULL)),
-            ('gcode', self.gf('django.db.models.fields.CharField')(default='', max_length=10)),
-            ('itemcode', self.gf('django.db.models.fields.CharField')(default='', max_length=15)),
-            ('country', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True)),
-            ('region', self.gf('django.db.models.fields.CharField')(default='', max_length=150, blank=True)),
-            ('district', self.gf('django.db.models.fields.CharField')(default='', max_length=150, blank=True)),
-            ('detailed', self.gf('django.db.models.fields.CharField')(default='', max_length=300, blank=True)),
-            ('place', self.gf('geoposition.fields.GeopositionField')(max_length=42, blank=True)),
-            ('coordinates', self.gf('django.db.models.fields.CharField')(default='', max_length=30, blank=True)),
-            ('height', self.gf('django.db.models.fields.CharField')(default='', max_length=50, blank=True)),
-            ('ecodescr', self.gf('django.db.models.fields.CharField')(default='', max_length=300, blank=True)),
-            ('collectedby', self.gf('django.db.models.fields.CharField')(default='', max_length=500, blank=True)),
-            ('collected_s', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('collected_e', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('identifiedby', self.gf('django.db.models.fields.CharField')(default='', max_length=500, blank=True)),
-            ('identified_s', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('identified_e', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('uhash', self.gf('django.db.models.fields.CharField')(default='', max_length=32, blank=True)),
-            ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('updated', self.gf('django.db.models.fields.DateField')(auto_now=True, blank=True)),
-            ('createdby', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='+', null=True, on_delete=models.SET_NULL, to=orm['auth.User'])),
-            ('updatedby', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='+', null=True, on_delete=models.SET_NULL, to=orm['auth.User'])),
-            ('public', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal(u'herbs', ['HerbItem'])
-
-        # Adding model 'PendingHerbs'
-        db.create_table(u'herbs_pendingherbs', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('family', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Family'], null=True, on_delete=models.SET_NULL)),
-            ('genus', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Genus'], null=True, on_delete=models.SET_NULL)),
-            ('species', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['herbs.Species'], null=True, on_delete=models.SET_NULL)),
-            ('gcode', self.gf('django.db.models.fields.CharField')(default='', max_length=10)),
-            ('itemcode', self.gf('django.db.models.fields.CharField')(default='', max_length=15)),
-            ('country', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True)),
-            ('region', self.gf('django.db.models.fields.CharField')(default='', max_length=150, blank=True)),
-            ('district', self.gf('django.db.models.fields.CharField')(default='', max_length=150, blank=True)),
-            ('detailed', self.gf('django.db.models.fields.CharField')(default='', max_length=300, blank=True)),
-            ('place', self.gf('geoposition.fields.GeopositionField')(max_length=42, blank=True)),
-            ('coordinates', self.gf('django.db.models.fields.CharField')(default='', max_length=30, blank=True)),
-            ('height', self.gf('django.db.models.fields.CharField')(default='', max_length=50, blank=True)),
-            ('ecodescr', self.gf('django.db.models.fields.CharField')(default='', max_length=300, blank=True)),
-            ('collectedby', self.gf('django.db.models.fields.CharField')(default='', max_length=500, blank=True)),
-            ('collected_s', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('collected_e', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('identifiedby', self.gf('django.db.models.fields.CharField')(default='', max_length=500, blank=True)),
-            ('identified_s', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('identified_e', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('uhash', self.gf('django.db.models.fields.CharField')(default='', max_length=32, blank=True)),
-            ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('updated', self.gf('django.db.models.fields.DateField')(auto_now=True, blank=True)),
-            ('createdby', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='+', null=True, on_delete=models.SET_NULL, to=orm['auth.User'])),
-            ('updatedby', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='+', null=True, on_delete=models.SET_NULL, to=orm['auth.User'])),
-            ('public', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('checked', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('err_msg', self.gf('django.db.models.fields.TextField')(default='', blank=True)),
-        ))
-        db.send_create_signal(u'herbs', ['PendingHerbs'])
-
-        # Adding model 'LoadedFiles'
-        db.create_table(u'herbs_loadedfiles', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('datafile', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-            ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('createdby', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='+', null=True, on_delete=models.SET_NULL, to=orm['auth.User'])),
-        ))
-        db.send_create_signal(u'herbs', ['LoadedFiles'])
-
-        # Adding model 'ErrorLog'
-        db.create_table(u'herbs_errorlog', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('message', self.gf('django.db.models.fields.TextField')(default='', blank=True)),
-        ))
-        db.send_create_signal(u'herbs', ['ErrorLog'])
+        # Adding field 'PendingHerbs.note'
+        db.add_column(u'herbs_pendingherbs', 'note',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=1000, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'Author'
-        db.delete_table(u'herbs_author')
+        # Deleting field 'HerbItem.note'
+        db.delete_column(u'herbs_herbitem', 'note')
 
-        # Deleting model 'FamilyAuthorship'
-        db.delete_table(u'herbs_familyauthorship')
-
-        # Deleting model 'GenusAuthorship'
-        db.delete_table(u'herbs_genusauthorship')
-
-        # Deleting model 'Family'
-        db.delete_table(u'herbs_family')
-
-        # Deleting model 'Genus'
-        db.delete_table(u'herbs_genus')
-
-        # Deleting model 'SpeciesAuthorship'
-        db.delete_table(u'herbs_speciesauthorship')
-
-        # Deleting model 'Species'
-        db.delete_table(u'herbs_species')
-
-        # Deleting model 'HerbItem'
-        db.delete_table(u'herbs_herbitem')
-
-        # Deleting model 'PendingHerbs'
-        db.delete_table(u'herbs_pendingherbs')
-
-        # Deleting model 'LoadedFiles'
-        db.delete_table(u'herbs_loadedfiles')
-
-        # Deleting model 'ErrorLog'
-        db.delete_table(u'herbs_errorlog')
+        # Deleting field 'PendingHerbs.note'
+        db.delete_column(u'herbs_pendingherbs', 'note')
 
 
     models = {
@@ -277,6 +122,7 @@ class Migration(SchemaMigration):
             'identified_s': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'identifiedby': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '500', 'blank': 'True'}),
             'itemcode': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '15'}),
+            'note': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '1000', 'blank': 'True'}),
             'place': ('geoposition.fields.GeopositionField', [], {'max_length': '42', 'blank': 'True'}),
             'public': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'region': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '150', 'blank': 'True'}),
@@ -316,6 +162,7 @@ class Migration(SchemaMigration):
             'identified_s': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'identifiedby': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '500', 'blank': 'True'}),
             'itemcode': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '15'}),
+            'note': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '1000', 'blank': 'True'}),
             'place': ('geoposition.fields.GeopositionField', [], {'max_length': '42', 'blank': 'True'}),
             'public': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'region': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '150', 'blank': 'True'}),

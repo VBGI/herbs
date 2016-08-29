@@ -1,5 +1,7 @@
+# coding: utf-8
 from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline
 from django.contrib import admin
+from django.contrib import messages
 
 from .forms import (FamilyForm, GenusForm, HerbItemForm,
                     GenusAuthorshipForm, FamilyAuthorshipForm, AuthorForm,
@@ -9,6 +11,57 @@ from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
                      SpeciesAuthorship, PendingHerbs,
                      Author, HerbItem, Species, LoadedFiles,
                      ErrorLog)
+
+# ------------------- Actions for publishing HerbItems ----------------------
+
+def publish_herbitem(modeladmin, request, queryset):
+    total = queryset.count()
+    queryset.update(public=True)
+    messages.success(request, 'Опубликовано %s записей' % (total,))
+    
+def unpublish_herbitem(modeladmin, request, queryset):
+    total = queryset.count()
+    queryset.update(public=False)
+    messages.success(request, 'Снято с публикации %s записей' % (total,))
+
+publish_herbitem.short_description = "Опубликовать записи"
+unpublish_herbitem.short_description = "Снять с публикации"
+# ---------------------------------------------------------------------------
+
+
+
+# ------------------- Herbitem creation -------------------------------------
+_fields_to_copy = ('family', 'genus',  'species',
+                   'gcode', 'itemcode', 'identified_s',
+                   'identified_e', 'identifiedby',
+                   'collected_s', 'collected_e',
+                   'country', 'region', 'district',
+                   'coordinates', 'ecodescr',
+                   'detailed', 'height', 'note')
+def move_pending_herbs(modeladmin, request, queryset):
+    total = queryset.count()
+    count = 0
+    for obj in queryset:
+        if not obj.err_msg and obj.checked:
+            kwargs = {key:getattr(obj, key) for key in _fields_to_copy}
+            HerbItem.objects.create(public=False, **kwargs)
+            obj.delete()
+            count += 1
+    messages.success(request, 'Перемещено %s из %s выбранных' % (count, total))
+    
+move_pending_herbs.short_description = "Переместить в базу гербария"
+
+def force_move_pending_herbs(modeladmin, request, queryset):
+    total = queryset.count()
+    count = 0    
+    for obj in queryset:
+        kwargs = {key:getattr(obj, key) for key in _fields_to_copy}
+        HerbItem.objects.create(public=False, **kwargs)
+        obj.delete()
+        count += 1
+    messages.success(request, 'Перемещено %s из %s выбранных' % (count, total))
+force_move_pending_herbs.short_description = "Переместить в базу игнорируя ошибки"
+# ---------------------------------------------------------------------------
 
 
 # Register your models here.
@@ -54,13 +107,15 @@ class HerbItemAdmin(AjaxSelectAdmin):
     list_filter = ('public', 'family', 'genus', 'species')
     search_fields = ('itemcode', 'gcode', 'collectedby', 'identifiedby', 'family__name', 'genus__name')
     list_display_links = ('get_full_name',)
-
+    actions = (publish_herbitem, unpublish_herbitem)
+    
 class PendingHerbsAdmin(admin.ModelAdmin):
     model = PendingHerbs
-    list_display = ('get_full_name', 'checked','itemcode','family', 'genus', 'species','collectedby','collected_s')
+    list_display = ('get_full_name', 'itemcode', 'gcode', 'checked', 'err_msg')
     list_filter = ('public', 'family', 'genus', 'species')
+    list_display_links = ('get_full_name',)
+    actions = (force_move_pending_herbs, move_pending_herbs)
     
-
 class LoadedFilesAdmin(admin.ModelAdmin):
     model = LoadedFiles
     list_display = ('datafile', 'status','createdby', 'created')
