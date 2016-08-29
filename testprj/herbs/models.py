@@ -14,7 +14,7 @@ from geoposition.fields import GeopositionField
 import pandas as pd
 
 from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicode,
-                   create_safely)
+                   create_safely, get_authorship_string)
 
 
 # Geopositionfield need to be imported!
@@ -23,26 +23,48 @@ from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicod
 # HERB_DATA_UPLOADPATH = 'herbdata/%Y/%m/%d/'
 UPLOAD_MAX_FILE_SIZE = 5 * 10 ** 6 # 5 MB defualt
 
-def get_authorship_string(authors):
-    result = ''
-    howmany = len(authors)
-    if howmany > 1:
-        inside = [item for item in authors[:howmany-1]]
-    else: 
-        inside = None
-    # order by priority : the older is put into bracets
-    if inside:
-        result += ' (%s) ' % (' '.join([x.get_name() for x in inside]), )
-    if howmany:
-        result += ' %s' % authors[howmany-1].get_name()
-    return capfirst(result)
 
-
-
-class MetaDataMixin(models.Model):
+class HerbItemMixin(models.Model):
     '''
     Common item properties
     '''
+    
+    family = models.ForeignKey('Family',
+                               on_delete=models.SET_NULL,
+                               null=True,
+                               verbose_name=_('семейство'))
+    genus = models.ForeignKey('Genus', on_delete=models.SET_NULL, null=True,
+                              verbose_name=_('род'))
+    species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
+                                verbose_name=_('вид'))
+
+    # item specific codes (used in the herbarium store)
+    gcode = models.CharField(max_length=10, default='', verbose_name=_('код подраздела'))
+    itemcode = models.CharField(max_length=15, default='', verbose_name=_('код образца'))
+
+    # position
+    country = models.CharField(default='', blank=True, max_length=255, verbose_name=_('страна'))
+    region = models.CharField(default='', blank=True, max_length=150, verbose_name=_('регион'))
+    district = models.CharField(default='', blank=True, max_length=150, verbose_name=_('район'))
+    detailed = models.CharField(default='', max_length=300, blank=True, verbose_name=_('дополнительно'))
+    place = GeopositionField(verbose_name=_('координаты'), blank=True)
+    coordinates = models.CharField(default='', blank=True, verbose_name=_('Координаты (строка)'), max_length=30)
+    height = models.CharField(default='', blank=True, max_length=50, verbose_name=_('высота'))
+
+    # Ecological factors
+    ecodescr = models.CharField(max_length=300, default='', blank=True, verbose_name=_('экоусловия'))
+
+    # Collection items
+    collectedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('сборщики')) 
+    collected_s = models.DateField(blank=True, verbose_name=_('начало сбора'), null=True)
+    collected_e = models.DateField(blank=True, verbose_name=_('конец сбора'), null=True)
+    identifiedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('определил(и)'))
+    identified_s = models.DateField(blank=True, verbose_name=_('начало определения'), null=True)
+    identified_e = models.DateField(blank=True, verbose_name=_('конец определения'), null=True)
+
+    uhash =  models.CharField(blank=True, default='', max_length=32, editable=False)
+
+    
     created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
     updated = models.DateField(auto_now=True, verbose_name=_('сохранен'))
     createdby = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -55,8 +77,42 @@ class MetaDataMixin(models.Model):
                                   editable=False, verbose_name=_('обновил'))
     public = models.BooleanField(default=False, verbose_name=_('опубликовано'))
 
+    def _hash(self):
+        tohash = self.family.name + self.genus.name + self.species.name
+#                  smart_unicode(self.species) + self.country +\
+#                  self.region + self.district + self.detailed +\
+#                  self.ecodescr + self.collectedby + str(self.collected_s) +\
+#                  str(self.identified_s) + str(self.identifiedby)
+        return md5(tohash).hexdigest()
+
+    def save(self, *args, **kwargs):
+        self.collectedby = self.collectedby.strip()
+        self.identifiedby = self.identifiedby.strip()
+        self.gcode = self.gcode.strip()
+        self.itemcode = self.itemcode.strip()
+        self.uhash = self._hash()
+        super(HerbItem, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return capfirst(self.get_full_name())
+
+    def get_full_name(self):
+        authors = [x for x in SpeciesAuthorship.objects.filter(species=self.species,
+                                                               species__genus=self.genus).order_by('priority')]
+        if len(authors) > 0:
+            author_string = ' ' + get_authorship_string(authors)
+        else:
+            author_string = ''
+        return (capfirst(self.genus.name) if self.genus else '') +\
+            ' ' + (self.species.name if self.species else '') + author_string
+    get_full_name.short_description = _('полное имя вида')
+
     class Meta:
         abstract = True
+        verbose_name = _('гербарный образeц')
+        verbose_name_plural = _('гербарные образцы')
+        ordering = ('family', 'genus', 'species')    
+ 
 
 @python_2_unicode_compatible
 class AuthorshipMixin(models.Model):
@@ -195,86 +251,16 @@ class Species(models.Model):
 
 
 
-class HerbItem(MetaDataMixin):
-    family = models.ForeignKey(Family,
-                               on_delete=models.SET_NULL,
-                               null=True,
-                               verbose_name=_('семейство'))
-    genus = models.ForeignKey(Genus, on_delete=models.SET_NULL, null=True,
-                              verbose_name=_('род'))
-    species = models.ForeignKey(Species, on_delete=models.SET_NULL, null=True,
-                                verbose_name=_('вид'))
-
-    # item specific codes (used in the herbarium store)
-    gcode = models.CharField(max_length=10, default='', verbose_name=_('код подраздела'))
-    itemcode = models.CharField(max_length=15, default='', verbose_name=_('код образца'))
-
-    # position
-    country = models.CharField(default='', blank=True, max_length=255, verbose_name=_('страна'))
-    region = models.CharField(default='', blank=True, max_length=150, verbose_name=_('регион'))
-    district = models.CharField(default='', blank=True, max_length=150, verbose_name=_('район'))
-    detailed = models.CharField(default='', max_length=300, blank=True, verbose_name=_('дополнительно'))
-    place = GeopositionField(verbose_name=_('координаты'), blank=True)
-    coordinates = models.CharField(default='', blank=True, verbose_name=_('Координаты (строка)'), max_length=30)
-    height = models.CharField(default='', blank=True, max_length=50, verbose_name=_('высота'))
-
-    # Ecological factors
-    ecodescr = models.CharField(max_length=300, default='', blank=True, verbose_name=_('экоусловия'))
-
-    # Collection items
-    collectedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('сборщики')) 
-    collected_s = models.DateField(blank=True, verbose_name=_('начало сбора'), null=True)
-    collected_e = models.DateField(blank=True, verbose_name=_('конец сбора'), null=True)
-    identifiedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('определил(и)'))
-    identified_s = models.DateField(blank=True, verbose_name=_('начало определения'), null=True)
-    identified_e = models.DateField(blank=True, verbose_name=_('конец определения'), null=True)
-
-    uhash =  models.CharField(blank=True, default='', max_length=32, editable=False)
-
-    def _hash(self):
-        tohash = self.family.name +\
-                 smart_unicode(self.species) + self.country +\
-                 self.region + self.district + self.detailed +\
-                 self.ecodescr + self.collectedby + smart_unicode(self.collected_s) +\
-                 smart_unicode(self.identified_s) + self.identifiedby
-        return md5(tohash).hexdigest()
-
-    def save(self, *args, **kwargs):
-        self.collectedby = self.collectedby.strip()
-        self.identifiedby = self.identifiedby.strip()
-        self.gcode = self.gcode.strip()
-        self.itemcode = self.itemcode.strip()
-#         self.uhash = self._hash()
-        super(HerbItem, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return capfirst(self.get_full_name())
-
-    def get_full_name(self):
-        authors = [x for x in SpeciesAuthorship.objects.filter(species=self.species,
-                                                               species__genus=self.genus).order_by('priority')]
-        if len(authors) > 0:
-            author_string = ' ' + get_authorship_string(authors)
-        else:
-            author_string = ''
-        return (capfirst(self.genus.name) if self.genus else '') +\
-            ' ' + (self.species.name if self.species else '') + author_string
-    get_full_name.short_description = _('полное имя вида')
-
-    class Meta:
-        abstract = False
-        verbose_name = _('гербарный образeц')
-        verbose_name_plural = _('гербарные образцы')
-        ordering = ('family', 'genus', 'species')
-        db_table = 'herbs_herbitem'
-
+class HerbItem(HerbItemMixin):
+    pass
+        
     
-class PendingHerbs(HerbItem):
+class PendingHerbs(HerbItemMixin):
     checked = models.BooleanField(default=False, verbose_name=_('проверено'))
     err_msg = models.TextField(blank=True, default='')
 
     class Meta:
-        db_table = 'herbs_loadpendingherbs'
+        abstract = False
         verbose_name = _('загруженный гербарный образец') 
         verbose_name_plural = _('загруженные гербарные образцы')
 
