@@ -120,26 +120,26 @@ def evaluate_date(item):
     item_ = ' ' + item + ' '
     year = year_pat.findall(item_)
     if len(year) != 1:
-        result = ('Year not found', item_)
+        result = ('Год не определен', item_)
         return result
     cmonth = None
     for month in monthes.keys():
         if month in item_:
             cmonth = monthes[month]
     if not cmonth:
-        result = ('Month not found', item_)
+        result = ('Месяц не определен', item_)
         return result 
     day = day_pat.findall(item_)
     if len(day) != 1:
-        result = ('Day not found', item_)
+        result = ('день не определен', item_)
         return result 
     day = int(day.pop())
     year = int(year.pop())
     if not (0 < day < 32): 
-        result = ('Day not in range', item_)
+        result = ('День должен быть от 1 до 31', item_)
         return result 
     if year > 2050 or year < 1500:
-        result = ('Strange year', item_)
+        result = ('Странное значение года', item_)
         return result
     cdate = date(year=year, day=day, month=cmonth)
     return ('', cdate)
