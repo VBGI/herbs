@@ -310,80 +310,77 @@ def load_datafile(sender, instance, **kwargs):
     if fsize > UPLOAD_MAX_FILE_SIZE:
         ErrorLog.objects.create(message=u'Превышен допустимый размер файла (%s байт), файл: %s' % (fsize, filename))
         return
-    if 'xls' in file_extension:
+    if ('xls' in file_extension) or ('xlsx' in file_extension):
         try:
             data = pd.read_excel(os.path.join(settings.MEDIA_ROOT, herbfile.name))
         except:
             ErrorLog.objects.create(message=u'Не удалось прочитать файл %s' % (herbfile.name,))
             return
-        ccolumns = set(data.columns)
-        ncolumns = set(NECESSARY_DATA_COLUMNS)
-        res = ncolumns - ccolumns
-        if len(res) > 0:
-            fields = ','.join(['<%s>'%item for item in res])
-            errlog = ErrorLog(message=u'Поля %s отсутствуют в файле %s' % (fields, herbfile.name))
-            errlog.save()
+    elif 'csv' in file_extension:
+        try:
+            data = pd.read_csv(os.path.join(settings.MEDIA_ROOT, herbfile.name))
+        except:
+            ErrorLog.objects.create(message=u'Не удалось прочитать файл %s' % (herbfile.name,))
             return
-        result, errors = evluate_herb_dataframe(data)
-        for err in errors:
-            if err:
-                ErrorLog.objects.create(message=';'.join([str(item) for item in err]))
+    else:
+        ErrorLog.objects.create(message=u'Неизвестный формат файла %s; Поддерживаемые форматы xls, csv.' % (herbfile.name,))
+        return
+    ccolumns = set(data.columns)
+    ncolumns = set(NECESSARY_DATA_COLUMNS)
+    res = ncolumns - ccolumns
+    if len(res) > 0:
+        fields = ','.join(['<%s>'%item for item in res])
+        errlog = ErrorLog(message=u'Поля %s отсутствуют в файле %s' % (fields, herbfile.name))
+        errlog.save()
+        return
+    result, errors = evluate_herb_dataframe(data)
+    for err in errors:
+        if err:
+            ErrorLog.objects.create(message=';'.join([str(item) for item in err]))
 
-        if len(result) > 0:
-            print 'The number of items', len(result)
-            # chekign hash for uniquess
-            for item in result:
-                familyobj = create_safely(Family, ('name',), (item['family'],))
-                for ind, auth in item['family_auth'][1]:
-                    authorobj = create_safely(Author, ('name',), (auth,))
-                    create_safely(FamilyAuthorship, ('author', 'priority', 'family'), 
-                                  (authorobj, ind, familyobj), postamble='')
-                    
-                genusobj = create_safely(Genus, ('name',), (item['genus'],))
-                for ind, auth in item['genus_auth'][1]:
-                    authorobj = create_safely(Author, ('name',), (auth,))
-                    create_safely(GenusAuthorship, ('author', 'priority', 'genus'), 
-                                  (authorobj, ind, genusobj), postamble='')
+    if len(result) > 0:
+        print 'The number of items', len(result)
+        # chekign hash for uniquess
+        for item in result:
+            familyobj = create_safely(Family, ('name',), (item['family'],))
+            for ind, auth in item['family_auth'][1]:
+                authorobj = create_safely(Author, ('name',), (auth,))
+                create_safely(FamilyAuthorship, ('author', 'priority', 'family'), 
+                              (authorobj, ind, familyobj), postamble='')
+                
+            genusobj = create_safely(Genus, ('name',), (item['genus'],))
+            for ind, auth in item['genus_auth'][1]:
+                authorobj = create_safely(Author, ('name',), (auth,))
+                create_safely(GenusAuthorship, ('author', 'priority', 'genus'), 
+                              (authorobj, ind, genusobj), postamble='')
 
-                speciesobj = create_safely(Species, ('name', 'genus'),
-                                           (item['species'].strip().lower(), genusobj),
-                                           postamble='')
-                for ind, auth in item['species_auth'][1]:
-                    authorobj = create_safely(Author, ('name',), (auth,))
-                    create_safely(SpeciesAuthorship, ('author', 'priority', 'species'), 
-                                  (authorobj, ind, speciesobj), postamble='')
+            speciesobj = create_safely(Species, ('name', 'genus'),
+                                       (item['species'].strip().lower(), genusobj),
+                                       postamble='')
+            for ind, auth in item['species_auth'][1]:
+                authorobj = create_safely(Author, ('name',), (auth,))
+                create_safely(SpeciesAuthorship, ('author', 'priority', 'species'), 
+                              (authorobj, ind, speciesobj), postamble='')
 
-                pobj = PendingHerbs(family=familyobj,
-                                genus=genusobj,
-                                species=speciesobj,
-                                gcode=item['gcode'],
-                                itemcode=item['itemcode'],
-                                identified_s=item['identified'],
-                                identified_e=item['identified'],
-                                identifiedby=item['identifiedby'],
-                                collectedby=item['collectedby'],
-                                collected_s=item['collected'],
-                                collected_e=item['collected'],
-                                country=item['country'],
-                                region=item['region'],
-                                district=item['district'],
-                                coordinates=item['coordinates'],
-                                ecodescr=item['ecology'],
-                                detailed=item['detailed'],
-                                height=item['height'],
-                                note=item['note'])
-                if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
-                    pobj.err_msg += u'Запись с номером %s уже существует;' % pobj.itemcode
-                pobj.save()
-
-        # Create items that are validated (primarily state)
-
-        # data evaluation step
-    elif 'zip' in file_extension:
-        # Evluation of a zip file, do nothing .. yet
-        pass
-         
-     
-#     tempdir = tempfile.mkdtemp()
-#     zipfile = ZipFile()
-        
+            pobj = PendingHerbs(family=familyobj,
+                            genus=genusobj,
+                            species=speciesobj,
+                            gcode=item['gcode'],
+                            itemcode=item['itemcode'],
+                            identified_s=item['identified'],
+                            identified_e=item['identified'],
+                            identifiedby=item['identifiedby'],
+                            collectedby=item['collectedby'],
+                            collected_s=item['collected'],
+                            collected_e=item['collected'],
+                            country=item['country'],
+                            region=item['region'],
+                            district=item['district'],
+                            coordinates=item['coordinates'],
+                            ecodescr=item['ecology'],
+                            detailed=item['detailed'],
+                            height=item['height'],
+                            note=item['note'])
+            if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
+                pobj.err_msg += u'Запись с номером %s уже существует;' % pobj.itemcode
+            pobj.save()
