@@ -126,7 +126,7 @@ class AuthorshipMixin(models.Model):
     priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
 
     def __str__(self):
-        return str(self.author) + (' %s' % self.priority if self.priority > 0 else '') 
+        return self.author.name + (' %s' % self.priority if self.priority > 0 else '') 
 
     def get_name(self):
         return capfirst(self.author.name) if self.author else ''
@@ -147,7 +147,7 @@ class Author(models.Model):
         super(Author, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.get_name()
 
     def get_name(self):
         return capfirst(self.name) if self.name else ''
@@ -336,27 +336,30 @@ def load_datafile(sender, instance, **kwargs):
     for err in errors:
         if err:
             ErrorLog.objects.create(message=';'.join([str(item) for item in err]))
-
     if len(result) > 0:
+        indd=0
         for item in result:
             familyobj = create_safely(Family, ('name',), (item['family'],))
-            for ind, auth in item['family_auth'][1]:
-                authorobj = create_safely(Author, ('name',), (auth,))
-                create_safely(FamilyAuthorship, ('author', 'priority', 'family'), 
+            if not familyobj.authorship.all().exists():
+                for ind, auth in item['family_auth'][1]:
+                    authorobj = create_safely(Author, ('name',), (auth,))
+                    create_safely(FamilyAuthorship, ('author', 'priority', 'family'), 
                               (authorobj, ind, familyobj), postamble='')
                 
             genusobj = create_safely(Genus, ('name',), (item['genus'],))
-            for ind, auth in item['genus_auth'][1]:
-                authorobj = create_safely(Author, ('name',), (auth,))
-                create_safely(GenusAuthorship, ('author', 'priority', 'genus'), 
+            if not genusobj.authorship.all().exists():
+                for ind, auth in item['genus_auth'][1]:
+                    authorobj = create_safely(Author, ('name',), (auth,))
+                    create_safely(GenusAuthorship, ('author', 'priority', 'genus'), 
                               (authorobj, ind, genusobj), postamble='')
 
             speciesobj = create_safely(Species, ('name', 'genus'),
                                        (item['species'].strip().lower(), genusobj),
                                        postamble='')
-            for ind, auth in item['species_auth'][1]:
-                authorobj = create_safely(Author, ('name',), (auth,))
-                create_safely(SpeciesAuthorship, ('author', 'priority', 'species'), 
+            if not speciesobj.authorship.all().exists():
+                for ind, auth in item['species_auth'][1]:
+                    authorobj = create_safely(Author, ('name',), (auth,))
+                    create_safely(SpeciesAuthorship, ('author', 'priority', 'species'), 
                               (authorobj, ind, speciesobj), postamble='')
             query_fields = {'family':familyobj,
                             'genus':genusobj,
@@ -382,3 +385,5 @@ def load_datafile(sender, instance, **kwargs):
                 if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
                     pobj.err_msg += u'Запись с номером %s уже существует;' % pobj.itemcode
                     pobj.save()
+            indd+=1
+            

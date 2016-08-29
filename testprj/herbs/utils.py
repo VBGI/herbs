@@ -188,7 +188,7 @@ def evluate_herb_dataframe(df):
         except: 
             errmsgs[-1].append('Ошибка в строке %s в поле семейство' % (ind + 1, ))
         # -----------------------------------------    
-
+        
         # -------- Genus evaluations -------------
         genusok = False
         try:
@@ -238,22 +238,20 @@ def evluate_herb_dataframe(df):
 
         # --------- Code1 is a string of digits only  --------
         itemcodeok = False
-        if unique_code_pat.match(str(item['itemcode']).strip()):
+        if unique_code_pat.match(item['itemcode']):
             itemcodeok = True
-            itemcode = str(item['itemcode']).strip()
+            itemcode = item['itemcode']
         else:
             errmsgs[-1].append('Ошибка в строке %s в поле уникальный код' % (ind + 1, ))
         # -----------------------------------------
 
         # --------- Code2 is a string of digits only  --------
         gcodeok = False
-        if unique_code_pat.match(str(item['gcode']).strip()):
+        if unique_code_pat.match(item['gcode']):
             gcodeok = True
-            gcode = str(item['gcode']).strip()
+            gcode = item['gcode']
         else:
             errmsgs[-1].append('Ошибка в строке %s в поле код раздела' % (ind + 1, ))
-
-
         # -----------------------------------------
         if familyok & genusok & speciesok &\
             itemcodeok & gcodeok:
