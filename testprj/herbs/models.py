@@ -4,7 +4,7 @@ import os
 
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
@@ -298,6 +298,14 @@ class ErrorLog(models.Model):
         verbose_name = _('Ошибки загрузки файлов')
         verbose_name_plural = _('Ошибки загрузки файлов')
         ordering = ('-created', 'message')
+
+
+@receiver(pre_delete, sender=LoadedFiles)
+def loadedfiles_delete(sender, instance, **kwargs):
+    try:
+        instance.datafile.delete(False)
+    except IOError:
+        pass 
 
 
 @receiver(post_save, sender=LoadedFiles)
