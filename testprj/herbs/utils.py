@@ -28,6 +28,7 @@ monthes = {'янв': 1,
            'июл': 7,
            'авг': 8,
            'сен': 9,
+           'ент': 9,
            'окт': 10,
            'ноя': 11,
            'дек': 12
@@ -228,7 +229,7 @@ def evluate_herb_dataframe(df):
         if item['identified']:
             detmsg, detdate = evaluate_date(item['identified'])
             if detmsg:
-                errmsgs[-1].append('Ошибка в строке %s в поле дата определения: %s' % (ind + 1, detmsg))
+                errmsgs[-1].append('Ошибка в строке %s в поле "дата определения": %s' % (ind + 1, detmsg))
                 detdate = None
         else:
             detdate = None
@@ -240,7 +241,7 @@ def evluate_herb_dataframe(df):
             itemcodeok = True
             itemcode = item['itemcode']
         else:
-            errmsgs[-1].append('Ошибка в строке %s в поле уникальный код' % (ind + 1, ))
+            errmsgs[-1].append('Ошибка в строке %s в поле "уникальный код"' % (ind + 1, ))
         # -----------------------------------------
 
         # --------- Code2 is a string of digits only  --------
@@ -249,7 +250,7 @@ def evluate_herb_dataframe(df):
             gcodeok = True
             gcode = item['gcode']
         else:
-            errmsgs[-1].append('Ошибка в строке %s в поле код раздела' % (ind + 1, ))
+            errmsgs[-1].append('Ошибка в строке %s в поле "код раздела"' % (ind + 1, ))
         # -----------------------------------------
         if familyok & genusok & speciesok &\
             itemcodeok & gcodeok:

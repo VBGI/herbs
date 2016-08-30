@@ -86,6 +86,7 @@ class Migration(SchemaMigration):
             ('identifiedby', self.gf('django.db.models.fields.CharField')(default='', max_length=500, blank=True)),
             ('identified_s', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('identified_e', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('note', self.gf('django.db.models.fields.CharField')(default='', max_length=1000, blank=True)),
             ('uhash', self.gf('django.db.models.fields.CharField')(default='', max_length=32, blank=True)),
             ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateField')(auto_now=True, blank=True)),
@@ -117,6 +118,7 @@ class Migration(SchemaMigration):
             ('identifiedby', self.gf('django.db.models.fields.CharField')(default='', max_length=500, blank=True)),
             ('identified_s', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('identified_e', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('note', self.gf('django.db.models.fields.CharField')(default='', max_length=1000, blank=True)),
             ('uhash', self.gf('django.db.models.fields.CharField')(default='', max_length=32, blank=True)),
             ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateField')(auto_now=True, blank=True)),
@@ -143,6 +145,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('message', self.gf('django.db.models.fields.TextField')(default='', blank=True)),
+            ('who', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True)),
         ))
         db.send_create_signal(u'herbs', ['ErrorLog'])
 
@@ -228,7 +231,8 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "('-created', 'message')", 'object_name': 'ErrorLog'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'message': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'})
+            'message': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
+            'who': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255', 'blank': 'True'})
         },
         u'herbs.family': {
             'Meta': {'object_name': 'Family'},
@@ -277,6 +281,7 @@ class Migration(SchemaMigration):
             'identified_s': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'identifiedby': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '500', 'blank': 'True'}),
             'itemcode': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '15'}),
+            'note': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '1000', 'blank': 'True'}),
             'place': ('geoposition.fields.GeopositionField', [], {'max_length': '42', 'blank': 'True'}),
             'public': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'region': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '150', 'blank': 'True'}),
@@ -316,6 +321,7 @@ class Migration(SchemaMigration):
             'identified_s': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'identifiedby': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '500', 'blank': 'True'}),
             'itemcode': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '15'}),
+            'note': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '1000', 'blank': 'True'}),
             'place': ('geoposition.fields.GeopositionField', [], {'max_length': '42', 'blank': 'True'}),
             'public': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'region': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '150', 'blank': 'True'}),

@@ -96,7 +96,7 @@ class GenusAdmin(admin.ModelAdmin):
 
 class HerbItemAdmin(AjaxSelectAdmin):
     form = HerbItemForm
-    list_display = ('family', 'get_full_name', 'gcode', 'itemcode', 'genus', 'species', 'collectedby', 'collected_s')
+    list_display = ('family', 'get_full_name', 'gcode', 'itemcode', 'public', 'collectedby', 'collected_s')
     list_filter = ('public', 'family', 'genus', 'species')
     search_fields = ('itemcode', 'gcode', 'collectedby', 'identifiedby', 'family__name', 'genus__name')
     list_display_links = ('get_full_name',)
@@ -122,11 +122,8 @@ class SpeciesAdmin(admin.ModelAdmin):
         )
 
 class ErrorLogAdmin(admin.ModelAdmin):
-    list_display = ('message', 'created')
-    readonly_fields = ('message', 'created')
-#     def show_messages(self, obj):
-#         return '<a href="%s">%s</a>' % (obj.firm_url, obj.firm_url)
-#     show_firm_url.allow_tags = True    
+    list_display = ('message', 'created', 'who')
+    readonly_fields = ('message', 'created', 'who')
 
 
 admin.site.register(Family, FamilyAdmin)
