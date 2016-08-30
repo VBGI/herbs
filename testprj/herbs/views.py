@@ -87,7 +87,7 @@ def advice_mixin(request,qclass=PlantFamily):
         _data.append(item.latin_name)
     _data = sorted(list(set(_data)))
     for ind,val in enumerate(_data):
-        data.append({"id": random.randint(1,10**8), "text": val})
+        data.append({"id": random.randint(1, 10**8), "text": val})
     return HttpResponse(json.dumps({'items':data}), content_type="application/json;charset=utf-8")
 
  
