@@ -28,8 +28,7 @@ def get_item_data(request):
             context.update(tojson)
         except HerbItem.DoesNotExists:
             context = {'error': u'Объект не найден'}
-    return  HttpResponse(json.dumps(context), content_type="application/json") 
-
+    return  HttpResponse(json.dumps(context), content_type="application/json; charset=utf-8") 
 
 
 def showherbs(request):
