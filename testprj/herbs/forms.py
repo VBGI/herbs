@@ -28,6 +28,9 @@ class TaxonCleanerMixin(forms.ModelForm):
             raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
         return data
 
+# class HerbItemShowForm(forms.ModelForm):
+#     class Meta:
+#         model = HerbItem
 
 class HerbItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
