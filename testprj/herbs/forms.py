@@ -87,9 +87,11 @@ class SearchForm(forms.Form):
     itemcode = forms.CharField(required=False, label=_('Код1'), max_length=15)
     gcode = forms.CharField(required=False, label=_('Код2'), max_length=10)
     collectedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
+    identifiedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     country = forms.CharField(required=False, label=_('Страна'), max_length=30)
-    region = forms.CharField(required=False, label=_('Регион'), max_length=30)
-
+    place = forms.CharField(required=False, label=_('Место'), max_length=30)
+    colstart = froms.DateField(required=False, label=_('Начало сбора'))
+    colend = froms.DateField(required=False, label=_('Конец сбора'))
 
 class GenusForm(TaxonCleanerMixin):
     class Meta:

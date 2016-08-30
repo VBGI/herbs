@@ -8,7 +8,7 @@ from django.forms.models import model_to_dict
  
  
 from .models import Family, Genus, HerbItem
-from .forms import SearchForm, ExtendedSearchForm
+from .forms import SearchForm
 
 from django.template.loader import render_to_string
 
@@ -19,6 +19,7 @@ import json
 
 @csrf_exempt
 def get_item_data(request):
+    '''Get herbitem as a json object '''
     context = {'error': ''}
     objid = request.GET.get('id', '')
     if objid:
@@ -31,23 +32,23 @@ def get_item_data(request):
     return  HttpResponse(json.dumps(context), content_type="application/json; charset=utf-8") 
 
 
-def showherbs(request):
+@csrf_exempt
+def show_herbs(request):
     '''
-    Answer on quries about herbs
+    Answer on queries for herbitems
     '''
+    if request.method == 'POST':
+        return HttpResponse('Only GET-methods are acceptable')    
+    
     if request.is_ajax():
+        dataform = SearchForm(request.GET)
+        if dataform.is_valid():
+            data = {key: dataform.cleaned_data[key] for key in dataform}
         
-        # basic search components
-        family = request.POST.get('family', '')
-        genus = request.POST.get('genus', '')
-        species = request.POST.get('species', '')
-        gcode = request.POST.get('gcode', '')  # Search by internal code (assigned by this system)
-        collectors = request.POST.get('collectors', '')
-        country = request.POST.get('country', '')
-        region = request.POST.get('region', '')
-
+        
         object_filtered = HerbItem.objects.all()
-            
+        
+        
         if family:
             object_filtered = object_filtered.filter(family__name__icontains=family)
 
@@ -66,28 +67,61 @@ def showherbs(request):
         pass
     else:
         # Request isn't ajax
-        pass
+        return HttpResponse('Only ajax-requests are acceptable')
 
 
 
-# ----- Copied from plantsets application
 @never_cache
-def advice_mixin(request,qclass=PlantFamily):
+def advice_select(request):
     if not request.is_ajax():
-        return HttpResponse(json.dumps(''), content_type="application/json;charset=utf-8")
-    query = request.POST.get('q','')
-    if qclass == CollectionObject:
-        objects = qclass.objects.filter(Q(latin_name__icontains=query)|Q(common_name_ru__icontains=query)|Q(common_name_en__icontains=query)).order_by('latin_name')
+        return HttpResponse('Only ajax-requests are acceptable')
+    
+    if request.method == 'POST':
+        return HttpResponse('Only GET-methods are acceptable')
+
+    dataform = SearchForm(request.GET)
+    context = {'error': ''}
+    if dataform.is_valid():
+        cfield = request.GET.get('cfield', 'species')
+        if cfield not in dataform.fields:
+            cfield = 'species'
+        query = requiest.GET.get('query', '')
+        if not query:
+            data = []
+            return HttpResponse(json.dumps({'items': data}),
+                                content_type="application/json;charset=utf-8")
+        if cfield == 'itemcode':
+            objects = HerbItem.objects.filter(itemcode__contains=query)
+            data = [{'id': item.pk, 'text': item.itemcode} for item in objects.iterator()]
+        elif cfield == 'family':
+            objects = Family.objects.filter(name__icontains=query)
+            data = [{'id': item.pk, 'text': item.name} for item in objects.iterator()]
+        elif cfield == 'genus':
+            if dataform.cleaned_data['family']:
+                objects = HerbItem.objects.filter(Q(family__name__icontains=dataform.cleaned_data['family'])|\
+                                              Q(genus__name__icontains=query))
+                data = [{'id': item.genus.pk, 'text': item.genus.name} for item in objects.iterator()]
+            else:
+                objects = Genus.objects.filter(name__icontains=query)
+                data = [{'id': item.pk, 'text': item.name} for item in objects.iterator()]
+        elif cfield == 'species':
+            if dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
+                objects = HerbItem.objects.filter(Q(family__name__icontains=dataform.cleaned_data['family'])|\
+                                                  Q(genus__name__icontains__icontains=dataform.cleaned_data['genus'])|\
+                                                  Q(species__name__icontains=query))
+            elif dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
+                objects = HerbItem.objects.filter(Q(family__name__icontains=dataform.cleaned_data['family'])|\
+                                                  Q(species__name__icontains=query))
+            elif not dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
+                objects = HerbItem.objects.filter(Q(genus__name__icontains__icontains=dataform.cleaned_data['genus'])|\
+                                                  Q(species__name__icontains=query))
+            elif not dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
+                objects = HerbItem.objects.filter(species__name__icontains=query)
+            data = [{'id': item.species.pk, 'text': item.get_full_name(), 'text-final': item.species.name} for item in objects.iterator()]
+
     else:
-        objects = qclass.objects.filter(Q(latin_name__icontains=query)|Q(name_ru__icontains=query)|Q(name_en__icontains=query)).order_by('latin_name')
-    data = []
-    _data = []
-    for item in objects.iterator():
-        _data.append(item.latin_name)
-    _data = sorted(list(set(_data)))
-    for ind,val in enumerate(_data):
-        data.append({"id": random.randint(1, 10**8), "text": val})
-    return HttpResponse(json.dumps({'items':data}), content_type="application/json;charset=utf-8")
-
- 
-
+        # invalid form (That isn't possible,  I hope! )
+        context.update({'error': 'Странный запрос'})
+        data = []
+    context.update({'items': data})
+    return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
