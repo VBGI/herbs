@@ -215,24 +215,22 @@ def evluate_herb_dataframe(df):
 
 
         # -------- Collected evaluations -------------
-        try:
+        if item['collected']:
             colmsg, coldate = evaluate_date(item['collected'])
             if colmsg:
                 errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора": %s' % (ind + 1, colmsg))
                 coldate = None
-        except:
-            errmsgs[-1].append('Ошибка в строке %s в поле "начало сбора"' % (ind + 1, ))
+        else:
             coldate = None
         # -----------------------------------------
 
         # -------- Determined evaluations -------------
-        try:
+        if item['identified']:
             detmsg, detdate = evaluate_date(item['identified'])
             if detmsg:
                 errmsgs[-1].append('Ошибка в строке %s в поле дата определения: %s' % (ind + 1, detmsg))
                 detdate = None
-        except: 
-            errmsgs[-1].append('Ошибка в строке %s в поле дата определения' % (ind + 1, ))
+        else:
             detdate = None
         # -----------------------------------------
 
@@ -265,17 +263,17 @@ def evluate_herb_dataframe(df):
                        'gcode': gcode,
                        'identified': detdate,
                        'collected': coldate,
-                       'country': item['country'].strip(), 
-                       'region': item['region'].strip(),
-                       'district': item['district'].strip(),
-                       'coordinates': item['coordinates'].strip(),
-                       'ecology': item['ecology'].strip(),
-                       'height': item['height'].strip(),
-                       'collectedby': item['collectedby'].strip(),
-                       'identifiedby': item['identifiedby'].strip(),
-                       'detailed': item['place'].strip(),
-                       'height': item['height'].strip(),
-                       'note': item['note'].strip(),
+                       'country': item['country'], 
+                       'region': item['region'],
+                       'district': item['district'],
+                       'coordinates': item['coordinates'],
+                       'ecology': item['ecology'],
+                       'height': item['height'],
+                       'collectedby': item['collectedby'],
+                       'identifiedby': item['identifiedby'],
+                       'detailed': item['place'],
+                       'height': item['height'],
+                       'note': item['note'],
                        }
                       )
     return result, errmsgs
