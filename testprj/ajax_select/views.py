@@ -93,12 +93,16 @@ def add_popup(request, app_label, model):
     if request.method == 'POST' and (response.status_code == 200):
 
         def fiddle(response):
-            content = response.content.decode('UTF-8')
+            if hasattr(response, 'rendered_content'):
+                content = response.rendered_content
+            else:
+                content = response.content
+#             content = response.content.decode('UTF-8')
             # django >= 1.8
             fiddled = content.replace('dismissAddRelatedObjectPopup', 'didAddPopup')
             # django < 1.8
             fiddled = fiddled.replace('dismissAddAnotherPopup', 'didAddPopup')
-            response.content = fiddled.encode('UTF-8')
+            response.content = fiddled #.encode('UTF-8')
             return response
 
 #         response.add_post_render_callback(fiddle)
