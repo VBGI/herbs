@@ -115,7 +115,7 @@ class LoadedFilesAdmin(admin.ModelAdmin):
     list_filter = ('status', 'createdby')
 
 
-class SpeciesAdmin(admin.ModelAdmin): 
+class SpeciesAdmin(AjaxSelectAdmin): 
     form = SpeciesForm
     inlines = (
         SpeciesAuthorshipInline,
