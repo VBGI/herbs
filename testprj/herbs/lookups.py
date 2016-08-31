@@ -22,6 +22,7 @@ class GenusLookup(LookupChannel):
 class SpeciesLookup(LookupChannel):
     model = Species
     def get_query(self, q, request):
+        # TODO Genus search should be performed
         return self.model.objects.filter(name__icontains=q).order_by('name')[:20]
     
 @register('authorlookup')
@@ -47,68 +48,42 @@ class CountryLookup(LookupChannel):
         return obj
 
 
-@register('region')
-class RegionLookup(LookupChannel):
-    def get_query(self, q, request):
-        return HerbItem.objects.filter(region__icontains=q).order_by('updated', 'region')[:20]
-        
+
+class DistinctValueMixin(LookupChannel):
+    
     def format_match(self, obj):
-        return escape(force_text(obj.region))
+        return escape(force_text(obj))
     
     def get_result(self, obj):
-        return escape(force_text(obj.region))
+        return escape(force_text(obj))
     
     def format_item_display(self, obj):
-        return escape(force_text(obj.region))
-    
-    
+        return escape(force_text(obj))
+
+
+@register('region')
+class RegionLookup(DistinctValueMixin):
+    def get_query(self, q, request):
+        return map(lambda x: x[0], HerbItem.objects.filter(region__icontains=q).order_by('updated',
+                                                                     'region').values_list('region').distinct())[:20] 
+
 @register('district')
 class DistrictLookup(LookupChannel):
-    
     def get_query(self, q, request):
-        return HerbItem.objects.filter(district__icontains=q).order_by('updated', 'district')[:20]
+        return map(lambda x: x[0], HerbItem.objects.filter(district__icontains=q).order_by('updated',
+                                                                     'district').values_list('district').distinct())[:20] 
 
-    def format_match(self, obj):
-        return escape(force_text(obj.district))
-    
-    def get_result(self, obj):
-        return escape(force_text(obj.district))
-    
-    def format_item_display(self, obj):
-        return escape(force_text(obj.district))
-    
-    
-    
+
 @register('collectedby')
 class CollectorsLookup(LookupChannel):
-    
     def get_query(self, q, request):
-        return HerbItem.objects.filter(collectedby__icontains=q).order_by('updated', 'collectedby')[:20]
+        return map(lambda x: x[0], HerbItem.objects.filter(collectedby__icontains=q).order_by('updated',
+                                                                     'collectedby').values_list('collectedby').distinct())[:20] 
 
-    def format_match(self, obj):
-        return escape(force_text(obj.collectedby))
-    
-    def get_result(self, obj):
-        return escape(force_text(obj.collectedby))
-    
-    def format_item_display(self, obj):
-        return escape(force_text(obj.collectedby))
-    
 
-    
 @register('identifiedby')
 class IdentifiersLookup(LookupChannel):
-    
     def get_query(self, q, request):
-        return HerbItem.objects.filter(identifiedby__icontains=q).order_by('updated', 'identifiedby')[:20]
-
-    def format_match(self, obj):
-        return escape(force_text(obj.identifiedby))
+        return map(lambda x: x[0], HerbItem.objects.filter(identifiedby__icontains=q).order_by('updated',
+                                                                     'identifiedby').values_list('identifiedby').distinct())[:20]
     
-    def get_result(self, obj):
-        return escape(force_text(obj.identifiedby))
-    
-    def format_item_display(self, obj):
-        return escape(force_text(obj.identifiedby))    
-    
-          
