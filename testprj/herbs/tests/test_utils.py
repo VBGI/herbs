@@ -4,7 +4,7 @@ from ..utils import get_authors, evaluate_taxons, evaluate_dates
 from unittest import TestCase
 from datetime import date
 
-
+# TODO: Structure of utils changed, tests should be updated
 class TaxonEvaluationTestCase(TestCase):
     
     def setUp(self):
