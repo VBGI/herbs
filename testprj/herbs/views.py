@@ -26,7 +26,7 @@ def get_item_data(request):
         try:
             hobj = HerbItem.objects.get(id=objid)
             tojson = model_to_dict(hobj)
-            context.update(tojson)
+            context.update({'data': tojson})
         except HerbItem.DoesNotExists:
             context = {'error': u'Объект не найден'}
     return  HttpResponse(json.dumps(context), content_type="application/json; charset=utf-8") 
