@@ -39,12 +39,12 @@ class HerbItemMixin(models.Model):
     '''
     
     family = models.ForeignKey('Family',
-                               on_delete=models.SET_NULL,
+                               on_delete=models.CASCADE,
                                null=True,
                                verbose_name=_('семейство'))
-    genus = models.ForeignKey('Genus', on_delete=models.SET_NULL, null=True,
+    genus = models.ForeignKey('Genus', on_delete=models.CASCADE, null=True,
                               verbose_name=_('род'))
-    species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
+    species = models.ForeignKey('Species', on_delete=models.CASCADE, null=True,
                                 verbose_name=_('вид'))
 
     # item specific codes (used in the herbarium store)

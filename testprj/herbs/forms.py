@@ -90,8 +90,8 @@ class SearchForm(forms.Form):
     identifiedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     country = forms.CharField(required=False, label=_('Страна'), max_length=30)
     place = forms.CharField(required=False, label=_('Место'), max_length=30)
-    colstart = froms.DateField(required=False, label=_('Начало сбора'))
-    colend = froms.DateField(required=False, label=_('Конец сбора'))
+    colstart = forms.DateField(required=False, label=_('Начало сбора'))
+    colend = forms.DateField(required=False, label=_('Конец сбора'))
 
 class GenusForm(TaxonCleanerMixin):
     class Meta:
@@ -111,7 +111,6 @@ class FamilyAuthorshipForm(forms.ModelForm):
                                      help_text=None,
                                      label=_("Автор"))
 
-
 class SpeciesAuthorshipForm(forms.ModelForm):
     class Meta:
         model = SpeciesAuthorship
@@ -119,7 +118,6 @@ class SpeciesAuthorshipForm(forms.ModelForm):
                                      required=False,
                                      help_text=None,
                                      label=_("Автор"))
-
 
 class GenusAuthorshipForm(forms.ModelForm):
     class Meta:
@@ -129,7 +127,6 @@ class GenusAuthorshipForm(forms.ModelForm):
                                      help_text=None,
                                      label=_("Автор"))
 
-
 class AuthorForm(forms.ModelForm):
     def clean_name(self):
         data = self.cleaned_data['name'].lower()
@@ -138,8 +135,6 @@ class AuthorForm(forms.ModelForm):
         return data
     class Meta:
         model = Author
-
-
 
 class SpeciesForm(forms.ModelForm):
     class Meta:
