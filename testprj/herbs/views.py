@@ -5,10 +5,10 @@ from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.forms.models import model_to_dict
- 
- 
+  
 from .models import Family, Genus, HerbItem
 from .forms import SearchForm
+from .conf import settings
 
 from django.template.loader import render_to_string
 
@@ -16,8 +16,6 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-
-HERB_PAGINATION_COUNT = 100
 
 @csrf_exempt
 def get_item_data(request):
@@ -41,7 +39,9 @@ def show_herbs(request):
     '''
     if request.method == 'POST':
         return HttpResponse('Only GET-methods are acceptable')    
-    
+
+    context = {'error': ''}
+
     if request.is_ajax():
         dataform = SearchForm(request.GET)
         if dataform.is_valid():
@@ -65,36 +65,42 @@ def show_herbs(request):
 
             object_filtered = HerbItem.objects.filter(reduce(operator.and_, biquery))
             
+            
+            if not object_filtered.exists():
+                context.update({'herbobjs' : [],
+                                'total': 0,
+                                'error': 'Не одного элемента не удолетворяет условиям запроса'})
+                return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
             # ------- Sorting items --------------
+            # sorting isn't implemented yet
+            # -----  
             
-            # pagination
-            pag_count = request.POST.get('pag',str(HERB_PAGINATION_COUNT))
-            page = request.POST.get('page','1')
+            # ---------  pagination-----------------
+            pagcount = request.POST.get('pagcount', '')
+            page = request.POST.get('page', '1')
             
+            pagcount = int(pagcount) if pagcount.isdigit() else settings.HERBS_PAGINATION_COUNT
+            page = int(page) if page.isdigit() else 1
+            
+            paginator = Paginator(object_filtered, pag_count)
+            
+            try:
+                obj_to_show = paginator.page(page)
+            except:
+                obj_to_show = paginator.page(1)
+            
+            context.update({'herbobjs' : obj_to_show,
+                            'total': object_filtered.count(),
+                            })
+
+            return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
         else: 
-            #Form is invalid, that isn't possible; 
-            pass
-        
-        if family:
-            object_filtered = object_filtered.filter(family__name__icontains=family)
-
-        if genus:
-            object_filtered = object_filtered.filter(genus__name__icontains=genus)
-        
-        if species:
-            object_filtered = object_filtered.filter(species__name__icontains=species)
-
-        if gcode:
-            object_filtered = object_filtered.filter(gcode=gcode)
-        if itemcode:
-            object_filtered = object_filtered.filter(itemcode=itemcode)        
-        
-        # Form a herbs list according to request
-        pass
+            context.update({'herbobjs' : [],
+                                'total': 0,
+                                'error': 'Ошибка в форме поиска'})
+            return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
     else:
-        # Request isn't ajax
         return HttpResponse('Only ajax-requests are acceptable')
-
 
 
 @never_cache
