@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import operator
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -16,6 +16,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+
+HERB_PAGINATION_COUNT = 100
 
 @csrf_exempt
 def get_item_data(request):
@@ -43,11 +45,35 @@ def show_herbs(request):
     if request.is_ajax():
         dataform = SearchForm(request.GET)
         if dataform.is_valid():
-            data = {key: dataform.cleaned_data[key] for key in dataform}
-        
-        
-        object_filtered = HerbItem.objects.all()
-        
+            data = {key: dataform.cleaned_data[key] for key in dataform.fields}
+            bigquery = []
+            bigquery += [Q(family__name__iexact=data['family'])] if data['family'] else []
+            bigquery += [Q(genus__name__iexact=data['genus'])] if data['genus'] else []
+            bigquery += [Q(species__name__iexact=data['species'])] if data['species'] else []
+            bigquery += [Q(itemcode__icontains=data['itemcode'])] if data['itemcode'] else []
+            bigquery += [Q(gcode__icontains=data['gcode'])] if data['gcode'] else []
+            bigquery += [Q(collectedby__icontains=data['collectedby'])] if data['collectedby'] else []
+            bigquery += [Q(identifiedby__icontains=data['identifiedby'])] if data['identifiedby'] else []
+            bigquery += [Q(country__icontains=data['country'])] if data['country'] else []
+            # place handle
+            bigquery += [Q(region__icontains=data['place'])|\
+                         Q(detailed__icontains=data['place'])|\
+                         Q(district__icontains=data['place'])] if data['place'] else []
+            # dates
+            bigquery += [Q(colstart__gt=data['colstart'])] if data['colstart'] else []
+            bigquery += [Q(colstart__lt=data['colend'])] if data['colstart'] else []
+
+            object_filtered = HerbItem.objects.filter(reduce(operator.and_, biquery))
+            
+            # ------- Sorting items --------------
+            
+            # pagination
+            pag_count = request.POST.get('pag',str(HERB_PAGINATION_COUNT))
+            page = request.POST.get('page','1')
+            
+        else: 
+            #Form is invalid, that isn't possible; 
+            pass
         
         if family:
             object_filtered = object_filtered.filter(family__name__icontains=family)
@@ -98,23 +124,23 @@ def advice_select(request):
             data = [{'id': item.pk, 'text': item.name} for item in objects.iterator()]
         elif cfield == 'genus':
             if dataform.cleaned_data['family']:
-                objects = HerbItem.objects.filter(Q(family__name__icontains=dataform.cleaned_data['family'])|\
-                                              Q(genus__name__icontains=query))
+                objects = HerbItem.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
+                                                  genus__name__icontains=query)
                 data = [{'id': item.genus.pk, 'text': item.genus.name} for item in objects.iterator()]
             else:
                 objects = Genus.objects.filter(name__icontains=query)
                 data = [{'id': item.pk, 'text': item.name} for item in objects.iterator()]
         elif cfield == 'species':
             if dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
-                objects = HerbItem.objects.filter(Q(family__name__icontains=dataform.cleaned_data['family'])|\
-                                                  Q(genus__name__icontains__icontains=dataform.cleaned_data['genus'])|\
-                                                  Q(species__name__icontains=query))
+                objects = HerbItem.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
+                                                  genus__name__iexact=dataform.cleaned_data['genus'],
+                                                  species__name__icontains=query)
             elif dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
-                objects = HerbItem.objects.filter(Q(family__name__icontains=dataform.cleaned_data['family'])|\
-                                                  Q(species__name__icontains=query))
+                objects = HerbItem.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
+                                                  species__name__icontains=query)
             elif not dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
-                objects = HerbItem.objects.filter(Q(genus__name__icontains__icontains=dataform.cleaned_data['genus'])|\
-                                                  Q(species__name__icontains=query))
+                objects = HerbItem.objects.filter(genus__name__iexact=dataform.cleaned_data['genus'],
+                                                  species__name__icontains=query)
             elif not dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
                 objects = HerbItem.objects.filter(species__name__icontains=query)
             data = [{'id': item.species.pk, 'text': item.get_full_name(), 'text-final': item.species.name} for item in objects.iterator()]
