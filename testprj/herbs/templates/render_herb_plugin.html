@@ -73,7 +73,10 @@ function herbitemfind(){
 
 	$("herbitem-content-found").html('<div class="centered-ajax-loader"></div>');
 
-		
+	$.get("{% url 'bgi.plantsets.views.show_herbs' %}",
+			{} 
+	
+	      )	
 	
 	
 	$("#plantset-content-found").html(outputHTML);
