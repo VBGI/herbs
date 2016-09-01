@@ -105,7 +105,7 @@ def show_herbs(request):
             except:
                 obj_to_show = paginator.page(1)
             
-            context.update({'herbobjs' : obj_to_show,
+            context.update({'herbobjs' : map(lambda x: model_to_dict(x), obj_to_show),
                             'total': object_filtered.count(),
                             })
 
