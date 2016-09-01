@@ -12,7 +12,7 @@ from .models import (Family, Genus, HerbItem,
                      FamilyAuthorship, GenusAuthorship,
                      Author, Species,
                      SpeciesAuthorship)
-
+from django.contrib.admin.widgets import AdminDateWidget 
 
 taxon_name_pat = re.compile(r'[a-z]+')
 
@@ -88,10 +88,13 @@ class SearchForm(forms.Form):
     gcode = forms.CharField(required=False, label=_('Код2'), max_length=10)
     collectedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     identifiedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
-    country = forms.CharField(required=False, label=_('Страна'), max_length=30)
+    country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
+    country.widget.attrs['id'] = 'country-input'
     place = forms.CharField(required=False, label=_('Место'), max_length=30)
-    colstart = forms.DateField(required=False, label=_('Начало сбора'))
-    colend = forms.DateField(required=False, label=_('Конец сбора'))
+    colstart = forms.DateField(required=False, label=_('Начало сбора'), widget = AdminDateWidget)
+    colstart.widget.attrs['id'] = 'colstart-input'
+    colend = forms.DateField(required=False, label=_('Конец сбора'), widget = AdminDateWidget)
+    colend.widget.attrs['id'] = 'colend-input'
 
 class GenusForm(TaxonCleanerMixin):
     class Meta:
