@@ -40,15 +40,37 @@ Created: 30 Aug, 2016
    <thead>
     <tr style="height:3em;">
      <td>ID</td>
+     <td>  {% trans "Код раздела"%} </td>
+     <td>  {% trans "Уникальный код"%} </td>
      <td>  {% trans "Семейство"%} </td>
-     <td> {% trans "Вид"%} </td>
-     <td> {% trans "Сорт"%} </td>
-     <td> {% trans "Куратор"%}</td>
-     <td> {% trans "Кол-во"%}</td>
+     <td>  {% trans "Вид"%} </td>
     </tr> 
    </thead>
 	<tbody>
-
+		<%
+        _.each(items, function(item, index, list){
+          var family = item.family
+          var itemcode = item.itemcode
+			 var gcode = item.gcode
+			 var herbid = item.id
+			 var species = item.species
+		if (index % 2 == 0) { %>
+		<tr class="herbitem-even" onclick="showitem(<%= herbid %>)" >
+			<td><%= herbid %></td>
+			<td><%= gcode %></td>
+			<td><%= itemcode %></td>
+			<td><%= species %></td>
+		</tr>
+<%		}  %>
+	<%		else {%>
+		<tr class="herbitem-odd" onclick="showitem(<%= herbid %>)" >
+			<td><%= herbid %></td>
+			<td><%= gcode %></td>
+			<td><%= itemcode %></td>
+			<td><%= species %></td>
+		</tr>
+	<%	}});
+      %>
 
 	</tbody>   
 </table>
