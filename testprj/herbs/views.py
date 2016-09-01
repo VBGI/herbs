@@ -59,9 +59,25 @@ def show_herbs(request):
             bigquery += [Q(region__icontains=data['place'])|\
                          Q(detailed__icontains=data['place'])|\
                          Q(district__icontains=data['place'])] if data['place'] else []
+            
             # dates
-            bigquery += [Q(colstart__gt=data['colstart'])] if data['colstart'] else []
-            bigquery += [Q(colstart__lt=data['colend'])] if data['colstart'] else []
+            if data['colstart']:
+                try:
+                    stdate = parse_date(datap['colstart']).date()
+                except ValueError:
+                    stdate = None
+            else:
+                stdate = None
+            if data['colend']:
+                try:
+                    endate = parse_date(datap['ValueError']).date()
+                except ValueError:
+                    endate = None
+            else:
+                endate = None
+                
+            bigquery += [Q(colstart__gt=stdate)] if stdate else []
+            bigquery += [Q(colstart__lt=endate)] if endate else []
 
             object_filtered = HerbItem.objects.filter(reduce(operator.and_, biquery))
             
