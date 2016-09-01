@@ -1,5 +1,7 @@
 eclipse.preferences.version=1
 encoding//testprj/herbs/admin.py=utf-8
+encoding//testprj/herbs/cms_app.py=utf-8
+encoding//testprj/herbs/cms_plugins.py=utf-8
 encoding//testprj/herbs/countries.py=utf-8
 encoding//testprj/herbs/forms.py=utf-8
 encoding//testprj/herbs/models.py=utf-8
