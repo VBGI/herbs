@@ -33,7 +33,31 @@ Created: 30 Aug, 2016
 <!--  -------------------------------------------------------- -->
 
 
+<!-- -------------Searchform template ------------------------ -->
+<script id="searchform-template" type="text/x-custom-template">
+
+<table id="herbitem-table" style="width: 100%;">
+   <thead>
+    <tr style="height:3em;">
+     <td>ID</td>
+     <td>  {% trans "Семейство"%} </td>
+     <td> {% trans "Вид"%} </td>
+     <td> {% trans "Сорт"%} </td>
+     <td> {% trans "Куратор"%}</td>
+     <td> {% trans "Кол-во"%}</td>
+    </tr> 
+   </thead>
+	<tbody>
+
+
+	</tbody>   
+</table>
+</script>
+<!--  -------------------------------------------------------- -->
+
 <!-- 	------------------ Main javascript code ---------------- -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
 <script type="text/javascript" >
 
 var cpage =  {{myobjs.number}}; <!-- Current paginated page -->
@@ -57,6 +81,7 @@ return res;
 function createSearchResult(idata){
 // idata -- assumed to be a plain object (converted from json response)
 
+var sftempl = _.template($("#usageList").html());
 
 
 
