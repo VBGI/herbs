@@ -34,7 +34,22 @@ Created: 30 Aug, 2016
 
 
 <!-- -------------Searchform template ------------------------ -->
-<script id="searchform-template" type="text/x-custom-template">
+<script id="searchform-template" type="text/x-underscore-template">
+
+<div style="text-align:center;">
+    <span class="step-links">
+        <% if (has_previous){ %>
+            <span id="plantset-pervious-page"  onclick="incrPage(this,-1)">{% trans "Предыдущая" %}</span>
+        <% } %>
+        
+        <span class="current">
+            {% trans "Страница" %} <%= pagenumber %> {%trans "из"%} <%= pagecount %>.
+        </span>
+        <% if (has_next) {%>
+        	<span id="plantset-next-page"  onclick="incrPage(this,1)">{% trans "Следующая" %} </span>
+        <% } %>
+    </span>
+</div>
 
 <table id="herbitem-table" style="width: 100%;">
    <thead>
@@ -109,7 +124,12 @@ return res;
 function createSearchResult(idata){
 // idata -- assumed to be a plain object (converted from json response)
 var sftempl = _.template($("#searchform-template").html());
-var output = sftempl(idata); 
+var output = sftempl({items:idata.herbobjs, has_pervious: idata.has_pervious,
+							total: idata.total, 
+							has_next: idata.has_next,
+							pagenumber: idata.pagenumber,
+							pagecount: idata.pagecount							
+							}); 
 return output
 }
 

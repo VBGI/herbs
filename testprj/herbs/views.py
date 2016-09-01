@@ -40,7 +40,8 @@ def show_herbs(request):
     if request.method == 'POST':
         return HttpResponse('Only GET-methods are acceptable')    
 
-    context = {'error': ''}
+    context = {'error': '', 'has_pervious': None, 'has_next': None,
+               'pagenumber': 1, 'pagecount': 0}
 
     if request.is_ajax():
         dataform = SearchForm(request.GET)
@@ -106,6 +107,10 @@ def show_herbs(request):
                 obj_to_show = paginator.page(1)
             
             context.update({'herbobjs' : map(lambda x: model_to_dict(x), obj_to_show),
+                            'has_pervious': obj_to_show.has_pervious(),
+                            'has_next': obj_to_show.has_next(),
+                            'pagenumber': page,
+                            'pagecount': paginator.num_pages,
                             'total': object_filtered.count(),
                             })
 
