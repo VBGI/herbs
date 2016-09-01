@@ -7,14 +7,18 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
   
 from .models import Family, Genus, HerbItem
+from .countries import codes as contry_codes
 from .forms import SearchForm
 from .conf import settings
+from django.utils.text import capfirst
 
 from django.template.loader import render_to_string
 
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 import json
+
+countries = [key.decode('utf-8') for key in contry_codes]
 
 
 @csrf_exempt
@@ -135,27 +139,28 @@ def advice_select(request):
     dataform = SearchForm(request.GET)
     context = {'error': ''}
     if dataform.is_valid():
-        cfield = request.GET.get('cfield', 'species')
+        cfield = request.GET.get('model', 'species')
         if cfield not in dataform.fields:
             cfield = 'species'
-        query = requiest.GET.get('query', '')
+        query = request.GET.get('q', '')
+        print "current query", query
         if not query:
             data = []
             return HttpResponse(json.dumps({'items': data}),
                                 content_type="application/json;charset=utf-8")
         if cfield == 'itemcode':
-            objects = HerbItem.objects.filter(itemcode__contains=query)
+            objects = HerbItem.objects.filter(itemcode__contains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             data = [{'id': item.pk, 'text': item.itemcode} for item in objects.iterator()]
         elif cfield == 'family':
-            objects = Family.objects.filter(name__icontains=query)
+            objects = Family.objects.filter(name__icontains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             data = [{'id': item.pk, 'text': item.name} for item in objects.iterator()]
         elif cfield == 'genus':
             if dataform.cleaned_data['family']:
                 objects = HerbItem.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
-                                                  genus__name__icontains=query)
+                                                  genus__name__icontains=query)[:settings.HERBS_HERBS_AUTOSUGGEST_NUM_TO_SHOW]
                 data = [{'id': item.genus.pk, 'text': item.genus.name} for item in objects.iterator()]
             else:
-                objects = Genus.objects.filter(name__icontains=query)
+                objects = Genus.objects.filter(name__icontains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
                 data = [{'id': item.pk, 'text': item.name} for item in objects.iterator()]
         elif cfield == 'species':
             if dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
@@ -170,11 +175,22 @@ def advice_select(request):
                                                   species__name__icontains=query)
             elif not dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
                 objects = HerbItem.objects.filter(species__name__icontains=query)
-            data = [{'id': item.species.pk, 'text': item.get_full_name(), 'text-final': item.species.name} for item in objects.iterator()]
+
+        
+            # TODO: Should return distinct values 
+#             map(lambda x: x[0], HerbItem.objects.filter(region__icontains=q).order_by('updated',
+#                                                                      'region').values_list('region').distinct())[:20] 
+    
+            data = [{'id': item.species.pk, 'text': item.get_full_name() } for item in objects.iterator()]
+        elif cfield == 'country':
+            data = [{'id': ind,'text': val} for ind, val in enumerate(filter(lambda x: query in x, countries))]
 
     else:
         # invalid form (That isn't possible,  I hope! )
         context.update({'error': 'Странный запрос'})
         data = []
+    if data:
+        for item in data: item['text'] = capfirst(item['text'])
+        
     context.update({'items': data})
     return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")

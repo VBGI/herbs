@@ -17,9 +17,11 @@ Created: 30 Aug, 2016
 	<li><input type="search" id="gcode-input" value="" placeholder="{%trans "Код раздела"%}"></li>
 	<li><input type="search" id="collectedby-input" value="" placeholder="{%trans "Собрал(и)"%}"></li>
 	<li><input type="search" id="identifiedby-input" value="" placeholder="{%trans "Определил(и)"%}"></li>
-	<li>{{searchform.country}}</li>
-	<li><input type="search" id="place-input" value="" placeholder="{%trans "Место сбора"%}"></li>
-	<li>Даты сбора: {{searchform.colstart}}-{{searchform.colend}}</li>
+	<li><select id="country-input"></select></li>
+	<li><input type="search" id="colstart-input" value="" placeholder="{%trans "Начало сбора"%}"> -
+	  <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}">
+	 </li>
+	
 
 	<li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}"></li>
 	<li><input type="submit" id="plantsetform-button" value="Найти"></li> 
@@ -93,19 +95,28 @@ Created: 30 Aug, 2016
 
 {%addtoblock "css"%}
 <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" >
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+<style type="text/css">
+#family-input, #genus-input, #species-input, #country-input{
+width:300px;}
+</style>
+
 {%endaddtoblock%}
 
 {%addtoblock "js"%}
 <!-- 	================== Main javascript code ===============- -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/i18n/ru.js"></script>
+
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/i18n/ru.js"></script>
+<script src="//code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 
 <script type="text/javascript" >
 
-var cpage =  {{myobjs.number}}; <!-- Current paginated page -->
+var cpage = 1; // Current paginated page 
 
-function incrPage(el,inc){ <!-- Just increment the page number  -->
+function incrPage(el,inc){  // Just increment the page number 
 cpage = cpage + inc
 plantsetfind();
 }
@@ -131,6 +142,34 @@ var output = sftempl({items:idata.herbobjs, has_pervious: idata.has_pervious,
 							pagecount: idata.pagecount							
 							}); 
 return output
+}
+
+function bind_search(model, mname){
+	var element = '#' + model + '-input';
+	var familyname = $("#family-input").val();
+	var genusname = $("#genus-input").val();
+	var speciesname = $("#species-input").val();
+	
+$(element).select2({
+		minimumInputLength: 2,
+		language: "{{request.LANGUAGE_CODE}}",
+		placeholder: '{%trans "Выберите " %}' + mname,
+		ajax: {
+    	 url: "{% url 'herbs.views.advice_select' %}",
+  		 dataType: 'json',
+  		 type: 'GET',
+  		 'allowClear': true,
+    	 delay: 250,
+    	 cache: false,
+    	 data: function (params) { return {q: params.term,
+    	 					model: model, page: params.page, family: familyname, genus: genusname, species: speciesname};},
+		 processResults: function (data, page) {
+      	return {
+        	results: data.items
+      	};},
+    	 },
+    	 escapeMarkup: function (m) { return m; }
+    		});
 }
 
 
@@ -170,7 +209,14 @@ function herbitemfind(){
 <!-- ============ When DOM is ready ============  -->
 $(document).ready(function() { 
 
+bind_search('family', 'Семейство');
+bind_search('genus', 'род');
+bind_search('species', 'вид');
+bind_search('country', 'Страна');
 
+
+$("#colstart-input").datepicker();
+$("#colend-input").datepicker();
 
 $("#searchform-clear").click(function (event){
 	event.preventDefault();
@@ -185,8 +231,9 @@ cpage = 1; <!-- Find cpage in the outer scope and change it; i.e. pagination cou
 });
 
 
-})
+});
 <!--  =========================================== -->
+</script>
 {%endaddtoblock%}
 
 <!--  ======================================================== -->
