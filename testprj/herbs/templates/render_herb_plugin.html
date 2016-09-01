@@ -1,12 +1,12 @@
 {% load  i18n sekizai_tags %}
 
-<!--  --------------------- Info ---------------------------- 
+<!--  ===================== Info ============================ 
 Author: Dmitry E. Kislov
 E-mail: kislov@easydan.com
 Created: 30 Aug, 2016
-	  -------------------------------------------------------- -->
+	  ======================================================== -->
 
-<!--  ------------Herbitem main searchform ------------------ --> 
+<!--  ============Herbitem main searchform ================== --> 
 
 <div id="herb-search-form">
   <ul>
@@ -26,14 +26,14 @@ Created: 30 Aug, 2016
   </ul>
 </div> 
 
-<!--  -------------------------------------------------------- -->
+<!--  ======================================================== -->
 
-<!--  ------------Herbitem content found --------------------- --> 
+<!--  ============Herbitem content found ===================== --> 
 <div id="plantset-content-found"></div>
-<!--  -------------------------------------------------------- -->
+<!--  ======================================================== -->
 
 
-<!-- -------------Searchform template ------------------------ -->
+<!-- ============-Searchform template ======================== -->
 <script id="searchform-template" type="text/x-underscore-template">
 
 <div style="text-align:center;">
@@ -89,14 +89,14 @@ Created: 30 Aug, 2016
 	</tbody>   
 </table>
 </script>
-<!--  -------------------------------------------------------- -->
+<!--  ======================================================== -->
 
 {%addtoblock "css"%}
 <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" >
 {%endaddtoblock%}
 
 {%addtoblock "js"%}
-<!-- 	------------------ Main javascript code ---------------- -->
+<!-- 	================== Main javascript code ===============- -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/i18n/ru.js"></script>
@@ -150,7 +150,7 @@ function herbitemfind(){
 
 	$("herbitem-content-found").html('<div class="centered-ajax-loader"></div>');
 
-	$.get("{% url 'bgi.plantsets.views.show_herbs' %}",
+	$.get("{% url 'herbs.views.show_herbs' %}",
 			{family:family, genus:genus, species:species, gcode:gcode, itemcode:itemcode,
 			identifiedby:identifiedby, collectedby:collectedby,place:place, country:coutry, colstart:colstart,
 			colend,coledn}).done(function(data) {
@@ -167,7 +167,7 @@ function herbitemfind(){
     										})	
 }
 
-<!-- ------------ When DOM is ready ------------  -->
+<!-- ============ When DOM is ready ============  -->
 $(document).ready(function() { 
 
 
@@ -186,7 +186,7 @@ cpage = 1; <!-- Find cpage in the outer scope and change it; i.e. pagination cou
 
 
 })
-<!--  ------------------------------------------- -->
+<!--  =========================================== -->
 {%endaddtoblock%}
 
-<!--  -------------------------------------------------------- -->
+<!--  ======================================================== -->
