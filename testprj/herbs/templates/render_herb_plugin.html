@@ -1,0 +1,106 @@
+{% load  thumbnail i18n sekizai_tags %}
+
+<!--  --------------------- Info ---------------------------- 
+Author: Dmitry E. Kislov
+E-mail: kislov@easydan.com
+Created: 30 Aug, 2016
+	  -------------------------------------------------------- -->
+
+<!--  ------------Herbitem main searchform ------------------ --> 
+
+<div id="herb-search-form">
+  <ul>
+	<li><select id="family-input"></select></li>  
+	<li><select id="genus-input"></select></li>
+	<li><select id="species-input"></select></li>
+   <li><input type="search" id="itemcode-input" value="" placeholder="{%trans "Уникальный код"%}"></li>	
+	<li><input type="search" id="gcode-input" value="" placeholder="{%trans "Код раздела"%}"></li>
+	<li><input type="search" id="collectedby-input" value="" placeholder="{%trans "Собрал(и)"%}"></li>
+	<li><input type="search" id="identifiedby-input" value="" placeholder="{%trans "Определил(и)"%}"></li>
+	<li>{{searchform.country}}</li>
+	<li><input type="search" id="place-input" value="" placeholder="{%trans "Место сбора"%}"></li>
+	<li>Даты сбора: {{searchform.colstart}}-{{searchform.colend}}</li>
+
+	<li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}"></li>
+	<li><input type="submit" id="plantsetform-button" value="Найти"></li> 
+  </ul>
+</div> 
+
+<!--  -------------------------------------------------------- -->
+
+<!--  ------------Herbitem content found --------------------- --> 
+<div id="plantset-content-found"></div>
+<!--  -------------------------------------------------------- -->
+
+
+<!-- 	------------------ Main javascript code ---------------- -->
+<script type="text/javascript" >
+
+var cpage =  {{myobjs.number}}; <!-- Current paginated page -->
+
+function incrPage(el,inc){ <!-- Just increment the page number  -->
+cpage = cpage + inc
+plantsetfind();
+}
+
+
+
+
+function getornone(el){
+var res = null;
+var obj = $(el).select2('data');
+if (obj !== undefined){
+	if (obj[0] !== undefined){
+		res = obj[0].text;	
+	}
+}
+return res;
+}
+
+function herbitemfind(){
+	var family = getornone('#family-input');
+	var genus = getornone('#genus-input');
+	var species = getornone('#species-input');
+	var gcode = $("#gcode-input").val();
+	var itemcode = $("#itemcode-input").val();
+	var identifiedby = $("#identifiedby-input").val();
+	var collectedby = $("#collectedby-input").val();
+	var place = $("#place-input").val();
+	var country = $("#country-input").val();
+	var colstart = $("#colstart-input").val();
+   var colend = $("#colend-input").val();
+   var outputHTML = '';
+
+	$("herbitem-content-found").html('<div class="centered-ajax-loader"></div>');
+
+		
+	
+	
+	$("#plantset-content-found").html(outputHTML);
+
+
+}
+
+
+<!-- ------------ When DOM is ready ------------  -->
+$(document).ready(function() { 
+
+
+
+$("#searchform-clear").click(function (event){
+	event.preventDefault();
+$('#family-input').select2('val', '');
+$('#species-input').select2('val', '');
+$('#genus-input').select2('val', '');
+$( "div#herb-search-form ul li input:text" ).each(function() {  
+$(this).val('');
+});
+
+cpage = 1; <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
+});
+
+
+})
+<!--  ------------------------------------------- -->
+
+<!--  -------------------------------------------------------- -->
