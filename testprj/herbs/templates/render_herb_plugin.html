@@ -71,7 +71,6 @@ Created: 30 Aug, 2016
 		</tr>
 	<%	}});
       %>
-
 	</tbody>   
 </table>
 </script>
@@ -102,11 +101,9 @@ return res;
 
 function createSearchResult(idata){
 // idata -- assumed to be a plain object (converted from json response)
-
-var sftempl = _.template($("#usageList").html());
-
-
-
+var sftempl = _.template($("#searchform-template").html());
+var output = sftempl(idata); 
+return output
 }
 
 
@@ -139,8 +136,8 @@ function herbitemfind(){
 			).fail(function() {
     								alert("{%trans "Возникла ошибка при получении ответа за поисковый запрос" %}");
     								 }).always(function () {
-   															$("#plantset-content-found").html(outputHTML); 														 	
-    														 })	
+											$("#plantset-content-found").html(outputHTML); 														 	
+    										})	
 }
 
 
