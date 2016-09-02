@@ -54,7 +54,7 @@ def show_herbs(request):
         dataform = SearchForm(request.GET)
         if dataform.is_valid():
             data = {key: dataform.cleaned_data[key] for key in dataform.fields}
-            bigquery = []
+            bigquery = [Q(public=True)]
             bigquery += [Q(family__name__iexact=data['family'])] if data['family'] else []
             bigquery += [Q(genus__name__iexact=data['genus'])] if data['genus'] else []
             bigquery += [Q(species__name__iexact=data['species'])] if data['species'] else []
@@ -87,10 +87,7 @@ def show_herbs(request):
             bigquery += [Q(colstart__gt=stdate)] if stdate else []
             bigquery += [Q(colstart__lt=endate)] if endate else []
 
-            if not bigquery:
-                object_filtered = HerbItem.objects.all()
-            else:
-                object_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery))
+            object_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery))
             
             if not object_filtered.exists():
                 context.update({'herbobjs' : [],
