@@ -87,7 +87,7 @@ class FamilyAdmin(admin.ModelAdmin):
         )
 
 
-class GenusAdmin(admin.ModelAdmin):
+class GenusAdmin(AjaxSelectAdmin):
     form = GenusForm
     inlines = (
         GenusAuthorshipInline,
