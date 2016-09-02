@@ -99,7 +99,7 @@ class SearchForm(forms.Form):
 class GenusForm(TaxonCleanerMixin):
     class Meta:
         model = Genus
-
+    family = AutoCompleteSelectField('family', required=False, help_text=None, label=_("Семейство"))
 
 class FamilyForm(TaxonCleanerMixin):
     class Meta:
