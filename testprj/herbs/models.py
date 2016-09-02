@@ -197,7 +197,8 @@ class Family(models.Model):
 class Genus(models.Model):
     name = models.CharField(max_length=30, default='', verbose_name=_('название'))
     authorship = models.ManyToManyField(Author, blank=True, null=True, through=GenusAuthorship, verbose_name=_('авторство'))
-
+    family = models.ForeignKey(Family, related_name='genus', null=True)
+    
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower()
         super(Genus, self).save(*args, **kwargs)
@@ -227,7 +228,8 @@ class SpeciesAuthorship(AuthorshipMixin):
 @python_2_unicode_compatible
 class Species(models.Model):
     name = models.CharField(max_length=30, default='', verbose_name=_('название вида'))
-    genus = models.ForeignKey(Genus, null=False, blank=False, verbose_name=_('род'))
+    genus = models.ForeignKey(Genus, null=False, blank=False, verbose_name=_('род'),
+                              related_name='species')
     authorship = models.ManyToManyField(Author, blank=True, null=True,
                                         through=SpeciesAuthorship,
                                         verbose_name=_('авторство'))
@@ -355,7 +357,9 @@ def load_datafile(sender, instance, **kwargs):
                     create_safely(FamilyAuthorship, ('author', 'priority', 'family'), 
                               (authorobj, ind, familyobj), postamble='')
                 
-            genusobj = create_safely(Genus, ('name',), (item['genus'],))
+            genusobj = create_safely(Genus, ('name', ), (item['genus'],))
+            genusobj.family = familyobj
+            genusobj.save()
             if not genusobj.authorship.all().exists():
                 for ind, auth in item['genus_auth'][1]:
                     authorobj = create_safely(Author, ('name',), (auth,))
