@@ -10,10 +10,11 @@ Created: 30 Aug, 2016
 
 <div id="herb-search-form">
   <ul>
-	<li><select id="family-input"></select></li>  
-	<li><select id="genus-input"></select></li>
+  	
+	<li><label for="family-input">{%trans "Семейство:"%}</label> <select id="family-input"></select> <div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>  
+	<li><select id="genus-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
 	<li><select id="species-input"></select></li>
-   <li><input type="search" id="itemcode-input" value="" placeholder="{%trans "Уникальный код"%}"></li>	
+	<li><select id="itemcode-input"></select></li>
 	<li><input type="search" id="gcode-input" value="" placeholder="{%trans "Код раздела"%}"></li>
 	<li><input type="search" id="collectedby-input" value="" placeholder="{%trans "Собрал(и)"%}"></li>
 	<li><input type="search" id="identifiedby-input" value="" placeholder="{%trans "Определил(и)"%}"></li>
@@ -97,8 +98,13 @@ Created: 30 Aug, 2016
 <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" >
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
 <style type="text/css">
-#family-input, #genus-input, #species-input, #country-input{
-width:300px;}
+#family-input, #genus-input, #species-input, #country-input, #itemcode-input
+	{
+	width:300px;
+	}
+.clear-field{
+	display: none
+	}
 </style>
 
 {%endaddtoblock%}
@@ -146,23 +152,26 @@ return output
 
 function bind_search(model, mname){
 	var element = '#' + model + '-input';
-	var familyname = $("#family-input").val();
-	var genusname = $("#genus-input").val();
-	var speciesname = $("#species-input").val();
 	
 $(element).select2({
-		minimumInputLength: 2,
 		language: "{{request.LANGUAGE_CODE}}",
 		placeholder: '{%trans "Выберите " %}' + mname,
 		ajax: {
     	 url: "{% url 'herbs.views.advice_select' %}",
   		 dataType: 'json',
   		 type: 'GET',
-  		 'allowClear': true,
     	 delay: 250,
     	 cache: false,
-    	 data: function (params) { return {q: params.term,
-    	 					model: model, page: params.page, family: familyname, genus: genusname, species: speciesname};},
+    	 data: function (params) { 
+				    	 	var familyname = $("#family-input :selected").text();
+							var genusname = $("#genus-input :selected").text();
+							var speciesname = $("#species-input :selected").text();
+    	 					return {q: params.term,
+    	 					model: model,
+    	 					family: familyname,
+    	 					genus: genusname,
+    	 					species: speciesname};
+    	 					},
 		 processResults: function (data, page) {
       	return {
         	results: data.items
@@ -209,11 +218,21 @@ function herbitemfind(){
 <!-- ============ When DOM is ready ============  -->
 $(document).ready(function() { 
 
-bind_search('family', 'Семейство');
-bind_search('genus', 'род');
-bind_search('species', 'вид');
-bind_search('country', 'Страна');
+bind_search('family', "{% trans 'Семейство'%}");
+bind_search('genus', "{% trans 'род'%}");
+bind_search('species', "{% trans 'вид'%}");
+bind_search('country', "{% trans 'Страна'%}");
+bind_search('itemcode', "{% trans 'Уникальный код'%}");
 
+
+$('select').on("select2:selecting", function(e) { 
+  $(this).siblings('div.clear-field').css('display', 'inline-block')
+});
+
+$('div.clear-field').click(function (event){
+$(this).closest('select').select2('val', '');
+$(this).css('display', 'none')
+})
 
 $("#colstart-input").datepicker();
 $("#colend-input").datepicker();
@@ -223,8 +242,11 @@ $("#searchform-clear").click(function (event){
 $('#family-input').select2('val', '');
 $('#species-input').select2('val', '');
 $('#genus-input').select2('val', '');
+$('#country-input').select2('val', '');
+
+
 $( "div#herb-search-form ul li input:text" ).each(function() {  
-$(this).val('');
+	$(this).val('');
 });
 
 cpage = 1; <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
