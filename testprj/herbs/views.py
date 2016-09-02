@@ -16,8 +16,10 @@ from django.template.loader import render_to_string
 
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
+from django.core.serializers.json import DjangoJSONEncoder
 import json
 
+from django.db.models.base import ModelState
 countries = [key.decode('utf-8') for key in contry_codes]
 
 
@@ -36,6 +38,7 @@ def get_item_data(request):
     return  HttpResponse(json.dumps(context), content_type="application/json; charset=utf-8") 
 
 
+
 @csrf_exempt
 def show_herbs(request):
     '''
@@ -44,7 +47,7 @@ def show_herbs(request):
     if request.method == 'POST':
         return HttpResponse('Only GET-methods are acceptable')    
 
-    context = {'error': '', 'has_pervious': None, 'has_next': None,
+    context = {'error': '', 'has_previous': None, 'has_next': None,
                'pagenumber': 1, 'pagecount': 0}
 
     if request.is_ajax():
@@ -112,20 +115,33 @@ def show_herbs(request):
             except:
                 obj_to_show = paginator.page(1)
             
-            context.update({'herbobjs' : map(lambda x: model_to_dict(x), obj_to_show),
-                            'has_previous': obj_to_show.has_previous()(),
+            # ----------- Conversion to list of dicts with string needed ----------
+            # make json encoding smarty
+            data_tojson = []
+            for item in obj_to_show.object_list:
+                data_tojson.append({'family': item.family.get_full_name(),
+                       'genus': item.genus.get_full_name(),
+                       'species': item.species.get_full_name(),
+                       'itemcode': item.itemcode,
+                       'gcode': item.gcode,
+                       'id': item.pk
+                       })
+                
+            # ---------------------------------------------------------------------
+            context.update({'herbobjs' : data_tojson,
+                            'has_previous': obj_to_show.has_previous(),
                             'has_next': obj_to_show.has_next(),
                             'pagenumber': page,
                             'pagecount': paginator.num_pages,
                             'total': object_filtered.count(),
                             })
 
-            return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
+            return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder), content_type="application/json;charset=utf-8")
         else: 
             context.update({'herbobjs' : [],
                                 'total': 0,
                                 'error': 'Ошибка в форме поиска'})
-            return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
+            return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder), content_type="application/json;charset=utf-8")
     else:
         return HttpResponse('Only ajax-requests are acceptable')
 

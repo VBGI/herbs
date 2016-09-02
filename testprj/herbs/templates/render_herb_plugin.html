@@ -77,16 +77,14 @@ Created: 30 Aug, 2016
 			<td><%= itemcode %></td>
 			<td><%= species %></td>
 		</tr>
-<%		}  %>
-	<%		else {%>
+   <%	} else { %>
 		<tr class="herbitem-odd" onclick="showitem(<%= herbid %>)" >
 			<td><%= herbid %></td>
 			<td><%= gcode %></td>
 			<td><%= itemcode %></td>
 			<td><%= species %></td>
 		</tr>
-	<%	}});
-      %>
+	<%	}}); %>
 	</tbody>   
 </table>
 </script>
@@ -212,7 +210,7 @@ function herbitemfind(){
 			{family:family, genus:genus, species:species, gcode:gcode, itemcode:itemcode,
 			identifiedby:identifiedby, collectedby:collectedby,place:place, country:country, colstart:colstart,
 			colend:colend}).done(function(data) {
-			if (length(data.error) > 0) {
+			if (data.error.length > 0) {
 				outputHTML = data.error
 			}
 			else {
