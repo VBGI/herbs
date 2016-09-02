@@ -11,16 +11,16 @@ Created: 30 Aug, 2016
 <div id="herb-search-form">
   <ul>
   	
-	<li><label for="family-input">{%trans "Семейство:"%}</label> <select id="family-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>  
-	<li><label for="genus-input">{%trans "Род:"%}</label> <select id="genus-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
-	<li><label for="species-input">{%trans "Вид:"%}</label> <select id="species-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
-	<li><label for="itemcode-input">{%trans "Код:"%}</label> <select id="itemcode-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
-	<li><label for="gcode-input">{%trans "Код раздела:"%}</label> <input type="search" id="gcode-input" value="" placeholder="{%trans "Код раздела"%}"><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
-	<li><label for="collectedby-input">{%trans "Собрали:"%}</label><input type="search" id="collectedby-input" value="" placeholder="{%trans "Собрал(и)"%}"><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
-	<li><label for="identifiedby-input">{%trans "Определили:"%}</label><input type="search" id="identifiedby-input" value="" placeholder="{%trans "Определил(и)"%}"><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
-	<li><label for="gcode-input">{%trans "Страна:"%}</label><select id="country-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
-	<li><label for="colend-input">{%trans "Даты сбора:"%}</label><input type="search" id="colstart-input" value="" placeholder="{%trans "Начало сбора"%}"> -
-   	  <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}"> <div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div>
+	<li><label for="family-input">{%trans "Семейство:"%}</label> <div> <select id="family-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div> </div></li>  
+	<li><label for="genus-input">{%trans "Род:"%}</label> <div><select id="genus-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="species-input">{%trans "Вид:"%}</label> <div><select id="species-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="itemcode-input">{%trans "Код:"%}</label> <div><select id="itemcode-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="gcode-input">{%trans "Код раздела:"%}</label><div> <select  id="gcode-input" value=""></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="collectedby-input">{%trans "Собрали:"%}</label><div><input type="search" id="collectedby-input" value="" placeholder="{%trans "Текстовое поле"%}"><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="identifiedby-input">{%trans "Определили:"%}</label><div><input type="search" id="identifiedby-input" value="" placeholder="{%trans "Текстовое поле"%}"><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="gcode-input">{%trans "Страна:"%}</label><div><select id="country-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
+	<li><label for="colend-input">{%trans "Даты сбора:"%}</label><div><input type="search" id="colstart-input" value="" placeholder="{%trans "Начало сбора"%}"> -
+   	  <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}"> <div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div>
 	</li>
 	<li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}"></li>
 	<li><input type="submit" id="plantsetform-button" value="Найти"></li> 
@@ -95,8 +95,10 @@ Created: 30 Aug, 2016
 {%addtoblock "css"%}
 <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" >
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+
+
 <style type="text/css">
-#family-input, #genus-input, #species-input, #country-input, #itemcode-input
+#family-input, #genus-input, #species-input, #country-input, #itemcode-input, #gcode-input
 	{
 	width:300px;
 	}
@@ -110,8 +112,10 @@ list-style-type: none;
 #herb-search-form>ul li {
 padding-bottom:10px;
 }
-label {font-weight: bold;}	
+label {font-weight: bold; display:block;}	
+label + * {margin-left: 2em; margin-top: 5px;}
 </style>
+
 
 {%endaddtoblock%}
 
@@ -206,8 +210,8 @@ function herbitemfind(){
 
 	$.get("{% url 'herbs.views.show_herbs' %}",
 			{family:family, genus:genus, species:species, gcode:gcode, itemcode:itemcode,
-			identifiedby:identifiedby, collectedby:collectedby,place:place, country:coutry, colstart:colstart,
-			colend,coledn}).done(function(data) {
+			identifiedby:identifiedby, collectedby:collectedby,place:place, country:country, colstart:colstart,
+			colend:colend}).done(function(data) {
 			if (length(data.error) > 0) {
 				outputHTML = data.error
 			}
@@ -225,17 +229,22 @@ function herbitemfind(){
 $(document).ready(function() { 
 
 bind_search('family', "{% trans 'Семейство'%}");
-bind_search('genus', "{% trans 'род'%}");
-bind_search('species', "{% trans 'вид'%}");
-bind_search('country', "{% trans 'Страна'%}");
+bind_search('genus', "{% trans 'Род'%}");
+bind_search('species', "{% trans 'Вид'%}");
+bind_search('country', "{% trans 'Страну'%}");
 bind_search('itemcode', "{% trans 'Уникальный код'%}");
+bind_search('gcode', "{% trans 'Код раздела'%}");
 
+$('#plantsetform-button').click(function (event){
+	event.preventDefault();
+	herbitemfind();
+	})
 
 $("#colstart-input, #colend-input").click(function (event){
 	$(this).siblings('div.clear-field').css('display', 'inline-block');
 })
 
-$("li>input[type=search]" ).keypress(function() {
+$("div>input[type=search]" ).keypress(function() {
   $(this).siblings('div.clear-field').css('display', 'inline-block')
 });
 
@@ -258,10 +267,12 @@ $("#colend-input").datepicker();
 
 $("#searchform-clear").click(function (event){
 	event.preventDefault();
-$('#family-input').select2('val', '');
 $('#species-input').select2('val', '');
 $('#genus-input').select2('val', '');
 $('#country-input').select2('val', '');
+$('#itemcode-input').select2('val', '');
+$('#gcode-input').select2('val', '');
+$('div>input[type=search]').val('');
 $('div.clear-field').hide();
 
 $( "div#herb-search-form ul li input:text" ).each(function() {  
