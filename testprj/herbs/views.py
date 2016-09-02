@@ -6,7 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.forms.models import model_to_dict
   
-from .models import Family, Genus, HerbItem
+from .models import Family, Genus, HerbItem, Species
 from .countries import codes as contry_codes
 from .forms import SearchForm
 from .conf import settings
@@ -143,48 +143,62 @@ def advice_select(request):
         if cfield not in dataform.fields:
             cfield = 'species'
         query = request.GET.get('q', '')
-        print "current query", query
-        if not query:
-            data = []
-            return HttpResponse(json.dumps({'items': data}),
-                                content_type="application/json;charset=utf-8")
         if cfield == 'itemcode':
-            objects = HerbItem.objects.filter(itemcode__contains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
-            data = [{'id': item.pk, 'text': item.itemcode} for item in objects.iterator()]
-        elif cfield == 'family':
-            objects = Family.objects.filter(name__icontains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
-            data = [{'id': item.pk, 'text': item.name} for item in objects.iterator()]
-        elif cfield == 'genus':
-            if dataform.cleaned_data['family']:
-                objects = HerbItem.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
-                                                  genus__name__icontains=query)[:settings.HERBS_HERBS_AUTOSUGGEST_NUM_TO_SHOW]
-                data = [{'id': item.genus.pk, 'text': item.genus.name} for item in objects.iterator()]
+            if query:
+                objects = HerbItem.objects.filter(itemcode__contains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             else:
-                objects = Genus.objects.filter(name__icontains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
-                data = [{'id': item.pk, 'text': item.name} for item in objects.iterator()]
+                objects = HerbItem.objects.all()[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+            data = [{'id': item.pk, 'text': item.itemcode} for item in objects]
+        elif cfield == 'family':
+            if query:
+                objects = Family.objects.filter(name__icontains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+            else:
+                objects = Family.objects.all()[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+            data = [{'id': item.pk, 'text': item.name} for item in objects]
+        elif cfield == 'genus':
+            # TODO: DB structure: changes needed,
+            if dataform.cleaned_data['family']:
+                if query:
+                    objects = Genus.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
+                                      name__icontains=query)
+                else:
+                    objects = Genus.objects.filter(family__name__iexact=dataform.cleaned_data['family'])
+            else:
+                if query:
+                    objects = Genus.objects.filter(name__icontains=query)
+                else:
+                    objects = Genus.objects.all()
+            data = [{'id': item.pk, 'text': item.name} for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'species':
             if dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
-                objects = HerbItem.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
+                if query:
+                    objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'],
                                                   genus__name__iexact=dataform.cleaned_data['genus'],
-                                                  species__name__icontains=query)
+                                                  name__icontains=query)
+                else:
+                    objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'],
+                                                  genus__name__iexact=dataform.cleaned_data['genus'])
             elif dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
-                objects = HerbItem.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
-                                                  species__name__icontains=query)
+                if query:
+                    objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'],
+                                                  name__icontains=query)
+                else:
+                    objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'])
             elif not dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
-                objects = HerbItem.objects.filter(genus__name__iexact=dataform.cleaned_data['genus'],
-                                                  species__name__icontains=query)
+                if query:
+                    objects = Species.objects.filter(genus__name__iexact=dataform.cleaned_data['genus'],
+                                                  name__icontains=query)
+                else:
+                    objects = Species.objects.filter(genus__name__iexact=dataform.cleaned_data['genus'])
             elif not dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
-                objects = HerbItem.objects.filter(species__name__icontains=query)
-
-        
-            # TODO: Should return distinct values 
-#             map(lambda x: x[0], HerbItem.objects.filter(region__icontains=q).order_by('updated',
-#                                                                      'region').values_list('region').distinct())[:20] 
-    
-            data = [{'id': item.species.pk, 'text': item.get_full_name() } for item in objects.iterator()]
+                if query:
+                    objects = Species.objects.filter(name__icontains=query)
+                else:
+                    objects = Species.objects.all()
+            data = [{'id': item.pk, 'text': item.get_full_name()}\
+                    for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'country':
-            data = [{'id': ind,'text': val} for ind, val in enumerate(filter(lambda x: query in x, countries))]
-
+            data = [{'id': ind + 2,'text': val} for ind, val in enumerate(filter(lambda x: query in x, countries))]
     else:
         # invalid form (That isn't possible,  I hope! )
         context.update({'error': 'Странный запрос'})
