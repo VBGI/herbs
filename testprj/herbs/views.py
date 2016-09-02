@@ -84,8 +84,10 @@ def show_herbs(request):
             bigquery += [Q(colstart__gt=stdate)] if stdate else []
             bigquery += [Q(colstart__lt=endate)] if endate else []
 
-            object_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery))
-            
+            if not bigquery:
+                object_filtered = HerbItem.objects.all()
+            else:
+                object_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery))
             
             if not object_filtered.exists():
                 context.update({'herbobjs' : [],
