@@ -155,6 +155,13 @@ def advice_select(request):
             else:
                 objects = Family.objects.all()[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             data = [{'id': item.pk, 'text': item.name} for item in objects]
+        elif cfield == 'gcode':
+            objects = HerbItem.objects.filter(gcode__contains=query)
+            tostore = map(lambda x: x[0], objects.order_by('gcode').values_list('gcode').distinct())[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+            if tostore:
+                data = [{'id': ind + 2, 'text': item} for ind,item in enumerate(tostore)]
+            else:
+                data = []
         elif cfield == 'genus':
             # TODO: DB structure: changes needed,
             if dataform.cleaned_data['family']:
