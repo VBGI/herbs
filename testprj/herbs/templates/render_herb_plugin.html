@@ -40,7 +40,7 @@ Created: 30 Aug, 2016
 <div style="text-align:center;">
     <span class="step-links">
         <% if (has_previous){ %>
-            <span id="plantset-pervious-page"  onclick="incrPage(this,-1)">{% trans "Предыдущая" %}</span>
+            <span id="plantset-previous-page"  onclick="incrPage(this,-1)">{% trans "Предыдущая" %}</span>
         <% } %>
         
         <span class="current">
@@ -151,7 +151,7 @@ return res;
 function createSearchResult(idata){
 // idata -- assumed to be a plain object (converted from json response)
 var sftempl = _.template($("#searchform-template").html());
-var output = sftempl({items:idata.herbobjs, has_pervious: idata.has_pervious,
+var output = sftempl({items:idata.herbobjs, has_previous: idata.has_pervious,
 							total: idata.total, 
 							has_next: idata.has_next,
 							pagenumber: idata.pagenumber,
