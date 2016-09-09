@@ -132,9 +132,11 @@ class GenusAuthorshipForm(forms.ModelForm):
 
 class AuthorForm(forms.ModelForm):
     def clean_name(self):
-        data = self.cleaned_data['name'].lower()
-        if self.Meta.model.objects.filter(name=data.lower()).exists():
+        data = self.cleaned_data['name'].lower().strip()
+        if self.Meta.model.objects.filter(name=data).exists():
              raise forms.ValidationError(_("имя уже существует"))
+        if not data:
+             raise forms.ValidationError(_("Имя не может быть пустым"))
         return data
     class Meta:
         model = Author
