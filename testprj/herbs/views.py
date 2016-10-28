@@ -1,25 +1,27 @@
 # -*- coding: utf-8 -*-
 import operator
-from django.shortcuts import render
+# from django.shortcuts import render
 from django.http import HttpResponse
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
 from django.forms.models import model_to_dict
-  
+
 from .models import Family, Genus, HerbItem, Species
 from .countries import codes as contry_codes
 from .forms import SearchForm
 from .conf import settings
 from django.utils.text import capfirst
 
-from django.template.loader import render_to_string
+# from django.template.loader import render_to_string
 
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 
-from django.db.models.base import ModelState
+# from django.db.models.base import ModelState
+
+
 countries = [key.decode('utf-8') for key in contry_codes]
 
 
@@ -35,7 +37,7 @@ def get_item_data(request):
             context.update({'data': tojson})
         except HerbItem.DoesNotExists:
             context = {'error': u'Объект не найден'}
-    return  HttpResponse(json.dumps(context), content_type="application/json; charset=utf-8") 
+    return  HttpResponse(json.dumps(context), content_type="application/json; charset=utf-8")
 
 
 
@@ -45,7 +47,7 @@ def show_herbs(request):
     Answer on queries for herbitems
     '''
     if request.method == 'POST':
-        return HttpResponse('Only GET-methods are acceptable')    
+        return HttpResponse('Only GET-methods are acceptable')
 
     context = {'error': '', 'has_previous': None, 'has_next': None,
                'pagenumber': 1, 'pagecount': 0}
@@ -54,6 +56,7 @@ def show_herbs(request):
         dataform = SearchForm(request.GET)
         if dataform.is_valid():
             data = {key: dataform.cleaned_data[key] for key in dataform.fields}
+            print data['itemcode']
             bigquery = [Q(public=True)]
             bigquery += [Q(family__name__iexact=data['family'])] if data['family'] else []
             bigquery += [Q(genus__name__iexact=data['genus'])] if data['genus'] else []
@@ -67,7 +70,7 @@ def show_herbs(request):
             bigquery += [Q(region__icontains=data['place'])|\
                          Q(detailed__icontains=data['place'])|\
                          Q(district__icontains=data['place'])] if data['place'] else []
-            
+
             # dates
             if data['colstart']:
                 try:
@@ -83,12 +86,12 @@ def show_herbs(request):
                     endate = None
             else:
                 endate = None
-                
+
             bigquery += [Q(colstart__gt=stdate)] if stdate else []
             bigquery += [Q(colstart__lt=endate)] if endate else []
 
             object_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery))
-            
+
             if not object_filtered.exists():
                 context.update({'herbobjs' : [],
                                 'total': 0,
@@ -96,34 +99,31 @@ def show_herbs(request):
                 return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
             # ------- Sorting items --------------
             # sorting isn't implemented yet
-            # -----  
-            
+            # -----
             # ---------  pagination-----------------
             pagcount = request.POST.get('pagcount', '')
             page = request.POST.get('page', '1')
-            
             pagcount = int(pagcount) if pagcount.isdigit() else settings.HERBS_PAGINATION_COUNT
             page = int(page) if page.isdigit() else 1
-            
             paginator = Paginator(object_filtered, pagcount)
-            
             try:
                 obj_to_show = paginator.page(page)
             except:
                 obj_to_show = paginator.page(1)
-            
             # ----------- Conversion to list of dicts with string needed ----------
             # make json encoding smarty
             data_tojson = []
+            print 'To be eval', obj_to_show.object_list
             for item in obj_to_show.object_list:
-                data_tojson.append({'family': item.family.get_full_name(),
-                       'genus': item.genus.get_full_name(),
-                       'species': item.species.get_full_name(),
-                       'itemcode': item.itemcode,
-                       'gcode': item.gcode,
-                       'id': item.pk
-                       })
-                
+                data_tojson.append(
+                    {'family': item.family.get_full_name() if hasattr(item.family, 'get_full_name') else '',
+                     'genus': item.genus.get_full_name() if hasattr(item.genus, 'get_full_name')  else '',
+                     'species': item.species.get_full_name() if hasattr(item.species, 'get_full_name') else '',
+                     'itemcode': item.itemcode,
+                     'gcode': item.gcode,
+                     'id': item.pk
+                     })
+
             # ---------------------------------------------------------------------
             context.update({'herbobjs' : data_tojson,
                             'has_previous': obj_to_show.has_previous(),
@@ -134,7 +134,7 @@ def show_herbs(request):
                             })
 
             return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder), content_type="application/json;charset=utf-8")
-        else: 
+        else:
             context.update({'herbobjs' : [],
                                 'total': 0,
                                 'error': 'Ошибка в форме поиска'})
@@ -147,7 +147,6 @@ def show_herbs(request):
 def advice_select(request):
     if not request.is_ajax():
         return HttpResponse('Only ajax-requests are acceptable')
-    
     if request.method == 'POST':
         return HttpResponse('Only GET-methods are acceptable')
 
@@ -174,7 +173,7 @@ def advice_select(request):
             objects = HerbItem.objects.filter(gcode__contains=query)
             tostore = map(lambda x: x[0], objects.order_by('gcode').values_list('gcode').distinct())[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             if tostore:
-                data = [{'id': ind + 2, 'text': item} for ind,item in enumerate(tostore)]
+                data = [{'id': ind + 2, 'text': item} for ind, item in enumerate(tostore)]
             else:
                 data = []
         elif cfield == 'genus':
@@ -227,6 +226,5 @@ def advice_select(request):
         data = []
     if data:
         for item in data: item['text'] = capfirst(item['text'])
-        
     context.update({'items': data})
     return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")

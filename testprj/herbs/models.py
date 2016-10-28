@@ -18,7 +18,7 @@ from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicod
 
 
 # Geopositionfield need to be imported!
-# where image files will be uploaded 
+# where image files will be uploaded
 # HERB_IMG_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
 # HERB_DATA_UPLOADPATH = 'herbdata/%Y/%m/%d/'
 UPLOAD_MAX_FILE_SIZE = 5 * 10 ** 6 # 5 MB defualt
@@ -32,12 +32,11 @@ _fields_to_copy = ('family', 'genus',  'species',
                    'detailed', 'height', 'note')
 
 
-
 class HerbItemMixin(models.Model):
     '''
     Common item properties
     '''
-    
+
     family = models.ForeignKey('Family',
                                on_delete=models.CASCADE,
                                null=True,
@@ -64,7 +63,7 @@ class HerbItemMixin(models.Model):
     ecodescr = models.CharField(max_length=300, default='', blank=True, verbose_name=_('экоусловия'))
 
     # Collection items
-    collectedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('сборщики')) 
+    collectedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('сборщики'))
     collected_s = models.DateField(blank=True, verbose_name=_('начало сбора'), null=True)
     collected_e = models.DateField(blank=True, verbose_name=_('конец сбора'), null=True)
     identifiedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('определил(и)'))
@@ -75,7 +74,6 @@ class HerbItemMixin(models.Model):
 
     uhash =  models.CharField(blank=True, default='', max_length=32, editable=False)
 
-    
     created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
     updated = models.DateField(auto_now=True, verbose_name=_('сохранен'))
     createdby = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -113,8 +111,8 @@ class HerbItemMixin(models.Model):
         abstract = True
         verbose_name = _('гербарный образeц')
         verbose_name_plural = _('гербарные образцы')
-        ordering = ('family', 'genus', 'species')    
- 
+        ordering = ('family', 'genus', 'species')
+
 
 @python_2_unicode_compatible
 class AuthorshipMixin(models.Model):
@@ -126,14 +124,14 @@ class AuthorshipMixin(models.Model):
     priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
 
     def __str__(self):
-        return self.author.name + (' %s' % self.priority if self.priority > 0 else '') 
+        return self.author.name + (' %s' % self.priority if self.priority > 0 else '')
 
     def get_name(self):
         return capfirst(self.author.name) if self.author else ''
 
     class Meta:
         verbose_name = _('авторство')
-        verbose_name_plural = _('авторство')    
+        verbose_name_plural = _('авторство')
         abstract = True
 
 @python_2_unicode_compatible
@@ -190,7 +188,7 @@ class Family(models.Model):
 
     class Meta:
         verbose_name = _('название семейства')
-        verbose_name_plural = _('названия семейств')    
+        verbose_name_plural = _('названия семейств')
 
 
 @python_2_unicode_compatible
@@ -198,7 +196,7 @@ class Genus(models.Model):
     name = models.CharField(max_length=30, default='', verbose_name=_('название'))
     authorship = models.ManyToManyField(Author, blank=True, null=True, through=GenusAuthorship, verbose_name=_('авторство'))
     family = models.ForeignKey(Family, related_name='genus', null=True)
-    
+
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower()
         super(Genus, self).save(*args, **kwargs)
@@ -224,7 +222,8 @@ class Genus(models.Model):
 class SpeciesAuthorship(AuthorshipMixin):
     species = models.ForeignKey('Species', on_delete=models.CASCADE,
                                  verbose_name=_('вид'))
- 
+
+
 @python_2_unicode_compatible
 class Species(models.Model):
     name = models.CharField(max_length=30, default='', verbose_name=_('название вида'))
@@ -257,15 +256,15 @@ class Species(models.Model):
 
 class HerbItem(HerbItemMixin):
     pass
-        
-    
+
+
 class PendingHerbs(HerbItemMixin):
     checked = models.BooleanField(default=False, verbose_name=_('проверено'))
     err_msg = models.TextField(blank=True, default='')
-    
+
     class Meta:
         abstract = False
-        verbose_name = _('загруженный гербарный образец') 
+        verbose_name = _('загруженный гербарный образец')
         verbose_name_plural = _('загруженные гербарные образцы')
 
 
@@ -280,7 +279,7 @@ class LoadedFiles(models.Model):
                                   editable=False, verbose_name=_('создатель'))
 
     def __str__(self):
-        return os.path.basename(self.datafile.name) 
+        return os.path.basename(self.datafile.name)
 
     class Meta:
         verbose_name = _('Файл с данными')
@@ -296,7 +295,7 @@ class ErrorLog(models.Model):
 
     def __str__(self):
         return self.message
-    
+
     class Meta:
         verbose_name = _('Ошибки загрузки файлов')
         verbose_name_plural = _('Ошибки загрузки файлов')
@@ -308,7 +307,7 @@ def loadedfiles_delete(sender, instance, **kwargs):
     try:
         instance.datafile.delete(False)
     except IOError:
-        pass 
+        pass
 
 
 @receiver(post_save, sender=LoadedFiles)
@@ -348,22 +347,22 @@ def load_datafile(sender, instance, **kwargs):
         if err:
             ErrorLog.objects.create(message=';'.join([str(item) for item in err]), who=filename)
     if len(result) > 0:
-        indd=0
+        indd = 0
         for item in result:
             familyobj = create_safely(Family, ('name',), (item['family'],))
             if not familyobj.authorship.all().exists():
                 for ind, auth in item['family_auth'][1]:
                     authorobj = create_safely(Author, ('name',), (auth,))
-                    create_safely(FamilyAuthorship, ('author', 'priority', 'family'), 
+                    create_safely(FamilyAuthorship, ('author', 'priority', 'family'),
                               (authorobj, ind, familyobj), postamble='')
-                
+
             genusobj = create_safely(Genus, ('name', ), (item['genus'],))
             genusobj.family = familyobj
             genusobj.save()
             if not genusobj.authorship.all().exists():
                 for ind, auth in item['genus_auth'][1]:
                     authorobj = create_safely(Author, ('name',), (auth,))
-                    create_safely(GenusAuthorship, ('author', 'priority', 'genus'), 
+                    create_safely(GenusAuthorship, ('author', 'priority', 'genus'),
                               (authorobj, ind, genusobj), postamble='')
 
             speciesobj = create_safely(Species, ('name', 'genus'),
@@ -372,7 +371,7 @@ def load_datafile(sender, instance, **kwargs):
             if not speciesobj.authorship.all().exists():
                 for ind, auth in item['species_auth'][1]:
                     authorobj = create_safely(Author, ('name',), (auth,))
-                    create_safely(SpeciesAuthorship, ('author', 'priority', 'species'), 
+                    create_safely(SpeciesAuthorship, ('author', 'priority', 'species'),
                               (authorobj, ind, speciesobj), postamble='')
             query_fields = {'family': familyobj,
                             'genus': genusobj,
@@ -399,5 +398,4 @@ def load_datafile(sender, instance, **kwargs):
                 if HerbItem.objects.filter(itemcode=pobj.itemcode).exists():
                     pobj.err_msg += u'Запись с номером %s уже существует;' % pobj.itemcode
                     pobj.save()
-            indd+=1
-            
+            indd += 1
