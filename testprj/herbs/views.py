@@ -21,9 +21,7 @@ import json
 
 # from django.db.models.base import ModelState
 
-
 countries = [key.decode('utf-8') for key in contry_codes]
-
 
 @csrf_exempt
 def get_item_data(request):

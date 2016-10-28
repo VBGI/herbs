@@ -12,7 +12,7 @@ from .models import (Family, Genus, HerbItem,
                      FamilyAuthorship, GenusAuthorship,
                      Author, Species,
                      SpeciesAuthorship)
-from django.contrib.admin.widgets import AdminDateWidget 
+from django.contrib.admin.widgets import AdminDateWidget
 
 taxon_name_pat = re.compile(r'[a-z]+')
 
@@ -56,9 +56,9 @@ class HerbItemForm(forms.ModelForm):
                 initial['identified_e'] = latest.identified_e
                 initial['note'] = latest.note
                 initial['coordinates'] = latest.coordinates
-                kwargs['initial'] = initial 
+                kwargs['initial'] = initial
             except HerbItem.DoesNotExist:
-                pass 
+                pass
         super(HerbItemForm, self).__init__(*args, **kwargs)
 
 
