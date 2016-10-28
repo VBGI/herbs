@@ -23,14 +23,14 @@ Created: 30 Aug, 2016
   <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}"> <div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div>
 	</li>
 	<li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}"></li>
-	<li><input type="submit" id="plantsetform-button" value="Найти"></li> 
+	<li><input type="submit" id="herbitemform-button" value="Найти"></li> 
   </ul>
 </div> 
 
 <!--  ======================================================== -->
 
 <!--  ============Herbitem content found ===================== --> 
-<div id="plantset-content-found"></div>
+<div id="herbitem-content-found"></div>
 <!--  ======================================================== -->
 
 
@@ -40,14 +40,14 @@ Created: 30 Aug, 2016
 <div style="text-align:center;">
     <span class="step-links">
         <% if (has_previous){ %>
-            <span id="plantset-previous-page"  onclick="incrPage(this,-1)">{% trans "Предыдущая" %}</span>
+            <span id="herbitem-previous-page"  onclick="incrPage(this,-1)">{% trans "Предыдущая" %}</span>
         <% } %>
         
         <span class="current">
             {% trans "Страница" %} <%= pagenumber %> {%trans "из"%} <%= pagecount %>.
         </span>
         <% if (has_next) {%>
-        	<span id="plantset-next-page"  onclick="incrPage(this,1)">{% trans "Следующая" %} </span>
+        	<span id="herbitem-next-page"  onclick="incrPage(this,1)">{% trans "Следующая" %} </span>
         <% } %>
     </span>
 </div>
@@ -117,6 +117,8 @@ label + * {margin-left: 2em; margin-top: 5px;}
 
 .herbitem-even{background: #EEEEEE}
 .herbitem-odd{background: #FFFFFF}
+#herbitem-next-page {cursor: pointer}
+#herbitem-previous-page {cursor: pointer}
 </style>
 {%endaddtoblock%}
 
@@ -222,7 +224,7 @@ function herbitemFind(){
 			).fail(function() {
     								alert("{%trans "Возникла ошибка при получении ответа за поисковый запрос" %}");
     								 }).always(function () {
-											$("#plantset-content-found").html(outputHTML); 														 	
+											$("#herbitem-content-found").html(outputHTML); 														 	
     										})	
 }
 
@@ -236,7 +238,7 @@ bindSearch('country', "{% trans 'Страну'%}");
 bindSearch('itemcode', "{% trans 'Уникальный код'%}");
 bindSearch('gcode', "{% trans 'Код раздела'%}");
 
-$('#plantsetform-button').click(function (event){
+$('#herbitemform-button').click(function (event){
 	event.preventDefault();
 	herbitemFind();
 	})
