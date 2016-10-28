@@ -54,7 +54,6 @@ def show_herbs(request):
         dataform = SearchForm(request.GET)
         if dataform.is_valid():
             data = {key: dataform.cleaned_data[key] for key in dataform.fields}
-            print data['itemcode']
             bigquery = [Q(public=True)]
             bigquery += [Q(family__name__iexact=data['family'])] if data['family'] else []
             bigquery += [Q(genus__name__iexact=data['genus'])] if data['genus'] else []
@@ -97,10 +96,9 @@ def show_herbs(request):
                 return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
             # ------- Sorting items --------------
             # sorting isn't implemented yet
-            # -----
             # ---------  pagination-----------------
-            pagcount = request.POST.get('pagcount', '')
-            page = request.POST.get('page', '1')
+            pagcount = request.GET.get('pagcount', '')
+            page = request.GET.get('page', '1')
             pagcount = int(pagcount) if pagcount.isdigit() else settings.HERBS_PAGINATION_COUNT
             page = int(page) if page.isdigit() else 1
             paginator = Paginator(object_filtered, pagcount)
@@ -111,7 +109,6 @@ def show_herbs(request):
             # ----------- Conversion to list of dicts with string needed ----------
             # make json encoding smarty
             data_tojson = []
-            print 'To be eval', obj_to_show.object_list
             for item in obj_to_show.object_list:
                 data_tojson.append(
                     {'family': item.family.get_full_name() if hasattr(item.family, 'get_full_name') else '',
