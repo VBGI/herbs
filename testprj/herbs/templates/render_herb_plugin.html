@@ -71,7 +71,7 @@ Created: 30 Aug, 2016
 			 var herbid = item.id
 			 var species = item.species
 		if (index % 2 == 0) { %>
-		<tr class="herbitem-even" onclick="showitem(<%= herbid %>)" >
+		<tr class="herbitem-even" onclick="showItem(<%= herbid %>)" >
 			<td><%= herbid %></td>
 			<td><%= gcode %></td>
 			<td><%= itemcode %></td>
@@ -79,7 +79,7 @@ Created: 30 Aug, 2016
 			<td><%= species %></td>
 		</tr>
    <%	} else { %>
-		<tr class="herbitem-odd" onclick="showitem(<%= herbid %>)" >
+		<tr class="herbitem-odd" onclick="showItem(<%= herbid %>)" >
 			<td><%= herbid %></td>
 			<td><%= gcode %></td>
 			<td><%= itemcode %></td>
@@ -135,7 +135,7 @@ var cpage = 1; // Current paginated page
 
 function incrPage(el,inc){  // Just increment the page number 
 cpage = cpage + inc
-plantsetfind();
+herbitemFind();
 }
 
 function getornone(el){
@@ -152,7 +152,7 @@ return res;
 function createSearchResult(idata){
 // idata -- assumed to be a plain object (converted from json response)
 var sftempl = _.template($("#searchform-template").html());
-var output = sftempl({items:idata.herbobjs, has_previous: idata.has_pervious,
+var output = sftempl({items:idata.herbobjs, has_previous: idata.has_previous,
 							total: idata.total, 
 							has_next: idata.has_next,
 							pagenumber: idata.pagenumber,
@@ -161,7 +161,7 @@ var output = sftempl({items:idata.herbobjs, has_previous: idata.has_pervious,
 return output
 }
 
-function bind_search(model, mname){
+function bindSearch(model, mname){
 	var element = '#' + model + '-input';
 	
 $(element).select2({
@@ -183,7 +183,7 @@ $(element).select2({
     	 					genus: genusname,
     	 					species: speciesname};
     	 					},
-		 processResults: function (data, page) {
+	 processResults: function (data, page) {
       	return {
         	results: data.items
       	};},
@@ -193,7 +193,7 @@ $(element).select2({
 }
 
 
-function herbitemfind(){
+function herbitemFind(){
 	var family = getornone('#family-input');
 	var genus = getornone('#genus-input');
 	var species = getornone('#species-input');
@@ -212,7 +212,7 @@ function herbitemfind(){
 	$.get("{% url 'herbs.views.show_herbs' %}",
 			{family:family, genus:genus, species:species, gcode:gcode, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
-			colend:colend}).done(function(data) {
+			colend:colend, page:cpage}).done(function(data) {
 			if (data.error.length > 0) {
 				outputHTML = data.error
 			}
@@ -229,16 +229,16 @@ function herbitemfind(){
 <!-- ============ When DOM is ready ============  -->
 $(document).ready(function() { 
 
-bind_search('family', "{% trans 'Семейство'%}");
-bind_search('genus', "{% trans 'Род'%}");
-bind_search('species', "{% trans 'Вид'%}");
-bind_search('country', "{% trans 'Страну'%}");
-bind_search('itemcode', "{% trans 'Уникальный код'%}");
-bind_search('gcode', "{% trans 'Код раздела'%}");
+bindSearch('family', "{% trans 'Семейство'%}");
+bindSearch('genus', "{% trans 'Род'%}");
+bindSearch('species', "{% trans 'Вид'%}");
+bindSearch('country', "{% trans 'Страну'%}");
+bindSearch('itemcode', "{% trans 'Уникальный код'%}");
+bindSearch('gcode', "{% trans 'Код раздела'%}");
 
 $('#plantsetform-button').click(function (event){
 	event.preventDefault();
-	herbitemfind();
+	herbitemFind();
 	})
 
 $("#colstart-input, #colend-input").click(function (event){
