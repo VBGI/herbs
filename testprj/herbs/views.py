@@ -116,7 +116,19 @@ def show_herbs(request):
                      'species': item.species.get_full_name() if hasattr(item.species, 'get_full_name') else '',
                      'itemcode': item.itemcode,
                      'gcode': item.gcode,
-                     'id': item.pk
+                     'id': item.pk,
+                    # Extra data to show herbitem details
+                     'ecodescr': item.ecodescr,
+                     'height': item.height,
+                     'district': item.district,
+                     'country': item.country,
+                     'region': item.region,
+                     'collectedby': item.collectedby,
+                     'collected_s': item.collected_s,
+                     'identifiedby': item.identifiedby,
+                     'note': item.note,
+                     'created':  str(item.created),
+                     'updated': str(item.updated)
                      })
 
             # ---------------------------------------------------------------------
