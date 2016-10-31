@@ -223,7 +223,7 @@ def advice_select(request):
                     objects = Species.objects.filter(name__icontains=query)
                 else:
                     objects = Species.objects.all()
-            data = [{'id': item.pk, 'text': item.get_full_name()}\
+            data = [{'id': item.pk, 'text': item.name}\
                     for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'country':
             data = [{'id': ind + 2,'text': val} for ind, val in enumerate(filter(lambda x: query in x, countries))]
