@@ -10,17 +10,17 @@ Created: 30 Aug, 2016
 
 <div id="herb-search-form">
   <ul>
-	<li><label for="family-input">{%trans "Семейство:"%}</label> <div> <select id="family-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div> </div></li>  
-	<li><label for="genus-input">{%trans "Род:"%}</label> <div><select id="genus-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-	<li><label for="species-input">{%trans "Вид:"%}</label> <div><select id="species-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-	<li><label for="itemcode-input">{%trans "Код:"%}</label> <div><select id="itemcode-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-	<li><label for="gcode-input">{%trans "Код раздела:"%}</label><div> <select  id="gcode-input" value=""></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-	<li><label for="collectedby-input">{%trans "Собрали:"%}</label><div><input type="search" id="collectedby-input" value="" placeholder="{%trans "Текстовое поле"%}"><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-	<li><label for="identifiedby-input">{%trans "Определили:"%}</label><div><input type="search" id="identifiedby-input" value="" placeholder="{%trans "Текстовое поле"%}"><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-	<li><label for="country-input">{%trans "Страна:"%}</label><div><select id="country-input"></select><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
-  <li><label for="place-input">{%trans "Место:"%}</label><div><input type="search" id="place-input" value="" placeholder="{%trans "Место сбора"%}"><div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></li>
+	<li><label for="family-input">{%trans "Семейство:"%}</label> <div> <select id="family-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div> </div></li>  
+	<li><label for="genus-input">{%trans "Род:"%}</label> <div><select id="genus-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="species-input">{%trans "Вид:"%}</label> <div><select id="species-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="itemcode-input">{%trans "Код:"%}</label> <div><select id="itemcode-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="gcode-input">{%trans "Код раздела:"%}</label><div> <select  id="gcode-input" value=""></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="collectedby-input">{%trans "Собрали:"%}</label><div><input type="search" id="collectedby-input" value="" placeholder="{%trans "Текстовое поле"%}"><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="identifiedby-input">{%trans "Определили:"%}</label><div><input type="search" id="identifiedby-input" value="" placeholder="{%trans "Текстовое поле"%}"><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="country-input">{%trans "Страна:"%}</label><div><select id="country-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></li>
+  <li><label for="place-input">{%trans "Место:"%}</label><div><input type="search" id="place-input" value="" placeholder="{%trans "Место сбора"%}"><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></li>
   <li><label for="colend-input">{%trans "Даты сбора:"%}</label><div><input type="search" id="colstart-input" value="" placeholder="{%trans "Начало сбора"%}"> -
-  <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}"> <div class="clear-field"><span class="ui-icon ui-icon-trash"></span></div></div>
+  <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}"> <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div>
 	</li>
 	<li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}"></li>
 	<li><input type="submit" id="herbitemform-button" value="Найти"></li> 
@@ -102,7 +102,7 @@ Created: 30 Aug, 2016
 	{
 	width:300px;
 	}
-.clear-field{
+.clear-button{
 	display: none;
 	cursor:pointer;
 	}
@@ -244,18 +244,18 @@ $('#herbitemform-button').click(function (event){
 	})
 
 $("#colstart-input, #colend-input").click(function (event){
-	$(this).siblings('div.clear-field').css('display', 'inline-block');
+	$(this).siblings('div.clear-button').css('display', 'inline-block');
 })
 
 $("div>input[type=search]" ).keypress(function() {
-  $(this).siblings('div.clear-field').css('display', 'inline-block')
+  $(this).siblings('div.clear-button').css('display', 'inline-block')
 });
 
 $('select').on("select2:selecting", function(e) { 
-  $(this).siblings('div.clear-field').css('display', 'inline-block')
+  $(this).siblings('div.clear-button').css('display', 'inline-block')
 });
 
-$('div.clear-field').click(function (event){
+$('div.clear-button').click(function (event){
 $(this).css('display', 'none')
 var el = $(this).siblings('select') 
 if (el.length !== 0 ) {
@@ -270,13 +270,14 @@ $("#colend-input").datepicker();
 
 $("#searchform-clear").click(function (event){
 	event.preventDefault();
+$('#family-input').select2('val',''); 
 $('#species-input').select2('val', '');
 $('#genus-input').select2('val', '');
 $('#country-input').select2('val', '');
 $('#itemcode-input').select2('val', '');
 $('#gcode-input').select2('val', '');
 $('div>input[type=search]').val('');
-$('div.clear-field').hide();
+$('div.clear-button').hide();
 
 $( "div#herb-search-form ul li input:text" ).each(function() {  
 	$(this).val('');
