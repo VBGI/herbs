@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import operator
-# from django.shortcuts import render
+import datetime
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
@@ -12,7 +12,6 @@ from .forms import SearchForm
 from .conf import settings
 from django.utils.text import capfirst
 
-# from django.template.loader import render_to_string
 
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
@@ -38,8 +37,16 @@ def get_item_data(request):
     return  HttpResponse(json.dumps(context), content_type="application/json; charset=utf-8")
 
 
+def parse_date(d):
+    if not d: return None
+    try:
+       res = datetime.datetime.strptime(d, '%m/%d/%Y')
+    except ValueError:
+        res = None
+    return res
 
-@csrf_exempt
+
+csrf_exempt
 def show_herbs(request):
     '''
     Answer on queries for herbitems
@@ -69,23 +76,11 @@ def show_herbs(request):
                          Q(district__icontains=data['place'])] if data['place'] else []
 
             # dates
-            if data['colstart']:
-                try:
-                    stdate = parse_date(datap['colstart']).date()
-                except ValueError:
-                    stdate = None
-            else:
-                stdate = None
-            if data['colend']:
-                try:
-                    endate = parse_date(datap['ValueError']).date()
-                except ValueError:
-                    endate = None
-            else:
-                endate = None
+            stdate = parse_date(request.GET.get('colstart', ''))
+            endate = parse_date(request.GET.get('colend', ''))
 
-            bigquery += [Q(colstart__gt=stdate)] if stdate else []
-            bigquery += [Q(colstart__lt=endate)] if endate else []
+            bigquery += [Q(collected_s__gt=stdate)] if stdate else []
+            bigquery += [Q(collected_e__lt=endate)] if endate else []
 
             object_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery))
 
@@ -94,6 +89,7 @@ def show_herbs(request):
                                 'total': 0,
                                 'error': 'Не одного элемента не удолетворяет условиям запроса'})
                 return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
+
             # ------- Sorting items --------------
             # sorting isn't implemented yet
             # ---------  pagination-----------------
@@ -142,9 +138,9 @@ def show_herbs(request):
 
             return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder), content_type="application/json;charset=utf-8")
         else:
-            context.update({'herbobjs' : [],
-                                'total': 0,
-                                'error': 'Ошибка в форме поиска'})
+            context.update({'herbobjs': [],
+                            'total': 0,
+                            'error': 'Ошибка в форме поиска'})
             return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder), content_type="application/json;charset=utf-8")
     else:
         return HttpResponse('Only ajax-requests are acceptable')
@@ -188,7 +184,7 @@ def advice_select(request):
             if dataform.cleaned_data['family']:
                 if query:
                     objects = Genus.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
-                                      name__icontains=query)
+                                                   name__icontains=query)
                 else:
                     objects = Genus.objects.filter(family__name__iexact=dataform.cleaned_data['family'])
             else:
@@ -201,21 +197,21 @@ def advice_select(request):
             if dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
                 if query:
                     objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'],
-                                                  genus__name__iexact=dataform.cleaned_data['genus'],
-                                                  name__icontains=query)
+                                                     genus__name__iexact=dataform.cleaned_data['genus'],
+                                                     name__icontains=query)
                 else:
                     objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'],
-                                                  genus__name__iexact=dataform.cleaned_data['genus'])
+                                                     genus__name__iexact=dataform.cleaned_data['genus'])
             elif dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
                 if query:
                     objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'],
-                                                  name__icontains=query)
+                                                     name__icontains=query)
                 else:
                     objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'])
             elif not dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
                 if query:
                     objects = Species.objects.filter(genus__name__iexact=dataform.cleaned_data['genus'],
-                                                  name__icontains=query)
+                                                     name__icontains=query)
                 else:
                     objects = Species.objects.filter(genus__name__iexact=dataform.cleaned_data['genus'])
             elif not dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
@@ -223,10 +219,10 @@ def advice_select(request):
                     objects = Species.objects.filter(name__icontains=query)
                 else:
                     objects = Species.objects.all()
-            data = [{'id': item.pk, 'text': item.name}\
+            data = [{'id': item.pk, 'text': item.name}
                     for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'country':
-            data = [{'id': ind + 2,'text': val} for ind, val in enumerate(filter(lambda x: query in x, countries))]
+            data = [{'id': ind + 2, 'text': val} for ind, val in enumerate(filter(lambda x: query in x, countries))]
     else:
         # invalid form (That isn't possible,  I hope! )
         context.update({'error': 'Странный запрос'})
