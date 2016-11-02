@@ -155,6 +155,25 @@ class Author(models.Model):
         verbose_name_plural = _('авторы')
 
 
+class HerbImage(models.Model):
+    TYPE_CHOICES = (('h', 'Изображение гербария'),
+                    ('p', 'Изображение места сбора'))
+    user = models.ForeignKey(User, blank=True, null=True, related_name='+')
+    image = models.ImageField(upload_to="") ## TODO: upload to path need to be tweaked
+    type = models.CharField(max_length=1,
+                            blank=False,
+                            default=TYPE_CHOICES[0][0],
+                            choices=TYPE_CHOICES)
+    created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
+    updated = models.DateField(auto_now=True, verbose_name=_('изменен'))
+    herbitem = models.ForeignKey('HerbItem', blank=False)
+
+    class Meta:
+        ordering = ('updated', )
+
+
+
+
 class FamilyAuthorship(AuthorshipMixin):
     family = models.ForeignKey('Family', on_delete=models.CASCADE, verbose_name=_('семейство'))
 
