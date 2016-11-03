@@ -10,6 +10,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.text import capfirst
 from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
 from geoposition.fields import GeopositionField
 import pandas as pd
 
@@ -273,7 +274,8 @@ class Species(models.Model):
 
 
 class HerbItem(HerbItemMixin):
-    pass
+    user = models.ForeignKey(get_user_model(),
+                             blank=True, null=True, related_name='+')
 
 
 class PendingHerbs(HerbItemMixin):
