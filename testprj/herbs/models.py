@@ -156,10 +156,10 @@ class Author(models.Model):
 
 
 class HerbImage(models.Model):
-    TYPE_CHOICES = (('h', 'Изображение гербария'),
-                    ('p', 'Изображение места сбора'))
+    TYPE_CHOICES = (('H', 'Изображение гербария'),
+                    ('P', 'Изображение места сбора'))
     user = models.ForeignKey(User, blank=True, null=True, related_name='+')
-    image = models.ImageField(upload_to="") ## TODO: upload to path need to be tweaked
+    image = models.ImageField(upload_to="herbimages/%Y/%m/%d/")
     type = models.CharField(max_length=1,
                             blank=False,
                             default=TYPE_CHOICES[0][0],
@@ -172,14 +172,13 @@ class HerbImage(models.Model):
         ordering = ('updated', )
 
 
-
-
 class FamilyAuthorship(AuthorshipMixin):
     family = models.ForeignKey('Family', on_delete=models.CASCADE, verbose_name=_('семейство'))
 
 class GenusAuthorship(AuthorshipMixin):
     genus = models.ForeignKey('Genus', on_delete=models.CASCADE,
                               verbose_name=_('род'))
+
 
 @python_2_unicode_compatible
 class Family(models.Model):
