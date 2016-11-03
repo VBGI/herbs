@@ -10,7 +10,8 @@ from .forms import (FamilyForm, GenusForm, HerbItemForm,
 from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
                      SpeciesAuthorship, PendingHerbs,
                      Author, HerbItem, Species, LoadedFiles,
-                     ErrorLog, _fields_to_copy)
+                     ErrorLog, _fields_to_copy,
+                     HerbImage)
 
 # ------------------- Actions for publishing HerbItems ----------------------
 
@@ -59,6 +60,34 @@ force_move_pending_herbs.short_description = "Переместить в базу
 # ---------------------------------------------------------------------------
 
 
+
+# -------------- Common per object permission setter ------------------------
+
+class PermissionMixin:
+
+    def queryset(self, request):
+        if request.user.is_superuser:
+            return model.objects.all()
+        return model.objects.filter(user=request.user)
+
+    def _common_permission_manager(self, request, obj):
+        if request.user == obj.user or request.user.is_superuser:
+            return True
+        else:
+            return False
+
+    def has_delete_permission(self, request, obj):
+        return self._common_permission_manager(request, obj)
+
+    def has_change_permission(self, request, obj):
+         return self._common_permission_manager(request, obj)
+
+
+
+# ---------------------------------------------------------------------------
+
+
+
 # Register your models here.
 class AuthorAdmin(admin.ModelAdmin):
     form = AuthorForm
@@ -82,6 +111,13 @@ class SpeciesAuthorshipInline(AjaxSelectAdminTabularInline):
     extra = 0
 
 
+class HerbImageAdminInline(PermissionMixin, admin.TabularInline):
+    extra = 0
+    model = HerbImage
+
+
+
+
 class FamilyAdmin(admin.ModelAdmin):
     form = FamilyForm
     inlines = (
@@ -96,13 +132,16 @@ class GenusAdmin(AjaxSelectAdmin):
         )
 
 
-class HerbItemAdmin(AjaxSelectAdmin):
+class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
+    model = HerbItem
     form = HerbItemForm
     list_display = ('family', 'get_full_name', 'gcode', 'itemcode', 'public', 'collectedby', 'collected_s')
     list_filter = ('public', 'family', 'genus', 'species')
     search_fields = ('itemcode', 'gcode', 'collectedby', 'identifiedby', 'family__name', 'genus__name')
     list_display_links = ('get_full_name',)
     actions = (publish_herbitem, unpublish_herbitem)
+    inlines = (HerbImageAdminInline, )
+
 
 
 class PendingHerbsAdmin(admin.ModelAdmin):
