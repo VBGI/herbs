@@ -38,7 +38,22 @@ class HerbItemForm(forms.ModelForm):
         if 'initial' in kwargs.keys():
             try:
                 initial = kwargs['initial']
-                latest = HerbItem.objects.latest('created')
+
+                # ---------- Getting the current user -------------
+                current_user = None
+                request = kwargs.get('request', None)
+                try:
+                    current_user = request['user']
+                except (AttributeError, TypeError):
+                    current_user = None
+                if current_user:
+                    if current_user.is_superuser:
+                        latest = HerbItem.objects.latest('created')
+                    else:
+                        latest = HerbItem.objects.filter(user=current_user).latest('created')
+                else:
+                    latest = HerbItem.objects.latest('created')
+                # -------------------------------------------------
                 initial['family'] = latest.family.pk
                 initial['genus'] = latest.genus.pk
                 initial['species'] = latest.species.pk
