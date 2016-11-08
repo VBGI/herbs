@@ -278,7 +278,8 @@ class Species(models.Model):
 
 class HerbItem(HerbItemMixin):
     user = models.ForeignKey(get_user_model(),
-                             blank=True, null=True, related_name='+')
+                             blank=True, null=True, related_name='+',
+                             editable=False)
 
 
 class PendingHerbs(HerbItemMixin):
