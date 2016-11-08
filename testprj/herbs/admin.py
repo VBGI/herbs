@@ -62,7 +62,6 @@ force_move_pending_herbs.short_description = "Переместить в базу
 
 
 # -------------- Common per object permission setter ------------------------
-
 class PermissionMixin:
 
     def queryset(self, request):
@@ -71,11 +70,14 @@ class PermissionMixin:
         return self.model.objects.filter(user=request.user)
 
     def _common_permission_manager(self, request, obj):
-        if obj is None: return False
-        if request.user == obj.user or request.user.is_superuser:
+        if obj is None: return True
+        if obj.user is not None:
+            if request.user == obj.user: return True
+        if request.user.is_superuser:
             return True
         else:
             return False
+
 
     def has_delete_permission(self, request, obj=None):
         return self._common_permission_manager(request, obj)
@@ -83,7 +85,10 @@ class PermissionMixin:
     def has_change_permission(self, request, obj=None):
          return self._common_permission_manager(request, obj)
 
-
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser:
+            obj.user = request.user
+        obj.save()
 
 # ---------------------------------------------------------------------------
 

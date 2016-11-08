@@ -7,14 +7,13 @@ from django.db import models
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.functional import cached_property
 from django.utils.text import capfirst
 from django.utils.translation import gettext as _
 from django.contrib.auth import get_user_model
 from geoposition.fields import GeopositionField
 import pandas as pd
 
-from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe, smart_unicode,
+from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe,
                    create_safely, get_authorship_string)
 
 
@@ -212,9 +211,13 @@ class Family(models.Model):
 
 @python_2_unicode_compatible
 class Genus(models.Model):
-    name = models.CharField(max_length=30, default='', verbose_name=_('название'))
-    authorship = models.ManyToManyField(Author, blank=True, null=True, through=GenusAuthorship, verbose_name=_('авторство'))
-    family = models.ForeignKey(Family, related_name='genus', null=True)
+    name = models.CharField(max_length=30, default='',
+                            verbose_name=_('название'))
+    authorship = models.ManyToManyField(Author, blank=True, null=True,
+                                        through=GenusAuthorship,
+                                        verbose_name=_('авторство'))
+    family = models.ForeignKey(Family, related_name='genus', null=True,
+                               blank=False)
 
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower()
@@ -246,7 +249,7 @@ class SpeciesAuthorship(AuthorshipMixin):
 @python_2_unicode_compatible
 class Species(models.Model):
     name = models.CharField(max_length=30, default='', verbose_name=_('название вида'))
-    genus = models.ForeignKey(Genus, null=False, blank=False, verbose_name=_('род'),
+    genus = models.ForeignKey(Genus, null=True, blank=False, verbose_name=_('род'),
                               related_name='species')
     authorship = models.ManyToManyField(Author, blank=True, null=True,
                                         through=SpeciesAuthorship,
