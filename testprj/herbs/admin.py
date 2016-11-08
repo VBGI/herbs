@@ -67,19 +67,20 @@ class PermissionMixin:
 
     def queryset(self, request):
         if request.user.is_superuser:
-            return model.objects.all()
-        return model.objects.filter(user=request.user)
+            return self.model.objects.all()
+        return self.model.objects.filter(user=request.user)
 
     def _common_permission_manager(self, request, obj):
+        if obj is None: return False
         if request.user == obj.user or request.user.is_superuser:
             return True
         else:
             return False
 
-    def has_delete_permission(self, request, obj):
+    def has_delete_permission(self, request, obj=None):
         return self._common_permission_manager(request, obj)
 
-    def has_change_permission(self, request, obj):
+    def has_change_permission(self, request, obj=None):
          return self._common_permission_manager(request, obj)
 
 
