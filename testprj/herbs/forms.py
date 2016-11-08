@@ -114,7 +114,7 @@ class SearchForm(forms.Form):
 class GenusForm(TaxonCleanerMixin):
     class Meta:
         model = Genus
-    family = AutoCompleteSelectField('family', required=False, help_text=None, label=_("Семейство"))
+    family = AutoCompleteSelectField('family', required=True, help_text=None, label=_("Семейство"))
 
 class FamilyForm(TaxonCleanerMixin):
     class Meta:
@@ -161,6 +161,6 @@ class SpeciesForm(forms.ModelForm):
         model = Species
 
     genus = AutoCompleteSelectField('genus',
-                                    required=False,
+                                    required=True,
                                     help_text=None,
                                     label=_("Род"))
