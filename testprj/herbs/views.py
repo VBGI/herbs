@@ -87,7 +87,7 @@ def show_herbs(request):
             if not object_filtered.exists():
                 context.update({'herbobjs' : [],
                                 'total': 0,
-                                'error': 'Не одного элемента не удолетворяет условиям запроса'})
+                                'error': 'Ни одного элемента не удолетворяет условиям запроса'})
                 return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
 
             # ------- Sorting items --------------
