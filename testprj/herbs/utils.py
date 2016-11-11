@@ -8,6 +8,8 @@ from datetime import date
 
 from django.utils.text import capfirst
 
+from fpdf import FPDF
+
 
 # --------------- Author string validation and extraction --------
 validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+')
@@ -20,8 +22,8 @@ unique_code_pat = re.compile(r'\d{1,10}')
 
 monthes = {'янв': 1,
            'фев': 2,
-           'мар': 3, 
-           'апр': 4, 
+           'мар': 3,
+           'апр': 4,
            'май': 5,
            'мая': 5,
            'июн': 6,
@@ -53,7 +55,7 @@ def smart_unicode(s):
 
 
 def get_authors(auth_str):
-    '''Evaluates an `author string` and returns list of authors and priorities 
+    '''Evaluates an `author string` and returns list of authors and priorities
     '''
 
     _auth_str = auth_str.strip()
@@ -112,7 +114,7 @@ def evaluate_species(taxon):
     res = taxon.split()
     authors = get_authors(' '.join(res[2:]))
     species = res[1]
-    return (species, authors)        
+    return (species, authors)
 
 
 def evaluate_date(item):
@@ -129,16 +131,16 @@ def evaluate_date(item):
             cmonth = monthes[month]
     if not cmonth:
         result = ('Месяц не определен', item_)
-        return result 
+        return result
     day = day_pat.findall(item_)
     if len(day) != 1:
         result = ('день не определен', item_)
-        return result 
+        return result
     day = int(day.pop())
     year = int(year.pop())
-    if not (0 < day < 32): 
+    if not (0 < day < 32):
         result = ('День должен быть от 1 до 31', item_)
-        return result 
+        return result
     if year > 2050 or year < 1500:
         result = ('Странное значение года', item_)
         return result
@@ -162,7 +164,7 @@ def get_authorship_string(authors):
     howmany = len(authors)
     if howmany > 1:
         inside = [item for item in authors[:howmany-1]]
-    else: 
+    else:
         inside = None
     # order by priority : the older is put into bracets
     if inside:
@@ -185,11 +187,11 @@ def evluate_herb_dataframe(df):
             if cfauthors[0]:
                 errmsgs[-1].append('Ошибка в строке %s в поле семейство: %s' % (ind + 1, cfauthors[0]))
             else:
-                familyok = True    
-        except: 
+                familyok = True
+        except:
             errmsgs[-1].append('Ошибка в строке %s в поле семейство' % (ind + 1, ))
-        # -----------------------------------------    
-        
+        # -----------------------------------------
+
         # -------- Genus evaluations -------------
         genusok = False
         try:
@@ -197,10 +199,10 @@ def evluate_herb_dataframe(df):
             if cgauthors[0]:
                 errmsgs[-1].append('Ошибка в строке %s в поле род: %s' % (ind + 1, cgauthors[0]))
             else:
-                genusok = True    
-        except: 
+                genusok = True
+        except:
             errmsgs[-1].append('Ошибка в строке %s в поле род' % (ind + 1, ))
-        # -----------------------------------------                      
+        # -----------------------------------------
 
         # -------- Species evaluations -------------
         speciesok = False
@@ -212,7 +214,7 @@ def evluate_herb_dataframe(df):
                 speciesok = True
         except:
             errmsgs[-1].append('Ошибка в строке %s в поле вид' % (ind + 1, ))
-        # -----------------------------------------  
+        # -----------------------------------------
 
 
         # -------- Collected evaluations -------------
@@ -260,11 +262,11 @@ def evluate_herb_dataframe(df):
                        'genus_auth': cgauthors,
                        'species': cspecies,
                        'species_auth': cspauthors,
-                       'itemcode': itemcode, 
+                       'itemcode': itemcode,
                        'gcode': gcode,
                        'identified': detdate,
                        'collected': coldate,
-                       'country': item['country'], 
+                       'country': item['country'],
                        'region': item['region'],
                        'district': item['district'],
                        'coordinates': item['coordinates'],
@@ -278,3 +280,20 @@ def evluate_herb_dataframe(df):
                        }
                       )
     return result, errmsgs
+
+
+
+
+# -------- Class definition for generation herbitem description ------
+class HerbitemTemaplte(FPDF):
+    '''Pdf generation with help of the pyfpdf package
+    '''
+    def __init__(self, **kwargs):
+        self._alltext = kwargs
+        self._alltext['org'] = 'Ботанический сад-институт ДВО РАН'
+
+
+    def make_title(self):
+        self.set_font('Arial', '', 12)
+        self.cell(20, 20, title, 1, 1, 'C', 1)
+
