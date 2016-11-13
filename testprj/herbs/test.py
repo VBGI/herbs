@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 #
 from fpdf import FPDF
+import tempfile
 
 msgs = {'org':   'Ботанический сад-институт ДВО РАН',
         'addr':  '690024, г. Владивосток, ул. Маковского, 142',
         'descr': 'VLA, Botanical Garden-Institue, Russia, Vladivostok',
         'where': 'Место сбора / Place found:',
-        'coords': 'Координаты / Coordinates found:',
+        'coords': 'Координаты / Coordinates:',
         'date': 'Дата сбора / Date found:',
         'det': 'Определил(и) / Identified by:'
         }
@@ -62,7 +63,7 @@ else:
 # -------------- Plot Genus name ---------------
 pdf.set_xy(5, goto(4))
 species_name = 'Some species'
-author_name = '(Second. Author) Prim. Author'
+author_name = '(Sec. Author) Prim. Author'
 pdf.set_font_size(10)
 sp_w = pdf.get_string_width(species_name)
 pdf.set_font('DejaVu', '', 10)
@@ -86,11 +87,11 @@ pdf.set_font('DejaVu', '', 9)
 tw = pdf.get_string_width(msgs['where'])
 pdf.cell(0, 0, msgs['where'])
 pdf.set_xy(5 + 1 + tw, goto(5))
-pdf.cell(0, 0, 'Wild-wild forest...')
+pdf.cell(0, 0, 'Россия, Приморский край, с.xxxx')
 
 
 pdf.set_xy(5, goto(6))
-pdf.cell(LABEL_WIDTH, 0, 'long description goes here...(centered)', align='C')
+pdf.cell(LABEL_WIDTH, 0, 'более длинное описание места сбора...', align='C')
 # ----------------------------------------------
 
 
@@ -118,9 +119,42 @@ pdf.set_xy(5+1+tw, goto(9))
 pdf.cell(0,0,'Иванов И.И., Петров А.А. ')
 
 pdf.set_font_size(12)
-pdf.set_xy(15,LABEL_HEIGHT-6)
-pdf.cell(0,0,'445511:1122')
-pdf.interleaved2of5('123456', 85, LABEL_HEIGHT-6,w=1,h=8)
+pdf.set_xy(15,goto(11))
+pdf.cell(0,0,'Инв. №: 445511:1122')
+
+
+
+import qrcode, os
+
+
+qr = qrcode.QRCode(
+    version=2,
+    error_correction=qrcode.constants.ERROR_CORRECT_M,
+    box_size=10,
+    border=2,
+)
+qr.add_data('http://botsad.ru/hitem/1234567')
+qr.make(fit=True)
+img = qr.make_image()
+
+
+temp_name = os.path.join('./tmp', next(tempfile._get_candidate_names()))
+temp_name += '.png'
+
+try:
+    with open(temp_name, 'w') as tmpfile:
+        img.save(tmpfile)
+        tmpfile.flush()
+        pdf.set_xy(LABEL_WIDTH+5-24,LABEL_HEIGHT+5-24)
+        pdf.image(temp_name, w=22, h=22)
+finally:
+    try:
+        os.remove(temp_name)
+    except IOError:
+        pass
+
 pdf.output('MYF.pdf', 'F')
+
+
 
 
