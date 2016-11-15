@@ -14,70 +14,76 @@ msgs = {'org':   'Ботанический сад-институт ДВО РАН
         }
 
 
-
-
-pdf = FPDF()
+pdf = FPDF(orientation='L')
 pdf.add_page()
 
-LABEL_WIDTH = 110
-LABEL_HEIGHT = 80
+LABEL_WIDTH = 140
+LABEL_HEIGHT = 100
 
 FIRST_LINE = LABEL_HEIGHT/7
 LINE_HEIGHT = LABEL_HEIGHT/12
 
+MARGIN_X = 10
+MARGIN_Y = 10
+
+
 goto = lambda n: FIRST_LINE + LINE_HEIGHT * n
 
-pdf.rect(5,5,LABEL_WIDTH,LABEL_HEIGHT, '')
-pdf.rect(2,2,LABEL_WIDTH+6,LABEL_HEIGHT+6, '')
-pdf.image('./imgs/bgi_logo.png', w=15, h=15)
 
 
-pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
-pdf.add_font('DejaVui', '', 'DejaVuSans-Oblique.ttf', uni=True)
+class PDF_DOC:
+    def __init__(self):
+        self.pdf = FPDF(orientation='L')
+        pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
+        pdf.add_font('DejaVui', '', 'DejaVuSans-Oblique.ttf', uni=True)
 
-pdf.set_font('DejaVu', '', 13)
-pdf.set_xy(22,goto(0))
-pdf.cell(LABEL_WIDTH - 22,0,msgs['org'], align='C')
-pdf.set_font_size(8)
-pdf.set_xy(22, goto(1))
-pdf.cell(LABEL_WIDTH - 22,0, msgs['addr'],align='C')
-pdf.set_xy(22, goto(2))
-pdf.cell(LABEL_WIDTH - 22, 0,msgs['descr'], align='C')
-pdf.set_font('DejaVui', '', 10)
-pdf.line(7, goto(2) + 3,LABEL_WIDTH + 5 - 2 ,goto(2)+3)
+    def _add_label(self, x, y, family=''):
+        pdf.rect(x, y, LABEL_WIDTH,LABEL_HEIGHT, '')
+        pdf.rect(x-3, y-3, LABEL_WIDTH+6, LABEL_HEIGHT+6, '')
+        pdf.set_xy(x+5, y+5)
+        pdf.image('./imgs/bgi_logo.png', w=15, h=15)
+        pdf.set_font('DejaVu', '', 14)
+        pdf.set_xy(x+20, goto(0))
+        pdf.cell(LABEL_WIDTH - 20, 0, msgs['org'], align='C')
+        pdf.set_font_size(10)
+        pdf.set_xy(x+20, goto(1))
+        pdf.cell(LABEL_WIDTH - 20,0, msgs['addr'],align='C')
+        pdf.set_xy(x+20, goto(2))
+        pdf.cell(LABEL_WIDTH - 20, 0,msgs['descr'], align='C')
+        pdf.line(x + 5, goto(2) + 4,LABEL_WIDTH + 5 - 2 ,goto(2) + 4)
+        pdf.set_xy(x + 5, goto(3))
+        pdf.set_font('DejaVui', '', 12)
+        if family_name:
+            pdf.cell(LABEL_WIDTH, 0, '{}'.format(family_name), align='C')
+        else:
+            pdf.cell(LABEL_WIDTH, 0, '_____________________', align='C')
 
-# -------------- Plot Family -------------------
-family_name = 'AWESOMEFAMILY'
+        # -------------- Plot Genus name ---------------
+        pdf.set_xy(5, goto(4))
+        species_name = 'Some species'
+        author_name = '(Sec. Author) Prim. Author'
+        pdf.set_font_size(10)
+        sp_w = pdf.get_string_width(species_name)
+        pdf.set_font('DejaVu', '', 10)
+        au_w = pdf.get_string_width(author_name)
+        pdf.set_xy(LABEL_WIDTH/2-(au_w+sp_w+2)/2, goto(4))
+        pdf.set_font('DejaVui', '', 10)
+        pdf.set_font_size(10)
+        pdf.cell(0,0, '{}'.format(species_name))
+        pdf.set_font('DejaVu', '', 10)
+        pdf.set_xy(LABEL_WIDTH/2-(au_w+sp_w+2)/2 + sp_w + 2, goto(4))
+        pdf.cell(0,0,'{}'.format(author_name))
+        # ----------------------------------------------
 
-pdf.set_xy(5, goto(3))
-pdf.set_font('DejaVui', '', 11)
-
-if family_name:
-    pdf.cell(LABEL_WIDTH, 0, '{}'.format(family_name), align='C')
-else:
-    pdf.cell(LABEL_WIDTH, 0, '_____________________', align='C')
-# ----------------------------------------------
 
 
 
-# -------------- Plot Genus name ---------------
-pdf.set_xy(5, goto(4))
-species_name = 'Some species'
-author_name = '(Sec. Author) Prim. Author'
-pdf.set_font_size(10)
-sp_w = pdf.get_string_width(species_name)
-pdf.set_font('DejaVu', '', 10)
-au_w = pdf.get_string_width(author_name)
 
-pdf.set_xy(LABEL_WIDTH/2-(au_w+sp_w+2)/2, goto(4))
-pdf.set_font('DejaVui', '', 10)
-pdf.set_font_size(10)
-pdf.cell(0,0, '{}'.format(species_name))
-pdf.set_font('DejaVu', '', 10)
 
-pdf.set_xy(LABEL_WIDTH/2-(au_w+sp_w+2)/2 + sp_w + 2, goto(4))
-pdf.cell(0,0,'{}'.format(author_name))
-# ----------------------------------------------
+
+
+
+
 
 
 
