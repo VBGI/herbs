@@ -172,7 +172,7 @@ class PDF_DOC:
             self._ln += 1
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
             tw = self.pdf.get_string_width(msgs['place'])
-            self.pdf.set_xy(x + PADDING_X + 1, self.goto(y, self._ln))
+            self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
             self.pdf.cell(0, 0, msgs['place'])
             self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
             cline = []
@@ -188,15 +188,15 @@ class PDF_DOC:
                         self.pdf.set_xy(x + PADDING_X + 2 + tw,self.goto(y, self._ln))
                         self.pdf.cell(0, 0, ' '.join(cline))
                         cline = [item]
-                        ss = PADDING_X + 1
+                        ss = PADDING_X
                         ln += 1
                         self._ln += 1
                     else:
                         break
-            else:
-                if cline:
-                    self.pdf.set_xy(x + PADDING_X + 2, self.goto(y, self._ln))
-                    self.pdf.cell(0, 0, ' '.join(cline))
+
+            if cline and ln == 2:
+                 self.pdf.set_xy(x + PADDING_X + 2, self.goto(y, self._ln))
+                 self.pdf.cell(0, 0, ' '.join(cline))
         # ----------------------------------------------
         # ------------- Altitude info ------------------
         self._ln += 1
@@ -245,7 +245,6 @@ class PDF_DOC:
             if (ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)) and fflag:
                 fline.append(k)
             if  (ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)) and fflag:
-                fline += '...'
                 break
         if fline:
             self.pdf.cell(0, 0, ' '.join(fline))
