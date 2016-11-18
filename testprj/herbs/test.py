@@ -4,10 +4,12 @@
 import fpdf
 import tempfile
 import qrcode, os
+from transliterate import translit
+from countries import eng_codes, codes
 
-msgs = {'org':   'Botanical Garden Institute',
+msgs = {'org':   'Herbarium',
         'addr':  '690024, Russia, Vladivostok, Makovskogo st., 142',
-        'descr': 'Herbarium of the Botanical Garden Institute (VBGI)',
+        'descr': 'of the Botanical Garden Institute (VBGI)',
         'place': 'Place:',
         'coords': 'Coordinates:',
         'date': 'Date:',
@@ -18,6 +20,13 @@ msgs = {'org':   'Botanical Garden Institute',
         'country': 'Country:',
         'region': 'Region:'
         }
+
+def translate_country_name(name):
+    try:
+        res = eng_codes[codes[name]]
+    except:
+        res = translit(name, 'ru', reversed=True)
+    return res
 
 FPDF = fpdf.FPDF
 
@@ -43,6 +52,8 @@ TITLE_FONT_SIZE = 16
 REGULAR_FONT_SIZE = 14
 SMALL_FONT_SIZE = 12
 
+HERBURL = 'http://botsad.ru/hitem/%s'
+
 
 def insert_qr(pdf, x, y, code=1234567):
     if len(code) > 8: return;
@@ -52,7 +63,7 @@ def insert_qr(pdf, x, y, code=1234567):
         box_size=10,
         border=2,
     )
-    qr.add_data('http://botsad.ru/hitem/%s' % code)
+    qr.add_data(HERBURL % code)
     qr.make(fit=True)
     img = qr.make_image()
     temp_name = os.path.join('./tmp', next(tempfile._get_candidate_names()))
@@ -61,7 +72,7 @@ def insert_qr(pdf, x, y, code=1234567):
         with open(temp_name, 'w') as tmpfile:
             img.save(tmpfile)
             tmpfile.flush()
-            pdf.set_xy(x + LABEL_WIDTH - QR_SIZE - 2, y + LABEL_HEIGHT - QR_SIZE - 2)
+            pdf.set_xy(x + LABEL_WIDTH - QR_SIZE - 2, y + LABEL_HEIGHT - QR_SIZE - 4)
             pdf.image(temp_name, w=QR_SIZE, h=QR_SIZE)
     finally:
         try:
@@ -85,14 +96,14 @@ class PDF_DOC:
         return  y + PADDING_Y + LINE_HEIGHT * n
 
     def _add_label(self, x, y, family='', species='', spauth1='', spauth2='',
-                   date='', latitude='', longitude='',
+                   start_date='',end_date='', latitude='', longitude='',
                    place='', country='', region='', collected='',
                    altitude='', identified='', number='', itemid=''):
         self.pdf.rect(x, y, LABEL_WIDTH,LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
         self.pdf.image('./imgs/bgi_logo.png', w=LOGO_WIDTH, h=LOGO_HEIGHT)
 
-        self.pdf.set_font('DejaVu', '', TITLE_FONT_SIZE)
+        self.pdf.set_font('DejaVu', '', TITLE_FONT_SIZE + 2)
         self.pdf.set_xy(x + PADDING_X + LOGO_WIDTH, self.goto(y, self._ln))
         self.pdf.cell(LABEL_WIDTH - LOGO_WIDTH-2 * PADDING_X, 0, msgs['org'],
                       align='C')
@@ -143,6 +154,7 @@ class PDF_DOC:
 
 
         # ------------- place of collecting ------------
+        country = translate_country_name(country)
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y,self._ln))
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
@@ -150,9 +162,10 @@ class PDF_DOC:
         self.pdf.cell(0,0, msgs['country'])
         self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
-        cw = self.pdf.get_string_width(country)
+        cw = self.pdf.get_string_width( country)
         self.pdf.cell(0, 0, country)
         if region:
+            region = translit(region, 'ru', reversed=True)
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
             rw = self.pdf.get_string_width(msgs['region'])
             self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
@@ -180,7 +193,6 @@ class PDF_DOC:
             ln = 1
             for item in place.split():
                 ss += self.pdf.get_string_width(item + ' ')
-                print item, len(cline), ss
                 if ss < LABEL_WIDTH-2*PADDING_X:
                     cline.append(item)
                 else:
@@ -229,8 +241,10 @@ class PDF_DOC:
         tw = self.pdf.get_string_width(msgs['date'])
         self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
-        self.pdf.cell(0, 0, str(date))
+        datestr = start_date + u' \N{EM DASH} ' + end_date
+        self.pdf.cell(0, 0, datestr)
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
+        # -------------- Collectors --------------------
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
         self.pdf.cell(0, 0, msgs['col'])
@@ -240,6 +254,7 @@ class PDF_DOC:
         ss = 0
         fline = []
         fflag = True
+        collected = translit(collected, 'ru', reversed=True)
         for k in collected.split():
             ss += self.pdf.get_string_width(k + ' ')
             if (ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)) and fflag:
@@ -247,10 +262,14 @@ class PDF_DOC:
             if  (ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)) and fflag:
                 break
         if fline:
-            self.pdf.cell(0, 0, ' '.join(fline))
+            fline = ' '.join(fline).strip()
+            if fline[-1] == ',': fline = fline[:-1]
+            self.pdf.cell(0, 0, fline)
         # ----------------------------------------------
 
+
         # --------------- Identified by ----------------
+        identified = translit(identified, 'ru', reversed=True)
         self._ln += 1
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
@@ -281,6 +300,15 @@ class PDF_DOC:
 
         # ----------------------------------------------
 
+        # Extra info (to get without qr reader ----------
+        self.pdf.set_font_size(SMALL_FONT_SIZE-4)
+        tw = self.pdf.get_string_width(HERBURL % itemid)
+        self.pdf.set_xy(x + LABEL_WIDTH - PADDING_X - tw, y + LABEL_HEIGHT - 2)
+        self.pdf.cell(0,0, HERBURL % itemid)
+
+        # ----------------------------------------------
+
+
     def make_label(self, x, y, **kwargs):
         self._ln = 0
         self._add_label(x, y, **kwargs)
@@ -309,14 +337,16 @@ class PDF_DOC:
     def _test_page(self):
         testdict = {'family': 'AWESOMEFAMILY', 'species':'Some species',
                     'spauth1':'Author1', 'spauth2':'',
-                    'date':'12 ноября 2002 г.','latitude': '12.1231',
+                    'start_date': '12 Nov 2002',
+                    'end_date': '12 Jan 2003',
+                    'latitude': '12.1231',
                     'longitude': '123.212312',
-                    'region': 'Приморский край',
+                    'region': u'Приморский край',
                     'altitude': '123 m o.s.l',
                     'country': 'Россия',
                     'place': 'Никому неизвестное село глубоко в лесу; На горе росли цветы небывалой красоты, мы собрали их в дождливую погоду и было очень прохладно',
-                    'collected':'Один М.С., Другой Б.В., Третий А.А., Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой' ,
-                    'identified':'Один, Другой',
+                    'collected':u'Один М.С., Другой Б.В., Третий А.А., Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой' ,
+                    'identified':u'Один, Другой',
                     'number': '17823781', 'itemid': '12312'}
         llabels = [testdict] * 4
         self.tile_labels(llabels)
