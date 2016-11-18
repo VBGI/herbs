@@ -11,16 +11,21 @@ from .countries import codes as contry_codes
 from .forms import SearchForm
 from .conf import settings
 from django.utils.text import capfirst
+from django.contrib.auth.decorators import login_required
 
 
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 import json
+import re
 
 # from django.db.models.base import ModelState
-
+digit_pat = re.compile(r'\d+')
 countries = [key.decode('utf-8') for key in contry_codes]
+
+from .label import PDF_DOC
+
 
 @csrf_exempt
 def get_item_data(request):
@@ -180,7 +185,7 @@ def advice_select(request):
             else:
                 data = []
         elif cfield == 'genus':
-            # TODO: DB structure: changes needed,
+            # TODO: DB structure: changes needed, (seems to be fixed...)
             if dataform.cleaned_data['family']:
                 if query:
                     objects = Genus.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
@@ -231,3 +236,44 @@ def advice_select(request):
         for item in data: item['text'] = capfirst(item['text'])
     context.update({'items': data})
     return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
+
+
+@login_required
+def make_label(request, q):
+    '''Return pdf-doc or error page otherwise.
+    '''
+    if len(q) > 100:
+        return HttpResponse('Your query is too long... Try again')
+    try:
+        q = q.split(',')
+        q = map(lambda x: x.strip(), q)
+    except:
+        return HttpResponse('Your query seems to be malfromed... Try again (are you a hacker?)')
+    if len(q) > 4:
+        return HttpResponse('You can generate no more than 4 labels at a time. Try again')
+    for item in q:
+        if not digit_pat.match(item):
+            return HttpResponse('Malformed query. Try again')
+
+    # --------  Gathering data for labels producing... --------
+    q = map(lambda x: int(x), q)
+    for idc in q:
+        try:
+            objs = HerbItem.objects.filter(public=True, pk=idc)
+        except HerbItem.DoesNotExists:
+            return HttpResponse('No herbarium sheets were found.\
+                                Make sure you made search for public items.\
+                                Non-public items not showed.')
+    llabel_data = []
+    if objs.exists():
+        for item in objs:
+            ddict = {'family': item.family.name,
+                     'species' :
+                     'country': item.country,
+                     'region': item.region,
+                     ''
+                     }
+
+
+
+
