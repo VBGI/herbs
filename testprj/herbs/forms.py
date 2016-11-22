@@ -29,15 +29,6 @@ class TaxonCleanerMixin(forms.ModelForm):
         return data
 
 
-    def clean_itemcode(self):
-        data = self.cleaned_data['itemcode']
-        data = data.strip()
-        if HerbItem.objects.filter(itemcode=data).exists():
-            raise forms.ValidationError(_("запись с таким кодом уже существует"))
-        if data:
-            if not itemcode_pat.match(data):
-                raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
-
 class HerbItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         # fill initial values for all data
@@ -83,6 +74,14 @@ class HerbItemForm(forms.ModelForm):
                 pass
         super(HerbItemForm, self).__init__(*args, **kwargs)
 
+    def clean_itemcode(self):
+        data = self.cleaned_data['itemcode']
+        data = data.strip()
+        if HerbItem.objects.filter(itemcode=data).exists():
+            raise forms.ValidationError(_("запись с таким кодом уже существует"))
+        if data:
+            if not itemcode_pat.match(data):
+                raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
 
     class Meta:
         model = HerbItem
