@@ -75,7 +75,7 @@ def show_herbs(request):
             bigquery += [Q(genus__name__iexact=data['genus'])] if data['genus'] else []
             bigquery += [Q(species__name__iexact=data['species'])] if data['species'] else []
             bigquery += [Q(itemcode__icontains=data['itemcode'])] if data['itemcode'] else []
-            bigquery += [Q(genus__gcode__icontains=data['gcode'])] if data['gcode'] else []
+            bigquery += [Q(genus__gcode__contains=data['gcode'])] if data['gcode'] else []
             bigquery += [Q(collectedby__icontains=data['collectedby'])] if data['collectedby'] else []
             bigquery += [Q(identifiedby__icontains=data['identifiedby'])] if data['identifiedby'] else []
             bigquery += [Q(country__icontains=data['country'])] if data['country'] else []
@@ -124,7 +124,7 @@ def show_herbs(request):
                      'id': item.pk,
                     # Extra data to show herbitem details
                      'ecodescr': item.ecodescr,
-                     'height': item.height,
+                     'altitude': item.altitude,
                      'district': item.district,
                      'country': item.country,
                      'region': item.region,
