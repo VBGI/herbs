@@ -15,7 +15,7 @@ from .models import (Family, Genus, HerbItem,
 from django.contrib.admin.widgets import AdminDateWidget
 
 taxon_name_pat = re.compile(r'[a-z]+')
-
+itemcode_pat = re.compile(r'\d+')
 
 class TaxonCleanerMixin(forms.ModelForm):
     def clean_name(self):
@@ -28,9 +28,15 @@ class TaxonCleanerMixin(forms.ModelForm):
             raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
         return data
 
-# class HerbItemShowForm(forms.ModelForm):
-#     class Meta:
-#         model = HerbItem
+
+    def clean_itemcode(self):
+        data = self.cleaned_data['itemcode']
+        data = data.strip()
+        if HerbItem.objects.filter(itemcode=data).exists():
+            raise forms.ValidationError(_("запись с таким кодом уже существует"))
+        if data:
+            if not itemcode_pat.match(data):
+                raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
 
 class HerbItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -57,8 +63,7 @@ class HerbItemForm(forms.ModelForm):
                 initial['family'] = latest.family.pk
                 initial['genus'] = latest.genus.pk
                 initial['species'] = latest.species.pk
-                initial['gcode'] =  latest.gcode
-                initial['itemcode'] =  latest.itemcode
+                initial['itemcode'] =  None
                 initial['country'] = latest.country
                 initial['region'] = latest.region
                 initial['district'] = latest.district
@@ -69,6 +74,8 @@ class HerbItemForm(forms.ModelForm):
                 initial['identifiedby'] = latest.identifiedby
                 initial['identified_s'] = latest.identified_s
                 initial['identified_e'] = latest.identified_e
+                initial['detailed'] = latest.detailed
+                initial['altitude'] = latest.altitude
                 initial['note'] = latest.note
                 initial['coordinates'] = latest.coordinates
                 kwargs['initial'] = initial
@@ -100,7 +107,6 @@ class SearchForm(forms.Form):
     genus = forms.CharField(required=False, label=_('Род'), max_length=30)
     species = forms.CharField(required=False, label=_('Вид'), max_length=30)
     itemcode = forms.CharField(required=False, label=_('Код1'), max_length=15)
-    gcode = forms.CharField(required=False, label=_('Код2'), max_length=10)
     collectedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     identifiedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
@@ -115,6 +121,15 @@ class GenusForm(TaxonCleanerMixin):
     class Meta:
         model = Genus
     family = AutoCompleteSelectField('family', required=True, help_text=None, label=_("Семейство"))
+
+    def clean_gcode(self):
+        data = self.cleaned_data['gcode']
+        data = data.strip()
+        if data:
+            if not itemcode.match(data):
+                return forms.ValidationError('уникальный код рода должен быть цифровой')
+        return data
+
 
 class FamilyForm(TaxonCleanerMixin):
     class Meta:

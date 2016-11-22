@@ -141,9 +141,9 @@ class GenusAdmin(AjaxSelectAdmin):
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     model = HerbItem
     form = HerbItemForm
-    list_display = ('family', 'get_full_name', 'gcode', 'itemcode', 'public', 'collectedby', 'collected_s')
+    list_display = ('family', 'get_full_name', 'itemcode', 'public', 'collectedby', 'collected_s')
     list_filter = ('public', 'family', 'genus', 'species')
-    search_fields = ('itemcode', 'gcode', 'collectedby', 'identifiedby', 'family__name', 'genus__name')
+    search_fields = ('itemcode', 'collectedby', 'identifiedby', 'family__name', 'genus__name')
     list_display_links = ('get_full_name',)
     actions = (publish_herbitem, unpublish_herbitem)
     inlines = (HerbImageAdminInline, )
@@ -152,7 +152,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
 class PendingHerbsAdmin(admin.ModelAdmin):
     model = PendingHerbs
-    list_display = ('get_full_name', 'itemcode', 'gcode', 'checked', 'err_msg')
+    list_display = ('get_full_name', 'itemcode', 'checked', 'err_msg')
     list_filter = ('public', 'family', 'genus', 'species')
     list_display_links = ('get_full_name',)
     actions = (force_move_pending_herbs, move_pending_herbs)

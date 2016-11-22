@@ -75,7 +75,7 @@ def show_herbs(request):
             bigquery += [Q(genus__name__iexact=data['genus'])] if data['genus'] else []
             bigquery += [Q(species__name__iexact=data['species'])] if data['species'] else []
             bigquery += [Q(itemcode__icontains=data['itemcode'])] if data['itemcode'] else []
-            bigquery += [Q(gcode__icontains=data['gcode'])] if data['gcode'] else []
+            bigquery += [Q(genus__gcode__icontains=data['gcode'])] if data['gcode'] else []
             bigquery += [Q(collectedby__icontains=data['collectedby'])] if data['collectedby'] else []
             bigquery += [Q(identifiedby__icontains=data['identifiedby'])] if data['identifiedby'] else []
             bigquery += [Q(country__icontains=data['country'])] if data['country'] else []
@@ -120,7 +120,7 @@ def show_herbs(request):
                      'genus': item.genus.get_full_name() if hasattr(item.genus, 'get_full_name')  else '',
                      'species': item.species.get_full_name() if hasattr(item.species, 'get_full_name') else '',
                      'itemcode': item.itemcode,
-                     'gcode': item.gcode,
+                     'gcode': item.genus.gcode,
                      'id': item.pk,
                     # Extra data to show herbitem details
                      'ecodescr': item.ecodescr,
@@ -182,12 +182,8 @@ def advice_select(request):
                 objects = Family.objects.all()[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             data = [{'id': item.pk, 'text': item.name} for item in objects]
         elif cfield == 'gcode':
-            objects = HerbItem.objects.filter(gcode__contains=query)
-            tostore = map(lambda x: x[0], objects.order_by('gcode').values_list('gcode').distinct())[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
-            if tostore:
-                data = [{'id': ind + 2, 'text': item} for ind, item in enumerate(tostore)]
-            else:
-                data = []
+            objects = Genus.objects.filter(gcode__contains=query).order_by('gcode')
+            data = [{'id': item.pk, 'text': item.gcode} for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'genus':
             # TODO: DB structure: changes needed, (seems to be fixed...)
             if dataform.cleaned_data['family']:

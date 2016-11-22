@@ -47,8 +47,9 @@ class HerbItemMixin(models.Model):
                                 verbose_name=_('вид'))
 
     # item specific codes (used in the herbarium store)
-    gcode = models.CharField(max_length=10, default='', verbose_name=_('код подраздела'))
-    itemcode = models.CharField(max_length=15, default='', verbose_name=_('код образца'))
+    itemcode = models.CharField(max_length=15, default=None,
+                                verbose_name=_('код образца'),
+                                unique=True, blank=True)
 
     # position
     country = models.CharField(default='', blank=True, max_length=255, verbose_name=_('страна'))
@@ -218,6 +219,10 @@ class Genus(models.Model):
                                         verbose_name=_('авторство'))
     family = models.ForeignKey(Family, related_name='genus', null=True,
                                blank=False)
+
+    gcode = models.CharField(max_length=6, default='',
+                             verbose_name=_('De-la-torre ID:'),
+                             blank=True)
 
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower()
