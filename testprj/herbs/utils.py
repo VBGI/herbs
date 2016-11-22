@@ -36,7 +36,7 @@ monthes = {'янв': 1,
 year_pat = re.compile('\d{4}')
 day_pat = re.compile('[\D]+(\d{1,2})[\D]+')
 
-NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    district    place    coordinates    height    ecology    collected    collectedby    identified    identifiedby itemcode  gcode note'.split()
+NECESSARY_DATA_COLUMNS = 'family    genus    species    country    region    district    place    coordinates    altitude    ecology    collected    collectedby    identified    identifiedby itemcode  gcode note'.split()
 
 # ----------------------------------------------------------------
 
@@ -147,7 +147,7 @@ def evaluate_date(item):
 
 
 def create_safely(model, fields=(), values=(), postamble='iexact'):
-    post = '__%s'%postamble if postamble else ''
+    post = '__%s' % postamble if postamble else ''
     kwargs = {'%s' % key + post: val for key, val in zip(fields, values)}
     query = model.objects.filter(**kwargs)
     if query.exists():
