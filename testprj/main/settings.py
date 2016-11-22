@@ -272,8 +272,6 @@ AJAX_LOOKUP_CHANNELS = {
       'identifiedby': ('herbs.lookups', 'IdentifiersLookup'),
       }
 
-DATABASE_ROUTERS = ['herbs.route.HerbariumRouter']
-
 
 GEOPOSITION_GOOGLE_MAPS_API_KEY = 'AIzaSyBM1pdBk3gmpajpRoCnK6BUu5Jf3AkB6BA'
 HERB_IMG_UPLOADPATH = 'herbimgs/%Y/%m/%d/'
