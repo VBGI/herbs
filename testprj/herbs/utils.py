@@ -8,14 +8,12 @@ from datetime import date
 
 from django.utils.text import capfirst
 
-from fpdf import FPDF
-
 
 # --------------- Author string validation and extraction --------
 validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+')
 parenthesis_pat = re.compile(r'\(([\sa-zA-Z\.\-]+)\)')
 after_parenthesis_pat = re.compile(r'\)([\sa-zA-Z\.\-]+)')
-unique_code_pat = re.compile(r'\d{1,10}')
+delatorre_pat = re.compile(r'\d{1,10}')
 # ----------------------------------------------------------------
 
 # ----------------Date manipulations -----------------------------
@@ -239,7 +237,7 @@ def evluate_herb_dataframe(df):
 
         # --------- Code1 is a string of digits only  --------
         itemcodeok = False
-        if unique_code_pat.match(item['itemcode']):
+        if delatorre_pat.match(item['itemcode']):
             itemcodeok = True
             itemcode = item['itemcode']
         else:
@@ -248,7 +246,7 @@ def evluate_herb_dataframe(df):
 
         # --------- Code2 is a string of digits only  --------
         gcodeok = False
-        if unique_code_pat.match(item['gcode']):
+        if delatorre_pat.match(item['gcode']):
             gcodeok = True
             gcode = item['gcode']
         else:
@@ -282,24 +280,7 @@ def evluate_herb_dataframe(df):
     return result, errmsgs
 
 
-
-
-# -------- Class definition for generation herbitem description ------
-class HerbitemTemaplte(FPDF):
-    '''Pdf generation with help of the pyfpdf package
-    '''
-    def __init__(self, **kwargs):
-        self._alltext = kwargs
-        self._alltext['org'] = 'Ботанический сад-институт ДВО РАН'
-
-
-    def make_title(self):
-        self.set_font('Arial', '', 12)
-        self.cell(20, 20, title, 1, 1, 'C', 1)
-
-
-
-
+#  ----------- Functions below used in herbarium sheet label creation -----
 def  _smartify_family(family):
     if not family:
         return ''
