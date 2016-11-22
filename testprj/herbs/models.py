@@ -57,7 +57,7 @@ class HerbItemMixin(models.Model):
     detailed = models.CharField(default='', max_length=300, blank=True, verbose_name=_('дополнительно'))
     coordinates = GeopositionField(verbose_name=_('координаты'), blank=True)
     place = models.CharField(default='', blank=True, verbose_name=_('Координаты (строка)'), max_length=30)
-    height = models.CharField(default='', blank=True, max_length=50, verbose_name=_('высота'))
+    altitude = models.CharField(default='', blank=True, max_length=50, verbose_name=_('высота'))
 
     # Ecological factors
     ecodescr = models.CharField(max_length=300, default='', blank=True, verbose_name=_('экоусловия'))
