@@ -90,7 +90,6 @@ class HerbItemMixin(models.Model):
     def save(self, *args, **kwargs):
         self.collectedby = self.collectedby.strip()
         self.identifiedby = self.identifiedby.strip()
-        self.gcode = self.gcode.strip()
         self.itemcode = self.itemcode.strip()
         super(HerbItemMixin, self).save(*args, **kwargs)
 
@@ -226,6 +225,7 @@ class Genus(models.Model):
 
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower()
+        self.gcode = self.gcode.strip()
         super(Genus, self).save(*args, **kwargs)
 
     def __str__(self):
