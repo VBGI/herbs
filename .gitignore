@@ -8,3 +8,4 @@ project.db
 .pydevproject
 testprj/media
 *.db
+*.pkl
