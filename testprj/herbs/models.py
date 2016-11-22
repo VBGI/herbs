@@ -24,12 +24,12 @@ from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe,
 UPLOAD_MAX_FILE_SIZE = 5 * 10 ** 6 # 5 MB defualt
 
 _fields_to_copy = ('family', 'genus',  'species',
-                   'gcode', 'itemcode', 'identified_s',
+                   'itemcode', 'identified_s',
                    'identified_e', 'identifiedby',
                    'collected_s', 'collected_e',
                    'country', 'region', 'district',
                    'coordinates', 'ecodescr',
-                   'detailed', 'height', 'note')
+                   'detailed', 'altitude', 'note')
 
 
 class HerbItemMixin(models.Model):
@@ -386,7 +386,10 @@ def load_datafile(sender, instance, **kwargs):
                               (authorobj, ind, familyobj), postamble='')
 
             genusobj = create_safely(Genus, ('name', ), (item['genus'],))
-            genusobj.family = familyobj
+            if not genusobj.family:
+                genusobj.family = familyobj
+            if not genusobj.gcode:
+                genusobj.gcode = item['gcode']
             genusobj.save()
             if not genusobj.authorship.all().exists():
                 for ind, auth in item['genus_auth'][1]:
@@ -405,7 +408,6 @@ def load_datafile(sender, instance, **kwargs):
             query_fields = {'family': familyobj,
                             'genus': genusobj,
                             'species': speciesobj,
-                            'gcode': item['gcode'],
                             'itemcode': item['itemcode'],
                             'identified_s': item['identified'],
                             'identified_e': item['identified'],
@@ -419,7 +421,7 @@ def load_datafile(sender, instance, **kwargs):
                             'coordinates': item['coordinates'],
                             'ecodescr': item['ecology'],
                             'detailed': item['detailed'],
-                            'height': item['height'],
+                            'altitude': item['altitude'],
                             'note': item['note'],
                             }
             if not PendingHerbs.objects.filter(**query_fields).exists():
