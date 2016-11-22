@@ -154,6 +154,7 @@ class PDF_DOC:
 
 
         # ------------- place of collecting ------------
+        if not country: country = '_________'
         country = translate_country_name(country)
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y,self._ln))
@@ -164,6 +165,7 @@ class PDF_DOC:
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         cw = self.pdf.get_string_width( country)
         self.pdf.cell(0, 0, country)
+
         if region:
             region = translit(region, 'ru', reversed=True)
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
@@ -351,17 +353,12 @@ class PDF_DOC:
         llabels = [testdict] * 4
         self.tile_labels(llabels)
 
-    def create_file(self, fname):
-        self.pdf.output(fname, 'F')
+    def get_pdf(self):
+        return self.pdf.output(dest='S')
 
 
 
-my = PDF_DOC()
-my._test_page()
-my.create_file('myf.pdf')
-
-
-
-
-
-
+if __name__ == '__main__':
+    pmy = PDF_DOC()
+    my._test_page()
+    print my.get_pdf()
