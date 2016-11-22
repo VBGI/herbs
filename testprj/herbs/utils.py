@@ -8,7 +8,6 @@ from datetime import date
 
 from django.utils.text import capfirst
 
-
 # --------------- Author string validation and extraction --------
 validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+')
 parenthesis_pat = re.compile(r'\(([\sa-zA-Z\.\-]+)\)')
@@ -285,24 +284,6 @@ def  _smartify_family(family):
     if not family:
         return ''
     return family.upper()
-
-def _smartify_species(item):
-    authors = [x for x in SpeciesAuthorship.objects.filter(species=item).order_by('priority')]
-    howmany = len(authors) # We used len here because author's len<=3
-    if howmany > 1:
-        inside = [x for x in authors[:howmany-1]]
-        spauth2 = ''
-        if inside:
-             spauth2 += ' '.join([x.get_name() for x in inside])
-        spauth1 = authors[howmany-1].get_name()
-    elif howmany == 1:
-        spauth1 =  authors[0].get_name()
-        spauth2 = ''
-    else:
-        spauth2 = ''
-        spauth1 = ''
-    species = capfirst(item.genus.name) + ' ' + item.name
-    return {'spauth1': spauth1, 'spatuh2': spauth2, 'species': species}
 
 def _smartify_date(date):
     if not date:

@@ -87,8 +87,8 @@ class HerbItemForm(forms.ModelForm):
     class Meta:
         model = HerbItem
 
-    family = AutoCompleteSelectField('family', required=False, help_text=None, label=_("Семейство"))
-    genus = AutoCompleteSelectField('genus', required=False, help_text=None, label=_("Род"))
+    family = AutoCompleteSelectField('family', required=True, help_text=None, label=_("Семейство"))
+    genus = AutoCompleteSelectField('genus', required=True, help_text=None, label=_("Род"))
     species = AutoCompleteSelectField('species', required=False, help_text=None, label=_("Вид"))
     ecodescr = forms.CharField(widget=forms.Textarea, required=False, label=_('Экоусловия'))
     detailed = forms.CharField(widget=forms.Textarea, required=False, label=_('Дополнительно'))
@@ -126,7 +126,7 @@ class GenusForm(TaxonCleanerMixin):
         data = self.cleaned_data['gcode']
         data = data.strip()
         if data:
-            if not itemcode.match(data):
+            if not itemcode_pat.match(data):
                 return forms.ValidationError('уникальный код рода должен быть цифровой')
         return data
 

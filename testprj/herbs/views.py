@@ -10,8 +10,7 @@ from .models import Family, Genus, HerbItem, Species, SpeciesAuthorship
 from .countries import codes as contry_codes
 from .forms import SearchForm
 from .conf import settings
-from .utils import (_smartify_altitude,_smartify_family, _smartify_date,
-                    _smartify_species)
+from .utils import _smartify_altitude,_smartify_family, _smartify_date
 
 from django.utils.text import capfirst
 from django.contrib.auth.decorators import login_required
@@ -242,7 +241,6 @@ def advice_select(request):
 def make_label(request, q):
     '''Return pdf-doc or error page otherwise.
     '''
-
     if len(q) > 100:
         return HttpResponse('Your query is too long... Try again')
 
@@ -257,12 +255,12 @@ def make_label(request, q):
     q = map(lambda x: int(x), q)
     for idc in q:
         try:
-            objs = HerbItem.objects.filter(public=True, pk=idc)
+            objs = HerbItem.objects.filter(public=True, id=idc)
         except HerbItem.DoesNotExists:
             return HttpResponse('No herbarium sheets were found.\
                                 Make sure you made search for public items.\
                                 Non-public items not showed.')
-    else:
+    if not objs.exists():
         return HttpResponse('Empty or malformed query. Try again')
 
     translation.activate('en')  # Labels are constructed in Eng. only
@@ -293,5 +291,24 @@ def make_label(request, q):
     response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
     response['content'] = pdf_template.get_pdf()
     return response
+
+
+def _smartify_species(item):
+    authors = [x for x in SpeciesAuthorship.objects.filter(species=item).order_by('priority')]
+    howmany = len(authors) # We used len here because author's len<=3
+    if howmany > 1:
+        inside = [x for x in authors[:howmany-1]]
+        spauth2 = ''
+        if inside:
+             spauth2 += ' '.join([x.get_name() for x in inside])
+        spauth1 = authors[howmany-1].get_name()
+    elif howmany == 1:
+        spauth1 =  authors[0].get_name()
+        spauth2 = ''
+    else:
+        spauth2 = ''
+        spauth1 = ''
+    species = capfirst(item.genus.name) + ' ' + item.species.name
+    return {'spauth1': spauth1, 'spatuh2': spauth2, 'species': species}
 
 
