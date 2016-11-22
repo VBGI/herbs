@@ -6,13 +6,17 @@ from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
 from django.forms.models import model_to_dict
 
-from .models import Family, Genus, HerbItem, Species
+from .models import Family, Genus, HerbItem, Species, SpeciesAuthorship
 from .countries import codes as contry_codes
 from .forms import SearchForm
 from .conf import settings
+from .utils import (_smartify_altitude,_smartify_family, _smartify_date,
+                    _smartify_species)
+
 from django.utils.text import capfirst
 from django.contrib.auth.decorators import login_required
 
+from django.utils import translation, timezone
 
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
@@ -24,7 +28,7 @@ import re
 digit_pat = re.compile(r'\d+')
 countries = [key.decode('utf-8') for key in contry_codes]
 
-from .label import PDF_DOC
+from .hlabel import PDF_DOC
 
 
 @csrf_exempt
@@ -242,20 +246,18 @@ def advice_select(request):
 def make_label(request, q):
     '''Return pdf-doc or error page otherwise.
     '''
+
     if len(q) > 100:
         return HttpResponse('Your query is too long... Try again')
-    try:
-        q = q.split(',')
-        q = map(lambda x: x.strip(), q)
-    except:
-        return HttpResponse('Your query seems to be malfromed... Try again (are you a hacker?)')
-    if len(q) > 4:
-        return HttpResponse('You can generate no more than 4 labels at a time. Try again')
-    for item in q:
-        if not digit_pat.match(item):
-            return HttpResponse('Malformed query. Try again')
 
-    # --------  Gathering data for labels producing... --------
+    q = q.split(',')
+    q = filter(lambda x: len(x) <= 15, q)  # No one can imagine that the number of sheet will exeeds 10^15.
+
+    if len(q) > 4:
+        return HttpResponse('You cannt generate more than 4 labels at a time. Try again.')
+
+
+    # --------  Gathering data for labels ... --------
     q = map(lambda x: int(x), q)
     for idc in q:
         try:
@@ -264,16 +266,36 @@ def make_label(request, q):
             return HttpResponse('No herbarium sheets were found.\
                                 Make sure you made search for public items.\
                                 Non-public items not showed.')
+    else:
+        return HttpResponse('Empty or malformed query. Try again')
+
+    translation.activate('en')  # Labels are constructed in Eng. only
     llabel_data = []
     if objs.exists():
         for item in objs:
-            ddict = {'family': item.family.name,
-                     'species' :
+            ddict = _smartify_species(item)
+            ddict.update({'family': _smartify_family(item.family.name),
                      'country': item.country,
                      'region': item.region,
-                     ''
-                     }
+                     'latitutde': item.coordinates.latitude,
+                     'longitude': item.coordinates.longitude,
+                     'start_date': _smartify_date(item.collected_s),
+                     'end_date': _smartify_date(item.collected_e),
+                     'altitude': _smartify_altitude(item.altitude),
+                     'place' : item.detailed,
+                     'collected': item.collectedby,
+                     'identified': item.identifiedby,
+                     'itemid': '%s' % item.pk,
+                     'number': '%s' % item.itemcode
+                     })
+            llabel_data.append(ddict)
 
-
+    # We are ready to generate pdf-output
+    pdf_template = PDF_DOC()
+    pdf_template.tile_labels(llabel_data)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
+    response['content'] = pdf_template.get_pdf()
+    return response
 
 
