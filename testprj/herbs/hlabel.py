@@ -23,16 +23,18 @@ msgs = {'org':   'Herbarium',
 
 def translate_country_name(name):
     try:
-        res = eng_codes[codes[name]]
+        res = eng_codes[codes[name.encode('utf-8')]]
     except:
         res = translit(name, 'ru', reversed=True)
     return res
 
 FPDF = fpdf.FPDF
 
-fpdf.set_global('FPDF_FONT_DIR',
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts'))
+BASE_URL = os.path.dirname(os.path.abspath(__file__))
 
+fpdf.set_global('FPDF_FONT_DIR', os.path.join(BASE_URL, './fonts'))
+
+BGI_LOGO_IMG = os.path.join(BASE_URL, './imgs', 'bgi_logo.png')
 
 LABEL_WIDTH = 140
 LABEL_HEIGHT = 100
@@ -66,7 +68,8 @@ def insert_qr(pdf, x, y, code=1234567):
     qr.add_data(HERBURL % code)
     qr.make(fit=True)
     img = qr.make_image()
-    temp_name = os.path.join('./tmp', next(tempfile._get_candidate_names()))
+    temp_name = os.path.join(BASE_URL, './tmp',
+                             next(tempfile._get_candidate_names()))
     temp_name += '.png'
     try:
         with open(temp_name, 'w') as tmpfile:
@@ -80,6 +83,13 @@ def insert_qr(pdf, x, y, code=1234567):
         except IOError:
             pass
 
+def to_unicode(s):
+    if isinstance(s, unicode):
+        return s
+    elif s is None:
+        return u''
+    else:
+        return s.decode('utf-8')
 
 class PDF_DOC:
     def __init__(self):
@@ -101,7 +111,7 @@ class PDF_DOC:
                    altitude='', identified='', number='', itemid=''):
         self.pdf.rect(x, y, LABEL_WIDTH,LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
-        self.pdf.image('./imgs/bgi_logo.png', w=LOGO_WIDTH, h=LOGO_HEIGHT)
+        self.pdf.image(BGI_LOGO_IMG, w=LOGO_WIDTH, h=LOGO_HEIGHT)
 
         self.pdf.set_font('DejaVu', '', TITLE_FONT_SIZE + 2)
         self.pdf.set_xy(x + PADDING_X + LOGO_WIDTH, self.goto(y, self._ln))
@@ -181,8 +191,7 @@ class PDF_DOC:
                 self.pdf.set_xy(x + PADDING_X + 5 + tw + cw + rw,
                                 self.goto(y, self._ln))
                 self.pdf.cell(0, 0, region)
-        # split long text of the place found
-
+        # split long text of the place foundi
         if place:
             self._ln += 1
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
@@ -195,7 +204,7 @@ class PDF_DOC:
             ln = 1
             for item in place.split():
                 ss += self.pdf.get_string_width(item + ' ')
-                if ss < LABEL_WIDTH-2*PADDING_X:
+                if ss < LABEL_WIDTH - 2 * PADDING_X:
                     cline.append(item)
                 else:
                     if ln == 1:
@@ -207,8 +216,10 @@ class PDF_DOC:
                         self._ln += 1
                     else:
                         break
-
-            if cline and ln == 2:
+            if cline and ln == 1:
+                self.pdf.set_xy(x + tw + PADDING_X + 2, self.goto(y, self._ln))
+                self.pdf.cell(0, 0, ' '.join(cline))
+            elif cline and ln == 2:
                  self.pdf.set_xy(x + PADDING_X + 2, self.goto(y, self._ln))
                  self.pdf.cell(0, 0, ' '.join(cline))
         # ----------------------------------------------
@@ -345,8 +356,8 @@ class PDF_DOC:
                     'longitude': '123.212312',
                     'region': u'Приморский край',
                     'altitude': '123 m o.s.l',
-                    'country': 'Россия',
-                    'place': 'Никому неизвестное село глубоко в лесу; На горе росли цветы небывалой красоты, мы собрали их в дождливую погоду и было очень прохладно',
+                    'country': u'Россия',
+                    'place': u'Никому неизвестное село глубоко в лесу; На горе росли цветы небывалой красоты, мы собрали их в дождливую погоду и было очень прохладно',
                     'collected':u'Один М.С., Другой Б.В., Третий А.А., Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой' ,
                     'identified':u'Один, Другой',
                     'number': '17823781', 'itemid': '12312'}
@@ -356,9 +367,10 @@ class PDF_DOC:
     def get_pdf(self):
         return self.pdf.output(dest='S')
 
-
+    def create_file(self, fname):
+        self.pdf.output(fname, dest='F')
 
 if __name__ == '__main__':
-    pmy = PDF_DOC()
+    my = PDF_DOC()
     my._test_page()
     print my.get_pdf()
