@@ -10,7 +10,7 @@ from .models import Family, Genus, HerbItem, Species, SpeciesAuthorship
 from .countries import codes as contry_codes
 from .forms import SearchForm
 from .conf import settings
-from .utils import _smartify_altitude,_smartify_family, _smartify_date
+from .utils import _smartify_altitude,_smartify_family, _smartify_dates
 
 from django.utils.text import capfirst
 from django.contrib.auth.decorators import login_required
@@ -22,6 +22,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 import re
+import gc
 
 # from django.db.models.base import ModelState
 digit_pat = re.compile(r'\d+')
@@ -253,11 +254,10 @@ def make_label(request, q):
 
     # --------  Gathering data for labels ... --------
     q = map(lambda x: int(x), q)
-    for idc in q:
-        try:
-            objs = HerbItem.objects.filter(public=True, id=idc)
-        except HerbItem.DoesNotExists:
-            return HttpResponse('No herbarium sheets were found.\
+    try:
+       objs = HerbItem.objects.filter(public=True, id__in=q)
+    except HerbItem.DoesNotExist:
+       return HttpResponse('No herbarium sheets were found.\
                                 Make sure you made search for public items.\
                                 Non-public items not showed.')
     if not objs.exists():
@@ -268,19 +268,18 @@ def make_label(request, q):
     if objs.exists():
         for item in objs:
             ddict = _smartify_species(item)
+            ddict.update(_smartify_dates(item))
             ddict.update({'family': _smartify_family(item.family.name),
                      'country': item.country,
                      'region': item.region,
-                     'latitutde': item.coordinates.latitude,
-                     'longitude': item.coordinates.longitude,
-                     'start_date': _smartify_date(item.collected_s),
-                     'end_date': _smartify_date(item.collected_e),
                      'altitude': _smartify_altitude(item.altitude),
-                     'place' : item.detailed,
+                     'latitude': '{0:.5f}'.format(item.coordinates.latitude) if item.coordinates else '',
+                     'longitude': '{0:.5f}'.format(item.coordinates.longitude) if item.coordinates else '',
+                     'place': item.detailed,
                      'collected': item.collectedby,
                      'identified': item.identifiedby,
                      'itemid': '%s' % item.pk,
-                     'number': '%s' % item.itemcode
+                     'number': '%s' % item.itemcode if item.itemcode else '*'
                      })
             llabel_data.append(ddict)
 
@@ -289,12 +288,14 @@ def make_label(request, q):
     pdf_template.tile_labels(llabel_data)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
-    response['content'] = pdf_template.get_pdf()
+    response.write(pdf_template.get_pdf())
+    del pdf_template
+    gc.collect()
     return response
 
 
 def _smartify_species(item):
-    authors = [x for x in SpeciesAuthorship.objects.filter(species=item).order_by('priority')]
+    authors = [x for x in SpeciesAuthorship.objects.filter(species=item.species).order_by('priority')]
     howmany = len(authors) # We used len here because author's len<=3
     if howmany > 1:
         inside = [x for x in authors[:howmany-1]]
@@ -308,7 +309,8 @@ def _smartify_species(item):
     else:
         spauth2 = ''
         spauth1 = ''
-    species = capfirst(item.genus.name) + ' ' + item.species.name
-    return {'spauth1': spauth1, 'spatuh2': spauth2, 'species': species}
+    species = capfirst(item.genus.name) + ' ' + \
+        (item.species.name if item.species else '')
+    return {'spauth1': spauth1, 'spauth2': spauth2, 'species': species}
 
 

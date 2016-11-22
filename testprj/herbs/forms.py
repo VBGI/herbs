@@ -54,7 +54,7 @@ class HerbItemForm(forms.ModelForm):
                 # -------------------------------------------------
                 initial['family'] = latest.family.pk
                 initial['genus'] = latest.genus.pk
-                initial['species'] = latest.species.pk
+                initial['species'] = latest.species.pk if latest.species else None
                 initial['itemcode'] = ''
                 initial['country'] = latest.country
                 initial['region'] = latest.region
