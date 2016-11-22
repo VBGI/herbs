@@ -47,7 +47,7 @@ class HerbItemMixin(models.Model):
                                 verbose_name=_('вид'))
 
     # item specific codes (used in the herbarium store)
-    itemcode = models.CharField(max_length=15, default=None,
+    itemcode = models.CharField(max_length=15, default='', null=True,
                                 verbose_name=_('код образца'),
                                 unique=True, blank=True)
 

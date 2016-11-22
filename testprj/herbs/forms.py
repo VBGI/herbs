@@ -55,7 +55,7 @@ class HerbItemForm(forms.ModelForm):
                 initial['family'] = latest.family.pk
                 initial['genus'] = latest.genus.pk
                 initial['species'] = latest.species.pk
-                initial['itemcode'] =  None
+                initial['itemcode'] = ''
                 initial['country'] = latest.country
                 initial['region'] = latest.region
                 initial['district'] = latest.district
@@ -98,10 +98,6 @@ class HerbItemForm(forms.ModelForm):
     district =  AutoCompleteField('district', required=False, help_text=None, label=_("Район"))
     collectedby =  AutoCompleteField('collectedby', required=False, help_text=None, label=_("Собрали"))
     identifiedby =  AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Определили"))
-
-
-
-
 
 
 class SearchForm(forms.Form):
