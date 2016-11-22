@@ -87,12 +87,6 @@ class HerbItemMixin(models.Model):
                                   editable=False, verbose_name=_('обновил'))
     public = models.BooleanField(default=False, verbose_name=_('опубликовано'))
 
-    def save(self, *args, **kwargs):
-        self.collectedby = self.collectedby.strip()
-        self.identifiedby = self.identifiedby.strip()
-        self.itemcode = self.itemcode.strip()
-        super(HerbItemMixin, self).save(*args, **kwargs)
-
     def __unicode__(self):
         return capfirst(self.get_full_name())
 
@@ -106,6 +100,17 @@ class HerbItemMixin(models.Model):
         return (capfirst(self.genus.name) if self.genus else '') +\
             ' ' + (self.species.name if self.species else '') + author_string
     get_full_name.short_description = _('полное имя вида')
+
+
+    def save(self, *args, **kwargs):
+        if self.collectedby:
+            self.collectedby = self.collectedby.strip()
+        if self.identifiedby:
+            self.identifiedby = self.identifiedby.strip()
+        if self.itemcode:
+            self.itemcode = self.itemcode.strip()
+        super(HerbItemMixin, self).save(*args, **kwargs)
+
 
     class Meta:
         abstract = True
@@ -189,7 +194,8 @@ class Family(models.Model):
                                         verbose_name=_('авторство'))
 
     def save(self, *args, **kwargs):
-        self.name = self.name.strip().lower()
+        if self.name:
+            self.name = self.name.strip().lower()
         super(Family, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -224,8 +230,10 @@ class Genus(models.Model):
                              blank=True)
 
     def save(self, *args, **kwargs):
-        self.name = self.name.strip().lower()
-        self.gcode = self.gcode.strip()
+        if self.name:
+            self.name = self.name.strip().lower()
+        if self.gcode:
+            self.gcode = self.gcode.strip()
         super(Genus, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -260,7 +268,8 @@ class Species(models.Model):
                                         through=SpeciesAuthorship,
                                         verbose_name=_('авторство'))
     def save(self, *args, **kwargs):
-        self.name = self.name.strip().lower()
+        if self.name:
+            self.name = self.name.strip().lower()
         super(Species, self).save(*args, **kwargs)
 
     def __str__(self):
