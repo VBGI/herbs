@@ -20,11 +20,12 @@ itemcode_pat = re.compile(r'\d+')
 class TaxonCleanerMixin(forms.ModelForm):
     def clean_name(self):
         data = self.cleaned_data['name']
-        if self.Meta.model.objects.filter(name=data.lower()).exists():
+        data = data.lower().strip()
+        if self.Meta.model.objects.filter(name=data).exists():
             raise forms.ValidationError(_("имя должно быть уникально"))
-        if len(data.lower().split()) > 1:
+        if len(data.split()) > 1:
             raise forms.ValidationError(_("название таксона не должно содержать пробелов"))
-        if not taxon_name_pat.match(data.lower().strip()):
+        if not taxon_name_pat.match(data):
             raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
         return data
 
@@ -97,6 +98,10 @@ class HerbItemForm(forms.ModelForm):
     district =  AutoCompleteField('district', required=False, help_text=None, label=_("Район"))
     collectedby =  AutoCompleteField('collectedby', required=False, help_text=None, label=_("Собрали"))
     identifiedby =  AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Определили"))
+
+
+
+
 
 
 class SearchForm(forms.Form):
