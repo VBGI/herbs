@@ -285,7 +285,11 @@ def  _smartify_family(family):
         return ''
     return family.upper()
 
-def _smartify_date(date):
+def _smartify_dates(item):
+    # TODO: Clarification needed for date preprocessing....
+    if item.collected_s == item.collected_e:
+        item.collected_s.strftime('%b'
+
     if not date:
         return ''
     return date.strftime("%d %b %Y")
@@ -293,8 +297,8 @@ def _smartify_date(date):
 def _smartify_altitude(alt):
     if not alt: return ''
     alt = alt.strip()
-    alt.replace(' м.', ' m.')
-    alt.replace(' м ', ' m.')
+    alt.replace(u' м.', ' m.')
+    alt.replace(u' м ', ' m.')
     alt = alt[:30]  # Altitude couldn't be very long?!
     return alt
 
