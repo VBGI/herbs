@@ -40,10 +40,12 @@ LABEL_WIDTH = 140
 LABEL_HEIGHT = 100
 
 FIRST_LINE = LABEL_HEIGHT/7
-LINE_HEIGHT = LABEL_HEIGHT/13
-
+global LINE_HEIGHT
+LINE_HEIGHT = LABEL_HEIGHT/16
+LINE_SCALE = 0.85
 PADDING_X = 3
 PADDING_Y = 4
+INTERSPACE = 1
 
 LOGO_WIDTH = 15
 LOGO_HEIGHT = 15
@@ -102,13 +104,14 @@ class PDF_DOC:
         self.pdf.add_page()
         self._ln = 0
 
-    def goto(self, y, n):
-        return  y + PADDING_Y + LINE_HEIGHT * n
+    def goto(self, y, n, inter=0):
+        return  y + PADDING_Y + (LINE_HEIGHT + INTERSPACE) * n + inter
 
     def _add_label(self, x, y, family='', species='', spauth1='', spauth2='',
                    start_date='',end_date='', latitude='', longitude='',
                    place='', country='', region='', collected='',
                    altitude='', identified='', number='', itemid=''):
+        global LINE_HEIGHT
         self.pdf.rect(x, y, LABEL_WIDTH,LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
         self.pdf.image(BGI_LOGO_IMG, w=LOGO_WIDTH, h=LOGO_HEIGHT)
@@ -201,30 +204,32 @@ class PDF_DOC:
             self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
             cline = []
             ss = PADDING_X + 1 + tw
-            ln = 1
+            prepare = []
             for item in place.split():
                 ss += self.pdf.get_string_width(item + ' ')
                 if ss < LABEL_WIDTH - 2 * PADDING_X:
                     cline.append(item)
                 else:
-                    if ln == 1:
-                        self.pdf.set_xy(x + PADDING_X + 2 + tw,self.goto(y, self._ln))
-                        self.pdf.cell(0, 0, ' '.join(cline))
-                        cline = [item]
-                        ss = PADDING_X
-                        ln += 1
-                        self._ln += 1
-                    else:
-                        break
-            if cline and ln == 1:
-                self.pdf.set_xy(x + tw + PADDING_X + 2, self.goto(y, self._ln))
-                self.pdf.cell(0, 0, ' '.join(cline))
-            elif cline and ln == 2:
-                 self.pdf.set_xy(x + PADDING_X + 2, self.goto(y, self._ln))
-                 self.pdf.cell(0, 0, ' '.join(cline))
-        # ----------------------------------------------
+                    prepare.append(' '.join(cline))
+                    cline = [item]
+                    ss = PADDING_X + self.pdf.get_string_width(item + ' ')
+            if cline:
+                prepare.append(' '.join(cline))
+            self.pdf.set_xy(x + PADDING_X + 2 + tw, self.goto(y, self._ln))
+            self.pdf.cell(0, 0, prepare[0])
+            if len(prepare) > 2:
+                LINE_HEIGHT *= LINE_SCALE
+                inter = INTERSPACE + SMALL_FONT_SIZE/3.0
+            else:
+                inter = 0
+            for line in prepare[1:]:
+                self._ln += 1
+                self.pdf.set_xy(x + PADDING_X + 2, self.goto(y, self._ln, inter=inter))
+                self.pdf.cell(0, 0, line)
+
+       # ----------------------------------------------
         # ------------- Altitude info ------------------
-        self._ln += 1
+        self._ln += 1 if len(prepare) < 3 else 2
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
         tw = self.pdf.get_string_width(msgs['alt'])
@@ -301,7 +306,7 @@ class PDF_DOC:
         # -----------------------------------------------
 
         # ------------ Catalogue number ----------------
-
+        if len(prepare)>2: LINE_HEIGHT /= LINE_SCALE
         self.pdf.set_font_size(TITLE_FONT_SIZE + 2)
         self.pdf.set_xy(x + 2 * PADDING_X, y + LABEL_HEIGHT - PADDING_Y)
         self.pdf.cell(0, 0, 'ID: %s/%s' % (number, itemid))
