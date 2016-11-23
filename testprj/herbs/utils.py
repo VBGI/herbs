@@ -2,8 +2,6 @@
 
 import re
 
-import pandas as pd
-
 from datetime import date
 
 from django.utils.text import capfirst
@@ -286,13 +284,29 @@ def  _smartify_family(family):
     return family.upper()
 
 def _smartify_dates(item):
-    # TODO: Clarification needed for date preprocessing....
-    if item.collected_s == item.collected_e:
-        item.collected_s.strftime('%b'
 
-    if not date:
+    if not (item.collected_s or item.collected_e):
         return ''
-    return date.strftime("%d %b %Y")
+    if item.collected_s:
+        if item.collected_e:
+            if (item.collected_e.month == item.collected_s.month) and\
+                    (item.collected_s.day == 1) and (item.collected_e.day in\
+                                                     [30,31]):
+                return item.collected_s.strftime('%b %Y')
+            else:
+                if item.collected_s <= item.collected_e:
+                    return '%s ' % item.collected_s.strftime('%d %b %Y') +\
+                       u'\N{EM DASH}' + ' %s' % item.collected_e.strftime('%d %b %Y')
+                else:
+                    return '%s ' % item.collected_s.strftime('%d %b %Y') + u'\N{EM DASH}' + ' '*8
+
+        else:
+             return '%s' % item.collected_s.strftime('%d %b %Y')
+    elif item.collected_e:
+        return ' ' * 8 + u'\N{EM DASH}' +\
+            ' %s' % item.collected_e.strftime('%d %b %Y')
+
+
 
 def _smartify_altitude(alt):
     if not alt: return ''

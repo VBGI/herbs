@@ -108,7 +108,7 @@ class PDF_DOC:
         return  y + PADDING_Y + (LINE_HEIGHT + INTERSPACE) * n + inter
 
     def _add_label(self, x, y, family='', species='', spauth1='', spauth2='',
-                   start_date='',end_date='', latitude='', longitude='',
+                   date='', latitude='', longitude='',
                    place='', country='', region='', collected='',
                    altitude='', identified='', number='', itemid=''):
         global LINE_HEIGHT
@@ -259,8 +259,7 @@ class PDF_DOC:
         tw = self.pdf.get_string_width(msgs['date'])
         self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
-        datestr = start_date + u' \N{EM DASH} ' + end_date
-        self.pdf.cell(0, 0, datestr)
+        self.pdf.cell(0, 0, date)
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
         # -------------- Collectors --------------------
         self._ln += 1
@@ -355,8 +354,7 @@ class PDF_DOC:
     def _test_page(self):
         testdict = {'family': 'AWESOMEFAMILY', 'species':'Some species',
                     'spauth1':'Author1', 'spauth2':'',
-                    'start_date': '12 Nov 2002',
-                    'end_date': '12 Jan 2003',
+                    'date': '12 Nov 2002',
                     'latitude': '12.1231',
                     'longitude': '123.212312',
                     'region': u'Приморский край',
