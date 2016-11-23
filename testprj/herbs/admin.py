@@ -2,6 +2,8 @@
 from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline
 from django.contrib import admin
 from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 from .forms import (FamilyForm, GenusForm, HerbItemForm,
                     GenusAuthorshipForm, FamilyAuthorshipForm, AuthorForm,
@@ -31,6 +33,19 @@ publish_herbitem.short_description = "Опубликовать записи"
 unpublish_herbitem.short_description = "Снять с публикации"
 # ---------------------------------------------------------------------------
 
+
+# --------------- Create Pdf-label action -----------------------------------
+
+def create_pdf(modeladmin, request, queryset):
+    c = queryset.count()
+    if c == 0 or c > 4:
+        messages.error(request, 'Выделите не менее одной и не более 4-х гербарных образцов')
+        return
+    return HttpResponseRedirect(reverse('herbs.views.make_label') +
+                                ','.join([str(item.pk) for item in queryset]))
+create_pdf.short_description = "Создать этикетки"
+
+# ---------------------------------------------------------------------------
 
 # ------------------- Herbitem creation -------------------------------------
 def move_pending_herbs(modeladmin, request, queryset):
