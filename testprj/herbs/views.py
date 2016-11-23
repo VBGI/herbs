@@ -268,7 +268,7 @@ def make_label(request, q):
     if objs.exists():
         for item in objs:
             ddict = _smartify_species(item)
-            ddict.update(_smartify_dates(item))
+            ddict.update({'date': _smartify_dates(item)})
             ddict.update({'family': _smartify_family(item.family.name),
                      'country': item.country,
                      'region': item.region,
