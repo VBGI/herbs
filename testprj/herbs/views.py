@@ -55,7 +55,7 @@ def parse_date(d):
     return res
 
 
-csrf_exempt
+@csrf_exempt
 def show_herbs(request):
     '''
     Answer on queries for herbitems
