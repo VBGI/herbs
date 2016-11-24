@@ -126,7 +126,7 @@ class HerbItemMixin(models.Model):
 @python_2_unicode_compatible
 class HerbAcronym(models.Model):
     name = models.CharField(max_length=10, default='', blank=True)
-    institution = models.CharField(max_length=300, default='', blank=True)
+    institute = models.CharField(max_length=300, default='', blank=True)
     address = models.CharField(max_length=100, default='', blank=True)
     allowed_users = models.CharField(max_length=1000, default='', blank=True)
 
@@ -136,9 +136,9 @@ class HerbAcronym(models.Model):
         verbose_name_plural = _('акронимы гербария')
 
     def __str__(self):
-        return '{}:{}|allowed users: {}'.format(self.name,
-                                             self.institution,
-                                             self.allowed_users)
+        return '{}:{}|allowed:{}'.format(self.name, self.institution, self.allowed_users)
+
+
 
 @python_2_unicode_compatible
 class AuthorshipMixin(models.Model):
