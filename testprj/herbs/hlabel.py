@@ -366,7 +366,7 @@ class PDF_DOC:
                     'identified':u'Один, Другой',
                     'number': '17823781', 'itemid': '12312',
                     'acronym':'VBGI',
-                    'institute'i: 'Botanical Garden-Institute FEB RAS',
+                    'institute': 'Botanical Garden-Institute FEB RAS',
                     'address': '690018, Russia, Vladivosotk, Makovskogo st. 142'}
         llabels = [testdict] * 4
         self.tile_labels(llabels)
