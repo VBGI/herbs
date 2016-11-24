@@ -294,9 +294,11 @@ def _smartify_dates(item):
                                                      [30,31]):
                 return item.collected_s.strftime('%b %Y')
             else:
-                if item.collected_s <= item.collected_e:
+                if item.collected_s < item.collected_e:
                     return '%s ' % item.collected_s.strftime('%d %b %Y') +\
                        u'\N{EM DASH}' + ' %s' % item.collected_e.strftime('%d %b %Y')
+                elif item.collected_s == item.collected_e:
+                    return '%s ' % item.collected_s.strftime('%d %b %Y')
                 else:
                     return '%s ' % item.collected_s.strftime('%d %b %Y') + u'\N{EM DASH}' + ' '*8
 
