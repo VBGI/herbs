@@ -9,7 +9,7 @@ from countries import eng_codes, codes
 
 msgs = {'org':   'Herbarium',
         'addr':  '690024, Russia, Vladivostok, Makovskogo st., 142',
-        'descr': 'of the Botanical Garden Institute (VBGI)',
+        'descr': 'of the %s (%s)',
         'place': 'Place:',
         'coords': 'Coordinates:',
         'date': 'Date:',
@@ -110,7 +110,8 @@ class PDF_DOC:
     def _add_label(self, x, y, family='', species='', spauth1='', spauth2='',
                    date='', latitude='', longitude='',
                    place='', country='', region='', collected='',
-                   altitude='', identified='', number='', itemid=''):
+                   altitude='', identified='', number='', itemid='',
+                   acronym='', institute=''):
         global LINE_HEIGHT
         self.pdf.rect(x, y, LABEL_WIDTH,LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
@@ -123,7 +124,8 @@ class PDF_DOC:
         self.pdf.set_font_size(REGULAR_FONT_SIZE)
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X + LOGO_WIDTH, self.goto(y, self._ln))
-        self.pdf.cell(LABEL_WIDTH - LOGO_WIDTH - 2 * PADDING_X, 0, msgs['descr'],
+        self.pdf.cell(LABEL_WIDTH - LOGO_WIDTH - 2 * PADDING_X, 0,
+                      msgs['descr'] % (institute, acronym),
                       align='C')
         self.pdf.set_font_size(SMALL_FONT_SIZE)
         self._ln += 1
@@ -167,7 +169,7 @@ class PDF_DOC:
 
 
         # ------------- place of collecting ------------
-        if not country: country = '_________'
+        if not country: country = ''
         country = translate_country_name(country)
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y,self._ln))
@@ -363,7 +365,9 @@ class PDF_DOC:
                     'place': u'Никому неизвестное село глубоко в лесу; На горе росли цветы небывалой красоты, мы собрали их в дождливую погоду и было очень прохладно',
                     'collected':u'Один М.С., Другой Б.В., Третий А.А., Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой' ,
                     'identified':u'Один, Другой',
-                    'number': '17823781', 'itemid': '12312'}
+                    'number': '17823781', 'itemid': '12312',
+                    'acronym':'VBGI',
+                    'institute': 'Botanical Garden-Institute FEB RAS'}
         llabels = [testdict] * 4
         self.tile_labels(llabels)
 
