@@ -280,7 +280,8 @@ def make_label(request, q):
                      'identified': item.identifiedby,
                      'itemid': '%s' % item.pk,
                      'number': '%s' % item.itemcode if item.itemcode else '*',
-                     'acronym': item.acronym.name if item.acronym else ''
+                     'acronym': item.acronym.name if item.acronym else '',
+                     'address': item.acronym.address if item.acronym else ''
                      })
             llabel_data.append(ddict)
 

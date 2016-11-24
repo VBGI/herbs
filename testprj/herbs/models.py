@@ -127,6 +127,7 @@ class HerbItemMixin(models.Model):
 class HerbAcronym(models.Model):
     name = models.CharField(max_length=10, default='', blank=True)
     institution = models.CharField(max_length=300, default='', blank=True)
+    address = models.CharField(max_length=100, default='', blank=True)
     allowed_users = models.CharField(max_length=1000, default='', blank=True)
 
     class Meta:

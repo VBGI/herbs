@@ -8,7 +8,6 @@ from transliterate import translit
 from countries import eng_codes, codes
 
 msgs = {'org':   'Herbarium',
-        'addr':  '690024, Russia, Vladivostok, Makovskogo st., 142',
         'descr': 'of the %s (%s)',
         'place': 'Place:',
         'coords': 'Coordinates:',
@@ -111,7 +110,7 @@ class PDF_DOC:
                    date='', latitude='', longitude='',
                    place='', country='', region='', collected='',
                    altitude='', identified='', number='', itemid='',
-                   acronym='', institute=''):
+                   acronym='', institute='', address=''):
         global LINE_HEIGHT
         self.pdf.rect(x, y, LABEL_WIDTH,LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
@@ -130,7 +129,7 @@ class PDF_DOC:
         self.pdf.set_font_size(SMALL_FONT_SIZE)
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X + LOGO_WIDTH, self.goto(y, self._ln))
-        self.pdf.cell(LABEL_WIDTH - LOGO_WIDTH - 2 * PADDING_X, 0, msgs['addr'],
+        self.pdf.cell(LABEL_WIDTH - LOGO_WIDTH - 2 * PADDING_X, 0, address,
                       align='C')
         self.pdf.line(x + PADDING_X, self.goto(y,2) + 4,
                      x + LABEL_WIDTH - PADDING_X, self.goto(y,2) + 4)
@@ -367,7 +366,8 @@ class PDF_DOC:
                     'identified':u'Один, Другой',
                     'number': '17823781', 'itemid': '12312',
                     'acronym':'VBGI',
-                    'institute': 'Botanical Garden-Institute FEB RAS'}
+                    'institute'i: 'Botanical Garden-Institute FEB RAS',
+                    'address': '690018, Russia, Vladivosotk, Makovskogo st. 142'}
         llabels = [testdict] * 4
         self.tile_labels(llabels)
 
