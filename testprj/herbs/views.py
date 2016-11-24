@@ -17,7 +17,9 @@ from django.contrib.auth.decorators import login_required
 
 from django.utils import translation, timezone
 
+from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
+from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 import json
@@ -153,6 +155,20 @@ def show_herbs(request):
             return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder), content_type="application/json;charset=utf-8")
     else:
         return HttpResponse('Only ajax-requests are acceptable')
+
+
+
+@never_cache
+def show_herbitem(request, inum):
+    context = {'error': ''}
+    try:
+        hobj = HerbItem.objects.get(id=inum)
+        context.update({'object': hobj})
+    except HerbItem.DoesNotExists:
+        context.update({'error': _('No herbarium sheet with id=%s was found'%inum)})
+    result = render_to_string('herbitem_details.html', context,
+                              context_instance=RequestContext(request))
+    return HttpResponse(result)
 
 
 @never_cache
