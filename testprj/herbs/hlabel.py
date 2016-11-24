@@ -195,6 +195,7 @@ class PDF_DOC:
                                 self.goto(y, self._ln))
                 self.pdf.cell(0, 0, region)
         # split long text of the place foundi
+        prepare = []
         if place:
             self._ln += 1
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
@@ -204,7 +205,6 @@ class PDF_DOC:
             self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
             cline = []
             ss = PADDING_X + 1 + tw
-            prepare = []
             for item in place.split():
                 ss += self.pdf.get_string_width(item + ' ')
                 if ss < LABEL_WIDTH - 2 * PADDING_X:
