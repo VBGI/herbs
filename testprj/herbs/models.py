@@ -52,7 +52,6 @@ class HerbItemMixin(models.Model):
                                 unique=True, blank=True)
 
     acronym = models.ForeignKey('HerbAcronym', on_delete=models.CASCADE,
-                                editable=False,
                                 verbose_name='Acronym',
                                 blank=True, null=True)
 
@@ -124,6 +123,7 @@ class HerbItemMixin(models.Model):
         ordering = ('family', 'genus', 'species')
 
 
+@python_2_unicode_compatible
 class HerbAcronym(models.Model):
     name = models.CharField(max_length=10, default='', blank=True)
     institution = models.CharField(max_length=300, default='', blank=True)
@@ -132,8 +132,12 @@ class HerbAcronym(models.Model):
     class Meta:
         ordering = ('name',)
         verbose_name = _('акроним гербария')
-        verbsoe_name_plural = _('акронимы гербария')
+        verbose_name_plural = _('акронимы гербария')
 
+    def __str__(self):
+        return '{}:{}|allowed users: {}'.format(self.name,
+                                             self.institution,
+                                             self.allowed_users)
 
 @python_2_unicode_compatible
 class AuthorshipMixin(models.Model):
