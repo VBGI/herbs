@@ -173,12 +173,17 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 obj.acronym = acronym
             if not obj.user:
                 obj.user = request.user
+            else:
+                if request.user != obj.user:
+                    return
         obj.save()
 
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
             if 'acronym' not in self.readonly_fields:
                 self.readonly_fields += ('acronym',)
+        else:
+            self.readonly_fields = ()
         return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
 
 
