@@ -13,7 +13,7 @@ from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
                      SpeciesAuthorship, PendingHerbs,
                      Author, HerbItem, Species, LoadedFiles,
                      ErrorLog, _fields_to_copy,
-                     HerbImage)
+                     HerbImage, HerbAcronym)
 
 # ------------------- Actions for publishing HerbItems ----------------------
 
@@ -162,6 +162,21 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     actions = (publish_herbitem, unpublish_herbitem, create_pdf)
     inlines = (HerbImageAdminInline, )
 
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser:
+            query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.name)
+            if query.exists():
+               acronym = query[0]
+            else:
+                acronym = None
+            if not obj.acronym:
+                obj.acronym = acronym
+        obj.save()
+
+    def get_form(self, request, obj=None, **kwargs):
+        if not request.user.is_superuser:
+            self.readonly_fields += ('acronym',)
+        return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
 
 
 class PendingHerbsAdmin(admin.ModelAdmin):
@@ -198,3 +213,4 @@ admin.site.register(Species, SpeciesAdmin)
 admin.site.register(PendingHerbs, PendingHerbsAdmin)
 admin.site.register(LoadedFiles, LoadedFilesAdmin)
 admin.site.register(ErrorLog, ErrorLogAdmin)
+admin.site.register(HerbAcronym)

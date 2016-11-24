@@ -51,6 +51,11 @@ class HerbItemMixin(models.Model):
                                 verbose_name=_('код образца'),
                                 unique=True, blank=True)
 
+    acronym = models.ForeignKey('HerbAcronym', on_delete=models.CASCADE,
+                                editable=False,
+                                verbose_name='Acronym',
+                                blank=True, null=True)
+
     # position
     country = models.CharField(default='', blank=True, max_length=255, verbose_name=_('страна'))
     region = models.CharField(default='', blank=True, max_length=150, verbose_name=_('регион'))
@@ -117,6 +122,17 @@ class HerbItemMixin(models.Model):
         verbose_name = _('гербарный образeц')
         verbose_name_plural = _('гербарные образцы')
         ordering = ('family', 'genus', 'species')
+
+
+class HerbAcronym(models.Model):
+    name = models.CharField(max_length=10, default='', blank=True)
+    institution = models.CharField(max_length=300, default='', blank=True)
+    allowed_users = models.CharField(max_length=1000, default='', blank=True)
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('акроним гербария')
+        verbsoe_name_plural = _('акронимы гербария')
 
 
 @python_2_unicode_compatible
