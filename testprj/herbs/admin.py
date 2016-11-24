@@ -41,8 +41,7 @@ def create_pdf(modeladmin, request, queryset):
     if c == 0 or c > 4:
         messages.error(request, 'Выделите не менее одной и не более 4-х гербарных образцов')
         return
-    return HttpResponseRedirect(reverse('herbs.views.make_label') +
-                                ','.join([str(item.pk) for item in queryset]))
+    return HttpResponseRedirect(reverse('herbiteminfo', args=[','.join([str(item.pk) for item in queryset])]))
 create_pdf.short_description = "Создать этикетки"
 
 # ---------------------------------------------------------------------------
@@ -160,7 +159,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     list_filter = ('public', 'family', 'genus', 'species')
     search_fields = ('itemcode', 'collectedby', 'identifiedby', 'family__name', 'genus__name')
     list_display_links = ('get_full_name',)
-    actions = (publish_herbitem, unpublish_herbitem)
+    actions = (publish_herbitem, unpublish_herbitem, create_pdf)
     inlines = (HerbImageAdminInline, )
 
 
