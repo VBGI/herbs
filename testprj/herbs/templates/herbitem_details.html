@@ -1,0 +1,137 @@
+{%load  thumbnail i18n %}
+<!--DOCTYPE html-->
+<html>
+  <head>
+    <title> {%trans "Гербарный объект БСИ ДВО РАН"%}: {{curobj.plantgenus.latin_name}} {{curobj.latin_name}}{%if curobj.common_name%} ({{curobj.common_name}}){%endif%}{%if curobj.cultivar%}({%trans "Сорт:"%}{{curobj.cultivar}}){%endif%}</title> 
+    <meta charset="utf-8">
+    <meta name="description" content="Коллекционный объект семейства {{curobj.plantfamily.latin_name}}, вид {{curobj.plantgenus.latin_name}} {{curobj.latin_name}} {%trans "Ботанического сада-института ДВО РАН"%}">
+    <meta name="keywords" content="{{curobj.plantfamily.latin_name}}, {{curobj.plantgenus.latin_name}}, {%if curobj.common_name%} ({{curobj.common_name}}){%endif%}, {{curobj.latin_name}}">
+    <meta name="generator" content="Django Framework">
+    <meta name="author" content="{{curobj.advisor}}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   {%if curobj.photoalbum %}<link rel="stylesheet" href="{{ STATIC_URL }}prettyPhoto/css/prettyPhoto.css" type="text/css" media="screen">{%endif%}    
+    <style>
+    #coldb-main-container{
+      width:100%;
+      height:100%;
+      text-align: center;}
+    #coldb-central-container{
+    width:90%;
+    height:auto;
+    position:relative;
+    border: 1px solid;
+    border-color: none;
+    border-radius: 5px;
+    text-align:justify;
+    background-color: white;
+    display: block;
+     margin-left: auto;
+     margin-right: auto;}
+    #coldb-our-heading{
+    width: 100%;
+    background-color: green;
+    color:white;
+    padding-top:5px;
+    padding-bottom:5px; 
+    font-size: 20px;
+    text-align:center;
+    font-weight:bold;
+    display:table;
+    vertical-align: center;} 
+   #coldb-text-container{padding: 5px;}     
+   #coldb-stand-alone-thumbnail{
+    width:95%
+    margin: 0 auto; 
+    display:block;
+    position:relative;
+    height:auto;
+    float:none;
+    }
+    </style>
+  </head>
+  <body>
+  <div id="coldb-main-container">
+    <div id="coldb-central-container">
+      <div id="coldb-our-heading">
+        <div style="display:block"><img src="{{STATIC_URL}}images/bgilogowhite.png" alt="Ссылка на сайт botsad.ru" width="35" height="35" style="float:left; display:block;"></div>
+        {%trans "Ботанический сад-институт ДВО РАН"%}   
+        <div style="clear:both"></div>    
+      </div>  
+      {%if not error%}      
+      <div id="coldb-text-container"> 
+        {%if curobj.thumbnail%}       
+          <div id="coldb-stand-alone-thumbnail">
+            <img width="100%" src="{{MEDIA_URL}}{{curobj.image}}" alt="{{curobj.plantgenus.latin_name}} {{curobj.latin_name}}" title="{{curobj.plantgenus.latin_name}} {{curobj.latin_name}}">
+          </div>
+        {%endif%}
+        {%if curobj.plantfamily.latin_name %}<p> <strong>{%trans "Семейство:"%}</strong>&nbsp;{{curobj.plantfamily.latin_name}}</p>{%endif%}
+        {%if curobj.latin_name %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>  {{curobj.plantgenus.latin_name}} {{curobj.latin_name}}</i> {{curobj.full_latin_name}} {%if curobj.synonim%}(<i>{{curobj.synonim}}</i>){%endif%}</p>{%endif%}
+        {%if curobj.synonim %}<p><strong>{%trans "Синоним(ы)"%}:</strong>&nbsp;<i>{{curobj.synonim}}</i>{%endif%}
+
+        {%if curobj.common_name%}<p><strong>{%trans "Русское название:"%}</strong>&nbsp;{{curobj.common_name}}</p>{%endif%}
+        {%if curobj.is_medicinal or curobj.redbook_ru or curobj.redbook_pk%}
+          <p> <strong>{%trans "Дополнительная информация"%}:</strong>           
+          {%if curobj.redbook_ru%}
+          {%trans "включен в Красную Книгу России"%}{%endif%}{%if curobj.redbook_pk%}{%trans ", включен в Красную Книгу Приморского края"%}{%endif%}{%if curobj.is_medicinal%}{%trans ", лекарственное растение"%}{%endif%}
+          </p>
+        {%endif%}       
+        {%if curobj.cultivar %}<p><strong>{%trans "Сорт:"%}</strong>&nbsp;{{curobj.cultivar}}</p>{%endif%}
+        {%if curobj.advisor %}<p><strong>{%trans "Куратор:"%}</strong>&nbsp;{{curobj.advisor}}</p>{%endif%}
+        {%if curobj.howmany %}<p><strong>{%trans "Количество:"%}</strong>&nbsp;{{curobj.howmany}}</p>{%endif%}
+        {%if curobj.wherefromplace %}<p><strong>{%trans "Место сбора:"%}</strong>&nbsp;{{curobj.wherefromplace}}</p>{%endif%}
+        {%if curobj.wherefrom.latitude  > 0  and curobj.wherefrom.longitude  > 0  %}
+        <p><strong>{%trans "Место сбора:"%}</strong></p>
+          <div id="mymap" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.wherefrom.longitude|stringformat:"f"}}", data-lat = "{{curobj.wherefrom.latitude|stringformat:"f" }}"></div>
+        <script>
+          function initMap() {
+            var markerpos = document.querySelector('#mymap')
+            var mpos = markerpos.dataset
+              var myLatLng = {lat: parseFloat(mpos.lat) , lng: parseFloat(mpos.lon)};
+            var map = new google.maps.Map(document.getElementById('mymap'), {
+              zoom: 4,
+              center: myLatLng});
+          var marker = new google.maps.Marker({
+          position: myLatLng,
+          map: map,
+          title: "{%trans 'Место сбора'%}"
+          });
+          }
+          </script>
+          <script async defer src="//maps.googleapis.com/maps/api/js?signed_in=true&callback=initMap"></script>
+        {%endif%}
+        {%if curobj.description %}<p><strong>{%trans "Описание:"%}</strong>&nbsp;{{curobj.description|safe}}</p>{%endif%}
+        {%if curobj.ecology %}<p><strong>{%trans "Экология:"%}</strong>&nbsp;{{curobj.ecology|safe}}</p>{%endif%}
+        {%if curobj.distribution %}<p><strong>{%trans "Распространение:"%}</strong>&nbsp;{{curobj.distribution|safe}}</p>{%endif%}
+        {%if curobj.note %}<p><strong>{%trans "Примечание:"%}</strong>&nbsp;{{curobj.note|safe}}</p>{%endif%}
+        {%if curobj.photoalbum %}<hr><div id='gallery' style="text-align: center;">
+            {% for image in curobj.photoalbum.images.all %}
+                {% thumbnail image.image "120x120" crop="center" as im %}
+                  {% thumbnail image.image "x800" as full %}
+                      <a  data-gal="prettyPhoto[pp_gal]" href="{{ full.url }}" {%if image.description%} title="{{image.description}}"{%endif%}><img class="preview" alt="{{ image.title }}" src="{{ im.url }}" width="{{im.width}}" height="{{im.height}}" ></a>
+                {% endthumbnail %}
+             {% endthumbnail %}
+            {% endfor %}</div><hr>
+          {%endif%}
+      </div>  
+      {%else%}
+      <div id="coldb-text-container" style="text-align: center">
+      <h2>{{error}}</h2>
+      </div>  
+      {%endif%}
+      </div>  
+      </div>
+ {%if curobj.photoalbum %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="{{ STATIC_URL }}prettyPhoto/js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript"> $(document).ready(function(){$("a[data-gal^='prettyPhoto']").prettyPhoto({hook: 'data-gal'});});</script>
+  {%endif%}
+  </body>
+</html>
+  
+  
+  
+  
+  
+  
+  
+  
