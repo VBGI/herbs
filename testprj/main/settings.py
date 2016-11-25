@@ -190,6 +190,7 @@ INSTALLED_APPS = [
     'cms.plugins.twitter',
     'cms.plugins.video',
     'south',
+    'sorl.thumbnail',
 #    'reversion',
     'main',
     'herbs',
