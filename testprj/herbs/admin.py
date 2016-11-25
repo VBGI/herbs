@@ -15,6 +15,9 @@ from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
                      ErrorLog, _fields_to_copy,
                      HerbImage, HerbAcronym)
 
+from sorl.thumbnail.admin import AdminImageMixin
+
+
 # ------------------- Actions for publishing HerbItems ----------------------
 
 
@@ -131,7 +134,8 @@ class SpeciesAuthorshipInline(AjaxSelectAdminTabularInline):
     extra = 0
 
 
-class HerbImageAdminInline(PermissionMixin, admin.TabularInline):
+class HerbImageAdminInline(PermissionMixin, AdminImageMixin,
+                           admin.TabularInline):
     extra = 0
     model = HerbImage
     exclude=('user',)
