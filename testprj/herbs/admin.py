@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 
 from .forms import (FamilyForm, GenusForm, HerbItemForm,
                     GenusAuthorshipForm, FamilyAuthorshipForm, AuthorForm,
-                    SpeciesForm, SpeciesAuthorshipForm, HerbImageInlineFormset
+                    SpeciesForm, SpeciesAuthorshipForm
                     )
 from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
                      SpeciesAuthorship, PendingHerbs,
@@ -135,7 +135,6 @@ class HerbImageAdminInline(PermissionMixin, admin.TabularInline):
     extra = 0
     model = HerbImage
     exclude=('user',)
-    formset = HerbImageInlineFormset
 
 
 
@@ -187,6 +186,15 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         else:
             self.readonly_fields = ()
         return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
+
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            if isinstance(instance, HerbImage):
+                if not request.user.is_superuser:
+                    instance.user = request.user
+                instance.save()
 
 
 class PendingHerbsAdmin(admin.ModelAdmin):

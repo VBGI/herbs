@@ -30,18 +30,6 @@ class TaxonCleanerMixin(forms.ModelForm):
         return data
 
 
-
-class HerbImageInlineFormset(forms.models.BaseInlineFormSet):
-    def save_new(self, form, commit=True):
-        obj = super(HerbImageInlineFormset, self).save_new(form, commit=False)
-        if  not self.request.user.is_superuser:
-            obj.user = self.request.user
-        if commit:
-            obj.save()
-        return obj
-
-
-
 class HerbItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         # fill initial values for all data
