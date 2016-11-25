@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 
 from .forms import (FamilyForm, GenusForm, HerbItemForm,
                     GenusAuthorshipForm, FamilyAuthorshipForm, AuthorForm,
-                    SpeciesForm, SpeciesAuthorshipForm
+                    SpeciesForm, SpeciesAuthorshipForm, HerbImageInlineFormset
                     )
 from .models import (Family, Genus, GenusAuthorship, FamilyAuthorship,
                      SpeciesAuthorship, PendingHerbs,
@@ -134,6 +134,8 @@ class SpeciesAuthorshipInline(AjaxSelectAdminTabularInline):
 class HerbImageAdminInline(PermissionMixin, admin.TabularInline):
     extra = 0
     model = HerbImage
+    exclude=('user',)
+    formset = HerbImageInlineFormset
 
 
 
