@@ -192,7 +192,7 @@ class HerbImage(models.Model):
                             choices=TYPE_CHOICES)
     created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
     updated = models.DateField(auto_now=True, verbose_name=_('изменен'))
-    herbitem = models.ForeignKey('HerbItem', blank=False)
+    herbitem = models.ForeignKey('HerbItem', blank=False, related_name='images')
 
     class Meta:
         ordering = ('updated', )
