@@ -278,7 +278,7 @@ def make_label(request, q):
                                 Non-public items not showed.')
     if not objs.exists():
         return HttpResponse('Empty or malformed query. Try again')
-
+    lang = translation.get_language()
     translation.activate('en')  # Labels are constructed in Eng. only
     llabel_data = []
     if objs.exists():
@@ -308,6 +308,7 @@ def make_label(request, q):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
     response.write(pdf_template.get_pdf())
+    translation.activate(lang)
     del pdf_template
     gc.collect()
     return response
