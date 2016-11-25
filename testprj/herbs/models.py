@@ -185,7 +185,7 @@ class HerbImage(models.Model):
     TYPE_CHOICES = (('H', 'Изображение гербария'),
                     ('P', 'Изображение места сбора'))
     user = models.ForeignKey(get_user_model(), blank=True, null=True, related_name='+')
-    image = models.ImageField(upload_to="herbimages/%Y/%m/%d/")
+    image = models.ImageField(upload_to="herbimages/%Y/%m/%d/", blank=True)
     type = models.CharField(max_length=1,
                             blank=False,
                             default=TYPE_CHOICES[0][0],
