@@ -2,10 +2,10 @@
 <!--DOCTYPE html-->
 <html>
   <head>
-    <title> {%trans "Гербарный объект"%} &mdash; ({{curobj.acronym.name}},{%if curobj.itemcode%}{{curobj.itemcode}}{%else%}*{%endif%}/{{curobj.pk}}): {{curobj.family.get_full_name}}|{{curobj.species.get_full_name}}</title> 
+    <title> {%trans "Гербарный объект"%} &mdash; ({{curobj.acronym.name}},{%if curobj.itemcode%}{{curobj.itemcode}}{%else%}*{%endif%}/{{curobj.pk}}): {{curobj.family.get_full_name|capfirst}}|{{curobj.species.get_full_name|capfirst}}</title> 
     <meta charset="utf-8">
-    <meta name="description" content="VBGI Herbarium object: {{curobj.species.get_full_name}}">
-    <meta name="keywords" content="{{curobj.family.name|capfirst}}, {{curobj.genus.name|capfirst}}, {{curobj.species.get_full_name}},
+    <meta name="description" content="VBGI Herbarium object: {{curobj.species.get_full_name|capfirst}}">
+    <meta name="keywords" content="{{curobj.family.name|capfirst}}, {{curobj.genus.name|capfirst}}, {{curobj.species.get_full_name|capfirst}},
           {%if curobj.country%}{{curobj.country}}{%endif%},
           {%if curobj.region%}{{curobj.region}}{%endif%}">
     <meta name="generator" content="Reusable herbs-app developed at VBGI on top of Django">
@@ -23,9 +23,9 @@
       </div>  
       {%if not error%}      
       <div id="herbitem-text-container"> 
-      <p><strong>{%trans "Семейство:"%}</strong>&nbsp;{{curobj.family.get_full_name}}</p>
-      <p><strong>{%trans "Род:"%}</strong>&nbsp;{{curobj.genus.get_full_name}}</p>
-      {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.get_full_name}}</i> </p>{%endif%}
+      <p><strong>{%trans "Семейство:"%}</strong>&nbsp;{{curobj.family.get_full_name|capfirst}}</p>
+      <p><strong>{%trans "Род:"%}</strong>&nbsp;{{curobj.genus.get_full_name|capfirst}}</p>
+      {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.get_full_name|capfirst}}</i> </p>{%endif%}
       <p><strong>{%trans "Место сбора:"%}</strong></p>
       {%if curobj.coordinates.latitude  > 0  and curobj.coordinates.longitude  > 0  %}
        <div id="mymap" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"f" }}"></div>
@@ -59,15 +59,15 @@
       {%if curobj.identifiedby %}<p><strong>{%trans "Определил(и)"%}:</strong>&nbsp;{{curobj.identifiedby}}</p>{%endif%}
       {%if curobj.detdate %}<p><strong>{%trans "Дата определения:"%}:</strong>&nbsp;{{curobj.detdate}}</p>{%endif%}
       {%if curobj.note %}<p><strong>{%trans "Примечание:"%}</strong>&nbsp;{{curobj.note}}</p>{%endif%}
-      <p><i>{% trans "Последнее изменение:"}%}</i>{{curobj.updated}}</p>
+      <p><i>{% trans "Последнее изменение:"%}</i>{{curobj.updated}}</p>
 
         {%if curobj.images %}<hr><div id='gallery' style="text-align: center;">
             {% for image in curobj.images.all %}
                 {% thumbnail image.image "120x120" crop="center" as im %}
-              <a href="{{ image.image.url }}" title="{{image.get_type_display}}"{%endif%}>
-                <img class="preview" alt="{{ curobj.species.get_full_name }}" src="{{ im.url }}"></a>
+              <a href="{{ image.image.url }}" title="{{image.get_type_display}}">
+                <img class="preview" alt="{{ curobj.species.get_full_name|capfirst }}" src="{{ im.url }}"></a>
                 {% endthumbnail %}
-            {% endfor %}</div><hr>
+            {% endfor %}</div>
           {%endif%}
       </div>  
       {%else%}
@@ -77,7 +77,6 @@
       {%endif%}
       </div>  
       </div>
- {%endif%}
   </body>
 </html>
   
