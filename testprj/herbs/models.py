@@ -14,7 +14,7 @@ from geoposition.fields import GeopositionField
 import pandas as pd
 
 from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe,
-                   create_safely, get_authorship_string)
+                   create_safely, get_authorship_string, _smartify_dates)
 
 
 # Geopositionfield need to be imported!
@@ -114,6 +114,14 @@ class HerbItemMixin(models.Model):
         if self.itemcode:
             self.itemcode = self.itemcode.strip()
         super(HerbItemMixin, self).save(*args, **kwargs)
+
+    @property
+    def colldate(self):
+        return _smartify_dates(self)
+
+    @property
+    def detdate(self):
+        return _smartify_dates(self)
 
 
     class Meta:
