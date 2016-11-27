@@ -11,6 +11,8 @@ Pillow>=2.3
 django-sekizai>=0.7
 six
 sorl.thumbnail
+djangl-geoposition
+
 
 # Extra options
 pandas
