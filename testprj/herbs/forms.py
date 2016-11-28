@@ -84,6 +84,15 @@ class HerbItemForm(forms.ModelForm):
             if not itemcode_pat.match(data):
                 raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
 
+    def clean(self):
+        '''Spe '''
+        data = self.cleaned_data
+        print 'Sp:', type(data['species'])
+        return data
+#        if data['genus'] != data['species'].genus:
+
+
+
     class Meta:
         model = HerbItem
 
