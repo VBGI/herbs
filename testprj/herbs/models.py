@@ -287,6 +287,15 @@ class SpeciesAuthorship(AuthorshipMixin):
     species = models.ForeignKey('Species', on_delete=models.CASCADE,
                                  verbose_name=_('вид'))
 
+#@python_2_unicode_compatible
+#class SpeciesNames(models.Model):
+#    name = models.CharField(max_length=30, default='',
+#                            verbose_name=_('название вида'))
+#
+#    def __str__(self):
+#        return self.name
+#
+
 
 @python_2_unicode_compatible
 class Species(models.Model):
@@ -299,6 +308,7 @@ class Species(models.Model):
     def save(self, *args, **kwargs):
         if self.name:
             self.name = self.name.strip().lower()
+#        SpeciesNames.objects.get_or_create(name=self.name)
         super(Species, self).save(*args, **kwargs)
 
     def __str__(self):

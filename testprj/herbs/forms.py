@@ -86,14 +86,16 @@ class HerbItemForm(forms.ModelForm):
     def clean(self):
         '''Change the genus of the species on-the-fly, if possible'''
         formdata = self.cleaned_data
-        sp = formdata['species']
-        g = formdata['genus']
-        if sp.genus != g:
-            spo = Species.objects.filter(genus=g, name__iexact=sp.name.strip())
-            if spo.exists():
-                formdata['species'] = spo[0]
-            else:
-                raise forms.ValidationError(_("Для данного рода такого вида не существует. Создайте при необходимости."))
+        sp = formdata.get('species', None)
+        g = formdata.get('genus', None)
+        if sp:
+            spo = Species.objects.filter(genus=g, name__exact=sp.name)
+            if isinstance(sp, Species):
+                if sp.genus != g:
+                    if spo.exists():
+                        formdata['species'] = spo[0]
+                    else:
+                        raise forms.ValidationError(_("Для данного рода такого вида не существует. Создайте при необходимости."))
         return formdata
 
 
@@ -195,8 +197,8 @@ class SpeciesForm(forms.ModelForm):
 
     def clean(self):
         form_data = self.cleaned_data
-        name = form_data['name']
-        genus = form_data['genus']
+        name = form_data.get('name', None)
+        genus = form_data.get('genus', None)
         if name and genus:
             if Species.objects.filter(name__exact=name, genus=genus).exists():
                 raise forms.ValidationError(_('Такая пара (род, вид) уже существует'))

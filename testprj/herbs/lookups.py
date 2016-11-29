@@ -1,12 +1,15 @@
 from ajax_select import register, LookupChannel
-from .models import Family, Genus, Species, SpeciesAuthorship, Author, HerbItem
+from .models import (Family, Genus, Species, SpeciesAuthorship, Author,
+                     HerbItem)
 from .countries import codes as ccodes
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
-from .conf import settings
+from .conf import settings, HerbsAppConf
 
-NS = settings.AUTOSUGGEST_NUM_ADMIN
+NS = getattr(settings,
+             '%s_AUTOSUGGEST_NUM_ADMIN' % HerbsAppConf.Meta.prefix.upper(),
+             20)
 
 @register('family')
 class FamilyLookup(LookupChannel):
@@ -24,7 +27,20 @@ class GenusLookup(LookupChannel):
 class SpeciesLookup(LookupChannel):
     model = Species
     def get_query(self, q, request):
-        return self.model.objects.filter(name__icontains=q).order_by('name').values_list('name').distinct()[:NS]
+        query = self.model.objects.raw('''
+        SELECT * FROM herbs_species
+        WHERE id IN
+        (SELECT MIN(id) FROM herbs_species GROUP BY name)''')
+        return query[:NS]
+
+    def get_result(self, obj):
+        return obj.name
+
+    def format_item_display(self, obj):
+        return obj.name
+
+    def format_match(self, obj):
+        return obj.name
 
 @register('authorlookup')
 class AuthorLookup(LookupChannel):
