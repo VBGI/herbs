@@ -82,6 +82,7 @@ class HerbItemForm(forms.ModelForm):
         if data:
             if not itemcode_pat.match(data):
                 raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
+        return data
 
     def clean(self):
         '''Change the genus of the species on-the-fly, if possible'''
