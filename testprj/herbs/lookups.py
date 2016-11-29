@@ -22,8 +22,7 @@ class GenusLookup(LookupChannel):
 class SpeciesLookup(LookupChannel):
     model = Species
     def get_query(self, q, request):
-        # TODO Genus search should be performed
-        return self.model.objects.filter(name__icontains=q).order_by('name')[:20]
+        return self.model.objects.filter(name__icontains=q).order_by('name').values('name').distinct()[:20]
 
 @register('authorlookup')
 class AuthorLookup(LookupChannel):
