@@ -237,7 +237,7 @@ class PDF_DOC:
         self.pdf.cell(0, 0, msgs['alt'])
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
-        self.pdf.cell(0, 0, altitude)
+        self.pdf.cell(0, 0, translit(altitude, 'ru', reversed=True))
 
         # ------------- Coordinates found -------------
         self._ln += 1
