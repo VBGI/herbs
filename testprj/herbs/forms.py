@@ -77,7 +77,10 @@ class HerbItemForm(forms.ModelForm):
     def clean_itemcode(self):
         data = self.cleaned_data['itemcode']
         data = data.strip()
-        if HerbItem.objects.filter(itemcode=data).exists():
+        mainquery = HerbItem.objects.filter(itemcode=data)
+        if self.instance:
+            mainquery = mainquery.exclude(id=self.instance.id)
+        if mainquery.exists():
             raise forms.ValidationError(_("запись с таким кодом уже существует"))
         if data:
             if not itemcode_pat.match(data):
