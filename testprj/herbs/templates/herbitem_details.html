@@ -33,7 +33,7 @@
           function initMap() {
             var markerpos = document.querySelector('#mymap')
             var mpos = markerpos.dataset
-              var myLatLng = {lat: parseFloat(mpos.lat) , lng: parseFloat(mpos.lon)};
+            var myLatLng = {lat: parseFloat(mpos.lat) , lng: parseFloat(mpos.lon)};
             var map = new google.maps.Map(document.getElementById('mymap'), {
               zoom: 4,
               center: myLatLng});
