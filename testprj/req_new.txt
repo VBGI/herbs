@@ -1,0 +1,4 @@
+# Extra options
+pandas
+transliterate
+fpdf
