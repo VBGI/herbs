@@ -11,13 +11,13 @@
     <meta name="generator" content="Reusable herbs-app developed at VBGI on top of Django">
     <meta name="author" content="{{curobj.collectedby}}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{%static "css/herbitem.css" %}" type="text/css" media="screen">
+    <link rel="stylesheet" href="{%static "css/herbitems.css" %}" type="text/css" media="screen">
 </head>
   <body>
   <div id="herbitem-main-container">
     <div id="herbitem-central-container">
       <div id="herbitem-our-heading">
-        <div style="display:block"><img src="{%static "images/bgilogowhite.png"%}" alt="Перейти на главную старницу сайта botsad.ru" width="35" height="35" style="float:left; display:block;"></div>
+        <div style="display:block"><img src="{%static "images/bgi_logo.png"%}" alt="Перейти на главную старницу сайта botsad.ru" width="35" height="35" style="float:left; display:block;"></div>
         {%trans "Ботанический сад-институт ДВО РАН"%} 
         <div style="clear:both"></div>   
       </div>  
@@ -27,7 +27,7 @@
       <p><strong>{%trans "Род:"%}</strong>&nbsp;{{curobj.genus.get_full_name|capfirst}}</p>
       {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.get_full_name|capfirst}}</i> </p>{%endif%}
       <p><strong>{%trans "Место сбора:"%}</strong></p>
-      {%if curobj.coordinates.latitude  > 0  and curobj.coordinates.longitude  > 0  %}
+      {%if curobj.coordinates.latitude  and curobj.coordinates.longitude %}
        <div id="mymap" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"f" }}"></div>
        <script>
           function initMap() {

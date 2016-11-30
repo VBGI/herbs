@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
 
 from .models import Family, Genus, HerbItem, Species, SpeciesAuthorship
-from .countries import codes as contry_codes
+from .countries import codes as contry_codes, eng_codes
 from .forms import SearchForm
 from .conf import settings
 from .utils import _smartify_altitude,_smartify_family, _smartify_dates
@@ -25,12 +25,12 @@ from django.core.serializers.json import DjangoJSONEncoder
 import json
 import re
 import gc
-
-# from django.db.models.base import ModelState
-digit_pat = re.compile(r'\d+')
-countries = [key.decode('utf-8') for key in contry_codes]
-
 from .hlabel import PDF_DOC
+
+
+digit_pat = re.compile(r'\d+')
+countries_ru = [key.decode('utf-8') for key in contry_codes]
+countries_en = [eng_codes[key].decode('utf-8') for key in eng_codes]
 
 
 @csrf_exempt
@@ -243,9 +243,12 @@ def advice_select(request):
             data = [{'id': item.pk, 'text': item.name}
                     for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'country':
-            data = [{'id': ind + 2, 'text': val} for ind, val in enumerate(filter(lambda x: query in x, countries))]
+#            if translation.get_language() == 'ru':
+#                clist = countries_ru
+#            else:
+            clist = countries_ru # TODO: Multilanguage search needed
+            data = [{'id': ind, 'text': val} for ind, val in enumerate(clist) if query in val]
     else:
-        # invalid form (That isn't possible,  I hope! )
         context.update({'error': 'Странный запрос'})
         data = []
     if data:
@@ -316,7 +319,7 @@ def make_label(request, q):
 
 def _smartify_species(item):
     authors = [x for x in SpeciesAuthorship.objects.filter(species=item.species).order_by('priority')]
-    howmany = len(authors) # We used len here because author's len<=3
+    howmany = len(authors) # We used len here because author's len <= 3
     if howmany > 1:
         inside = [x for x in authors[:howmany-1]]
         spauth2 = ''
