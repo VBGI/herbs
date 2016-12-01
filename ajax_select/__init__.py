@@ -1,8 +1,12 @@
 """JQuery-Ajax Autocomplete fields for Django Forms."""
+
+# This version is slightly modified by Dmitry E. Kislov
 __version__ = "1.4.3"
 __author__ = "crucialfelix"
 __contact__ = "crucialfelix@gmail.com"
 __homepage__ = "https://github.com/crucialfelix/django-ajax-selects/"
+
+
 
 from ajax_select.registry import registry, register  # noqa
 from ajax_select.helpers import make_ajax_form, make_ajax_field  # noqa

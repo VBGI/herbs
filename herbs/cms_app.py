@@ -6,6 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 
 class HerbItemApphook(CMSApp):
     name = _(u"Ajax-служба управления гербарием")
-    urls = ["herbs.urls"]
+    urls = ["bgi.herbs.urls"]
 
 apphook_pool.register(HerbItemApphook)

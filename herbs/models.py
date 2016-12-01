@@ -49,7 +49,7 @@ class HerbItemMixin(models.Model):
     # item specific codes (used in the herbarium store)
     itemcode = models.CharField(max_length=15, default='', null=True,
                                 verbose_name=_('код образца'),
-                                unique=True, blank=True)
+                                blank=True)
 
     acronym = models.ForeignKey('HerbAcronym', on_delete=models.CASCADE,
                                 verbose_name='Acronym',
@@ -68,7 +68,7 @@ class HerbItemMixin(models.Model):
     ecodescr = models.CharField(max_length=300, default='', blank=True, verbose_name=_('экоусловия'))
 
     # Collection items
-    collectedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('сборщики'))
+    collectedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('коллектор(ы)'))
     collected_s = models.DateField(blank=True, verbose_name=_('начало сбора'), null=True)
     collected_e = models.DateField(blank=True, verbose_name=_('конец сбора'), null=True)
     identifiedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('определил(и)'))
@@ -126,10 +126,6 @@ class HerbItemMixin(models.Model):
 
     class Meta:
         abstract = True
-        verbose_name = _('гербарный образeц')
-        verbose_name_plural = _('гербарные образцы')
-        ordering = ('family', 'genus', 'species')
-
 
 @python_2_unicode_compatible
 class HerbAcronym(models.Model):
@@ -158,7 +154,10 @@ class AuthorshipMixin(models.Model):
     priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
 
     def __str__(self):
-        return self.author.name + (' %s' % self.priority if self.priority > 0 else '')
+        if self.author:
+            return self.author.name + (' %s' % self.priority if self.priority > 0 else '')
+        else:
+            return ''
 
     def get_name(self):
         return capfirst(self.author.name) if self.author else ''
@@ -255,7 +254,7 @@ class Genus(models.Model):
                                blank=False)
 
     gcode = models.CharField(max_length=6, default='',
-                             verbose_name=_('De-la-torre ID:'),
+                             verbose_name=_('De la Torre ID'),
                              blank=True)
 
     def save(self, *args, **kwargs):
@@ -274,7 +273,7 @@ class Genus(models.Model):
             author_string = ' ' + get_authorship_string(authors)
         else:
             author_string = ''
-        return self.name + author_string
+        return (self.family.name + ' ' if self.family else '') + self.name + author_string
     get_full_name.short_description = _('полное имя рода')
 
     class Meta:
@@ -286,15 +285,6 @@ class Genus(models.Model):
 class SpeciesAuthorship(AuthorshipMixin):
     species = models.ForeignKey('Species', on_delete=models.CASCADE,
                                  verbose_name=_('вид'))
-
-#@python_2_unicode_compatible
-#class SpeciesNames(models.Model):
-#    name = models.CharField(max_length=30, default='',
-#                            verbose_name=_('название вида'))
-#
-#    def __str__(self):
-#        return self.name
-#
 
 
 @python_2_unicode_compatible
@@ -308,7 +298,6 @@ class Species(models.Model):
     def save(self, *args, **kwargs):
         if self.name:
             self.name = self.name.strip().lower()
-#        SpeciesNames.objects.get_or_create(name=self.name)
         super(Species, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -328,11 +317,16 @@ class Species(models.Model):
     get_full_name.short_description = _('полное имя вида')
 
 
-
 class HerbItem(HerbItemMixin):
     user = models.ForeignKey(get_user_model(),
                              blank=True, null=True, related_name='+',
                              editable=False)
+
+    class Meta:
+        abstract = False
+        verbose_name = _('гербарный образeц')
+        verbose_name_plural = _('гербарные образцы')
+        ordering = ['-created']
 
 
 class PendingHerbs(HerbItemMixin):

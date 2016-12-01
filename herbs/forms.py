@@ -12,6 +12,14 @@ from .models import (Family, Genus, HerbItem,
                      Author, Species,
                      SpeciesAuthorship)
 from django.contrib.admin.widgets import AdminDateWidget
+from django.forms.util import ErrorList
+
+from .conf import settings, HerbsAppConf
+
+CS = getattr(settings,
+             '%s_CH_SIZE' % HerbsAppConf.Meta.prefix.upper(), 80)
+
+
 
 taxon_name_pat = re.compile(r'[a-z]+')
 itemcode_pat = re.compile(r'\d+')
@@ -20,7 +28,10 @@ class TaxonCleanerMixin(forms.ModelForm):
     def clean_name(self):
         data = self.cleaned_data['name']
         data = data.lower().strip()
-        if self.Meta.model.objects.filter(name=data).exists():
+        mainquery = self.Meta.model.objects.filter(name=data)
+        if self.instance:
+            mainquery = mainquery.exclude(id=self.instance.id)
+        if mainquery.exists():
             raise forms.ValidationError(_("имя должно быть уникально"))
         if len(data.split()) > 1:
             raise forms.ValidationError(_("название таксона не должно содержать пробелов"))
@@ -30,62 +41,63 @@ class TaxonCleanerMixin(forms.ModelForm):
 
 
 class HerbItemForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        # fill initial values for all data
-        if 'initial' in kwargs.keys():
-            try:
-                initial = kwargs['initial']
-
-                # ---------- Getting the current user -------------
-                current_user = None
-                request = kwargs.get('request', None)
-                try:
-                    current_user = request['user']
-                except (AttributeError, TypeError):
-                    current_user = None
-                if current_user:
-                    if current_user.is_superuser:
-                        latest = HerbItem.objects.latest('created')
-                    else:
-                        latest = HerbItem.objects.filter(user=current_user).latest('created')
-                else:
-                    latest = HerbItem.objects.latest('created')
-                # -------------------------------------------------
-                initial['family'] = latest.family.pk
-                initial['genus'] = latest.genus.pk
-                initial['species'] = latest.species.pk if latest.species else None
-                initial['itemcode'] = ''
-                initial['country'] = latest.country
-                initial['region'] = latest.region
-                initial['district'] = latest.district
-                initial['ecodescr'] = latest.ecodescr
-                initial['collectedby'] = latest.collectedby
-                initial['collected_s'] = latest.collected_s
-                initial['collected_e'] = latest.collected_e
-                initial['identifiedby'] = latest.identifiedby
-                initial['identified_s'] = latest.identified_s
-                initial['identified_e'] = latest.identified_e
-                initial['detailed'] = latest.detailed
-                initial['altitude'] = latest.altitude
-                initial['note'] = latest.note
-                initial['coordinates'] = latest.coordinates
-                kwargs['initial'] = initial
-            except HerbItem.DoesNotExist:
-                pass
-        super(HerbItemForm, self).__init__(*args, **kwargs)
+#    def __init__(self, *args, **kwargs):
+#        # fill initial values for all data
+#        if 'initial' in kwargs.keys():
+#            try:
+#                initial = kwargs['initial']
+#
+#                # ---------- Getting the current user -------------
+#                current_user = None
+#                request = kwargs.get('request', None)
+#                try:
+#                    current_user = request['user']
+#                except (AttributeError, TypeError):
+#                    pass
+#                if current_user:
+#                    if current_user.is_superuser:
+#                        latest = HerbItem.objects.latest('created')
+#                    else:
+#                        latest = HerbItem.objects.filter(user=current_user).latest('created')
+#                else:
+#                    latest = HerbItem.objects.latest('created')
+#                # -------------------------------------------------
+#                initial['family'] = latest.family.pk
+#                initial['genus'] = latest.genus.pk
+#                initial['species'] = latest.species.pk if latest.species else None
+#                initial['itemcode'] = ''
+#                initial['country'] = latest.country
+#                initial['region'] = latest.region
+#                initial['district'] = latest.district
+#                initial['ecodescr'] = latest.ecodescr
+#                initial['collectedby'] = latest.collectedby
+#                initial['collected_s'] = latest.collected_s
+#                initial['collected_e'] = latest.collected_e
+#                initial['identifiedby'] = latest.identifiedby
+#                initial['identified_s'] = latest.identified_s
+#                initial['identified_e'] = latest.identified_e
+#                initial['detailed'] = latest.detailed
+#                initial['altitude'] = latest.altitude
+#                initial['note'] = latest.note
+#                initial['coordinates'] = latest.coordinates
+#                kwargs['initial'] = initial
+#            except HerbItem.DoesNotExist:
+#                pass
+#        super(HerbItemForm, self).__init__(*args, **kwargs)
 
     def clean_itemcode(self):
         data = self.cleaned_data['itemcode']
         data = data.strip()
-        mainquery = HerbItem.objects.filter(itemcode=data)
-        if self.instance:
-            mainquery = mainquery.exclude(id=self.instance.id)
-        if mainquery.exists():
-            raise forms.ValidationError(_("запись с таким кодом уже существует"))
         if data:
+            mainquery = HerbItem.objects.filter(itemcode=data)
+            if self.instance:
+                mainquery = mainquery.exclude(id=self.instance.id)
+            if mainquery.exists():
+                raise forms.ValidationError(_("запись с таким кодом уже существует"))
             if not itemcode_pat.match(data):
                 raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
         return data
+
 
     def clean(self):
         '''Change the genus of the species on-the-fly, if possible'''
@@ -99,7 +111,35 @@ class HerbItemForm(forms.ModelForm):
                     if spo.exists():
                         formdata['species'] = spo[0]
                     else:
-                        raise forms.ValidationError(_("Для данного рода такого вида не существует. Создайте при необходимости."))
+                        raise forms.ValidationError(_("для данного рода такого вида не существует. Создайте при необходимости."))
+        d1 = formdata.get('identified_s')
+        d2 = formdata.get('identified_e')
+        if d1 and d2:
+            if d2 < d1:
+                self._errors.setdefault('identified_e', ErrorList())
+                self._errors['identified_e'].append(_('дата окончания определения должна быть не раньше даты начала'))
+
+        dc1 = formdata.get('collected_s')
+        dc2 = formdata.get('collected_e')
+        if d1 and d2:
+            if d2 < d1:
+                self._errors.setdefault('collected_e', ErrorList())
+                self._errors['collected_e'].append(_('дата окончания определения должна быть не раньше даты начала'))
+        if dc1 and d1:
+            if d1 < dc1:
+                self._errors.setdefault('identified_s', ErrorList())
+                self._errors['identified_s'].append(_('дата определения не может быть раньше даты сбора'))
+        if dc1 and dc2:
+            if dc2 < dc1:
+                self._errors.setdefault('collected_e', ErrorList())
+                self._errors['collected_e'].append(_('дата окончания сбора должна быть не раньше даты начала'))
+
+
+        f = formdata.get('family', None)
+        if f != g.family:
+            self._errors.setdefault('genus', ErrorList())
+            self._errors['genus'].append(_('этот род создан для другого семейства. созайте новый при необходимости.'))
+
         return formdata
 
 
@@ -112,11 +152,11 @@ class HerbItemForm(forms.ModelForm):
     ecodescr = forms.CharField(widget=forms.Textarea, required=False, label=_('Экоусловия'))
     detailed = forms.CharField(widget=forms.Textarea, required=False, label=_('Дополнительно'))
     note = forms.CharField(widget=forms.Textarea, required=False, label=_('Заметки'))
-    country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
-    region =  AutoCompleteField('region', required=False, help_text=None, label=_("Регион"))
-    district =  AutoCompleteField('district', required=False, help_text=None, label=_("Район"))
-    collectedby =  AutoCompleteField('collectedby', required=False, help_text=None, label=_("Собрали"))
-    identifiedby =  AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Определили"))
+    country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"), attrs={'size': CS})
+    region =  AutoCompleteField('region', required=False, help_text=None, label=_("Регион"), attrs={'size': CS})
+    district =  AutoCompleteField('district', required=False, help_text=None, label=_("Район"), attrs={'size': CS})
+    collectedby =  AutoCompleteField('collectedby', required=False, help_text=None, label=_("Собрали"), attrs={'size': CS})
+    identifiedby =  AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Определили"), attrs={'size': CS})
 
 
 class SearchForm(forms.Form):

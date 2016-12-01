@@ -1,0 +1,13 @@
+DROP TABLE herbs_author;
+DROP TABLE herbs_family;
+DROP TABLE herbs_familyauthorship;
+DROP TABLE herbs_genus;
+DROP TABLE herbs_genusauthorship;
+DROP TABLE herbs_herbacronym;
+DROP TABLE herbs_herbimage;
+DROP TABLE herbs_herbitem;
+DROP TABLE herbs_species;
+DROP TABLE herbs_speciesauthorship;
+DROP TABLE herbs_errorlog;
+DROP TABLE herbs_loadedfiles;
+DROP TABLE herbs_pendingherbs;
