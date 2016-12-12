@@ -58,26 +58,40 @@ class HerbItemMixin(models.Model):
     # position
     country = models.ForeignKey('Country', on_delete=models.SET_NULL, null=True,
                                 blank=True, verbose_name=_('страна'))
-    region = models.CharField(default='', blank=True, max_length=150, verbose_name=_('регион'))
-    district = models.CharField(default='', blank=True, max_length=150, verbose_name=_('район'))
-    detailed = models.CharField(default='', max_length=300, blank=True, verbose_name=_('дополнительно'))
+    region = models.CharField(default='', blank=True, max_length=150,
+                              verbose_name=_('регион'))
+    district = models.CharField(default='', blank=True, max_length=150,
+                                verbose_name=_('район'))
+    detailed = models.CharField(default='', max_length=300, blank=True,
+                                verbose_name=_('дополнительно'))
     coordinates = GeopositionField(verbose_name=_('координаты'), blank=True)
-    altitude = models.CharField(default='', blank=True, max_length=50, verbose_name=_('высота'))
+    altitude = models.CharField(default='', blank=True, max_length=50,
+                                verbose_name=_('высота'))
 
     # Ecological factors
-    ecodescr = models.CharField(max_length=300, default='', blank=True, verbose_name=_('экоусловия'))
+    ecodescr = models.CharField(max_length=300, default='', blank=True,
+                                verbose_name=_('экоусловия'))
 
     # Collection items
-    collectedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('коллектор(ы)'))
-    collected_s = models.DateField(blank=True, verbose_name=_('начало сбора'), null=True)
-    collected_e = models.DateField(blank=True, verbose_name=_('конец сбора'), null=True)
-    identifiedby = models.CharField(max_length=500, default='', blank=True, verbose_name=_('определил(и)'))
-    identified_s = models.DateField(blank=True, verbose_name=_('начало определения'), null=True)
-    identified_e = models.DateField(blank=True, verbose_name=_('конец определения'), null=True)
+    collectedby = models.CharField(max_length=500, default='', blank=True,
+                                   verbose_name=_('коллектор(ы)'))
+    collected_s = models.DateField(blank=True, verbose_name=_('начало сбора'),
+                                   null=True)
+    collected_e = models.DateField(blank=True, verbose_name=_('конец сбора'),
+                                   null=True)
+    identifiedby = models.CharField(max_length=500, default='', blank=True,
+                                    verbose_name=_('определил(и)'))
+    identified_s = models.DateField(blank=True,
+                                    verbose_name=_('начало определения'),
+                                    null=True)
+    identified_e = models.DateField(blank=True,
+                                    verbose_name=_('конец определения'),
+                                    null=True)
 
     note = models.CharField(max_length=1000, blank=True, default='')
 
-    uhash =  models.CharField(blank=True, default='', max_length=32, editable=False)
+    uhash =  models.CharField(blank=True, default='',
+                              max_length=32, editable=False)
 
     created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
     updated = models.DateField(auto_now=True, verbose_name=_('сохранен'))
