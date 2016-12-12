@@ -36,14 +36,10 @@ class HerbItemMixin(models.Model):
     '''
     Common item properties
     '''
+    BIOMORPHS = (('D', 'Development stage'),
+                  ('G', 'Growth form'))
 
-    family = models.ForeignKey('Family',
-                               on_delete=models.CASCADE,
-                               null=True,
-                               verbose_name=_('семейство'))
-    genus = models.ForeignKey('Genus', on_delete=models.CASCADE, null=True,
-                              verbose_name=_('род'))
-    species = models.ForeignKey('Species', on_delete=models.CASCADE, null=True,
+    species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
                                 verbose_name=_('вид'))
 
     # item specific codes (used in the herbarium store)
@@ -51,17 +47,21 @@ class HerbItemMixin(models.Model):
                                 verbose_name=_('код образца'),
                                 blank=True)
 
-    acronym = models.ForeignKey('HerbAcronym', on_delete=models.CASCADE,
+    acronym = models.ForeignKey('HerbAcronym', on_delete=models.SET_NULL,
                                 verbose_name='Acronym',
                                 blank=True, null=True)
 
+    devstage = models.CharField(max_length=1, default='', null=True, blank=True,
+                                verbose_name=_('Биоморф. статус'),
+                                choices=BIOMORPHS)
+
     # position
-    country = models.CharField(default='', blank=True, max_length=255, verbose_name=_('страна'))
+    country = models.ForeignKey('Country', on_delete=models.SET_NULL, null=True,
+                                blank=True, verbose_name=_('страна'))
     region = models.CharField(default='', blank=True, max_length=150, verbose_name=_('регион'))
     district = models.CharField(default='', blank=True, max_length=150, verbose_name=_('район'))
     detailed = models.CharField(default='', max_length=300, blank=True, verbose_name=_('дополнительно'))
     coordinates = GeopositionField(verbose_name=_('координаты'), blank=True)
-    place = models.CharField(default='', blank=True, verbose_name=_('Координаты (строка)'), max_length=30)
     altitude = models.CharField(default='', blank=True, max_length=50, verbose_name=_('высота'))
 
     # Ecological factors
