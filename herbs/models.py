@@ -141,6 +141,17 @@ class HerbItemMixin(models.Model):
     class Meta:
         abstract = True
 
+
+@python_2_unicode_compatible
+class Country(models.Model):
+    """Base class  for Country"""
+    name_ru = models.CharField(max_length=150)
+    name_en = models.CharField(max_length=150)
+
+    def __str__(self):
+        return '{}|{}'.format(self.name_ru, self.name_en)
+
+
 @python_2_unicode_compatible
 class HerbAcronym(models.Model):
     name = models.CharField(max_length=10, default='', blank=True)
