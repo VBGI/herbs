@@ -153,7 +153,7 @@ class Country(models.Model):
     class Meta:
         ordering = ('name_ru',)
         verbose_name = _('страна')
-        verbose_name_plural = _('страна')
+        verbose_name_plural = _('страны')
 
 
 @python_2_unicode_compatible
