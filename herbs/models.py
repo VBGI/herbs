@@ -147,9 +147,13 @@ class Country(models.Model):
     """Base class  for Country"""
     name_ru = models.CharField(max_length=150)
     name_en = models.CharField(max_length=150)
-
     def __str__(self):
         return '{}|{}'.format(self.name_ru, self.name_en)
+
+    class Meta:
+        ordering = ('name_ru',)
+        verbose_name = _('страна')
+        verbose_name_plural = _('страна')
 
 
 @python_2_unicode_compatible
