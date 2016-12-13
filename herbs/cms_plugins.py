@@ -7,11 +7,12 @@ from .forms import SearchForm
 
 
 class PrintHerbitemObjects(CMSPluginBase):
-    model=CMSPlugin
+    model = CMSPlugin
     name = _(u"Отображение гербарных образцов")
-    render_template="render_herb_plugin.html"
+    render_template = "render_herb_plugin.html"
+
     def render(self, context, instance, placeholder):
         context.update({'searchform': SearchForm()})
         return context
-    
-plugin_pool.register_plugin(PrintHerbitemObjects)    
+
+plugin_pool.register_plugin(PrintHerbitemObjects)
