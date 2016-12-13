@@ -37,7 +37,8 @@ for file in os.listdir(CDIR):
             genobj = Genus.objects.get_or_create(family=famobj,
                                                  name=genus.lower().strip())
             spobj = Species.objects.get_or_create(genus=genobj,
-                                                  name=species.lower().strip())
+                                                  name=species.lower().strip(),
+                                                  authorship=authorship)
             time.sleep(0.001)
         gc.collect()
 subprocess.call(['rm', os.path.join(CDIR, '*.csv')])
