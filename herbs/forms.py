@@ -185,8 +185,8 @@ class SpeciesForm(forms.ModelForm):
         name = form_data.get('name', None)
         genus = form_data.get('genus', None)
         name = name.strip().lower()
-        if name and genus:
-            if Species.objects.filter(name__exact=name, genus=genus).exists():
+        if name and genus and self.instance:
+            if Species.objects.filter(name__exact=name, genus=genus).exclude(id=self.instance.id).exists():
                 raise forms.ValidationError(_('Такая пара (род, вид) уже существует'))
         if len(name.split()) > 1:
             raise forms.ValidationError(_("название таксона не должно содержать пробелов"))
