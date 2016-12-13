@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline
+from ajax_select.admin import AjaxSelectAdmin
 from django.contrib import admin
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -183,9 +183,9 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
 class SpeciesAdmin(AjaxSelectAdmin):
     form = SpeciesForm
-    inlines = (
-        SpeciesAuthorshipInline,
-        )
+#    inlines = (
+#        SpeciesAuthorshipInline,
+#        )
 
 
 #class ErrorLogAdmin(admin.ModelAdmin):
