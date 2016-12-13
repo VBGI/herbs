@@ -284,7 +284,7 @@ def make_label(request, q):
         for item in objs:
             ddict = _smartify_species(item)
             ddict.update({'date': _smartify_dates(item)})
-            ddict.update({'family': _smartify_family(item.family.name),
+            ddict.update({'family': item.species.genus.family.name.upper(),
                      'country': item.country.name_en,
                      'region': item.region,
                      'altitude': _smartify_altitude(item.altitude),
@@ -314,7 +314,7 @@ def make_label(request, q):
 
 
 def _smartify_species(item):
-    species = capfirst(item.genus.name) + ' ' + item.species.name
-    return {'spauth': species.authorship, 'species': species}
+    species = capfirst(item.species.genus.name) + ' ' + item.species.name
+    return {'spauth': item.species.authorship, 'species': species}
 
 
