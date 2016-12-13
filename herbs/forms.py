@@ -190,7 +190,7 @@ class SpeciesForm(forms.ModelForm):
                 raise forms.ValidationError(_('Такая пара (род, вид) уже существует'))
         if len(name.split()) > 1:
             raise forms.ValidationError(_("название таксона не должно содержать пробелов"))
-        if not taxon_name_pat.match(data):
+        if not taxon_name_pat.match(name):
             raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
         form_data['name'] = name
         return form_data
