@@ -1,15 +1,16 @@
 from ajax_select import register, LookupChannel
-from .models import (Family, Genus, Species, SpeciesAuthorship, Author,
-                     HerbItem)
-from .countries import codes as ccodes
-from django.utils.encoding import force_text
-from django.utils.safestring import mark_safe
-from django.utils.html import escape
+from .models import Family, Genus, Species, Country, HerbItem
 from .conf import settings, HerbsAppConf
+import re
+
 
 NS = getattr(settings,
              '%s_AUTOSUGGEST_NUM_ADMIN' % HerbsAppConf.Meta.prefix.upper(),
              20)
+ACHAR = getattr(settings,
+             '%s_AUTOSUGGEST_CHAR' % HerbsAppConf.Meta.prefix.upper(),
+             3)
+
 
 @register('family')
 class FamilyLookup(LookupChannel):
@@ -17,42 +18,47 @@ class FamilyLookup(LookupChannel):
     def get_query(self, q, request):
         return self.model.objects.filter(name__icontains=q).order_by('name')[:NS]
 
+
 @register('genus')
 class GenusLookup(LookupChannel):
     model = Genus
     def get_query(self, q, request):
         return self.model.objects.filter(name__icontains=q).order_by('name')[:NS]
 
+
 @register('species')
 class SpeciesLookup(LookupChannel):
     model = Species
     def get_query(self, q, request):
-        query = self.model.objects.raw('''
-        SELECT * FROM herbs_species
-        WHERE id IN
-        (SELECT MIN(id) FROM herbs_species GROUP BY name)''')
-        return query[:NS]
+        mq = q.lstrip()
+        res = self.model.objects.none()
+        if len(mq) >= ACHAR:
+            splitted = mq.split()
+            if len(splitted) > 1:
+                res = self.model.objects.filter(genus__name__icontains=splitted[0],
+                                             name__icontains=splitted[1])
+            else:
+                res = self.model.objects.filter(genus__name__icontains=splitted[0])
+        return res[:NS]
 
     def get_result(self, obj):
-        return obj.name
+        return obj
 
     def format_item_display(self, obj):
-        return obj.name
+        return obj
 
     def format_match(self, obj):
-        return obj.name
-
-@register('authorlookup')
-class AuthorLookup(LookupChannel):
-    model = Author
-    def get_query(self, q, request):
-        return self.model.objects.filter(name__icontains=q)[:NS]
+        return obj
 
 
 @register('country')
 class CountryLookup(LookupChannel):
+    model = Country
     def get_query(self, q, request):
-        res = [item for item in ccodes if q.lower() in item.decode('utf-8').lower()]
+        if re.match('.*[a-zA-Z]+.*', q):
+            res = self.model.objects.filter(name_en__icontains=q)
+        else:
+            res = self.model.objects.filter(name_ru__icontains=q)
         return res[:NS]
 
     def format_match(self, obj):
@@ -65,42 +71,26 @@ class CountryLookup(LookupChannel):
         return obj
 
 
+class DifferentValueMixin(LookupChannel):
 
-class DistinctValueMixin(LookupChannel):
-
-    def format_match(self, obj):
-        return escape(force_text(obj))
-
-    def get_result(self, obj):
-        return escape(force_text(obj))
-
-    def format_item_display(self, obj):
-        return escape(force_text(obj))
+    def get_query(self, q, request):
+        objs = HerbItem.objects.raw('''SELECT %s FROM herbs_herbitem GROUP BY'%s')
+                                    '''%(self.fieldname, self.fieldname))
+        return map(lambda x: getattr(x, self.fieldname), objs[:NS])
 
 
 @register('region')
-class RegionLookup(DistinctValueMixin):
-    def get_query(self, q, request):
-        return map(lambda x: x[0], HerbItem.objects.filter(region__icontains=q).order_by('updated',
-                                                                     'region').values_list('region').distinct())[:NS]
+class RegionLookup(DifferentValueMixin):
+    fieldname = 'region'
 
 @register('district')
-class DistrictLookup(LookupChannel):
-    def get_query(self, q, request):
-        return map(lambda x: x[0], HerbItem.objects.filter(district__icontains=q).order_by('updated',
-                                                                     'district').values_list('district').distinct())[:NS]
-
+class DistrictLookup(DifferentValueMixin):
+    fieldname = 'district'
 
 @register('collectedby')
-class CollectorsLookup(LookupChannel):
-    def get_query(self, q, request):
-        return map(lambda x: x[0], HerbItem.objects.filter(collectedby__icontains=q).order_by('updated',
-                                                                     'collectedby').values_list('collectedby').distinct())[:NS]
-
+class CollectorsLookup(DifferentValueMixin):
+    fieldname = 'collectedby'
 
 @register('identifiedby')
-class IdentifiersLookup(LookupChannel):
-    def get_query(self, q, request):
-        return map(lambda x: x[0], HerbItem.objects.filter(identifiedby__icontains=q).order_by('updated',
-                                                                     'identifiedby').values_list('identifiedby').distinct())[:NS]
-
+class IdentifiersLookup(DifferentValueMixin):
+    fieldname = 'identifiedby'
