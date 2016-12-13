@@ -7,10 +7,7 @@ from ajax_select.fields import (AutoCompleteSelectField,
 from django import forms
 from django.utils.translation import gettext as _
 
-from .models import (Family, Genus, HerbItem,
-                     FamilyAuthorship, GenusAuthorship,
-                     Author, Species,
-                     SpeciesAuthorship)
+from .models import Family, Genus, HerbItem, Species
 from django.contrib.admin.widgets import AdminDateWidget
 from django.forms.util import ErrorList
 
@@ -132,7 +129,7 @@ class HerbItemForm(forms.ModelForm):
     ecodescr = forms.CharField(widget=forms.Textarea, required=False, label=_('Экоусловия'))
     detailed = forms.CharField(widget=forms.Textarea, required=False, label=_('Дополнительно'))
     note = forms.CharField(widget=forms.Textarea, required=False, label=_('Заметки'))
-    country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"), attrs={'size': CS})
+    country =  AutoCompleteSelectField('country', required=False, help_text=None, label=_("Страна"))
     region =  AutoCompleteField('region', required=False, help_text=None, label=_("Регион"), attrs={'size': CS})
     district =  AutoCompleteField('district', required=False, help_text=None, label=_("Район"), attrs={'size': CS})
     collectedby =  AutoCompleteField('collectedby', required=False, help_text=None, label=_("Собрали"), attrs={'size': CS})
