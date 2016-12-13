@@ -100,18 +100,7 @@ class HerbItemForm(forms.ModelForm):
 
 
     def clean(self):
-        '''Change the genus of the species on-the-fly, if possible'''
-        formdata = self.cleaned_data
-        sp = formdata.get('species', None)
-        g = formdata.get('genus', None)
-        if sp:
-            spo = Species.objects.filter(genus=g, name__exact=sp.name)
-            if isinstance(sp, Species):
-                if sp.genus != g:
-                    if spo.exists():
-                        formdata['species'] = spo[0]
-                    else:
-                        raise forms.ValidationError(_("для данного рода такого вида не существует. Создайте при необходимости."))
+        '''Checking consistency for dates '''
         d1 = formdata.get('identified_s')
         d2 = formdata.get('identified_e')
         if d1 and d2:
@@ -133,21 +122,12 @@ class HerbItemForm(forms.ModelForm):
             if dc2 < dc1:
                 self._errors.setdefault('collected_e', ErrorList())
                 self._errors['collected_e'].append(_('дата окончания сбора должна быть не раньше даты начала'))
-
-
-        f = formdata.get('family', None)
-        if f != g.family:
-            self._errors.setdefault('genus', ErrorList())
-            self._errors['genus'].append(_('этот род создан для другого семейства. созайте новый при необходимости.'))
-
         return formdata
 
 
     class Meta:
         model = HerbItem
 
-    family = AutoCompleteSelectField('family', required=True, help_text=None, label=_("Семейство"))
-    genus = AutoCompleteSelectField('genus', required=True, help_text=None, label=_("Род"))
     species = AutoCompleteSelectField('species', required=False, help_text=None, label=_("Вид"))
     ecodescr = forms.CharField(widget=forms.Textarea, required=False, label=_('Экоусловия'))
     detailed = forms.CharField(widget=forms.Textarea, required=False, label=_('Дополнительно'))
@@ -196,55 +176,24 @@ class FamilyForm(TaxonCleanerMixin):
         model = Family
 
 
-class FamilyAuthorshipForm(forms.ModelForm):
-    class Meta:
-        model = FamilyAuthorship
-    author = AutoCompleteSelectField('authorlookup',
-                                     required=False,
-                                     help_text=None,
-                                     label=_("Автор"))
-
-class SpeciesAuthorshipForm(forms.ModelForm):
-    class Meta:
-        model = SpeciesAuthorship
-    author = AutoCompleteSelectField('authorlookup',
-                                     required=False,
-                                     help_text=None,
-                                     label=_("Автор"))
-
-class GenusAuthorshipForm(forms.ModelForm):
-    class Meta:
-        model = GenusAuthorship
-    author = AutoCompleteSelectField('authorlookup',
-                                     required=False,
-                                     help_text=None,
-                                     label=_("Автор"))
-
-class AuthorForm(forms.ModelForm):
-    def clean_name(self):
-        data = self.cleaned_data['name'].lower().strip()
-        if self.Meta.model.objects.filter(name=data).exists():
-             raise forms.ValidationError(_("имя уже существует"))
-        if not data:
-             raise forms.ValidationError(_("Имя не может быть пустым"))
-        return data
-    class Meta:
-        model = Author
-
 class SpeciesForm(forms.ModelForm):
     class Meta:
         model = Species
 
-    genus = AutoCompleteSelectField('genus',
-                                    required=True,
-                                    help_text=None,
+    genus = AutoCompleteSelectField('genus', required=True, help_text=None,
                                     label=_("Род"))
 
     def clean(self):
         form_data = self.cleaned_data
         name = form_data.get('name', None)
         genus = form_data.get('genus', None)
+        name = name.strip().lower()
         if name and genus:
             if Species.objects.filter(name__exact=name, genus=genus).exists():
                 raise forms.ValidationError(_('Такая пара (род, вид) уже существует'))
+        if len(name.split()) > 1:
+            raise forms.ValidationError(_("название таксона не должно содержать пробелов"))
+        if not taxon_name_pat.match(data):
+            raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
+        form_data['name'] = name
         return form_data
