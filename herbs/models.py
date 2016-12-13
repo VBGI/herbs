@@ -108,6 +108,8 @@ class HerbItemMixin(models.Model):
     def __unicode__(self):
         return capfirst(self.get_full_name())
 
+
+    # TODO: Changed authorship model, Update needed!!!!
     def get_full_name(self):
         authors = [x for x in SpeciesAuthorship.objects.filter(species=self.species,
                                                                species__genus=self.genus).order_by('priority')]
@@ -173,50 +175,6 @@ class HerbAcronym(models.Model):
 
 
 
-@python_2_unicode_compatible
-class AuthorshipMixin(models.Model):
-    author = models.ForeignKey('Author',
-                               null=True,
-                               on_delete=models.CASCADE,
-                               blank=True,
-                               verbose_name=_('автор'))
-    priority = models.IntegerField(default=0, verbose_name=_('приоритет'))
-
-    def __str__(self):
-        if self.author:
-            return self.author.name + (' %s' % self.priority if self.priority > 0 else '')
-        else:
-            return ''
-
-    def get_name(self):
-        return capfirst(self.author.name) if self.author else ''
-
-    class Meta:
-        verbose_name = _('авторство')
-        verbose_name_plural = _('авторство')
-        abstract = True
-
-@python_2_unicode_compatible
-class Author(models.Model):
-    '''Genus/Family/Species inventor
-    '''
-    name = models.CharField(max_length=150, default='', verbose_name=_('автор'))
-
-    def save(self, *args, **kwargs):
-        self.name = self.name.lower().strip()
-        super(Author, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.get_name()
-
-    def get_name(self):
-        return capfirst(self.name) if self.name else ''
-
-    class Meta:
-        verbose_name = _('автор')
-        verbose_name_plural = _('авторы')
-
-
 class HerbImage(models.Model):
     TYPE_CHOICES = (('H', 'Изображение гербария'),
                     ('P', 'Изображение места сбора'))
@@ -232,77 +190,45 @@ class HerbImage(models.Model):
 
     class Meta:
         ordering = ('updated', )
+        #TODO: Names needed!
 
 
-class FamilyAuthorship(AuthorshipMixin):
-    family = models.ForeignKey('Family', on_delete=models.CASCADE, verbose_name=_('семейство'))
 
-class GenusAuthorship(AuthorshipMixin):
-    genus = models.ForeignKey('Genus', on_delete=models.CASCADE,
-                              verbose_name=_('род'))
-
-
-@python_2_unicode_compatible
-class Family(models.Model):
+class TaxonMixin(models.Model):
     name = models.CharField(max_length=30, default='',
                             verbose_name=_('название'))
-    authorship = models.ManyToManyField(Author, blank=True, null=True,
-                                        through=FamilyAuthorship,
+    authorship = models.CharField(max_length=250, blank=True, default='',
                                         verbose_name=_('авторство'))
-
-    def save(self, *args, **kwargs):
-        if self.name:
-            self.name = self.name.strip().lower()
-        super(Family, self).save(*args, **kwargs)
-
     def __str__(self):
         return capfirst(self.get_full_name())
 
     def get_full_name(self):
-        authors = [x for x in  FamilyAuthorship.objects.filter(family=self).order_by('priority')]
-        if len(authors) > 0:
-            author_string = ' ' + get_authorship_string(authors)
-        else:
-            author_string = ''
-        return self.name + author_string
-    get_full_name.short_description = _('полное имя семейства')
+       return self.name + ((' ' + self.authorship) if self.authorship else '')
 
+    class Meta:
+        ordering = ('name',)
+        abstract = True
+
+@python_2_unicode_compatible
+class Family(TaxonMixin):
     class Meta:
         verbose_name = _('название семейства')
         verbose_name_plural = _('названия семейств')
 
+    def get_full_name(self):
+        return super(Family, self).get_full_name()
+    get_full_name.short_description = _('полное имя семейства')
+
 
 @python_2_unicode_compatible
-class Genus(models.Model):
-    name = models.CharField(max_length=30, default='',
-                            verbose_name=_('название'))
-    authorship = models.ManyToManyField(Author, blank=True, null=True,
-                                        through=GenusAuthorship,
-                                        verbose_name=_('авторство'))
+class Genus(TaxonMixin):
     family = models.ForeignKey(Family, related_name='genus', null=True,
                                blank=False)
-
     gcode = models.CharField(max_length=6, default='',
                              verbose_name=_('De la Torre ID'),
                              blank=True)
-
-    def save(self, *args, **kwargs):
-        if self.name:
-            self.name = self.name.strip().lower()
-        if self.gcode:
-            self.gcode = self.gcode.strip()
-        super(Genus, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return capfirst(self.get_full_name())
-
     def get_full_name(self):
-        authors = [x for x in  GenusAuthorship.objects.filter(genus=self).order_by('priority')]
-        if len(authors) > 0:
-            author_string = ' ' + get_authorship_string(authors)
-        else:
-            author_string = ''
-        return (self.family.name + ' ' if self.family else '') + self.name + author_string
+        return super(Genus, self).get_full_name()
     get_full_name.short_description = _('полное имя рода')
 
     class Meta:
@@ -310,40 +236,19 @@ class Genus(models.Model):
         verbose_name_plural = _('названия родов')
 
 
-
-class SpeciesAuthorship(AuthorshipMixin):
-    species = models.ForeignKey('Species', on_delete=models.CASCADE,
-                                 verbose_name=_('вид'))
-
-
 @python_2_unicode_compatible
-class Species(models.Model):
-    name = models.CharField(max_length=30, default='', verbose_name=_('название вида'))
-    genus = models.ForeignKey(Genus, null=True, blank=False, verbose_name=_('род'),
+class Species(TaxonMixin):
+    genus = models.ForeignKey(Genus, null=True, blank=False,
+                              verbose_name=_('род'),
                               related_name='species')
-    authorship = models.ManyToManyField(Author, blank=True, null=True,
-                                        through=SpeciesAuthorship,
-                                        verbose_name=_('авторство'))
-    def save(self, *args, **kwargs):
-        if self.name:
-            self.name = self.name.strip().lower()
-        super(Species, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return capfirst(self.get_full_name())
+    def get_full_name(self):
+        res = super(Species, self).get_full_name()
+        return self.genus.name +' ' + res
+    get_full_name.short_description = _('полное имя вида')
 
     class Meta:
         verbose_name = _('название вида')
         verbose_name_plural = _('названия видов')
-
-    def get_full_name(self):
-        authors = [x for x in SpeciesAuthorship.objects.filter(species=self).order_by('priority')]
-        if len(authors) > 0:
-            author_string = ' ' + get_authorship_string(authors)
-        else:
-            author_string = ''
-        return self.genus.name + ' ' + self.name + author_string
-    get_full_name.short_description = _('полное имя вида')
 
 
 class HerbItem(HerbItemMixin):
@@ -410,6 +315,7 @@ def loadedfiles_delete(sender, instance, **kwargs):
         pass
 
 
+# TODO: Checks needed! According to changes in the main file
 @receiver(post_save, sender=LoadedFiles)
 def load_datafile(sender, instance, **kwargs):
     # Trying
