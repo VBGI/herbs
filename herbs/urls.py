@@ -3,7 +3,7 @@
 from django.conf.urls import *
 
 from bgi.herbs.views import (get_item_data, advice_select, show_herbs,
-                         make_label, show_herbitem)
+                             make_label, show_herbitem)
 
 from bgi.herbs import init_herbs
 
