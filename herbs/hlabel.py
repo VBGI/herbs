@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
+
 import fpdf
 import tempfile
 import qrcode, os
 from transliterate import translit
-from countries import eng_codes, codes
 
 msgs = {'org':   'Herbarium',
         'descr': 'of the %s (%s)',
@@ -19,13 +18,6 @@ msgs = {'org':   'Herbarium',
         'country': 'Country:',
         'region': 'Region:'
         }
-
-def translate_country_name(name):
-    try:
-        res = eng_codes[codes[name.encode('utf-8')]]
-    except:
-        res = translit(name, 'ru', reversed=True)
-    return res
 
 FPDF = fpdf.FPDF
 
@@ -169,7 +161,6 @@ class PDF_DOC:
 
         # ------------- place of collecting ------------
         if not country: country = ''
-        country = translate_country_name(country)
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y,self._ln))
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
