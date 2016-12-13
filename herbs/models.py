@@ -32,7 +32,8 @@ class HerbItemMixin(models.Model):
     Common item properties
     '''
     BIOMORPHS = (('D', 'Development stage'),
-                  ('G', 'Growth form'))
+                 ('G', 'Growth form')
+                 )
 
     species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
                                 verbose_name=_('вид'))
@@ -167,8 +168,8 @@ class HerbImage(models.Model):
 
     class Meta:
         ordering = ('updated', )
-        #TODO: Names needed!
-
+        verbose_name = _('изображение')
+        verbose_name_plural = _('изображения')
 
 
 class TaxonMixin(models.Model):
