@@ -149,7 +149,7 @@ class HerbAcronym(models.Model):
         verbose_name_plural = _('акронимы гербария')
 
     def __str__(self):
-        return u'{}:{}|allowed:{}'.format(self.name, self.institute, self.allowed_users)
+        return u'{}:{}'.format(self.name, self.institute)
 
 
 
