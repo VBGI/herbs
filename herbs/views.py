@@ -5,18 +5,13 @@ from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
 from django.forms.models import model_to_dict
-
-from .models import Family, Genus, HerbItem, Species, SpeciesAuthorship
-from .countries import codes as contry_codes, eng_codes
+from .models import Family, Genus, HerbItem, Species, Country
 from .forms import SearchForm
 from .conf import settings
 from .utils import _smartify_altitude,_smartify_family, _smartify_dates
-
 from django.utils.text import capfirst
 from django.contrib.auth.decorators import login_required
-
 from django.utils import translation, timezone
-
 from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
 from django.template import RequestContext
@@ -27,15 +22,13 @@ import re
 import gc
 from .hlabel import PDF_DOC
 
-
 digit_pat = re.compile(r'\d+')
-countries_ru = [key.decode('utf-8') for key in contry_codes]
-countries_en = [eng_codes[key].decode('utf-8') for key in eng_codes]
 
 
 @csrf_exempt
 def get_item_data(request):
     '''Get herbitem as a json object '''
+
     context = {'error': ''}
     objid = request.GET.get('id', '')
     if objid:
@@ -45,8 +38,8 @@ def get_item_data(request):
             context.update({'data': tojson})
         except HerbItem.DoesNotExists:
             context = {'error': u'Объект не найден'}
-    return  HttpResponse(json.dumps(context), content_type="application/json; charset=utf-8")
-
+    return  HttpResponse(json.dumps(context),
+                         content_type="application/json; charset=utf-8")
 
 def parse_date(d):
     if not d: return None
@@ -63,7 +56,7 @@ def show_herbs(request):
     Answer on queries for herbitems
     '''
     if request.method == 'POST':
-        return HttpResponse('Only GET-methods are acceptable')
+        return HttpResponse('Only GET-queries are acceptable')
 
     context = {'error': '', 'has_previous': None, 'has_next': None,
                'pagenumber': 1, 'pagecount': 0}
@@ -73,14 +66,18 @@ def show_herbs(request):
         if dataform.is_valid():
             data = {key: dataform.cleaned_data[key] for key in dataform.fields}
             bigquery = [Q(public=True)]
-            bigquery += [Q(family__name__iexact=data['family'])] if data['family'] else []
-            bigquery += [Q(genus__name__iexact=data['genus'])] if data['genus'] else []
+            bigquery += [Q(species__genus__family__name__iexact=data['family'])] if data['family'] else []
+            bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
             bigquery += [Q(species__name__iexact=data['species'])] if data['species'] else []
             bigquery += [Q(itemcode__icontains=data['itemcode'])] if data['itemcode'] else []
-            bigquery += [Q(genus__gcode__contains=data['gcode'])] if data['gcode'] else []
+            bigquery += [Q(species__genus__gcode__contains=data['gcode'])] if data['gcode'] else []
             bigquery += [Q(collectedby__icontains=data['collectedby'])] if data['collectedby'] else []
             bigquery += [Q(identifiedby__icontains=data['identifiedby'])] if data['identifiedby'] else []
-            bigquery += [Q(country__icontains=data['country'])] if data['country'] else []
+
+            if data['country']:
+                bigquery += [Q(country__name_ru__icontains=data['country'])|
+                             Q(country__name_en__icontains=data['country'])]
+
             # place handle
             bigquery += [Q(region__icontains=data['place'])|\
                          Q(detailed__icontains=data['place'])|\
@@ -118,9 +115,9 @@ def show_herbs(request):
             data_tojson = []
             for item in obj_to_show.object_list:
                 data_tojson.append(
-                    {'family': item.family.get_full_name() if hasattr(item.family, 'get_full_name') else '',
-                     'genus': item.genus.get_full_name() if hasattr(item.genus, 'get_full_name')  else '',
-                     'species': item.species.get_full_name() if hasattr(item.species, 'get_full_name') else '',
+                    {'family': item.species.genus.family.name,
+                     'genus':  item.species.genus.name,
+                     'species': str(item.species),
                      'itemcode': item.itemcode,
                      'gcode': item.genus.gcode,
                      'id': item.pk,
@@ -201,7 +198,6 @@ def advice_select(request):
             objects = Genus.objects.filter(gcode__contains=query).order_by('gcode')
             data = [{'id': item.pk, 'text': item.gcode} for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'genus':
-            # TODO: DB structure: changes needed, (seems to be fixed...)
             if dataform.cleaned_data['family']:
                 if query:
                     objects = Genus.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
@@ -243,11 +239,11 @@ def advice_select(request):
             data = [{'id': item.pk, 'text': item.name}
                     for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'country':
-#            if translation.get_language() == 'ru':
-#                clist = countries_ru
-#            else:
-            clist = countries_ru # TODO: Multilanguage search needed
-            data = [{'id': ind, 'text': val} for ind, val in enumerate(clist) if query in val]
+            objects = Country.objects.filter(Q(name_ru__icontains=query)|
+                                             Q(name_en__icontains=query))
+            data = [{'id': item.pk, 'text': item.name}
+                    for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
+
     else:
         context.update({'error': 'Странный запрос'})
         data = []
@@ -265,7 +261,7 @@ def make_label(request, q):
         return HttpResponse('Your query is too long... Try again')
 
     q = q.split(',')
-    q = filter(lambda x: len(x) <= 15, q)  # No one can imagine that the number of sheet will exeeds 10^15.
+    q = filter(lambda x: len(x) <= 15, q)
 
     if len(q) > 4:
         return HttpResponse('You cannt generate more than 4 labels at a time. Try again.')
@@ -289,7 +285,7 @@ def make_label(request, q):
             ddict = _smartify_species(item)
             ddict.update({'date': _smartify_dates(item)})
             ddict.update({'family': _smartify_family(item.family.name),
-                     'country': item.country,
+                     'country': item.country.name_en,
                      'region': item.region,
                      'altitude': _smartify_altitude(item.altitude),
                      'latitude': '{0:.5f}'.format(item.coordinates.latitude) if item.coordinates else '',
@@ -318,22 +314,7 @@ def make_label(request, q):
 
 
 def _smartify_species(item):
-    authors = [x for x in SpeciesAuthorship.objects.filter(species=item.species).order_by('priority')]
-    howmany = len(authors) # We used len here because author's len <= 3
-    if howmany > 1:
-        inside = [x for x in authors[:howmany-1]]
-        spauth2 = ''
-        if inside:
-             spauth2 += ' '.join([x.get_name() for x in inside])
-        spauth1 = authors[howmany-1].get_name()
-    elif howmany == 1:
-        spauth1 =  authors[0].get_name()
-        spauth2 = ''
-    else:
-        spauth2 = ''
-        spauth1 = ''
-    species = capfirst(item.genus.name) + ' ' + \
-        (item.species.name if item.species else '')
-    return {'spauth1': spauth1, 'spauth2': spauth2, 'species': species}
+    species = capfirst(item.genus.name) + ' ' + item.species.name
+    return {'spauth': species.authorship, 'species': species}
 
 
