@@ -57,8 +57,7 @@ class DifferentValueMixin(LookupChannel):
 
     def get_query(self, q, request):
         objs = HerbItem.objects.raw('''
-                                    #TODO: NEEDED CHANGES!
-                                    SELECT %s FROM herbs_herbitem GROUP BY'%s';)
+                                    SELECT * FROM herbs_herbitem WHERE %s LIKE '%s%' GROUP BY '%s';
                                     '''%(self.fieldname, self.fieldname))
         return map(lambda x: getattr(x, self.fieldname), objs[:NS])
 
