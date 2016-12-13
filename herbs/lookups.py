@@ -41,15 +41,6 @@ class SpeciesLookup(LookupChannel):
                 res = self.model.objects.filter(genus__name__icontains=splitted[0])
         return res[:NS]
 
-    def get_result(self, obj):
-        return obj
-
-    def format_item_display(self, obj):
-        return obj
-
-    def format_match(self, obj):
-        return obj
-
 
 @register('country')
 class CountryLookup(LookupChannel):
@@ -60,15 +51,6 @@ class CountryLookup(LookupChannel):
         else:
             res = self.model.objects.filter(name_ru__icontains=q)
         return res[:NS]
-
-    def format_match(self, obj):
-        return obj
-
-    def get_result(self, obj):
-        return obj
-
-    def format_item_display(self, obj):
-        return obj
 
 
 class DifferentValueMixin(LookupChannel):

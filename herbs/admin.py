@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
 from .forms import FamilyForm, GenusForm, HerbItemForm, SpeciesForm
-from .models import (Family, Genus, HerbItem, Species,
+from .models import (Family, Genus, HerbItem, Species, Country,
                      HerbImage, HerbAcronym)
 
 from sorl.thumbnail.admin import AdminImageMixin
@@ -198,3 +198,4 @@ admin.site.register(Genus, GenusAdmin)
 admin.site.register(HerbItem, HerbItemAdmin)
 admin.site.register(Species, SpeciesAdmin)
 admin.site.register(HerbAcronym)
+admin.site.register(Country)

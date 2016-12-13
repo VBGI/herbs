@@ -106,7 +106,7 @@ class HerbItemMixin(models.Model):
 
 
     def get_full_name(self):
-        return self.genus.name + ' ' + self.species.get_full_name()
+        return self.species.genus.name + ' ' + self.species.get_full_name()
     get_full_name.short_description = _('полное имя вида')
 
     @property
@@ -128,7 +128,7 @@ class Country(models.Model):
     name_ru = models.CharField(max_length=150)
     name_en = models.CharField(max_length=150)
     def __str__(self):
-        return '{}|{}'.format(self.name_ru, self.name_en)
+        return u'{}|{}'.format(self.name_ru, self.name_en)
 
     class Meta:
         ordering = ('name_ru',)

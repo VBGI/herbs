@@ -98,6 +98,7 @@ class HerbItemForm(forms.ModelForm):
 
     def clean(self):
         '''Checking consistency for dates '''
+        formdata = self.cleaned_data
         d1 = formdata.get('identified_s')
         d2 = formdata.get('identified_e')
         if d1 and d2:
