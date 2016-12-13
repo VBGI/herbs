@@ -14,7 +14,7 @@ from geoposition.fields import GeopositionField
 import pandas as pd
 
 from .utils import (NECESSARY_DATA_COLUMNS, evluate_herb_dataframe,
-                   create_safely, get_authorship_string, _smartify_dates)
+                   create_safely, _smartify_dates)
 
 
 # Geopositionfield need to be imported!
@@ -109,27 +109,9 @@ class HerbItemMixin(models.Model):
         return capfirst(self.get_full_name())
 
 
-    # TODO: Changed authorship model, Update needed!!!!
     def get_full_name(self):
-        authors = [x for x in SpeciesAuthorship.objects.filter(species=self.species,
-                                                               species__genus=self.genus).order_by('priority')]
-        if len(authors) > 0:
-            author_string = ' ' + get_authorship_string(authors)
-        else:
-            author_string = ''
-        return (capfirst(self.genus.name) if self.genus else '') +\
-            ' ' + (self.species.name if self.species else '') + author_string
+        return self.genus.name + ' ' + self.species.get_full_name()
     get_full_name.short_description = _('полное имя вида')
-
-
-    def save(self, *args, **kwargs):
-        if self.collectedby:
-            self.collectedby = self.collectedby.strip()
-        if self.identifiedby:
-            self.identifiedby = self.identifiedby.strip()
-        if self.itemcode:
-            self.itemcode = self.itemcode.strip()
-        super(HerbItemMixin, self).save(*args, **kwargs)
 
     @property
     def colldate(self):

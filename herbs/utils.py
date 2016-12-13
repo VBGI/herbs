@@ -154,19 +154,19 @@ def create_safely(model, fields=(), values=(), postamble='iexact'):
         newobj.save()
         return newobj
 
-def get_authorship_string(authors):
-    result = ''
-    howmany = len(authors)
-    if howmany > 1:
-        inside = [item for item in authors[:howmany-1]]
-    else:
-        inside = None
-    # order by priority : the older is put into bracets
-    if inside:
-        result += ' (%s) ' % (' '.join([x.get_name() for x in inside]), )
-    if howmany:
-        result += ' %s' % authors[howmany-1].get_name()
-    return capfirst(result)
+#def get_authorship_string(authors):
+#    result = ''
+#    howmany = len(authors)
+#    if howmany > 1:
+#        inside = [item for item in authors[:howmany-1]]
+#    else:
+#        inside = None
+#    # order by priority : the older is put into bracets
+#    if inside:
+#        result += ' (%s) ' % (' '.join([x.get_name() for x in inside]), )
+#    if howmany:
+#        result += ' %s' % authors[howmany-1].get_name()
+#    return capfirst(result)
 
 def evluate_herb_dataframe(df):
     '''It is assumed the dataframe has valid set of column names'''
