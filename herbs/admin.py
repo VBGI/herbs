@@ -125,9 +125,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     list_display = ('get_full_name', 'itemcode', 'public',
                     'collectedby', 'collected_s')
     list_filter = ('public', 'species__genus__family__name',
-                   'species__genus__name', 'species')
+                   'species__genus__name', 'species__name')
     search_fields = ('itemcode', 'collectedby', 'identifiedby',
-                     'species__genus__family__name', 'species__genus__name')
+                     'species__genus__family__name', 'species__genus__name',
+                     'species__name')
     list_display_links = ('get_full_name', 'species__genus__family__name')
     actions = (publish_herbitem, unpublish_herbitem, create_pdf)
     inlines = (HerbImageAdminInline, )

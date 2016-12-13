@@ -98,7 +98,7 @@ class PDF_DOC:
     def goto(self, y, n, inter=0):
         return  y + PADDING_Y + (LINE_HEIGHT + INTERSPACE) * n + inter
 
-    def _add_label(self, x, y, family='', species='', spauth1='', spauth2='',
+    def _add_label(self, x, y, family='', species='', spauth='',
                    date='', latitude='', longitude='',
                    place='', country='', region='', collected='',
                    altitude='', identified='', number='', itemid='',
@@ -139,9 +139,7 @@ class PDF_DOC:
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
         species_name = species
-        author_name =  ''
-        author_name += '(%s)' % spauth2 if spauth2 else ''
-        author_name += ' %s' % spauth1 if spauth1 else ''
+        author_name =  spauth if spauth else ''
         self.pdf.set_font_size(SMALL_FONT_SIZE)
         sp_w = self.pdf.get_string_width(species_name)
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
@@ -345,7 +343,7 @@ class PDF_DOC:
 
     def _test_page(self):
         testdict = {'family': 'AWESOMEFAMILY', 'species':'Some species',
-                    'spauth1':'Author1', 'spauth2':'',
+                    'spauth':'(Somebody) Author',
                     'date': '12 Nov 2002',
                     'latitude': '12.1231',
                     'longitude': '123.212312',
