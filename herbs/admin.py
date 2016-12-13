@@ -113,10 +113,11 @@ class HerbImageAdminInline(PermissionMixin, AdminImageMixin,
 
 class FamilyAdmin(admin.ModelAdmin):
     form = FamilyForm
-
+    search_fields = ('name',)
 
 class GenusAdmin(AjaxSelectAdmin):
     form = GenusForm
+    search_fileds = ('name', )
 
 
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
