@@ -156,7 +156,6 @@ class PDF_DOC:
         # ----------------------------------------------
 
 
-
         # ------------- place of collecting ------------
         if not country: country = ''
         self._ln += 1
