@@ -38,8 +38,8 @@ for file in os.listdir(CDIR):
             species = row[-1]['Species'].lower().strip()
             authorship = row[-1]['Authorship']
             famobj = create_safely(Family, ('name',), (family,))
-            genobj = create_safely(Genus, ('name','family__name'), (genus,family))
-            spobj = create_safely(Species, ('name', 'genus__name', 'authorship'), (species, genus, authorship))
+            genobj = create_safely(Genus, ('name','family'), (genus,famobj), postamble='')
+            spobj = create_safely(Species, ('name', 'genus', 'authorship'), (species, genobj, authorship), postamble='')
             time.sleep(0.001)
         gc.collect()
 subprocess.call(['rm', os.path.join(CDIR, '*.csv')])

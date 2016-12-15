@@ -176,7 +176,7 @@ class HerbImage(models.Model):
 
 
 class TaxonMixin(models.Model):
-    name = models.CharField(max_length=30, default='',
+    name = models.CharField(max_length=70, default='',
                             verbose_name=_('название'))
     authorship = models.CharField(max_length=250, blank=True, default='',
                                         verbose_name=_('авторство'))
