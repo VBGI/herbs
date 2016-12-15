@@ -102,7 +102,7 @@ class PDF_DOC:
                    date='', latitude='', longitude='',
                    place='', country='', region='', collected='',
                    altitude='', identified='', number='', itemid='',
-                   acronym='', institute='', address=''):
+                   acronym='', institute='', address='', gform=''):
         global LINE_HEIGHT
         self.pdf.rect(x, y, LABEL_WIDTH,LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
