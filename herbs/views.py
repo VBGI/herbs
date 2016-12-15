@@ -36,7 +36,7 @@ def get_item_data(request):
             hobj = HerbItem.objects.get(id=objid)
             tojson = model_to_dict(hobj)
             context.update({'data': tojson})
-        except HerbItem.DoesNotExists:
+        except HerbItem.DoesNotExist:
             context = {'error': u'Объект не найден'}
     return  HttpResponse(json.dumps(context),
                          content_type="application/json; charset=utf-8")
@@ -161,7 +161,7 @@ def show_herbitem(request, inum):
     try:
         hobj = HerbItem.objects.get(id=inum)
         context.update({'curobj': hobj})
-    except HerbItem.DoesNotExists:
+    except HerbItem.DoesNotExist:
         context.update({'error': _('No herbarium sheet with id=%s was found'%inum)})
     result = render_to_string('herbitem_details.html', context,
                               context_instance=RequestContext(request))
@@ -254,6 +254,7 @@ def advice_select(request):
 
 
 @login_required
+@never_cache
 def make_label(request, q):
     '''Return pdf-doc or error page otherwise.
     '''
@@ -284,8 +285,8 @@ def make_label(request, q):
         for item in objs:
             ddict = _smartify_species(item)
             ddict.update({'date': _smartify_dates(item)})
-            ddict.update({'family': item.species.genus.family.name.upper(),
-                     'country': item.country.name_en,
+            ddict.update({'family': item.species.genus.family.name.upper() if item.species else '',
+                     'country': item.country.name_en if item.country else '',
                      'region': item.region,
                      'altitude': _smartify_altitude(item.altitude),
                      'latitude': '{0:.5f}'.format(item.coordinates.latitude) if item.coordinates else '',
@@ -316,7 +317,7 @@ def make_label(request, q):
 
 def _smartify_species(item):
     if item.species:
-        if species.genus:
+        if item.species.genus:
             species = capfirst(item.species.genus.name) + ' ' + item.species.name
         else:
             species = 'No genus ' + item.species.name
@@ -324,6 +325,6 @@ def _smartify_species(item):
     else:
         species = ''
         authorship = ''
-    return {'spauth': item.species.authorship, 'species': species}
+    return {'spauth': authorship, 'species': species}
 
 

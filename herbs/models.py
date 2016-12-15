@@ -196,8 +196,8 @@ class TaxonMixin(models.Model):
 @python_2_unicode_compatible
 class Family(TaxonMixin):
     class Meta:
-        verbose_name = _('название семейства')
-        verbose_name_plural = _('названия семейств')
+        verbose_name = _('семейство')
+        verbose_name_plural = _('семейстава')
 
     def get_full_name(self):
         return super(Family, self).get_full_name()
@@ -216,8 +216,8 @@ class Genus(TaxonMixin):
     get_full_name.short_description = _('полное имя рода')
 
     class Meta:
-        verbose_name = _('название рода')
-        verbose_name_plural = _('названия родов')
+        verbose_name = _('род')
+        verbose_name_plural = _('рода')
 
 
 @python_2_unicode_compatible
@@ -231,8 +231,8 @@ class Species(TaxonMixin):
     get_full_name.short_description = _('полное имя вида')
 
     class Meta:
-        verbose_name = _('название вида')
-        verbose_name_plural = _('названия видов')
+        verbose_name = _('вид')
+        verbose_name_plural = _('виды')
 
 
 class HerbItem(HerbItemMixin):
