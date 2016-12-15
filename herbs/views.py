@@ -297,7 +297,8 @@ def make_label(request, q):
                      'number': '%s' % item.itemcode if item.itemcode else '*',
                      'acronym': item.acronym.name if item.acronym else '',
                      'address': item.acronym.address if item.acronym else '',
-                     'institute': item.acronym.institute if item.acronym else ''
+                     'institute': item.acronym.institute if item.acronym else '',
+                     'gform': item.devstage if item.devstage else ''
                      })
             llabel_data.append(ddict)
 

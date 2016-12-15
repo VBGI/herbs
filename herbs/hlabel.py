@@ -134,6 +134,12 @@ class PDF_DOC:
         else:
             self.pdf.cell(LABEL_WIDTH - 2 * PADDING_X, 0, '_____________________',
                           align='C')
+        if gform:
+            self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln) + 1)
+            if gform == 'G':
+                self.pdf.cell(0, 0, 'Growth form')
+            elif gform == 'D':
+                self.pdf.cell(0, 0, 'Dev.stage')
 
         # -------------- Plot Species name ------------
         self._ln += 1
@@ -355,7 +361,8 @@ class PDF_DOC:
                     'number': '17823781', 'itemid': '12312',
                     'acronym':'VBGI',
                     'institute': 'Botanical Garden-Institute FEB RAS',
-                    'address': '690018, Russia, Vladivosotk, Makovskogo st. 142'}
+                    'address': '690018, Russia, Vladivosotk, Makovskogo st. 142',
+                    'gform': 'G'}
         llabels = [testdict] * 4
         self.tile_labels(llabels)
 
