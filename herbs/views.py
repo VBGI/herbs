@@ -294,11 +294,11 @@ def make_label(request, q):
                      'collected': item.collectedby,
                      'identified': item.identifiedby,
                      'itemid': '%s' % item.pk,
-                     'number': '%s' % item.itemcode if item.itemcode else '*',
+                     'number': '%s' % item.itemcode or '*',
                      'acronym': item.acronym.name if item.acronym else '',
                      'address': item.acronym.address if item.acronym else '',
                      'institute': item.acronym.institute if item.acronym else '',
-                     'gform': item.devstage if item.devstage else ''
+                     'gform': item.devstage or ''
                      })
             llabel_data.append(ddict)
 
@@ -315,7 +315,15 @@ def make_label(request, q):
 
 
 def _smartify_species(item):
-    species = capfirst(item.species.genus.name) + ' ' + item.species.name
+    if item.species:
+        if species.genus:
+            species = capfirst(item.species.genus.name) + ' ' + item.species.name
+        else:
+            species = 'No genus ' + item.species.name
+        authorship = item.species.authorship or ''
+    else:
+        species = ''
+        authorship = ''
     return {'spauth': item.species.authorship, 'species': species}
 
 
