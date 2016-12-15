@@ -23,12 +23,12 @@ CREATE TABLE `herbs_herbimage` (
 ALTER TABLE `herbs_herbimage` ADD CONSTRAINT `user_id_refs_id_d3d4f9e5` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
 CREATE TABLE `herbs_family` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    `name` varchar(30) NOT NULL,
+    `name` varchar(70) NOT NULL,
     `authorship` varchar(250) NOT NULL
 ) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 CREATE TABLE `herbs_genus` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    `name` varchar(30) NOT NULL,
+    `name` varchar(70) NOT NULL,
     `authorship` varchar(250) NOT NULL,
     `family_id` integer,
     `gcode` varchar(6) NOT NULL
@@ -36,7 +36,7 @@ CREATE TABLE `herbs_genus` (
 ALTER TABLE `herbs_genus` ADD CONSTRAINT `family_id_refs_id_a95e05dd` FOREIGN KEY (`family_id`) REFERENCES `herbs_family` (`id`);
 CREATE TABLE `herbs_species` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    `name` varchar(30) NOT NULL,
+    `name` varchar(70) NOT NULL,
     `authorship` varchar(250) NOT NULL,
     `genus_id` integer
 ) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
