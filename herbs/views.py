@@ -162,7 +162,7 @@ def show_herbitem(request, inum):
         hobj = HerbItem.objects.get(id=inum)
         context.update({'curobj': hobj})
     except HerbItem.DoesNotExist:
-        context.update({'error': _('No herbarium sheet with id=%s was found'%inum)})
+        context.update({'error': 'No herbarium sheet with id=%s was found'%inum})
     result = render_to_string('herbitem_details.html', context,
                               context_instance=RequestContext(request))
     return HttpResponse(result)

@@ -11,7 +11,8 @@ from .models import (Family, Genus, HerbItem, Species, Country,
                      HerbImage, HerbAcronym)
 
 from sorl.thumbnail.admin import AdminImageMixin
-
+import random
+import string
 
 # ------------------- Actions for publishing HerbItems ----------------------
 
@@ -38,7 +39,9 @@ def create_pdf(modeladmin, request, queryset):
     if c == 0 or c > 4:
         messages.error(request, 'Выделите не менее одной и не более 4-х гербарных образцов')
         return
-    return HttpResponseRedirect(reverse('herbiteminfo', args=[','.join([str(item.pk) for item in queryset])]))
+    urlfinal = reverse('herbiteminfo', args=[','.join([str(item.pk) for item in queryset])])
+    urlfinal += '?'+''.join([random.choice(string.ascii_letters) for k in range(4)])
+    return HttpResponseRedirect(urlfinal)
 create_pdf.short_description = "Создать этикетки"
 
 # ---------------------------------------------------------------------------
