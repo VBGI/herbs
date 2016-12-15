@@ -106,7 +106,10 @@ class HerbItemMixin(models.Model):
 
 
     def get_full_name(self):
-        return self.species.genus.name + ' ' + self.species.get_full_name()
+        if self.species:
+            return self.species.genus.name + ' ' + self.species.get_full_name()
+        else:
+            return 'Object #%s (Sp. not defined)' % self.pk
     get_full_name.short_description = _('полное имя вида')
 
     @property
@@ -181,7 +184,10 @@ class TaxonMixin(models.Model):
         return capfirst(self.get_full_name())
 
     def get_full_name(self):
-       return self.name + ((' ' + self.authorship) if self.authorship else '')
+        if self.name:
+            return self.name + ((' ' + self.authorship) if self.authorship else '')
+        else:
+            return 'Noname taxon #%s' % self.pk
 
     class Meta:
         ordering = ('name',)
