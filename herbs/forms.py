@@ -126,7 +126,7 @@ class HerbItemForm(forms.ModelForm):
     class Meta:
         model = HerbItem
 
-    species = AutoCompleteSelectField('species', required=False, help_text=None, label=_("Вид"))
+    species = AutoCompleteSelectField('species', required=True, help_text=None, label=_("Вид"))
     ecodescr = forms.CharField(widget=forms.Textarea, required=False, label=_('Экоусловия'))
     detailed = forms.CharField(widget=forms.Textarea, required=False, label=_('Дополнительно'))
     note = forms.CharField(widget=forms.Textarea, required=False, label=_('Заметки'))
