@@ -53,26 +53,30 @@ class CountryLookup(LookupChannel):
         return res[:NS]
 
 
-class DifferentValueMixin(LookupChannel):
-    '''Abstract class'''
-    def get_query(self, q, request):
-        objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE %s LIKE "%%%s%%" GROUP BY %s''',
-                                    [self.fieldname, q, self.fieldname])
-        return map(lambda x: getattr(x, self.fieldname), objs[:NS])
+#class DifferentValueMixin(LookupChannel):
+    #'''Abstract class'''
+    #def get_query(self, q, request):
+        #objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE %s LIKE "%%%s%%" GROUP BY %s''',
+                                    #[self.fieldname, q, self.fieldname])
+        #return map(lambda x: getattr(x, self.fieldname), objs[:NS])
 
 
 @register('region')
-class RegionLookup(DifferentValueMixin):
-    fieldname = 'region'
+class RegionLookup(LookupChannel):
+    objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE region LIKE "%%%s%%" GROUP BY region''', [q])
+    return map(lambda x: getattr(x, self.region), objs[:NS])
 
 @register('district')
-class DistrictLookup(DifferentValueMixin):
-    fieldname = 'district'
+class DistrictLookup(LookupChannel):
+    objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE district LIKE "%%%s%%" GROUP BY district''', [q])
+    return map(lambda x: getattr(x, self.district), objs[:NS])
 
 @register('collectedby')
 class CollectorsLookup(DifferentValueMixin):
-    fieldname = 'collectedby'
+    objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE collectedby LIKE "%%%s%%" GROUP BY collectedby''', [q])
+    return map(lambda x: getattr(x, self.collectedby), objs[:NS])
 
 @register('identifiedby')
 class IdentifiersLookup(DifferentValueMixin):
-    fieldname = 'identifiedby'
+    objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE identifiedby LIKE "%%%s%%" GROUP BY identifiedby''', [q])
+    return map(lambda x: getattr(x, self.identifiedby), objs[:NS])
