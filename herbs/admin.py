@@ -134,6 +134,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     list_display_links = ('get_full_name', )
     actions = (publish_herbitem, unpublish_herbitem, create_pdf)
     inlines = (HerbImageAdminInline, )
+    exclude = ('ecodescr',)
 
     def save_model(self, request, obj, form, change):
         if not request.user.is_superuser:

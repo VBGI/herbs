@@ -129,7 +129,7 @@ class PDF_DOC:
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln) + 1)
         self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
         if family:
-            self.pdf.cell(LABEL_WIDTH - 2 * PADDING_X, 0, '{}'.format(family),
+            self.pdf.cell(LABEL_WIDTH - 2 * PADDING_X, 0, family,
                           align='C')
         else:
             self.pdf.cell(LABEL_WIDTH - 2 * PADDING_X, 0, '_____________________',
@@ -155,10 +155,10 @@ class PDF_DOC:
             self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
         self.pdf.set_font('DejaVui', '', SMALL_FONT_SIZE)
         self.pdf.set_font_size(SMALL_FONT_SIZE)
-        self.pdf.cell(0, 0, '{}'.format(species_name))
+        self.pdf.cell(0, 0, species_name)
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         self.pdf.set_xy(x+ x_pos + sp_w + 2, self.goto(y, self._ln))
-        self.pdf.cell(0, 0,'{}'.format(author_name))
+        self.pdf.cell(0, 0, author_name)
         # ----------------------------------------------
 
 

@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import sys, os
 
-sys.path.append('/home/scidam/webapps/bgitest/bgi')
+sys.path.append('/home/scidam/webapps/bgicms242/bgi')
 os.environ['DJANGO_SETTINGS_MODULE']='bgi.settings'
 
 from .countries import *

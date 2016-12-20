@@ -47,11 +47,7 @@ class HerbItemMixin(models.Model):
                                 verbose_name='Acronym',
                                 blank=True, null=True)
 
-    devstage = models.CharField(max_length=1, default='', null=True, blank=True,
-                                verbose_name=_('Биоморф. статус'),
-                                choices=BIOMORPHS)
-
-    # position
+       # position
     country = models.ForeignKey('Country', on_delete=models.SET_NULL, null=True,
                                 blank=True, verbose_name=_('страна'))
     region = models.CharField(default='', blank=True, max_length=150,
@@ -59,12 +55,13 @@ class HerbItemMixin(models.Model):
     district = models.CharField(default='', blank=True, max_length=150,
                                 verbose_name=_('район'))
     detailed = models.CharField(default='', max_length=300, blank=True,
-                                verbose_name=_('дополнительно'))
+                                verbose_name=_('место сбора'),
+                                help_text=_('локализация, экоусловия'))
     coordinates = GeopositionField(verbose_name=_('координаты'), blank=True)
     altitude = models.CharField(default='', blank=True, max_length=50,
                                 verbose_name=_('высота'))
 
-    # Ecological factors
+    # Ecological factors, this field was excluded
     ecodescr = models.CharField(max_length=300, default='', blank=True,
                                 verbose_name=_('экоусловия'))
 
@@ -83,6 +80,10 @@ class HerbItemMixin(models.Model):
     identified_e = models.DateField(blank=True,
                                     verbose_name=_('конец определения'),
                                     null=True)
+
+    devstage = models.CharField(max_length=1, default='', null=True, blank=True,
+                                verbose_name=_('Биоморф. статус'),
+                                choices=BIOMORPHS)
 
     note = models.CharField(max_length=1000, blank=True, default='')
 

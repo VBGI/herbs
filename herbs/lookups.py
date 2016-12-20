@@ -55,7 +55,7 @@ class CountryLookup(LookupChannel):
 
 #class DifferentValueMixin(LookupChannel):
     #'''Abstract class'''
-    #def get_query(self, q, request):
+    # def get_query(self, q, request):
         #objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE %s LIKE "%%%s%%" GROUP BY %s''',
                                     #[self.fieldname, q, self.fieldname])
         #return map(lambda x: getattr(x, self.fieldname), objs[:NS])
@@ -63,20 +63,24 @@ class CountryLookup(LookupChannel):
 
 @register('region')
 class RegionLookup(LookupChannel):
-    objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE region LIKE "%%%s%%" GROUP BY region''', [q])
-    return map(lambda x: getattr(x, self.region), objs[:NS])
+    def get_query(self, q, request):
+        objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE region LIKE "%%%s%%" GROUP BY region''', [q])
+        return map(lambda x: getattr(x, self.region), objs[:NS])
 
 @register('district')
 class DistrictLookup(LookupChannel):
-    objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE district LIKE "%%%s%%" GROUP BY district''', [q])
-    return map(lambda x: getattr(x, self.district), objs[:NS])
+    def get_query(self, q, request):
+        objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE district LIKE "%%%s%%" GROUP BY district''', [q])
+        return map(lambda x: getattr(x, self.district), objs[:NS])
 
 @register('collectedby')
-class CollectorsLookup(DifferentValueMixin):
-    objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE collectedby LIKE "%%%s%%" GROUP BY collectedby''', [q])
-    return map(lambda x: getattr(x, self.collectedby), objs[:NS])
+class CollectorsLookup(LookupChannel):
+    def get_query(self, q, request):
+        objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE collectedby LIKE "%%%s%%" GROUP BY collectedby''', [q])
+        return map(lambda x: getattr(x, self.collectedby), objs[:NS])
 
 @register('identifiedby')
-class IdentifiersLookup(DifferentValueMixin):
-    objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE identifiedby LIKE "%%%s%%" GROUP BY identifiedby''', [q])
-    return map(lambda x: getattr(x, self.identifiedby), objs[:NS])
+class IdentifiersLookup(LookupChannel):
+    def get_query(self, q, request):
+        objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE identifiedby LIKE "%%%s%%" GROUP BY identifiedby''', [q])
+        return map(lambda x: getattr(x, self.identifiedby), objs[:NS])
