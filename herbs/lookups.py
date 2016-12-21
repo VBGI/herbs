@@ -64,23 +64,19 @@ class CountryLookup(LookupChannel):
 @register('region')
 class RegionLookup(LookupChannel):
     def get_query(self, q, request):
-        objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE region LIKE "%%%s%%" GROUP BY region''', [q])
-        return map(lambda x: getattr(x, self.region), objs[:NS])
+        return HerbItem.objects.filter(region__icontains=q).values_list('region', flat=True).distinct()[:NS]
 
 @register('district')
 class DistrictLookup(LookupChannel):
     def get_query(self, q, request):
-        objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE district LIKE "%%%s%%" GROUP BY district''', [q])
-        return map(lambda x: getattr(x, self.district), objs[:NS])
+        return HerbItem.objects.filter(district__icontains=q).values_list('district', flat=True).distinct()[:NS]
 
 @register('collectedby')
 class CollectorsLookup(LookupChannel):
     def get_query(self, q, request):
-        objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE collectedby LIKE "%%%s%%" GROUP BY collectedby''', [q])
-        return map(lambda x: getattr(x, self.collectedby), objs[:NS])
+        return HerbItem.objects.filter(collectedby__icontains=q).values_list('collectedby', flat=True).distinct()[:NS]
 
 @register('identifiedby')
 class IdentifiersLookup(LookupChannel):
     def get_query(self, q, request):
-        objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE identifiedby LIKE "%%%s%%" GROUP BY identifiedby''', [q])
-        return map(lambda x: getattr(x, self.identifiedby), objs[:NS])
+        return HerbItem.objects.filter(identifiedby__icontains=q).values_list('collectedby', flat=True).distinct()[:NS]

@@ -124,7 +124,7 @@ def show_herbs(request):
                     # Extra data to show herbitem details
                      'altitude': item.altitude,
                      'district': item.district,
-                     'country': item.country,
+                     'country': item.country.name_ru if translation.get_language() == 'ru' else item.country.name_en,
                      'region': item.region,
                      'collectedby': item.collectedby,
                      'collected_s': item.collected_s,
