@@ -181,6 +181,7 @@ def advice_select(request):
         if cfield not in dataform.fields:
             cfield = 'species'
         query = request.GET.get('q', '')
+        RU = translation.get_language() == 'ru'
         if cfield == 'itemcode':
             if query:
                 objects = HerbItem.objects.filter(itemcode__contains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
@@ -240,7 +241,7 @@ def advice_select(request):
         elif cfield == 'country':
             objects = Country.objects.filter(Q(name_ru__icontains=query)|
                                              Q(name_en__icontains=query))
-            data = [{'id': item.pk, 'text': item.name}
+            data = [{'id': item.pk, 'text': item.name_ru if RU else item.name_en}
                     for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
 
     else:
