@@ -115,14 +115,13 @@ def show_herbs(request):
             data_tojson = []
             for item in obj_to_show.object_list:
                 data_tojson.append(
-                    {'family': item.species.genus.family.name,
-                     'genus':  item.species.genus.name,
-                     'species': str(item.species),
+                    {'family': item.species.genus.family.name if item.species else '',
+                     'genus':  item.species.genus.name if item.species else '',
+                     'species': item.species.name if item.species else '',
                      'itemcode': item.itemcode,
-                     'gcode': item.genus.gcode,
+                     'gcode': item.species.genus.gcode if item.species else '',
                      'id': item.pk,
                     # Extra data to show herbitem details
-                     'ecodescr': item.ecodescr,
                      'altitude': item.altitude,
                      'district': item.district,
                      'country': item.country,
@@ -131,7 +130,7 @@ def show_herbs(request):
                      'collected_s': item.collected_s,
                      'identifiedby': item.identifiedby,
                      'note': item.note,
-                     'created':  str(item.created),
+                     'created': str(item.created),
                      'updated': str(item.updated)
                      })
 
