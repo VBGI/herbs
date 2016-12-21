@@ -53,7 +53,7 @@ def parse_date(d):
 @csrf_exempt
 def show_herbs(request):
     '''
-    Answer on queries for herbitems
+    Get herbitems view
     '''
     if request.method == 'POST':
         return HttpResponse('Only GET-queries are acceptable')
