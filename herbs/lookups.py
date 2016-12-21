@@ -79,4 +79,4 @@ class CollectorsLookup(LookupChannel):
 @register('identifiedby')
 class IdentifiersLookup(LookupChannel):
     def get_query(self, q, request):
-        return HerbItem.objects.filter(identifiedby__icontains=q).values_list('collectedby', flat=True).distinct()[:NS]
+        return HerbItem.objects.filter(identifiedby__icontains=q).values_list('identifiedby', flat=True).distinct()[:NS]
