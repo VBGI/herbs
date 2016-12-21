@@ -8,7 +8,7 @@
     <meta name="keywords" content="{{curobj.family.name|capfirst}}, {{curobj.genus.name|capfirst}}, {{curobj.species.get_full_name|capfirst}},
           {%if curobj.country%}{{curobj.country}}{%endif%},
           {%if curobj.region%}{{curobj.region}}{%endif%}">
-    <meta name="generator" content="Reusable herbs-app developed at VBGI on top of Django">
+    <meta name="generator" content="Herbs-app developed on top of the Django Framework">
     <meta name="author" content="{{curobj.collectedby}}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{%static "css/herbitems.css" %}" type="text/css" media="screen">
@@ -17,15 +17,15 @@
   <div id="herbitem-main-container">
     <div id="herbitem-central-container">
       <div id="herbitem-our-heading">
-        <div style="display:block"><img src="{%static "images/bgi_logo.png"%}" alt="Перейти на главную старницу сайта botsad.ru" width="35" height="35" style="float:left; display:block;"></div>
+        <div style="display:block"><a href="http://botsad.ru"> <img src="{%static "images/bgi_logo.png"%}" alt="Перейти на главную старницу сайта botsad.ru" width="35" height="35" style="float:left; display:block;"></a></div>
         {%trans "Ботанический сад-институт ДВО РАН"%} 
         <div style="clear:both"></div>   
       </div>  
       {%if not error%}      
       <div id="herbitem-text-container"> 
-      <p><strong>{%trans "Семейство:"%}</strong>&nbsp;{{curobj.family.get_full_name|capfirst}}</p>
-      <p><strong>{%trans "Род:"%}</strong>&nbsp;{{curobj.genus.get_full_name|capfirst}}</p>
-      {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.get_full_name|capfirst}}</i> </p>{%endif%}
+      <p><strong>{%trans "Семейство:"%}</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
+      <p><strong>{%trans "Род:"%}</strong>&nbsp;{{curobj.species.genus.get_full_name|capfirst}}</p>
+      {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.genus.name|capfirst}} {{curobj.species.name}}</i> {{curobj.species.authorship}} </p>{%endif%}
       <p><strong>{%trans "Место сбора:"%}</strong></p>
       {%if curobj.coordinates.latitude  and curobj.coordinates.longitude %}
        <div id="mymap" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"f" }}"></div>
@@ -50,15 +50,14 @@
       {%if curobj.country %}<p><strong>{%trans "Страна"%}:</strong>&nbsp;{{curobj.country}}</p>{%endif%}
       {%if curobj.region %}<p><strong>{%trans "Регион"%}:</strong>&nbsp;{{curobj.region}}</p>{%endif%}
       {%if curobj.district %}<p><strong>{%trans "Район"%}:</strong>&nbsp;{{curobj.district}}</p>{%endif%}
-      {%if curobj.place %}<p><strong>{%trans "Место"%}:</strong>&nbsp;{{curobj.place}}</p>{%endif%}
       {%if curobj.detailed %}<p><strong>{%trans "Дополнительно"%}:</strong>&nbsp;{{curobj.detailed}}</p>{%endif%}
       {%if curobj.altitude %}<p><strong>{%trans "Высота"%}:</strong>&nbsp;{{curobj.altitude}}</p>{%endif%}
       {%if curobj.ecodescr %}<p><strong>{%trans "Экология"%}:</strong>&nbsp;{{curobj.ecodescr}}</p>{%endif%}
       {%if curobj.collectedby %}<p><strong>{%trans "Собрал(и)"%}:</strong>&nbsp;{{curobj.collectedby}}</p>{%endif%}
-      {%if curobj.colldate %}<p><strong>{%trans "Дата сбора:"%}:</strong>&nbsp;{{curobj.colldate}}</p>{%endif%}
+      {%if curobj.colldate %}<p><strong>{%trans "Дата сбора"%}:</strong>&nbsp;{{curobj.colldate}}</p>{%endif%}
       {%if curobj.identifiedby %}<p><strong>{%trans "Определил(и)"%}:</strong>&nbsp;{{curobj.identifiedby}}</p>{%endif%}
-      {%if curobj.detdate %}<p><strong>{%trans "Дата определения:"%}:</strong>&nbsp;{{curobj.detdate}}</p>{%endif%}
-      {%if curobj.note %}<p><strong>{%trans "Примечание:"%}</strong>&nbsp;{{curobj.note}}</p>{%endif%}
+      {%if curobj.detdate %}<p><strong>{%trans "Дата определения"%}:</strong>&nbsp;{{curobj.detdate}}</p>{%endif%}
+      {%if curobj.note %}<p><strong>{%trans "Примечание"%}:</strong>&nbsp;{{curobj.note}}</p>{%endif%}
       <p><i>{% trans "Последнее изменение:"%}</i>{{curobj.updated}}</p>
 
         {%if curobj.images %}<hr><div id='gallery' style="text-align: center;">
