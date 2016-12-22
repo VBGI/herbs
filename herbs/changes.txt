@@ -1,0 +1,7 @@
+List of changes to be done:
+
+ * History of object determination;
+ * Precision of geolocation (GPS based or not), i.e. True,False
+ * Label creation policy (exclude public state);
+ * One can publish herbitem only if itemcode isn't null;
+ * Save for the next item (new admin functional);
