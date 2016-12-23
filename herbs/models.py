@@ -32,7 +32,7 @@ class HerbItemMixin(models.Model):
     Common item properties
     '''
     BIOMORPHS = (('D', 'Development stage'),
-                 ('G', 'Growth form')
+                 ('G', 'Life form')
                  )
 
     species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
