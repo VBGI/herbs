@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
 from django.forms.models import model_to_dict
-from .models import Family, Genus, HerbItem, Species, Country
+from .models import Family, Genus, HerbItem, Species, Country, DetHistory
 from .forms import SearchForm
 from .conf import settings
 from .utils import _smartify_altitude,_smartify_family, _smartify_dates
@@ -50,6 +50,8 @@ def parse_date(d):
     return res
 
 
+
+# TODO: Fixes needed: DetHistory added
 @csrf_exempt
 def show_herbs(request):
     '''
@@ -283,6 +285,12 @@ def make_label(request, q):
     llabel_data = []
     if objs.exists():
         for item in objs:
+            # -------------- get indentifiedby ---------------
+            try:
+                dhist = DetHistory.objects.filter(herbitem=item).latest('identified_s')
+                identified = dhist.identified_s
+            except DetHistory.DoesNotExist:
+                identified = ''
             ddict = _smartify_species(item)
             ddict.update({'date': _smartify_dates(item)})
             ddict.update({'family': item.species.genus.family.name.upper() if item.species else '',
@@ -293,7 +301,7 @@ def make_label(request, q):
                      'longitude': '{0:.5f}'.format(item.coordinates.longitude) if item.coordinates else '',
                      'place': item.detailed,
                      'collected': item.collectedby,
-                     'identified': item.identifiedby,
+                     'identified': identified,
                      'itemid': '%s' % item.pk,
                      'number': '%s' % item.itemcode or '*',
                      'acronym': item.acronym.name if item.acronym else '',

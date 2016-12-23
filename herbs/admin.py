@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from ajax_select.admin import AjaxSelectAdmin
+from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline
 from django.contrib import admin
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 
 from .forms import FamilyForm, GenusForm, HerbItemForm, SpeciesForm
 from .models import (Family, Genus, HerbItem, Species, Country,
-                     HerbImage, HerbAcronym)
+                     HerbImage, HerbAcronym, DetHistory)
 
 from sorl.thumbnail.admin import AdminImageMixin
 import random
@@ -113,6 +113,10 @@ class HerbImageAdminInline(PermissionMixin, AdminImageMixin,
     model = HerbImage
     exclude=('user',)
 
+class DetHistoryAdminInline(AjaxSelectAdminTabularInline):
+    extra = 0
+    model = DetHistory
+
 
 class FamilyAdmin(admin.ModelAdmin):
     form = FamilyForm
@@ -133,7 +137,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                      'species__genus__name', 'species__name')
     list_display_links = ('get_full_name', )
     actions = (publish_herbitem, unpublish_herbitem, create_pdf)
-    inlines = (HerbImageAdminInline, )
+    inlines = (HerbImageAdminInline, DetHistoryAdminInline)
     exclude = ('ecodescr',)
 
     def save_model(self, request, obj, form, change):

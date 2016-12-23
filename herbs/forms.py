@@ -137,6 +137,15 @@ class HerbItemForm(forms.ModelForm):
     identifiedby =  AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Определили"), attrs={'size': CS})
 
 
+class DetHistoryForm(forms.ModelForm):
+    class Meta:
+        model = DetHistory
+    species = AutoCompleteSelectField('species', required=False, label=_("Вид"))
+    identifiedby = AutoCompleteField('identifiedby', required=False,
+                                     lable=_("Определелил(и)"),
+                                     attrs={'size': CS})
+
+
 class SearchForm(forms.Form):
     '''Common search form for ajax requests
     '''

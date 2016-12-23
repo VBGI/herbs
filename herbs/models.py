@@ -156,6 +156,23 @@ class HerbAcronym(models.Model):
         return u'{}:{}'.format(self.name, self.institute)
 
 
+class DetHistory(models.Model):
+    herbitem = models.ForeignKey('HerbItem', blank=False,
+                                 related_name='dethistory')
+    identifiedby = models.CharField(max_length=500, default='', blank=True,
+                                    verbose_name=_('определил(и)'))
+    identified_s = models.DateField(blank=True,
+                                    verbose_name=_('начало определения'),
+                                    null=True)
+    identified_e = models.DateField(blank=True,
+                                    verbose_name=_('конец определения'),
+                                    null=True)
+    species = models.ForeignKey('Species', blank=True, null=True,
+                                verbose_name=_('вид'))
+    class Meta:
+        verbose_name = _('история определений')
+        verbose_name_plural = _('истории определений')
+
 
 class HerbImage(models.Model):
     TYPE_CHOICES = (('H', 'Изображение гербария'),
