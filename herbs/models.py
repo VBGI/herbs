@@ -170,19 +170,20 @@ class DetHistory(models.Model):
     species = models.ForeignKey('Species', blank=True, null=True,
                                 verbose_name=_('вид'))
     class Meta:
-        verbose_name = _('история определений')
-        verbose_name_plural = _('истории определений')
+        verbose_name = _('определение')
+        verbose_name_plural = _('определения')
 
 
 class HerbImage(models.Model):
     TYPE_CHOICES = (('H', 'Изображение гербария'),
                     ('P', 'Изображение места сбора'))
     user = models.ForeignKey(get_user_model(), blank=True, null=True, related_name='+')
-    image = models.ImageField(upload_to="herbimages/%Y/%m/%d/", blank=True)
+    image = models.ImageField(upload_to="herbimages/%Y/%m/%d/", blank=True,
+                              verbose_name=_('изображение'))
     type = models.CharField(max_length=1,
                             blank=False,
                             default=TYPE_CHOICES[0][0],
-                            choices=TYPE_CHOICES)
+                            choices=TYPE_CHOICES, verbose_name=_('тип'))
     created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
     updated = models.DateField(auto_now=True, verbose_name=_('изменен'))
     herbitem = models.ForeignKey('HerbItem', blank=False, related_name='images')
