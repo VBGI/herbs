@@ -140,8 +140,8 @@ class HerbItemForm(forms.ModelForm):
 class DetHistoryForm(forms.ModelForm):
     class Meta:
         model = DetHistory
-    species = AutoCompleteSelectField('hspecies', required=False, label=_("Вид"))
-    identifiedby = AutoCompleteField('hidentifiedby', required=False,
+    species = AutoCompleteSelectField('species', required=False, label=_("Вид"))
+    identifiedby = AutoCompleteField('identifiedby', required=False,
                                      label=_("Определелил(и)"),
                                      attrs={'size': CS})
 

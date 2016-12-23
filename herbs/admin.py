@@ -115,7 +115,7 @@ class HerbImageAdminInline(PermissionMixin, AdminImageMixin,
     exclude=('user',)
 
 class DetHistoryAdminInline(AjaxSelectAdminTabularInline):
-    extra = 0
+    extra = 1
     model = DetHistory
     form = DetHistoryForm
 

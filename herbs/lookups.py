@@ -38,7 +38,7 @@ class SpeciesLookup(LookupChannel):
                 res = self.model.objects.filter(genus__name__istartswith=splitted[0],
                                              name__icontains=splitted[1])
             else:
-                res = self.model.objects.filter(genus__name__icontains=splitted[0])
+                res = self.model.objects.filter(genus__name__istartswith=splitted[0])
         return res[:NS]
 
 
@@ -81,10 +81,3 @@ class IdentifiersLookup(LookupChannel):
     def get_query(self, q, request):
         return HerbItem.objects.filter(identifiedby__icontains=q).values_list('identifiedby', flat=True).distinct()[:NS]
 
-@register('hidentifiedby')
-class HIdentifiersLookup(IdentifiersLookup):
-    pass
-
-@register('hspecies')
-class HSpeciesLookup(SpeciesLookup):
-    pass
