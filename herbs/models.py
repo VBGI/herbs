@@ -47,7 +47,7 @@ class HerbItemMixin(models.Model):
                                 verbose_name='Acronym',
                                 blank=True, null=True)
 
-       # position
+    # -------- position -------------
     country = models.ForeignKey('Country', on_delete=models.SET_NULL, null=True,
                                 blank=True, verbose_name=_('страна'))
     region = models.CharField(default='', blank=True, max_length=150,
@@ -57,9 +57,14 @@ class HerbItemMixin(models.Model):
     detailed = models.CharField(default='', max_length=300, blank=True,
                                 verbose_name=_('место сбора'),
                                 help_text=_('локализация, экоусловия'))
+
+    # -------- Geolocation, precision ------------
     coordinates = GeopositionField(verbose_name=_('координаты'), blank=True)
     altitude = models.CharField(default='', blank=True, max_length=50,
                                 verbose_name=_('высота'))
+
+    gpsbased = models.BooleanField(default=False, verbose_name=_('GPS-Based'),
+                                   help_text=_('Получены ли измерения при помощи GPS, отметьте, если да'))
 
     # Ecological factors, this field was excluded
     ecodescr = models.CharField(max_length=300, default='', blank=True,
