@@ -7,7 +7,7 @@ from ajax_select.fields import (AutoCompleteSelectField,
 from django import forms
 from django.utils.translation import gettext as _
 
-from .models import Family, Genus, HerbItem, Species
+from .models import Family, Genus, HerbItem, Species, DetHistory
 from django.contrib.admin.widgets import AdminDateWidget
 from django.forms.util import ErrorList
 
@@ -142,7 +142,7 @@ class DetHistoryForm(forms.ModelForm):
         model = DetHistory
     species = AutoCompleteSelectField('species', required=False, label=_("Вид"))
     identifiedby = AutoCompleteField('identifiedby', required=False,
-                                     lable=_("Определелил(и)"),
+                                     label=_("Определелил(и)"),
                                      attrs={'size': CS})
 
 

@@ -6,7 +6,8 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
-from .forms import FamilyForm, GenusForm, HerbItemForm, SpeciesForm
+from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
+                    DetHistoryForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
                      HerbImage, HerbAcronym, DetHistory)
 
@@ -116,7 +117,7 @@ class HerbImageAdminInline(PermissionMixin, AdminImageMixin,
 class DetHistoryAdminInline(AjaxSelectAdminTabularInline):
     extra = 0
     model = DetHistory
-
+    form = DetHistoryForm
 
 class FamilyAdmin(admin.ModelAdmin):
     form = FamilyForm
