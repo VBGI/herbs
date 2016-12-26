@@ -155,6 +155,22 @@ def show_herbs(request):
         return HttpResponse('Only ajax-requests are acceptable')
 
 
+@csrf_exempt
+@never_cache
+@login_required
+def set_save_herbitem(request, pk, action):
+    if action != '0':
+        if pk:
+            request.session['save-for-next'] = pk[:10]
+            status = 1
+    else:
+        try:
+            del request.session['save-for-next']
+        except:
+            pass
+        finally:
+            status = 0
+    return HttpResponse(json.dumps({'status': status}), content_type="application/json;charset=utf-8")
 
 @never_cache
 def show_herbitem(request, inum):
