@@ -4,7 +4,7 @@ from ajax_select.admin import AjaxSelectAdmin, AjaxSelectAdminTabularInline
 from django.contrib import admin
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm)
@@ -14,6 +14,7 @@ from .models import (Family, Genus, HerbItem, Species, Country,
 from sorl.thumbnail.admin import AdminImageMixin
 import random
 import string
+import json
 
 # ------------------- Actions for publishing HerbItems ----------------------
 
@@ -174,6 +175,34 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                     instance.user = request.user
                 instance.save()
 
+
+    def get_urls(self):
+        urls = super(HerbItemAdmin, self).get_urls()
+        new_urls = [
+           url(r'^sfn/(\d{1,15})/(\d?)$', self.save_for_next)
+                   ]
+        return new_urls + urls
+
+    def save_for_next(self, request, pk, action):
+        if action == '1':
+            if pk:
+                request.session['save-for-next'] = pk[:10]
+                status = True
+            else:
+                status = False
+        elif action == '0':
+            try:
+                del request.session['save-for-next']
+            except:
+                pass
+            finally:
+                status = False
+        else:
+            if request.session.get('save-for-next', False):
+            status = True
+            else:
+                status = False
+        return HttpResponse(json.dumps({'status': status}), content_type="application/json;charset=utf-8")
 
 #class PendingHerbsAdmin(admin.ModelAdmin):
 #    model = PendingHerbs
