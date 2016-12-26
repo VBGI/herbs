@@ -159,17 +159,24 @@ def show_herbs(request):
 @never_cache
 @login_required
 def set_save_herbitem(request, pk, action):
-    if action != '0':
+    if action == '1':
         if pk:
             request.session['save-for-next'] = pk[:10]
-            status = 1
-    else:
+            status = True
+        else:
+            status = False
+    elif action == '0':
         try:
             del request.session['save-for-next']
         except:
             pass
         finally:
-            status = 0
+            status = False
+    else:
+        if request.session.get('save-for-next', False):
+           status = True
+        else:
+            status = False
     return HttpResponse(json.dumps({'status': status}), content_type="application/json;charset=utf-8")
 
 @never_cache
