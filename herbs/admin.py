@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
-
+from django.conf.urls import url
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
@@ -179,7 +179,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     def get_urls(self):
         urls = super(HerbItemAdmin, self).get_urls()
         new_urls = [
-           url(r'^sfn/(\d{1,15})/(\d?)$', self.save_for_next)
+           url(r'^sfn/(\d{1,15})/(\d?)$', self.save_for_next, name="save_for_next")
                    ]
         return new_urls + urls
 
@@ -199,7 +199,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 status = False
         else:
             if request.session.get('save-for-next', False):
-            status = True
+                status = True
             else:
                 status = False
         return HttpResponse(json.dumps({'status': status}), content_type="application/json;charset=utf-8")
