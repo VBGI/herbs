@@ -64,20 +64,14 @@
 
 {% block submit_buttons_bottom %}{% submit_row %}
 <div id="save-for-next-herbitem" class="submit-row">
-<input type="checkbox"> Сохранить для добавления следующей записи
+  {%if request.session.sfn%}
+  <input type="checkbox" checked> Сохранить для добавления следующей записи
+  {%else%}
+  <input type="checkbox" > Сохранить для добавления следующей записи
+  {%endif%}
 </div>
 <script type="text/javascript">
 django.jQuery(document).ready(function(){
-
-django.jQuery.get("{%url 'admin:save_for_next' original.pk 2 %}", 
-    function(data){
-      if (data['status'] == true){
-         django.jQuery("#save-for-next-herbitem > input")[0].checked = true;
-        }
-      else{
-         django.jQuery("#save-for-next-herbitem > input")[0].checked = false;
-      };
-    });
 
 django.jQuery("#save-for-next-herbitem>input").click(function(){
   var checked_status;

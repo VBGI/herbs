@@ -179,26 +179,28 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     def get_urls(self):
         urls = super(HerbItemAdmin, self).get_urls()
         new_urls = [
-           url(r'^sfn/(\d{0,15})/(\d?)$', self.save_for_next, name="save_for_next")
+           url(r'^sfn/(\d{0,15})/(\d?)$',
+               self.admin_site.admin_view(self.save_for_next),
+               name="save_for_next")
                    ]
         return new_urls + urls
 
     def save_for_next(self, request, pk, action):
         if action == '1':
             if pk:
-                request.session['save-for-next'] = pk[:10]
+                request.session['sfn'] = pk[:10]
                 status = True
             else:
                 status = False
         elif action == '0':
             try:
-                del request.session['save-for-next']
+                del request.session['sfn']
             except:
                 pass
             finally:
                 status = False
         else:
-            if request.session.get('save-for-next', False):
+            if request.session.get('sfn', False):
                 status = True
             else:
                 status = False
