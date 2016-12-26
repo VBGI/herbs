@@ -122,7 +122,8 @@ class HerbItemForm(forms.ModelForm):
                 self._errors['collected_e'].append(_('дата окончания сбора должна быть не раньше даты начала'))
         ispub = formdata.get('public')
         icode = formdata.get('itemcode')
-        icode = icode.strip()
+        if icode:
+            icode = icode.strip()
         if ispub:
             if not icode:
                 self._errors.setdefault('public', ErrorList())
