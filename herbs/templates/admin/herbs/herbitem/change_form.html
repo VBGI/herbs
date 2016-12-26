@@ -69,7 +69,7 @@
 <script type="text/javascript">
 django.jQuery(document).ready(function(){
 
-django.jQuery.get("{%url 'setfornext' original.pk 2 %}", 
+django.jQuery.get("{%url 'admin:save_for_next' original.pk 2 %}", 
     function(data){
       if (data['status'] == true){
          django.jQuery("#save-for-next-herbitem > input")[0].checked = true;
@@ -85,13 +85,13 @@ django.jQuery("#save-for-next-herbitem>input").click(function(){
   
 
   if (checked_status==true){
-    django.jQuery.get("{%url 'setfornext' original.pk 0 %}", function(data){
+    django.jQuery.get("{%url 'admin:save_for_next' original.pk 0 %}", function(data){
      if (data['status']==false) {
         django.jQuery("#save-for-next-herbitem > input")[0].checked=false;
      }})
   }
   else {
-    django.jQuery.get("{%url 'setfornext' original.pk 1 %}", function(data){
+    django.jQuery.get("{%url 'admin:save_for_next' original.pk 1 %}", function(data){
      if (data['status']==true) {
         django.jQuery("#save-for-next-herbitem > input")[0].checked=true;
      }})
