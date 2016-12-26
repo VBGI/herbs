@@ -179,7 +179,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     def get_urls(self):
         urls = super(HerbItemAdmin, self).get_urls()
         new_urls = [
-           url(r'^sfn/(\d{1,15})/(\d?)$', self.save_for_next, name="save_for_next")
+           url(r'^sfn/(\d{0,15})/(\d?)$', self.save_for_next, name="save_for_next")
                    ]
         return new_urls + urls
 
