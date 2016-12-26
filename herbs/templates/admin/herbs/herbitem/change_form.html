@@ -81,7 +81,8 @@ django.jQuery.get("{%url 'setfornext' original.pk 2 %}",
 
 django.jQuery("#save-for-next-herbitem>input").click(function(){
   var checked_status;
-  checked_status = django.jQuery("#save-for-next-herbitem > input")[0].checked;
+  checked_status =  !(django.jQuery("#save-for-next-herbitem > input")[0].checked);
+  
 
   if (checked_status==true){
     django.jQuery.get("{%url 'setfornext' original.pk 0 %}", function(data){
