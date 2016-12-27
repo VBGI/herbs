@@ -211,7 +211,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
 
     def add_view(self, request, form_url='', extra_context=None):
-            source_id = request.GET.get('sfn',None)
+            source_id = request.session.get('sfn',None)
             if source_id != None:
                 source = HerbItem.objects.get(id=source_id)
                 newdict = model_to_dict(source, exclude=['id', 'pk',

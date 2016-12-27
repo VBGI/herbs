@@ -65,7 +65,7 @@
 {% block submit_buttons_bottom %}{% submit_row %}
 <div id="save-for-next-herbitem" class="submit-row">
   {%if request.session.sfn%}
-  <input type="checkbox" checked> Сохранить для добавления следующей записи
+  <input type="checkbox" checked> Сохранить для добавления следующей записи {%ifequal  original.pk request.session.snf %} (этот образец) {%else%} (не этот образец) {%endifequal%}
   {%else%}
   <input type="checkbox" > Сохранить для добавления следующей записи
   {%endif%}
