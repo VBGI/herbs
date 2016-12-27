@@ -12,9 +12,12 @@ from .models import (Family, Genus, HerbItem, Species, Country,
                      HerbImage, HerbAcronym, DetHistory)
 
 from sorl.thumbnail.admin import AdminImageMixin
+from django.forms import model_to_dict
 import random
 import string
 import json
+
+
 
 # ------------------- Actions for publishing HerbItems ----------------------
 
@@ -206,7 +209,20 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 status = False
         return HttpResponse(json.dumps({'status': status}), content_type="application/json;charset=utf-8")
 
-#class PendingHerbsAdmin(admin.ModelAdmin):
+
+    def add_view(self, request, form_url='', extra_context=None):
+            source_id = request.GET.get('sfn',None)
+            if source_id != None:
+                source = HerbItem.objects.get(id=source_id)
+                newdict = model_to_dict(source, exclude=['id', 'pk',
+                                'itemcode', 'public'])
+                g = request.GET.copy()
+                g.update(newdict)
+                request.GET = g
+            return super(HerbItemAdmin, self).add_view(request, form_url, extra_context)
+
+
+# PendingHerbsAdmin(admin.ModelAdmin):
 #    model = PendingHerbs
 #    list_display = ('get_full_name', 'itemcode', 'checked', 'err_msg')
 #    list_filter = ('public', 'family', 'genus', 'species')
