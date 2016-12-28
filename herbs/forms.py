@@ -38,49 +38,6 @@ class TaxonCleanerMixin(forms.ModelForm):
 
 
 class HerbItemForm(forms.ModelForm):
-#    def __init__(self, *args, **kwargs):
-#        # fill initial values for all data
-#        if 'initial' in kwargs.keys():
-#            try:
-#                initial = kwargs['initial']
-#
-#                # ---------- Getting the current user -------------
-#                current_user = None
-#                request = kwargs.get('request', None)
-#                try:
-#                    current_user = request['user']
-#                except (AttributeError, TypeError):
-#                    pass
-#                if current_user:
-#                    if current_user.is_superuser:
-#                        latest = HerbItem.objects.latest('created')
-#                    else:
-#                        latest = HerbItem.objects.filter(user=current_user).latest('created')
-#                else:
-#                    latest = HerbItem.objects.latest('created')
-#                # -------------------------------------------------
-#                initial['family'] = latest.family.pk
-#                initial['genus'] = latest.genus.pk
-#                initial['species'] = latest.species.pk if latest.species else None
-#                initial['itemcode'] = ''
-#                initial['country'] = latest.country
-#                initial['region'] = latest.region
-#                initial['district'] = latest.district
-#                initial['ecodescr'] = latest.ecodescr
-#                initial['collectedby'] = latest.collectedby
-#                initial['collected_s'] = latest.collected_s
-#                initial['collected_e'] = latest.collected_e
-#                initial['identifiedby'] = latest.identifiedby
-#                initial['identified_s'] = latest.identified_s
-#                initial['identified_e'] = latest.identified_e
-#                initial['detailed'] = latest.detailed
-#                initial['altitude'] = latest.altitude
-#                initial['note'] = latest.note
-#                initial['coordinates'] = latest.coordinates
-#                kwargs['initial'] = initial
-#            except HerbItem.DoesNotExist:
-#                pass
-#        super(HerbItemForm, self).__init__(*args, **kwargs)
 
     def clean_itemcode(self):
         data = self.cleaned_data['itemcode']
