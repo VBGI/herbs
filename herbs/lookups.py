@@ -1,6 +1,7 @@
 from ajax_select import register, LookupChannel
 from .models import Family, Genus, Species, Country, HerbItem
 from .conf import settings, HerbsAppConf
+from django.db.models import Count
 import re
 
 
@@ -53,31 +54,24 @@ class CountryLookup(LookupChannel):
         return res[:NS]
 
 
-#class DifferentValueMixin(LookupChannel):
-    #'''Abstract class'''
-    # def get_query(self, q, request):
-        #objs = HerbItem.objects.raw('''SELECT * FROM herbs_herbitem WHERE %s LIKE "%%%s%%" GROUP BY %s''',
-                                    #[self.fieldname, q, self.fieldname])
-        #return map(lambda x: getattr(x, self.fieldname), objs[:NS])
-
+class DifferentValuesMixin(LookupChannel):
+    '''Abstract class'''
+    def get_query(self, q, request):
+        return HerbItem.objects.values(self.fieldname).annotate(Count(self.fieldname)).values_list(self.fieldname, flat=True)[:NS]
 
 @register('region')
-class RegionLookup(LookupChannel):
-    def get_query(self, q, request):
-        return HerbItem.objects.filter(region__icontains=q).values_list('region', flat=True).distinct()[:NS]
+class RegionLookup(DifferentValuesMixin):
+    fieldname = 'region'
 
 @register('district')
-class DistrictLookup(LookupChannel):
-    def get_query(self, q, request):
-        return HerbItem.objects.filter(district__icontains=q).values_list('district', flat=True).distinct()[:NS]
+class DistrictLookup(DifferentValuesMixin):
+    fieldname = 'district'
+
 
 @register('collectedby')
-class CollectorsLookup(LookupChannel):
-    def get_query(self, q, request):
-        return HerbItem.objects.filter(collectedby__icontains=q).values_list('collectedby', flat=True).distinct()[:NS]
+class CollectorsLookup(DifferentValuesMixin):
+    fieldname = 'collectedby'
 
 @register('identifiedby')
-class IdentifiersLookup(LookupChannel):
-    def get_query(self, q, request):
-        return HerbItem.objects.filter(identifiedby__icontains=q).values_list('identifiedby', flat=True).distinct()[:NS]
-
+class IdentifiersLookup(DifferentValuesMixin):
+    fieldname = 'identifiedby'
