@@ -253,7 +253,7 @@ class Species(TaxonMixin):
     genus = models.ForeignKey(Genus, null=True, blank=False,
                               verbose_name=_('род'),
                               related_name='species')
-    status = models.CharField(max_length=1, default=SP_STATUSES[2][0],
+    status = models.CharField(max_length=1, default=SP_STATUSES[2][0], choices=SP_STATUSES,
                               blank=False)
 
     def get_full_name(self):
