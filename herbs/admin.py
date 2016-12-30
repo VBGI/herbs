@@ -159,12 +159,17 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             else:
                 if request.user != obj.user:
                     return
+            if 'itemcode' in form.changed_data:
+                if not obj.user.has_perm('herbs.can_set_code'):
+                    return
         obj.save()
 
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
             if 'acronym' not in self.readonly_fields:
                 self.readonly_fields += ('acronym',)
+            if not request.user.has_perm('herbs.can_set_code'):
+                self.readonly_fields += ('itemcode',)
         else:
             self.readonly_fields = ()
         return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
@@ -238,9 +243,14 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
 class SpeciesAdmin(AjaxSelectAdmin):
     form = SpeciesForm
-#    inlines = (
-#        SpeciesAuthorshipInline,
-#        )
+    def get_form(self, request, obj=None, **kwargs):
+        if not request.user.is_superuser:
+            if not request.user.has_perm('herbs.can_change_status'):
+                self.readonly_fields += ('status',)
+        else:
+            self.readonly_fields = ()
+        return super(SpeciesAdmin, self).get_form(request, obj, **kwargs)
+
 
 
 #class ErrorLogAdmin(admin.ModelAdmin):

@@ -246,9 +246,16 @@ class Genus(TaxonMixin):
 
 @python_2_unicode_compatible
 class Species(TaxonMixin):
+    SP_STATUSES = (('A', 'Approved'),
+                   ('P', 'From plantlist'),
+                   ('N', 'Recently added')
+                   )
     genus = models.ForeignKey(Genus, null=True, blank=False,
                               verbose_name=_('род'),
                               related_name='species')
+    status = models.CharField(max_length=1, default=SP_STATUSES[2][0],
+                              blank=False)
+
     def get_full_name(self):
         res = super(Species, self).get_full_name()
         return self.genus.name +' ' + res
@@ -257,6 +264,7 @@ class Species(TaxonMixin):
     class Meta:
         verbose_name = _('вид')
         verbose_name_plural = _('виды')
+        permissions = (('can_change_status', 'Can change taxon status'),)
 
 
 class HerbItem(HerbItemMixin):
@@ -269,6 +277,7 @@ class HerbItem(HerbItemMixin):
         verbose_name = _('гербарный образeц')
         verbose_name_plural = _('гербарные образцы')
         ordering = ['-created']
+        permissions = (('can_set_code', 'Can set item code'),)
 
 # ------------------------ This functionalyty doesn't needed ----------------
 #class PendingHerbs(HerbItemMixin):
