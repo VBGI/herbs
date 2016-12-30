@@ -244,6 +244,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
 class SpeciesAdmin(AjaxSelectAdmin):
     form = SpeciesForm
+    list_filter = ('status',)
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
             if not request.user.has_perm('herbs.can_change_status'):
