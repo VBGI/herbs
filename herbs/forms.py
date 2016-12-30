@@ -79,12 +79,17 @@ class HerbItemForm(forms.ModelForm):
                 self._errors['collected_e'].append(_('дата окончания сбора должна быть не раньше даты начала'))
         ispub = formdata.get('public')
         icode = formdata.get('itemcode')
+        sp = formdata.get('species')
         if icode:
             icode = icode.strip()
         if ispub:
             if not icode:
                 self._errors.setdefault('public', ErrorList())
                 self._errors['public'].append(_('публиковать можно только при непустом уникальном коде образца'))
+            if sp:
+                if sp.status not in ['A', 'P']:
+                    self._errors.setdefault('species', ErrorList())
+                    self._errors['species'].append(_('вид не одобрен куратором; опубликовать можно только одобренные виды'))
         return formdata
 
 
