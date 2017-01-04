@@ -135,12 +135,12 @@ class GenusAdmin(AjaxSelectAdmin):
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     model = HerbItem
     form = HerbItemForm
-    list_display = ('get_full_name', 'itemcode', 'public',
+    list_display = ('id', 'get_full_name', 'itemcode', 'public',
                     'collectedby', 'collected_s')
     list_filter = ('public', )
-    search_fields = ('itemcode', 'collectedby', 'identifiedby',
+    search_fields = ('id', 'itemcode', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
-    list_display_links = ('get_full_name', )
+    list_display_links = ('id', 'get_full_name', )
     actions = (publish_herbitem, unpublish_herbitem, create_pdf)
     inlines = (HerbImageAdminInline, DetHistoryAdminInline)
     exclude = ('ecodescr',)
