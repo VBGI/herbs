@@ -86,7 +86,7 @@ create_pdf.short_description = "Создать этикетки"
 class PermissionMixin:
 
     def queryset(self, request):
-        if request.user.is_superuser:
+        if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
             return self.model.objects.all()
         return self.model.objects.filter(user=request.user)
 
@@ -94,7 +94,7 @@ class PermissionMixin:
         if obj is None: return True
         if obj.user is not None:
             if request.user == obj.user: return True
-        if request.user.is_superuser:
+        if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
             return True
         else:
             return False
