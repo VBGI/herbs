@@ -23,14 +23,21 @@ import json
 
 def publish_herbitem(modeladmin, request, queryset):
     total = queryset.count()
-    queryset.update(public=True)
-    messages.success(request, 'Опубликовано %s записей' % (total,))
+    if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+        queryset.update(public=True)
+        messages.success(request, 'Опубликовано %s записей' % (total,))
+    else:
+        messages.error(request, 'Вы должны быть куратором гербария, чтобы опубликовать записи')
 
 
 def unpublish_herbitem(modeladmin, request, queryset):
     total = queryset.count()
-    queryset.update(public=False)
-    messages.success(request, 'Снято с публикации %s записей' % (total,))
+    if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+        queryset.update(public=False)
+        messages.success(request, 'Снято с публикации %s записей' % (total,))
+    else:
+        messages.error(request, 'Вы должны быть куратором гербария, чтобы снять  записи с публикации')
+
 
 publish_herbitem.short_description = "Опубликовать записи"
 unpublish_herbitem.short_description = "Снять с публикации"
