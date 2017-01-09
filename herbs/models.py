@@ -277,7 +277,7 @@ class HerbItem(HerbItemMixin):
         verbose_name = _('гербарный образeц')
         verbose_name_plural = _('гербарные образцы')
         ordering = ['-created']
-        permissions = (('can_set_code', 'Can set item code'),)
+        permissions = (('can_set_code', 'Can set item code and publish'),)
 
 # ------------------------ This functionalyty doesn't needed ----------------
 #class PendingHerbs(HerbItemMixin):
