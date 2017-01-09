@@ -142,8 +142,6 @@ class GenusAdmin(AjaxSelectAdmin):
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     model = HerbItem
     form = HerbItemForm
-    list_display = ('id', 'get_full_name', 'itemcode', 'public',
-                    'collectedby', 'collected_s')
     list_filter = ('public', )
     search_fields = ('id', 'itemcode', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
@@ -151,6 +149,13 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     actions = (publish_herbitem, unpublish_herbitem, create_pdf)
     inlines = (HerbImageAdminInline, DetHistoryAdminInline)
     exclude = ('ecodescr',)
+
+    def get_list_display(self, request):
+        list_display = ('id', 'get_full_name', 'itemcode', 'public',
+                        'collectedby', 'collected_s')
+        if request.user.has_perm('herbs.can_set_code') or request.user.is_superuser:
+           list_display += ('user',)
+        return list_display
 
     def save_model(self, request, obj, form, change):
         if not request.user.is_superuser:
