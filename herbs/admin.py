@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.conf.urls import url
 from django.contrib.admin.util import flatten_fieldsets
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
-                    DetHistoryForm)
+                    DetHistoryForm, HerbItemFormSimple)
 from .models import (Family, Genus, HerbItem, Species, Country,
                      HerbImage, HerbAcronym, DetHistory)
 
@@ -142,7 +142,6 @@ class GenusAdmin(AjaxSelectAdmin):
 
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     model = HerbItem
-    form = HerbItemForm
     list_filter = ('public', )
     search_fields = ('id', 'itemcode', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
@@ -199,7 +198,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return super(HerbItemAdmin, self).get_readonly_fields(request, obj)
 
     def get_form(self, request, obj=None, **kwargs):
-        # TODO: Editable and non-editable forms: Should be inserted!!!
+        theform = HerbItemForm
+        if obj:
+            if obj.public:
+                theform = HerbItemFormSimple
         if not request.user.is_superuser:
             if 'acronym' not in self.readonly_fields:
                 self.readonly_fields += ('acronym',)
@@ -210,7 +212,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                     self.readonly_fields += ('public',)
         else:
             self.readonly_fields = ()
-        return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
+        return theform
 
 
     def save_formset(self, request, form, formset, change):

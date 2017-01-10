@@ -37,6 +37,11 @@ class TaxonCleanerMixin(forms.ModelForm):
         return data
 
 
+class HerbItemFormSimple(forms.ModelForm):
+    class Meta:
+        model = HerbItem
+
+
 class HerbItemForm(forms.ModelForm):
 
     def clean_itemcode(self):
