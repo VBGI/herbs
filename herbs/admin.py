@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.conf.urls import url
+from django.contrib.admin.util import import flatten_fieldsets
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
@@ -191,10 +192,13 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:
             if obj.public:
-                 self.readonly_fields = [field.name for field in obj.__class__._meta.fields]
-                 if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
-                    self.readonly_fields.remove('public')
-        return self.readonly_fields
+                if self.declared_fieldsets:
+                    fields = flatten_fieldsets(self.declared_fieldsets)
+                else:
+                    form = self.get_formset(request, obj).form
+                    fields = form.base_fields.keys()
+                return fields
+        return super(HerbItem, self).get_readonly_fields(request, obj)
 
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
@@ -205,7 +209,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                     self.readonly_fields += ('itemcode',)
                 if 'public' not in self.readonly_fields:
                     self.readonly_fields += ('public',)
-
         else:
             self.readonly_fields = ()
         return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
