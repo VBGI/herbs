@@ -145,8 +145,9 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     list_filter = ('public', )
     search_fields = ('id', 'itemcode', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
+    list_display = ('id', 'get_full_name')
     list_display_links = ('id', 'get_full_name', )
-    actions = (publish_herbitem, unpublish_herbitem, create_pdf)
+    actions = (publish_herbitem, unpublish_herbitem, create_pdf, 'delete_selected')
     inlines = (HerbImageAdminInline, DetHistoryAdminInline)
     exclude = ('ecodescr',)
 
@@ -187,6 +188,14 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                     return
         obj.save()
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            if obj.public:
+                 self.readonly_fields = [field.name for field in obj.__class__._meta.fields]
+                 if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+                    self.readonly_fields.remove('public')
+        return self.readonly_fields
+
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
             if 'acronym' not in self.readonly_fields:
@@ -196,6 +205,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                     self.readonly_fields += ('itemcode',)
                 if 'public' not in self.readonly_fields:
                     self.readonly_fields += ('public',)
+
         else:
             self.readonly_fields = ()
         return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
