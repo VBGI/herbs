@@ -198,10 +198,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return super(HerbItemAdmin, self).get_readonly_fields(request, obj)
 
     def get_form(self, request, obj=None, **kwargs):
-        theform = HerbItemForm
+        self.form = HerbItemForm
         if obj:
             if obj.public:
-                theform = HerbItemFormSimple
+                self.form = HerbItemFormSimple
         if not request.user.is_superuser:
             if 'acronym' not in self.readonly_fields:
                 self.readonly_fields += ('acronym',)
@@ -210,9 +210,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                     self.readonly_fields += ('itemcode',)
                 if 'public' not in self.readonly_fields:
                     self.readonly_fields += ('public',)
-        else:
-            self.readonly_fields = ()
-        return theform
+        return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
 
 
     def save_formset(self, request, form, formset, change):
