@@ -150,6 +150,17 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     inlines = (HerbImageAdminInline, DetHistoryAdminInline)
     exclude = ('ecodescr',)
 
+
+    def delete_selected(self, request, obj):
+        nquery = obj.filter(public=False)
+        if nquery.exists():
+            n = nquery.count()
+            nquery.delete()
+            messages.success(request, 'Удалено %s гербарных объектов' % n)
+        else:
+            messages.error(request, 'Нечего удалять. Гербарные образцы должны быть сняты с публикации перед удалением.')
+    delete_selected.short_description = 'Удалить гербарные образцы'
+
     def get_list_display(self, request):
         list_display = ('id', 'get_full_name', 'itemcode', 'public',
                         'collectedby', 'collected_s')

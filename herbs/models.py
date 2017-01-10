@@ -11,6 +11,7 @@ from django.utils.text import capfirst
 from django.utils.translation import gettext as _
 from django.contrib.auth import get_user_model
 from geoposition.fields import GeopositionField
+from django.core.exceptions import PermissionDenied
 #import pandas as pd
 from .utils import  _smartify_dates
 
@@ -278,6 +279,14 @@ class HerbItem(HerbItemMixin):
         verbose_name_plural = _('гербарные образцы')
         ordering = ['-created']
         permissions = (('can_set_code', 'Can set item code and publish'),)
+
+
+    def delete(self, *args, **kwargs):
+        if self.public:
+            raise PermissionDenied('The object shoud not be published to perform this operation')
+        else:
+            super(HerbItem, self).delete(*args, **kwargs)
+
 
 # ------------------------ This functionalyty doesn't needed ----------------
 #class PendingHerbs(HerbItemMixin):
