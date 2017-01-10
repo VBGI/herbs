@@ -192,13 +192,14 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:
             if obj.public:
-                if self.declared_fieldsets:
-                    fields = flatten_fieldsets(self.declared_fieldsets)
-                else:
-                    fields = self.form.base_fields.keys()
-                print 'Fields,', fields
+                fields = ['species', 'itemcode', 'acronym', 'country',
+                              'region', 'district', 'detailed', 'coordinates',
+                              'altitude', 'gpsbased', 'ecodescr',
+                              'collectedby', 'collected_s', 'collected_e',
+                              'identifiedby', 'identified_s', 'identified_e',
+                              'devstage', 'note', 'public']
                 return fields
-        return super(HerbItemiAdmin, self).get_readonly_fields(request, obj)
+        return super(HerbItemAdmin, self).get_readonly_fields(request, obj)
 
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
