@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.conf.urls import url
-from django.contrib.admin.util import import flatten_fieldsets
+from django.contrib.admin.util import flatten_fieldsets
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
@@ -195,10 +195,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 if self.declared_fieldsets:
                     fields = flatten_fieldsets(self.declared_fieldsets)
                 else:
-                    form = self.get_formset(request, obj).form
-                    fields = form.base_fields.keys()
+                    fields = self.form.base_fields.keys()
+                print 'Fields,', fields
                 return fields
-        return super(HerbItem, self).get_readonly_fields(request, obj)
+        return super(HerbItemiAdmin, self).get_readonly_fields(request, obj)
 
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
