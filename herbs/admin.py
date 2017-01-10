@@ -192,16 +192,14 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:
             if obj.public:
-                fields = ['species', 'itemcode', 'acronym', 'country',
-                              'region', 'district', 'detailed', 'coordinates',
-                              'altitude', 'gpsbased', 'ecodescr',
-                              'collectedby', 'collected_s', 'collected_e',
-                              'identifiedby', 'identified_s', 'identified_e',
-                              'devstage', 'note', 'public']
-                return fields
+                readonly_fields = [field.name for field in obj.__class__._meta.fields]
+                if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+                    readonly_fields.remove('public')
+                return readonly_fields
         return super(HerbItemAdmin, self).get_readonly_fields(request, obj)
 
     def get_form(self, request, obj=None, **kwargs):
+        # TODO: Editable and non-editable forms: Should be inserted!!!
         if not request.user.is_superuser:
             if 'acronym' not in self.readonly_fields:
                 self.readonly_fields += ('acronym',)
