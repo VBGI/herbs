@@ -183,6 +183,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             if not request.user.has_perm('herbs.can_set_code'):
                 if 'itemcode' not in self.readonly_fields:
                     self.readonly_fields += ('itemcode',)
+                if 'public' not in self.readonly_fields:
+                    self.readonly_fields += ('public',)
         else:
             self.readonly_fields = ()
         return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
