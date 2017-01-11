@@ -193,7 +193,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
                 if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
-                    readonly_fields.remove('public')
+                    readonly_fields.remove('public', 'ecodescr')
                 return readonly_fields
         return super(HerbItemAdmin, self).get_readonly_fields(request, obj)
 
@@ -202,6 +202,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         if obj:
             if obj.public:
                 self.form = HerbItemFormSimple
+                self.inlines = ()
         if not request.user.is_superuser:
             if 'acronym' not in self.readonly_fields:
                 self.readonly_fields += ('acronym',)
