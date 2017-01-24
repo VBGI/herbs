@@ -49,6 +49,7 @@ class HerbItemForm(forms.ModelForm):
         super(HerbItemForm, self).__init__(*args, **kwargs)
 
     def clean_itemcode(self):
+        print 'Current request', self.request
         data = self.cleaned_data['itemcode']
         data = data.strip()
         if data:
@@ -56,7 +57,7 @@ class HerbItemForm(forms.ModelForm):
             if self.instance:
                 mainquery = mainquery.exclude(id=self.instance.id)
             if self.request:
-                query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
+                query = HerbAcronym.objects.filter(allowed_users__icontains=self.request.user.username)
             else:
                 query = None
             if query:
