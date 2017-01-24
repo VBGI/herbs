@@ -191,7 +191,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 obj.user = request.user
             else:
                 if request.user != obj.user:
-                    return
+                    if not obj.user.has_perm('herbs.can_set_code'):
+                        return
+                    elif obj.acronym != acronym:
+                        return
             if 'itemcode' in form.changed_data:
                 if not obj.user.has_perm('herbs.can_set_code'):
                     return
