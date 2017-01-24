@@ -225,6 +225,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                     self.readonly_fields += ('itemcode',)
                 if 'public' not in self.readonly_fields:
                     self.readonly_fields += ('public',)
+            else:
+                if 'user__username' not in self.list_filter:
+                    self.list_filter += ('user__username',)
+
         ExtendedForm = super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
         class NewModelForm(ExtendedForm):
             def __new__(self, *args, **kwargs):
