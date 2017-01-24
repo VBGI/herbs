@@ -7,7 +7,7 @@ from ajax_select.fields import (AutoCompleteSelectField,
 from django import forms
 from django.utils.translation import gettext as _
 
-from .models import Family, Genus, HerbItem, Species, DetHistory
+from .models import Family, Genus, HerbItem, Species, DetHistory, HerbAcronym
 from django.contrib.admin.widgets import AdminDateWidget
 from django.forms.util import ErrorList
 
@@ -44,6 +44,10 @@ class HerbItemFormSimple(forms.ModelForm):
 
 class HerbItemForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(HerbItemForm, self).__init__(*args, **kwargs)
+
     def clean_itemcode(self):
         data = self.cleaned_data['itemcode']
         data = data.strip()
@@ -51,8 +55,13 @@ class HerbItemForm(forms.ModelForm):
             mainquery = HerbItem.objects.filter(itemcode=data)
             if self.instance:
                 mainquery = mainquery.exclude(id=self.instance.id)
-            if mainquery.exists():
-                raise forms.ValidationError(_("запись с таким кодом уже существует"))
+            if self.request:
+                query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
+            else:
+                query = None
+            if query:
+                if mainquery.exclude(acronym=query[0]).exists():
+                    raise forms.ValidationError(_("запись с таким кодом уже существует"))
             if not itemcode_pat.match(data):
                 raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
         return data

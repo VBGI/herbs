@@ -98,7 +98,8 @@ class PermissionMixin:
         query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
         if  request.user.has_perm('herbs.can_set_code'):
             if query.exists():
-                return self.model.objects.filter(acronym__name__iexact=query[0].name)
+                if hasattr(self.model, 'acronym'):
+                    return self.model.objects.filter(acronym__name__iexact=query[0].name)
         return self.model.objects.filter(user=request.user)
 
     def _common_permission_manager(self, request, obj):
