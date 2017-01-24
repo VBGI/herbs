@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.conf.urls import url
-from django.contrib.admin.util import flatten_fieldsets
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm, HerbItemFormSimple)
 from .models import (Family, Genus, HerbItem, Species, Country,
@@ -94,27 +93,37 @@ create_pdf.short_description = "Создать этикетки"
 class PermissionMixin:
 
     def queryset(self, request):
-        if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+        if request.user.is_superuser:
             return self.model.objects.all()
+        query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
+        if  request.user.has_perm('herbs.can_set_code'):
+            if query.exists():
+                return self.model.objects.filter(acronym__name__iexact=query[0].name)
         return self.model.objects.filter(user=request.user)
 
     def _common_permission_manager(self, request, obj):
+        if request.user.is_superuser: return True
+        query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
         if obj is None: return True
         if obj.user is not None:
             if request.user == obj.user: return True
-        if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
-            return True
+        if request.user.has_perm('herbs.can_set_code'):
+            if query.filter(allowed_users__icontains=request.user.username).exists():
+                return True
         else:
             return False
 
     def has_delete_permission(self, request, obj=None):
+        if obj is not None:
+            if obj.public:
+                return False
         return self._common_permission_manager(request, obj)
 
     def has_change_permission(self, request, obj=None):
          return self._common_permission_manager(request, obj)
 
     def save_model(self, request, obj, form, change):
-        if not request.user.is_superuser:
+        if not obj.user:
             obj.user = request.user
         obj.save()
 
