@@ -227,9 +227,9 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                     self.readonly_fields += ('public',)
         ExtendedForm = super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
         class NewModelForm(ExtendedForm):
-            def __init__(self, *args, **kwargs):
-                self.request = request
-                super(NewModelForm, self).__init__(*args, **kwargs)
+            def __new__(self, *args, **kwargs):
+                kwargs['request'] = request
+                return ExtendedForm(*args, **kwargs)
         return NewModelForm
 
 

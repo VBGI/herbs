@@ -49,7 +49,6 @@ class HerbItemForm(forms.ModelForm):
         super(HerbItemForm, self).__init__(*args, **kwargs)
 
     def clean_itemcode(self):
-        print 'Current request', self.request
         data = self.cleaned_data['itemcode']
         data = data.strip()
         if data:
