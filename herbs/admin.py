@@ -240,7 +240,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             if obj.public:
                 self.form = HerbItemFormSimple
                 self.inlines = ()
-                return HerbitemFormSimple
+                return super(HerbItemAdmin,self).get_form(request, obj, **kwargs)
         if not request.user.is_superuser:
             if 'acronym' not in self.readonly_fields:
                 self.readonly_fields += ('acronym',)
