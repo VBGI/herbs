@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.conf.urls import url
+from django.contrib.admin import SimpleListFilter
+from django.contrib.auth import get_user_model
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm, HerbItemFormSimple)
 from .models import (Family, Genus, HerbItem, Species, Country,
@@ -86,6 +88,25 @@ create_pdf.short_description = "Создать этикетки"
 #    messages.success(request, 'Перемещено %s из %s выбранных' % (count, total))
 #force_move_pending_herbs.short_description = "Переместить в базу игнорируя ошибки"
 ## ---------------------------------------------------------------------------
+
+
+class HerbItemCustomListFilter(SimpleListFilter):
+    title = 'Пользователь'
+    parameter_name = 'user'
+
+    def lookups(self, request, model_admin):
+        query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
+        res = []
+        umodel = get_user_model()
+        for item in map(lambda s: s.strip(), query[0].allowed_users.split(',')):
+            uinstance = umodel.objects.get(username__iexact=item)
+            res += (uinstance.id, uinstance.username)
+        return tuple(res)
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(user__id__exact=self.value())
+        else:
+            return queryset
 
 
 
@@ -234,8 +255,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
     def get_list_filter(self, request):
         list_filter = ('public',)
-        if request.user.has_perm('herbs.can_set_code') or request.user.is_superuser:
-            list_filter += ('user_username',)
+        if request.user.is_superuser:
+            return list_filter + ('user',)
+        if request.user.has_perm('herbs.can_set_code'):
+            list_filter += (HerbItemCustomListFilter,)
         return list_filter
 
 
