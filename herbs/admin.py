@@ -99,8 +99,11 @@ class HerbItemCustomListFilter(SimpleListFilter):
         res = []
         umodel = get_user_model()
         for item in map(lambda s: s.strip(), query[0].allowed_users.split(',')):
-            uinstance = umodel.objects.get(username__iexact=item)
-            res += (uinstance.id, uinstance.username)
+            try:
+                uinstance = umodel.objects.get(username__iexact=item)
+                res.append((uinstance.id, uinstance.username))
+            except umodel.DoesNotExist:
+                pass
         return tuple(res)
     def queryset(self, request, queryset):
         if self.value():
