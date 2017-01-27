@@ -152,7 +152,6 @@ class GenusAdmin(AjaxSelectAdmin):
 
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     model = HerbItem
-    list_filter = ('public', )
     search_fields = ('id', 'itemcode', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
     list_display = ('id', 'get_full_name')
@@ -225,9 +224,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                     self.readonly_fields += ('itemcode',)
                 if 'public' not in self.readonly_fields:
                     self.readonly_fields += ('public',)
-            else:
-                if 'user__username' not in self.list_filter:
-                    self.list_filter += ('user__username',)
 
         ExtendedForm = super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
         class NewModelForm(ExtendedForm):
@@ -236,6 +232,11 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 return ExtendedForm(*args, **kwargs)
         return NewModelForm
 
+    def get_list_filter(self, request):
+        list_filter = ('public',)
+        if request.user.has_perm('herbs.can_set_code') or request.user.is_superuser:
+            list_filter += ('user_username',)
+        return list_filter
 
 
     def save_formset(self, request, form, formset, change):
