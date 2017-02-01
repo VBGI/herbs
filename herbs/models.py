@@ -222,7 +222,7 @@ class TaxonMixin(models.Model):
 class Family(TaxonMixin):
     class Meta:
         verbose_name = _('семейство')
-        verbose_name_plural = _('семейстава')
+        verbose_name_plural = _('семейства')
 
     def get_full_name(self):
         return super(Family, self).get_full_name()
