@@ -133,6 +133,7 @@ class PermissionMixin:
         if obj.user is not None:
             if request.user == obj.user: return True
         if request.user.has_perm('herbs.can_set_code'):
+            # TODO: Revision needed: multiple query
             if query.filter(allowed_users__icontains=request.user.username).exists():
                 return True
         else:
