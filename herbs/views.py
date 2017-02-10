@@ -287,9 +287,9 @@ def make_label(request, q):
             # -------------- get indentifiedby ---------------
             try:
                 dhist = DetHistory.objects.filter(herbitem=item).latest('identified_s')
-                identified = dhist.identified_s
+                identified = dhist.identifiedby
             except DetHistory.DoesNotExist:
-                identified = ''
+                identified = item.identifiedby
             ddict = _smartify_species(item)
             ddict.update({'date': _smartify_dates(item)})
             ddict.update({'family': item.species.genus.family.name.upper() if item.species else '',
