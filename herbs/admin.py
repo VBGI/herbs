@@ -262,7 +262,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             list_filter += (HerbItemCustomListFilter,)
             list_filter += ('acronym',)
         if request.user.is_superuser:
-            list_filter += ('user',)
+            list_filter = ('user','public', 'acronym')
         return list_filter
 
 
