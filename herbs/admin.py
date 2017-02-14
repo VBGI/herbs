@@ -258,10 +258,11 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
     def get_list_filter(self, request):
         list_filter = ('public',)
-        if request.user.is_superuser:
-            return list_filter + ('user',)
         if request.user.has_perm('herbs.can_set_code'):
             list_filter += (HerbItemCustomListFilter,)
+            list_filter += ('acronym',)
+        if request.user.is_superuser:
+            list_filter += ('user',)
         return list_filter
 
 
