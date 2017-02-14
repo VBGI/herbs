@@ -214,15 +214,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 obj.acronym = acronym
             if not obj.user:
                 obj.user = request.user
-            else:
-                if request.user != obj.user:
-                    if not obj.user.has_perm('herbs.can_set_code'):
-                        return
-                    elif obj.acronym != acronym:
-                        return
-            if 'itemcode' in form.changed_data:
-                if not obj.user.has_perm('herbs.can_set_code'):
-                    return
         obj.save()
 
     def get_readonly_fields(self, request, obj=None):
@@ -319,7 +310,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             if source_id != None:
                 source = HerbItem.objects.get(id=source_id)
                 newdict = model_to_dict(source, exclude=['id', 'pk',
-                                'itemcode', 'public'])
+                                'itemcode', 'public', 'user'])
                 g = request.GET.copy()
                 g.update(newdict)
                 request.GET = g
