@@ -219,6 +219,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super(HerbItemAdmin, self).get_readonly_fields(request, obj)
         readonly_fields = list(readonly_fields)
+        if 'acronym' not in readonly_fields:
+            readonly_fields.append('acronym')
         if obj:
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
@@ -236,6 +238,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 readonly_fields.append('public')
             if 'itemcode' not in readonly_fields:
                 readonly_fields.append('itemcode')
+        if request.user.is_superuser:
+            readonly_fields.remove('acronym')
         return readonly_fields
 
     def get_form(self, request, obj=None, **kwargs):
@@ -245,9 +249,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 self.form = HerbItemFormSimple
                 self.inlines = ()
                 return super(HerbItemAdmin,self).get_form(request, obj, **kwargs)
-        if not request.user.is_superuser:
-            if 'acronym' not in self.readonly_fields:
-                self.readonly_fields += ('acronym',)
 
         ExtendedForm = super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
         class NewModelForm(ExtendedForm):
