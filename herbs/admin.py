@@ -226,14 +226,26 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         obj.save()
 
     def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super(HerbItemAdmin, self).get_readonly_fields(request, obj)
+        readonly_fields = list(readonly_fields)
         if obj:
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
                 readonly_fields.remove('ecodescr')
-                if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+                if request.user.has_perm('herbs.can_set_code'):
                     readonly_fields.remove('public')
                 return readonly_fields
-        return super(HerbItemAdmin, self).get_readonly_fields(request, obj)
+        if request.user.has_perm('herbs.can_set_code'):
+            if 'public' in readonly_fields:
+                readonly_fields.remove('public')
+            if 'itemcode' in readonly_fields:
+                readonly_fields.remove('itemcode')
+        else:
+            if 'public' not in readonly_fields:
+                readonly_fields.append('public')
+            if 'itemcode' not in readonly_fields:
+                readonly_fields.append('itemcode')
+        return readonly_fields
 
     def get_form(self, request, obj=None, **kwargs):
         self.form = HerbItemForm
@@ -245,11 +257,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         if not request.user.is_superuser:
             if 'acronym' not in self.readonly_fields:
                 self.readonly_fields += ('acronym',)
-            if not request.user.has_perm('herbs.can_set_code'):
-                if 'itemcode' not in self.readonly_fields:
-                    self.readonly_fields += ('itemcode',)
-                if 'public' not in self.readonly_fields:
-                    self.readonly_fields += ('public',)
 
         ExtendedForm = super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
         class NewModelForm(ExtendedForm):
