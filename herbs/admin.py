@@ -182,9 +182,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     list_display = ('id', 'get_full_name')
     list_display_links = ('id', 'get_full_name', )
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, 'delete_selected')
-    inlines = (HerbImageAdminInline, DetHistoryAdminInline)
     exclude = ('ecodescr',)
-
+    inlines = (HerbImageAdminInline, DetHistoryAdminInline)
 
     def delete_selected(self, request, obj):
         nquery = obj.filter(public=False)
@@ -242,13 +241,19 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             readonly_fields.remove('acronym')
         return readonly_fields
 
+    def get_inline_instances(self, request, obj=None):
+        inlines = super(HerbItemAdmin, self).get_inline_instances(request, obj=obj)
+        if obj:
+            if obj.public:
+                inlines = tuple()
+        return inlines
+
     def get_form(self, request, obj=None, **kwargs):
         self.form = HerbItemForm
         if obj:
             if obj.public:
                 self.form = HerbItemFormSimple
-                self.inlines = ()
-                return super(HerbItemAdmin,self).get_form(request, obj, **kwargs)
+                return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
 
         ExtendedForm = super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
         class NewModelForm(ExtendedForm):
