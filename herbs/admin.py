@@ -211,8 +211,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 acronym = None
             if not obj.acronym:
                 obj.acronym = acronym
-            if not obj.user:
-                obj.user = request.user
+        if not obj.user:
+            obj.user = request.user
         obj.save()
 
     def get_readonly_fields(self, request, obj=None):
