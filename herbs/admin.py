@@ -198,7 +198,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
     def get_list_display(self, request):
         list_display = ('id', 'get_full_name', 'itemcode', 'public',
-                        'collectedby', 'collected_s')
+                        'collectedby', 'updated', 'collected_s')
         if request.user.has_perm('herbs.can_set_code') or request.user.is_superuser:
            list_display += ('user',)
         return list_display
