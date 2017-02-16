@@ -217,14 +217,14 @@ class PDF_DOC:
                 inter = INTERSPACE + SMALL_FONT_SIZE/3.0
             else:
                 inter = 0
-            for line in prepare[1:]:
+            for line in prepare[1:3]:
                 self._ln += 1
                 self.pdf.set_xy(x + PADDING_X + 2, self.goto(y, self._ln, inter=inter))
                 self.pdf.cell(0, 0, line)
 
        # ----------------------------------------------
         # ------------- Altitude info ------------------
-        self._ln += 1 if len(prepare) < 3 else 2
+        self._ln += 1  # if len(prepare) < 3 else 2
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
         tw = self.pdf.get_string_width(msgs['alt'])
