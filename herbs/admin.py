@@ -155,11 +155,11 @@ class PermissionMixin:
 
 # ---------------------------------------------------------------------------
 
-class HerbImageAdminInline(PermissionMixin, AdminImageMixin,
-                           admin.TabularInline):
-    extra = 0
-    model = HerbImage
-    exclude=('user',)
+#class HerbImageAdminInline(PermissionMixin, AdminImageMixin,
+#                           admin.TabularInline):
+#    extra = 0
+#    model = HerbImage
+#    exclude=('user',)
 
 class DetHistoryAdminInline(AjaxSelectAdminTabularInline):
     extra = 1
@@ -183,7 +183,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     list_display_links = ('id', 'get_full_name', )
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, 'delete_selected')
     exclude = ('ecodescr',)
-    inlines = (HerbImageAdminInline, DetHistoryAdminInline)
+    inlines = (DetHistoryAdminInline,)
 
     def delete_selected(self, request, obj):
         nquery = obj.filter(public=False)
@@ -272,14 +272,14 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return list_filter
 
 
-    def save_formset(self, request, form, formset, change):
-        instances = formset.save(commit=False)
-        for instance in instances:
-            if isinstance(instance, HerbImage):
-                if not request.user.is_superuser:
-                    instance.user = request.user
-                instance.save()
-
+#    def save_formset(self, request, form, formset, change):
+#        instances = formset.save(commit=False)
+#        for instance in instances:
+#            if isinstance(instance, HerbImage):
+#                if not request.user.is_superuser:
+#                    instance.user = request.user
+#                instance.save()
+#
 
     def get_urls(self):
         urls = super(HerbItemAdmin, self).get_urls()
