@@ -224,7 +224,7 @@ class PDF_DOC:
 
        # ----------------------------------------------
         # ------------- Altitude info ------------------
-        self._ln += 1  # if len(prepare) < 3 else 2
+        self._ln += 1  if len(prepare) < 3 else 2
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
         tw = self.pdf.get_string_width(msgs['alt'])
