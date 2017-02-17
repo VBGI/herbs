@@ -178,12 +178,14 @@ class SpeciesForm(forms.ModelForm):
         form_data = self.cleaned_data
         name = form_data.get('name', None)
         genus = form_data.get('genus', None)
-        name = name.strip().lower()
+        authorship = form_data.get('authorship', None)
+        if name:
+            name = name.strip().lower()
+        if authorship:
+            authorship = authorship.strip().lower()
         if name and genus and self.instance:
-            if Species.objects.filter(name__exact=name, genus=genus).exclude(id=self.instance.id).exists():
-                raise forms.ValidationError(_('Такая пара (род, вид) уже существует'))
-#        if len(name.split()) > 1:
-#            raise forms.ValidationError(_("название таксона не должно содержать пробелов"))
+            if Species.objects.filter(name__exact=name, genus=genus, authorship__iexact=authorship).exclude(id=self.instance.id).exists():
+                raise forms.ValidationError(_('Такой триплет (род, вид, автор) уже существует'))
         if not taxon_name_pat.match(name):
             raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
         form_data['name'] = name
