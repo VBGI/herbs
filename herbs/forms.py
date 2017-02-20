@@ -168,7 +168,7 @@ class SearchForm(forms.Form):
     ordering.widget.attrs['id'] = 'ordering-field'
     orderfield = forms.ChoiceField(required=False, choices=ordering_choices)
 
-    num_on_page = forms.ChoiceField(required=False, choices=num_choices)
+    num_on_page = forms.ChoiceField(required=False, choices=num_choices, label=_('Количество'))
     num_on_page.widget.attrs['id'] = 'pag-number'
 
 
