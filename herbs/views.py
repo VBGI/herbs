@@ -4,6 +4,7 @@ import datetime
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
+from django.utils.translation import gettext as _
 from django.forms.models import model_to_dict
 from .models import Family, Genus, HerbItem, Species, Country, DetHistory
 from .forms import SearchForm
@@ -55,7 +56,7 @@ def parse_date(d):
 @csrf_exempt
 def show_herbs(request):
     '''
-    Get herbitems view
+    Get herbitems as JSON.
     '''
     if request.method == 'POST':
         return HttpResponse('Only GET-queries are acceptable')
@@ -72,7 +73,6 @@ def show_herbs(request):
             bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
             bigquery += [Q(species__name__iexact=data['species'])] if data['species'] else []
             bigquery += [Q(itemcode__icontains=data['itemcode'])] if data['itemcode'] else []
-            bigquery += [Q(species__genus__gcode__contains=data['gcode'])] if data['gcode'] else []
             bigquery += [Q(collectedby__icontains=data['collectedby'])] if data['collectedby'] else []
             bigquery += [Q(identifiedby__icontains=data['identifiedby'])] if data['identifiedby'] else []
 
@@ -92,17 +92,33 @@ def show_herbs(request):
             bigquery += [Q(collected_s__gt=stdate)] if stdate else []
             bigquery += [Q(collected_e__lt=endate)] if endate else []
 
+
+            # ---------- Filtering by bbox --------------
+            bbox_query = []
+            if data['latl']:
+                bbox_query += [Q(latitude__gt=data['latl'])]
+            if data['latu']:
+                bbox_query += [Q(latitude__lt=data['latu'])]
+            if data['lonl']:
+                bbox_query += [Q(longitude__gt=data['lonl'])]
+            if data['lonu']:
+                bbox_query += [Q(longitude__lt=data['lonu'])]
+
+            if (data['latl'] <= data['latu']) and (data['lonl'] <= data['lonu']):
+                bigquery.extend(bbox_query)
+
             object_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery))
 
             if not object_filtered.exists():
                 context.update({'herbobjs' : [],
                                 'total': 0,
-                                'error': 'Ни одного элемента не удолетворяет условиям запроса'})
+                                'error': _('Ни одного элемента не удолетворяет условиям запроса')})
                 return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
 
             # ------- Sorting items --------------
             # sorting isn't implemented yet
             # ---------  pagination-----------------
+
             pagcount = request.GET.get('pagcount', '')
             page = request.GET.get('page', '1')
             pagcount = int(pagcount) if pagcount.isdigit() else settings.HERBS_PAGINATION_COUNT
@@ -112,7 +128,7 @@ def show_herbs(request):
                 obj_to_show = paginator.page(page)
             except:
                 obj_to_show = paginator.page(1)
-            # ----------- Conversion to list of dicts with string needed ----------
+
             # make json encoding smarty
             data_tojson = []
             for item in obj_to_show.object_list:
