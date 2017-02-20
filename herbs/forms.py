@@ -133,6 +133,14 @@ class DetHistoryForm(forms.ModelForm):
 class SearchForm(forms.Form):
     '''Common form to search herbitem objects
     '''
+    ordering_choices = (('species__genus__family__name', _('Семейство')),
+                        ('species__genus__name', _('Род')),
+                        ('colstart', _('Дата сбора')),
+                        ('collectedby', _('Собрал')),
+                        ('identifiedby', _('Определил'))
+                        )
+
+    num_choices = (('15', '15'), ('30', '30'), ('50', '50'), ('100', '100'))
 
     family = forms.CharField(required=False, label=_('Семейство'), max_length=30)
     genus = forms.CharField(required=False, label=_('Род'), max_length=30)
@@ -156,6 +164,11 @@ class SearchForm(forms.Form):
     lonl = forms.FloatField(max_value=180.0, min_value=-180.0)
     lonu = forms.FloatField(max_value=180.0, min_value=-180.0)
 
+    ordering = forms.BooleanField(required=False, label=_('Сортировать'))
+    ordering.widget.attrs['id'] = 'ordering-field'
+    orderfield = forms.ChoiceField(required=False, choices=ordering_choices)
+
+    num_on_page = forms.ChoiceField(required=False, choices=num_choices)
 
 
 class GenusForm(TaxonCleanerMixin):
