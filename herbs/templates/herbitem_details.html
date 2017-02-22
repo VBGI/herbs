@@ -2,44 +2,48 @@
 <!--DOCTYPE html-->
 <html>
   <head>
+    {%if curobj%}
     <title> {%trans "Гербарный объект"%} &mdash; ({{curobj.acronym.name}},{%if curobj.itemcode%}{{curobj.itemcode}}{%else%}*{%endif%}/{{curobj.pk}}): {{curobj.family.get_full_name|capfirst}}|{{curobj.species.get_full_name|capfirst}}</title> 
-    <meta charset="utf-8">
     <meta name="description" content="VBGI Herbarium object: {{curobj.species.get_full_name|capfirst}}">
     <meta name="keywords" content="{{curobj.family.name|capfirst}}, {{curobj.genus.name|capfirst}}, {{curobj.species.get_full_name|capfirst}},
           {%if curobj.country%}{{curobj.country}}{%endif%},
           {%if curobj.region%}{{curobj.region}}{%endif%}">
-    <meta name="generator" content="Herbs-app developed on top of the Django Framework">
     <meta name="author" content="{{curobj.collectedby}}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{%static "css/herbitems.css" %}" type="text/css" media="screen">
+    {%else%}
+    <title>{%trans "Гербарный образец с таким идентификатором не найден"%}</title>
+    {%endif%}
+   <meta charset="utf-8">
+   <meta name="generator" content="Herbarium-app developed on top of the Django Framework">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="{%static "css/herbitems.css" %}" type="text/css" media="screen">
 </head>
   <body>
   <div id="herbitem-main-container">
     <div id="herbitem-central-container">
       <div id="herbitem-our-heading">
-        <div style="display:block"><a href="http://botsad.ru"> <img src="{%static "images/bgi_logo.png"%}" alt="Перейти на главную старницу сайта botsad.ru" width="35" height="35" style="float:left; display:block;"></a></div>
-        {%trans "Ботанический сад-институт ДВО РАН"%} 
+        <div style="display:block"><a href="http://botsad.ru"> <img src="{%static "images/bgi_logo_white.png"%}" alt="{%trans"Перейти на главную старницу сайта"%} botsad.ru" width="35" height="35" style="float:left; display:block;"></a></div>
+        {%trans "Ботанический сад-институт ДВО РАН"%}
         <div style="clear:both"></div>   
       </div>  
       {%if not error%}      
       <div id="herbitem-text-container"> 
-      <p><strong>{%trans "Семейство:"%}</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
-      <p><strong>{%trans "Род:"%}</strong>&nbsp;{{curobj.species.genus.get_full_name|capfirst}}</p>
+      <p><strong>{%trans "Семейство"%}:</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
+      <p><strong>{%trans "Род"%}:</strong>&nbsp;<i>{{curobj.species.genus.get_full_name|capfirst}}</i></p>
       {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.genus.name|capfirst}} {{curobj.species.name}}</i> {{curobj.species.authorship}} </p>{%endif%}
-      <p><strong>{%trans "Место сбора:"%}</strong></p>
-      {%if curobj.coordinates.latitude  and curobj.coordinates.longitude %}
-       <div id="mymap" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"f" }}"></div>
-       <script>
+      <p><strong>{%trans "Место сбора"%}:</strong></p>
+      {%if curobj.coordinates.latitude and curobj.coordinates.longitude %}
+       <div id="herbitem-map" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"f" }}"></div>
+       <script type="text/javascript">
           function initMap() {
-            var markerpos = document.querySelector('#mymap')
+            var markerpos = document.querySelector('#herbitem-map')
             var mpos = markerpos.dataset
-            var myLatLng = {lat: parseFloat(mpos.lat) , lng: parseFloat(mpos.lon)};
-            var map = new google.maps.Map(document.getElementById('mymap'), {
+            var herbsLatLng = {lat: parseFloat(mpos.lat) , lng: parseFloat(mpos.lon)};
+            var herbsMap = new google.maps.Map(document.getElementById('herbitem-map'), {
               zoom: 4,
-              center: myLatLng});
+              center: herbsLatLng});
           var marker = new google.maps.Marker({
-          position: myLatLng,
-          map: map,
+          position: herbsLatLng,
+          map: herbsMap,
           title: "{%trans 'Место сбора'%}"
           });
           }
@@ -58,16 +62,23 @@
       {%if curobj.identifiedby %}<p><strong>{%trans "Определил(и)"%}:</strong>&nbsp;{{curobj.identifiedby}}</p>{%endif%}
       {%if curobj.detdate %}<p><strong>{%trans "Дата определения"%}:</strong>&nbsp;{{curobj.detdate}}</p>{%endif%}
       {%if curobj.note %}<p><strong>{%trans "Примечание"%}:</strong>&nbsp;{{curobj.note}}</p>{%endif%}
-      <p><i>{% trans "Последнее изменение:"%}</i>{{curobj.updated}}</p>
 
-        {%if curobj.images %}<hr><div id='gallery' style="text-align: center;">
-            {% for image in curobj.images.all %}
-                {% thumbnail image.image "120x120" crop="center" as im %}
-              <a href="{{ image.image.url }}" title="{{image.get_type_display}}">
-                <img class="preview" alt="{{ curobj.species.get_full_name|capfirst }}" src="{{ im.url }}"></a>
-                {% endthumbnail %}
-            {% endfor %}</div>
-          {%endif%}
+      <script type="text/javascript" > //make automatic queries for images
+      var baseUrl = "{{base_herbitem_image_url}}"; //TODO: needs to be defined in the main view
+      var acronym = "{{curobj.acronym.name}}";
+      var theIDs = ["ID", "CODE"];
+      var allowed_inds = [];
+      var allowed_subinds = ["", "p"];
+      var image=[]
+      for (var i=1; i<{{max_herbitem_images}} + 1; i++){
+      allowed_inds.push(i.toString());
+      }
+      // TODO: Get all valid urls of the current object.
+
+      </script>
+      <noscript>{%trans "Для корректного отображения изображений гербарных образцов должен быть включен JavaScript."%}</noscript>
+
+      <p><i>{% trans "Последнее изменение"%}:</i>&nbsp;{{curobj.updated}}</p>
       </div>  
       {%else%}
       <div id="herbitem-text-container" style="text-align: center">
@@ -78,11 +89,3 @@
       </div>
   </body>
 </html>
-  
-  
-  
-  
-  
-  
-  
-  
