@@ -131,46 +131,22 @@ class DetHistoryForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-    '''Common form to search herbitem objects
+    '''Common search form for ajax requests
     '''
-    ordering_choices = (('species__genus__family__name', _('Семейство')),
-                        ('species__genus__name', _('Род')),
-                        ('colstart', _('Дата сбора')),
-                        ('collectedby', _('Собрал')),
-                        ('identifiedby', _('Определил'))
-                        )
-
-    num_choices = (('15', '15'), ('30', '30'), ('50', '50'), ('100', '100'))
-
     family = forms.CharField(required=False, label=_('Семейство'), max_length=30)
     genus = forms.CharField(required=False, label=_('Род'), max_length=30)
     species = forms.CharField(required=False, label=_('Вид'), max_length=30)
-    itemcode = forms.CharField(required=False, label=_('Код'), max_length=15)
-
-    collectedby = forms.CharField(required=False, label=_('Собрал(и)'), max_length=100)
-    identifiedby = forms.CharField(required=False, label=_('Определил(и)'), max_length=100)
-
+    itemcode = forms.CharField(required=False, label=_('Код1'), max_length=15)
+    gcode = forms.CharField(required=False, label=_('Da la torre Ind:'), max_length=5)
+    collectedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
+    identifiedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
     country.widget.attrs['id'] = 'country-input'
-    place = forms.CharField(required=False, label=_('Место сбора'), max_length=30)
+    place = forms.CharField(required=False, label=_('Место'), max_length=30)
     colstart = forms.DateField(required=False, label=_('Начало сбора'), widget = AdminDateWidget)
     colstart.widget.attrs['id'] = 'colstart-input'
     colend = forms.DateField(required=False, label=_('Конец сбора'), widget = AdminDateWidget)
     colend.widget.attrs['id'] = 'colend-input'
-
-    # Bounding box definition
-    latl = forms.FloatField(max_value=90.0, min_value=-90.0)
-    latu = forms.FloatField(max_value=90.0, min_value=-90.0)
-    lonl = forms.FloatField(max_value=180.0, min_value=-180.0)
-    lonu = forms.FloatField(max_value=180.0, min_value=-180.0)
-
-    ordering = forms.BooleanField(required=False, label=_('Сортировать'))
-    ordering.widget.attrs['id'] = 'ordering-field'
-    orderfield = forms.ChoiceField(required=False, choices=ordering_choices)
-
-    num_on_page = forms.ChoiceField(required=False, choices=num_choices, label=_('Количество'))
-    num_on_page.widget.attrs['id'] = 'pag-number'
-
 
 class GenusForm(TaxonCleanerMixin):
     class Meta:
