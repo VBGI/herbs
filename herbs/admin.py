@@ -9,11 +9,10 @@ from django.conf.urls import url
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth import get_user_model
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
-                    DetHistoryForm, HerbItemFormSimple)
+                    DetHistoryForm, HerbItemFormSimple, AdditionalsForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
-                     HerbImage, HerbAcronym, DetHistory)
+                     HerbAcronym, DetHistory, Additionals)
 
-from sorl.thumbnail.admin import AdminImageMixin
 from django.forms import model_to_dict
 import random
 import string
@@ -166,6 +165,11 @@ class DetHistoryAdminInline(AjaxSelectAdminTabularInline):
     model = DetHistory
     form = DetHistoryForm
 
+class AdditionalsAdminInline(AjaxSelectAdminTabularInline):
+    extra = 1
+    model = Additionals
+    form = AdditionalsForm
+
 class FamilyAdmin(admin.ModelAdmin):
     form = FamilyForm
     search_fields = ('name',)
@@ -246,6 +250,9 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         if obj:
             if obj.public:
                 inlines = tuple()
+            else:
+                if request.user.has_perm('herbs.can_see_additionals'):
+                    inlines += ('AdditionalsAdminInline',)
         return inlines
 
     def get_form(self, request, obj=None, **kwargs):

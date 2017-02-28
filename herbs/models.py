@@ -180,6 +180,24 @@ class DetHistory(models.Model):
         verbose_name_plural = _('определения')
 
 
+class Additionals(models.Model):
+    herbitem = models.ForeignKey('HerbItem', blank=False,
+                                 related_name='additionals')
+    identifiedby = models.CharField(max_length=500, default='', blank=True,
+                                    verbose_name=_('определил(и)'))
+    identified_s = models.DateField(blank=True,
+                                    verbose_name=_('валиден с'),
+                                    null=True)
+    identified_e = models.DateField(blank=True,
+                                    verbose_name=_('валиден по'),
+                                    null=True)
+    species = models.ForeignKey('Species', blank=True, null=True,
+                                verbose_name=_('вид'))
+    class Meta:
+        verbose_name = _('Дополнительные виды')
+        verbose_name_plural = _('Дополнительные виды')
+
+
 class HerbImage(models.Model):
     TYPE_CHOICES = (('H', 'Изображение гербария'),
                     ('P', 'Изображение места сбора'))
@@ -278,7 +296,8 @@ class HerbItem(HerbItemMixin):
         verbose_name = _('гербарный образeц')
         verbose_name_plural = _('гербарные образцы')
         ordering = ['-created']
-        permissions = (('can_set_code', 'Can set item code and publish'),)
+        permissions = (('can_set_code', 'Can set item code and publish'),
+                       ('can_see_additionals', 'Can see additional species'))
 
 
     def delete(self, *args, **kwargs):
