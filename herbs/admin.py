@@ -252,10 +252,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             if obj.public:
                 inlines = []
         if not request.user.has_perm('herbs.can_see_additionals'):
-            inlines = filter(inlines,
-                             lambda x: not isinstance(x,
-                                                      AdditionalsAdminInline))
-        return [inline(self.model, self.admin_site) for inline in inlines]
+            inlines = filter(lambda x: not isinstance(x,
+                                                      AdditionalsAdminInline),
+                             inlines)
+        return inlines
 
     def get_form(self, request, obj=None, **kwargs):
         self.form = HerbItemForm
