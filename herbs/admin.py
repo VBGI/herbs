@@ -187,7 +187,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     list_display_links = ('id', 'get_full_name', )
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, 'delete_selected')
     exclude = ('ecodescr',)
-    inlines = (DetHistoryAdminInline,)
+    inlines = (DetHistoryAdminInline, AdditionalsAdminInline)
 
     def delete_selected(self, request, obj):
         nquery = obj.filter(public=False)
@@ -246,14 +246,16 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return readonly_fields
 
     def get_inline_instances(self, request, obj=None):
-        inlines = super(HerbItemAdmin, self).get_inline_instances(request, obj=obj)
+        inlines = list(super(HerbItemAdmin,
+                             self).get_inline_instances(request, obj=obj))
         if obj:
             if obj.public:
-                inlines = tuple()
-            else:
-                if request.user.has_perm('herbs.can_see_additionals'):
-                    inlines += ('AdditionalsAdminInline',)
-        return inlines
+                inlines = []
+        if not request.user.has_perm('herbs.can_see_additionals'):
+            inlines = filter(inlines,
+                             lambda x: not isinstance(x,
+                                                      AdditionalsAdminInline))
+        return [inline(self.model, self.admin_site) for inline in inlines]
 
     def get_form(self, request, obj=None, **kwargs):
         self.form = HerbItemForm
