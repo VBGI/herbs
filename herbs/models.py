@@ -153,8 +153,8 @@ class Subdivision(models.Model):
 
     class Meta:
         ordering = ('name',)
-        verbose_name = _('Подраздел')
-        verbose_name_plural = _('Подразделы')
+        verbose_name = _('подраздел')
+        verbose_name_plural = _('подразделы')
 
 
 @python_2_unicode_compatible
@@ -173,10 +173,14 @@ class Country(models.Model):
 
 @python_2_unicode_compatible
 class HerbAcronym(models.Model):
-    name = models.CharField(max_length=10, default='', blank=True)
-    institute = models.CharField(max_length=300, default='', blank=True)
-    address = models.CharField(max_length=100, default='', blank=True)
-    allowed_users = models.CharField(max_length=1000, default='', blank=True)
+    name = models.CharField(max_length=10, default='', blank=True,
+                            verbose_name=_('название'))
+    institute = models.CharField(max_length=300, default='', blank=True,
+                                 verbose_name=_('институт'))
+    address = models.CharField(max_length=100, default='', blank=True,
+                               verbose_name=_('адрес'))
+    allowed_users = models.CharField(max_length=1000, default='', blank=True,
+                                     verbose_name=_('пользователи'))
 
     class Meta:
         ordering = ('name',)
