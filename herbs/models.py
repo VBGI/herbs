@@ -43,8 +43,8 @@ class HerbItemMixin(models.Model):
     itemcode = models.CharField(max_length=15, default='', null=True,
                                 verbose_name=_('код образца'),
                                 blank=True)
-    personalid = models.CharField(max_length=10, default='',
-                                  verbose_name=_('авторский код'),
+    fieldid = models.CharField(max_length=20, default='',
+                                  verbose_name=_('полевой код'),
                                   blank=True)
 
     acronym = models.ForeignKey('HerbAcronym', on_delete=models.SET_NULL,
