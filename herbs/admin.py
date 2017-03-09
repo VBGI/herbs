@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm, HerbItemFormSimple)
 from .models import (Family, Genus, HerbItem, Species, Country,
-                     HerbImage, HerbAcronym, DetHistory)
+                     HerbImage, HerbAcronym, DetHistory, Subdivision)
 
 from sorl.thumbnail.admin import AdminImageMixin
 from django.forms import model_to_dict
@@ -223,6 +223,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         readonly_fields = list(readonly_fields)
         if 'acronym' not in readonly_fields:
             readonly_fields.append('acronym')
+        if 'subdivision' not in readonly_fields:
+            readonly_fields.append('subdivision')
         if obj:
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
@@ -242,6 +244,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 readonly_fields.append('itemcode')
         if request.user.is_superuser:
             readonly_fields.remove('acronym')
+            readonly_fields.remove('subdivision')
         return readonly_fields
 
     def get_inline_instances(self, request, obj=None):
@@ -366,3 +369,4 @@ admin.site.register(HerbItem, HerbItemAdmin)
 admin.site.register(Species, SpeciesAdmin)
 admin.site.register(HerbAcronym)
 admin.site.register(Country)
+admin.site.register(Subdivision)
