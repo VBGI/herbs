@@ -94,6 +94,10 @@ class HerbItemMixin(models.Model):
                                 verbose_name=_('Биоморф. статус'),
                                 choices=BIOMORPHS)
 
+    subdivision = models.ForeignKey('Subdivision', null=True, blank=True,
+                                    verbose_name=_('подрзадел гербария'))
+
+
     note = models.CharField(max_length=1000, blank=True, default='')
 
     uhash =  models.CharField(blank=True, default='',
@@ -133,6 +137,24 @@ class HerbItemMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+@python_2_unicode_compatible
+class Subdivision(models.Model):
+    name = models.CharField(max_length=300, blank=True, default='',
+                            verbose_name=_('название подраздела'))
+    description = models.CharField(max_length=1000, blank=True, default='',
+                                   verbose_name=_('описание'))
+    allowed_users = models.CharField(max_length=1000, default='',blank=True,
+                                     verbose_name=_('пользователи'))
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('Подраздел')
+        verbose_name_plural = _('Подразделы')
 
 
 @python_2_unicode_compatible
