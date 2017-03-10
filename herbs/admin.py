@@ -218,7 +218,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 subd = subdquery[0]
             else:
                 subd = None
-            if not obj.subdivison:
+            if not obj.subdivision:
                 obj.subdivision = subd
         if not obj.user:
             obj.user = request.user
