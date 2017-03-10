@@ -42,7 +42,12 @@ class HerbItemMixin(models.Model):
     # item specific codes (used in the herbarium store)
     itemcode = models.CharField(max_length=15, default='', null=True,
                                 verbose_name=_('код образца'),
-                                blank=True)
+                                blank=True,
+                                help_text=_('заполняется куратором гербария'))
+    fieldid = models.CharField(max_length=20, default='',
+                               verbose_name=_('полевой код'),
+                               help_text=_('заполняется сборщиком'),
+                               blank=True)
 
     acronym = models.ForeignKey('HerbAcronym', on_delete=models.SET_NULL,
                                 verbose_name='Acronym',
@@ -91,6 +96,10 @@ class HerbItemMixin(models.Model):
                                 verbose_name=_('Биоморф. статус'),
                                 choices=BIOMORPHS)
 
+    subdivision = models.ForeignKey('Subdivision', null=True, blank=True,
+                                    verbose_name=_('подрзадел гербария'))
+
+
     note = models.CharField(max_length=1000, blank=True, default='')
 
     uhash =  models.CharField(blank=True, default='',
@@ -133,6 +142,24 @@ class HerbItemMixin(models.Model):
 
 
 @python_2_unicode_compatible
+class Subdivision(models.Model):
+    name = models.CharField(max_length=300, blank=True, default='',
+                            verbose_name=_('название подраздела'))
+    description = models.CharField(max_length=1000, blank=True, default='',
+                                   verbose_name=_('описание'))
+    allowed_users = models.CharField(max_length=1000, default='',blank=True,
+                                     verbose_name=_('пользователи'))
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('подраздел')
+        verbose_name_plural = _('подразделы')
+
+
+@python_2_unicode_compatible
 class Country(models.Model):
     """Base class  for Country"""
     name_ru = models.CharField(max_length=150)
@@ -148,10 +175,14 @@ class Country(models.Model):
 
 @python_2_unicode_compatible
 class HerbAcronym(models.Model):
-    name = models.CharField(max_length=10, default='', blank=True)
-    institute = models.CharField(max_length=300, default='', blank=True)
-    address = models.CharField(max_length=100, default='', blank=True)
-    allowed_users = models.CharField(max_length=1000, default='', blank=True)
+    name = models.CharField(max_length=10, default='', blank=True,
+                            verbose_name=_('название'))
+    institute = models.CharField(max_length=300, default='', blank=True,
+                                 verbose_name=_('институт'))
+    address = models.CharField(max_length=100, default='', blank=True,
+                               verbose_name=_('адрес'))
+    allowed_users = models.CharField(max_length=1000, default='', blank=True,
+                                     verbose_name=_('пользователи'))
 
     class Meta:
         ordering = ('name',)

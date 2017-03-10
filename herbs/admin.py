@@ -11,8 +11,7 @@ from django.contrib.auth import get_user_model
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm, HerbItemFormSimple, AdditionalsForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
-                     HerbAcronym, DetHistory, Additionals)
-
+                     HerbAcronym, DetHistory, Additionals, Subdivision)
 from django.forms import model_to_dict
 import random
 import string
@@ -132,8 +131,7 @@ class PermissionMixin:
         if obj.user is not None:
             if request.user == obj.user: return True
         if request.user.has_perm('herbs.can_set_code'):
-            # TODO: Revision needed: multiple query
-            if query.filter(allowed_users__icontains=request.user.username).exists():
+            if query.exists():
                 return True
         else:
             return False
@@ -215,8 +213,19 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 acronym = None
             if not obj.acronym:
                 obj.acronym = acronym
+            subdquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
+            if subdquery.exists():
+                subd = subdquery[0]
+            else:
+                subd = None
+            if not obj.subdivison:
+                obj.subdivision = subd
         if not obj.user:
             obj.user = request.user
+        if not obj.createdby:
+            obj.createdby = request.user
+        if not obj.updatedby or change:
+            obj.updatedby = request.user
         obj.save()
 
     def get_readonly_fields(self, request, obj=None):
@@ -224,6 +233,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         readonly_fields = list(readonly_fields)
         if 'acronym' not in readonly_fields:
             readonly_fields.append('acronym')
+        if 'subdivision' not in readonly_fields:
+            readonly_fields.append('subdivision')
         if obj:
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
@@ -243,6 +254,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 readonly_fields.append('itemcode')
         if request.user.is_superuser:
             readonly_fields.remove('acronym')
+            readonly_fields.remove('subdivision')
         return readonly_fields
 
     def get_inline_instances(self, request, obj=None):
@@ -372,3 +384,4 @@ admin.site.register(HerbItem, HerbItemAdmin)
 admin.site.register(Species, SpeciesAdmin)
 admin.site.register(HerbAcronym)
 admin.site.register(Country)
+admin.site.register(Subdivision)
