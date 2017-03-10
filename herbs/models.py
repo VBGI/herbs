@@ -42,10 +42,12 @@ class HerbItemMixin(models.Model):
     # item specific codes (used in the herbarium store)
     itemcode = models.CharField(max_length=15, default='', null=True,
                                 verbose_name=_('код образца'),
-                                blank=True)
+                                blank=True,
+                                help_text=_('заполняется куратором гербария'))
     fieldid = models.CharField(max_length=20, default='',
-                                  verbose_name=_('полевой код'),
-                                  blank=True)
+                               verbose_name=_('полевой код'),
+                               help_text=_('заполняется сборщиком'),
+                               blank=True)
 
     acronym = models.ForeignKey('HerbAcronym', on_delete=models.SET_NULL,
                                 verbose_name='Acronym',
