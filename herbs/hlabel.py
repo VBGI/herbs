@@ -101,7 +101,7 @@ class PDF_DOC:
     def _add_label(self, x, y, family='', species='', spauth='',
                    date='', latitude='', longitude='',
                    place='', country='', region='', collected='',
-                   altitude='', identified='', number='', itemid='',
+                   altitude='', identified='', number='', itemid='', fieldid='',
                    acronym='', institute='', address='', gform=''):
         global LINE_HEIGHT
         self.pdf.rect(x, y, LABEL_WIDTH,LABEL_HEIGHT, '')
@@ -299,24 +299,34 @@ class PDF_DOC:
 
         # -----------------------------------------------
 
-        # ------------ Catalogue number ----------------
-        if len(prepare)>2: LINE_HEIGHT /= LINE_SCALE
-        self.pdf.set_font_size(TITLE_FONT_SIZE + 2)
-        self.pdf.set_xy(x + 2 * PADDING_X, y + LABEL_HEIGHT - PADDING_Y)
-        self.pdf.cell(0, 0, 'ID: %s/%s' % (number, itemid))
-
-        # ----------------------------------------------
-
-        # --------- qr insertion -----------------------
-        insert_qr(self.pdf, x, y, code=itemid)
-
-        # ----------------------------------------------
-
         # Extra info (to get without qr reader ----------
         self.pdf.set_font_size(SMALL_FONT_SIZE-4)
         tw = self.pdf.get_string_width(HERBURL % itemid)
         self.pdf.set_xy(x + LABEL_WIDTH - PADDING_X - tw, y + LABEL_HEIGHT - 2)
         self.pdf.cell(0,0, HERBURL % itemid)
+
+        # ----------------------------------------------
+
+        # ------------ Catalogue number ----------------
+        if len(prepare)>2: LINE_HEIGHT /= LINE_SCALE
+        dfs = TITLE_FONT_SIZE + 2
+        idtoprint = 'ID: %s/%s' % (number, itemid)
+        if fieldid:
+            idtoprint += '/%s' % fieldid
+        self.pdf.set_font_size(dfs)
+        cl = self.pdf.get_string_width(idtoprint)
+        allowed_width = LABEL_WIDTH - 3 * PADDING_X - tw - 3
+        while cl > allowed_width:
+            dfs -= 2
+            self.pdf.set_font_size(dfs)
+            cl = self.pdf.get_string_width(idtoprint)
+        self.pdf.set_xy(x + 2 * PADDING_X, y + LABEL_HEIGHT - PADDING_Y)
+        self.pdf.cell(0, 0, idtoprint)
+
+        # ----------------------------------------------
+
+        # --------- qr insertion -----------------------
+        insert_qr(self.pdf, x, y, code=itemid)
 
         # ----------------------------------------------
 
@@ -358,7 +368,7 @@ class PDF_DOC:
                     'place': u'Никому неизвестное село глубоко в лесу; На горе росли цветы небывалой красоты, мы собрали их в дождливую погоду и было очень прохладно',
                     'collected':u'Один М.С., Другой Б.В., Третий А.А., Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой' ,
                     'identified':u'Один, Другой',
-                    'number': '17823781', 'itemid': '12312',
+                    'number': '17823781', 'itemid': '12312', 'fieldid': '123456789asdfghj',
                     'acronym':'VBGI',
                     'institute': 'Botanical Garden-Institute FEB RAS',
                     'address': '690018, Russia, Vladivosotk, Makovskogo st. 142',
