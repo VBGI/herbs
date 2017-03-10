@@ -210,6 +210,13 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 acronym = None
             if not obj.acronym:
                 obj.acronym = acronym
+            subdquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
+            if subdquery.exists():
+                subd = subdquery[0]
+            else:
+                subd = None
+            if not obj.subdivison:
+                obj.subdivision = subd
         if not obj.user:
             obj.user = request.user
         if not obj.createdby:
