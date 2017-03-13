@@ -33,6 +33,8 @@
       {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.genus.name|capfirst}} {{curobj.species.name}}</i> {{curobj.species.authorship}} </p>{%endif%}
       <p><strong>{%trans "Место сбора"%}:</strong></p>
       {%if curobj.coordinates.latitude and curobj.coordinates.longitude %}
+      <p><strong>{%trans "Широта"%}:</strong> {{curobj.coordinates.latitude}}, &nbsp; 
+      <strong>{%trans "Долгота"%}:</strong> {{curobj.coordinates.longitude}}</p>
        <div id="herbitem-map" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"f" }}"></div>
        <script type="text/javascript">
           function initMap() {
