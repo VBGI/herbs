@@ -25,7 +25,8 @@
         {%trans "Ботанический сад-институт ДВО РАН"%}
         <div style="clear:both"></div>   
       </div>  
-      {%if not error%}      
+      {%if not error%}
+        {%if curobj.public %}
       <div id="herbitem-text-container"> 
       <p><strong>{%trans "Семейство"%}:</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
       <p><strong>{%trans "Род"%}:</strong>&nbsp;<i>{{curobj.species.genus.get_full_name|capfirst}}</i></p>
@@ -77,9 +78,13 @@
 
       </script>
       <noscript>{%trans "Для корректного отображения изображений гербарных образцов должен быть включен JavaScript."%}</noscript>
-
       <p><i>{% trans "Последнее изменение"%}:</i>&nbsp;{{curobj.updated}}</p>
       </div>  
+         {%else%}  
+            <div id="herbitem-text-container" style="text-align: center">
+              <h2>{%trans "Образец с номером "%}{{curobj.pk}} {%trans "не опубликован." %}</h2>
+            </div>  
+         {%endif%}
       {%else%}
       <div id="herbitem-text-container" style="text-align: center">
       <h2>{{error}}</h2>
