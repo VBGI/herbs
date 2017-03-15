@@ -32,7 +32,7 @@ class HerbItemMixin(models.Model):
     '''
     Common item properties
     '''
-    BIOMORPHS = (('D', 'Development stage'),
+    BIOMORPHS = (('D', 'Development stage partly'),
                  ('G', 'Life form')
                  )
 
