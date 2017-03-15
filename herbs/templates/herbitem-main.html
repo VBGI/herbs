@@ -1,5 +1,13 @@
 {%extends "main/bgibase.html"%}
-{% load i18n cms_tags sekizai_tags  %}
+{% load cms_tags %}
 {%block maincontentblock %}
 {%placeholder "right_column_content" %}
+{%block mainfooterblock%}
+ <div class="footercontainer">
+     {%placeholder "mainfootercontent" inherit or %}{%endplaceholder%}
+ </div>
 {%endblock%}
+{%endblock%}
+
+
+
