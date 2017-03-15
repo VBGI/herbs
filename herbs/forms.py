@@ -147,7 +147,6 @@ class SearchForm(forms.Form):
     genus = forms.CharField(required=False, label=_('Род'), max_length=30)
     species = forms.CharField(required=False, label=_('Вид'), max_length=30)
     itemcode = forms.CharField(required=False, label=_('Код1'), max_length=15)
-    gcode = forms.CharField(required=False, label=_('Da la torre Ind:'), max_length=5)
     collectedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     identifiedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
@@ -157,6 +156,7 @@ class SearchForm(forms.Form):
     colstart.widget.attrs['id'] = 'colstart-input'
     colend = forms.DateField(required=False, label=_('Конец сбора'), widget = AdminDateWidget)
     colend.widget.attrs['id'] = 'colend-input'
+
 
 class GenusForm(TaxonCleanerMixin):
     class Meta:
