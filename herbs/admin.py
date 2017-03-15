@@ -119,7 +119,12 @@ class PermissionMixin:
             return self.model.objects.all()
         query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
         if  request.user.has_perm('herbs.can_set_code'):
-            if query.exists():
+            subquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
+            if query.exists() and subquery.exists():
+                if hasattr(self.model, 'acronym'):
+                    return self.model.objects.filter(acronym__name__iexact=query[0].name,
+                                                     subdivision=subquery[0])
+            elif query.exists():
                 if hasattr(self.model, 'acronym'):
                     return self.model.objects.filter(acronym__name__iexact=query[0].name)
         return self.model.objects.filter(user=request.user)
@@ -127,12 +132,17 @@ class PermissionMixin:
     def _common_permission_manager(self, request, obj):
         if request.user.is_superuser: return True
         query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
+        subquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
         if obj is None: return True
         if obj.user is not None:
             if request.user == obj.user: return True
         if request.user.has_perm('herbs.can_set_code'):
-            if query.exists():
-                return True
+            if query.exists() and subquery.exists():
+                if obj.subdivision.pk == subquery[0].pk and obj.acronym.pk == query[0].pk:
+                    return True
+            elif query.exists():
+                if obj.acronym.pk == query[0].pk: return True
+            else: return False
         else:
             return False
 
