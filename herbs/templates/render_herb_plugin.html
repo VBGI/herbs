@@ -237,7 +237,7 @@ function herbitemFind(){
   var lonl = null;
   var lonu = null
   var outputHTML = '';
-  var commonError = "{%trans "Возникла ошибка при получении ответа за поисковый запрос" %}");
+  var commonError = "{%trans "Возникла ошибка при получении ответа за поисковый запрос" %}";
 	$("herbitem-content-found").html('<div class="centered-ajax-loader"></div>');
 	$.get("{% url 'herbs.views.show_herbs' %}",
 			{family:family, genus:genus, species:species, itemcode:itemcode,
