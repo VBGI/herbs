@@ -132,12 +132,10 @@ def show_herbs(request):
                      'genus':  item.species.genus.name if item.species else '',
                      'species': item.species.name if item.species else '',
                      'itemcode': item.itemcode,
-                     'gcode': item.species.genus.gcode if item.species else '',
                      'id': item.pk,
                     # Extra data to show herbitem details
                      'altitude': item.altitude,
                      'district': item.district,
-                     'country': item.country.name_ru if translation.get_language() == 'ru' else item.country.name_en,
                      'region': item.region,
                      'collectedby': item.collectedby,
                      'collected_s': item.collected_s,
