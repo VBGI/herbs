@@ -157,6 +157,18 @@ class SearchForm(forms.Form):
     colend = forms.DateField(required=False, label=_('Конец сбора'), widget = AdminDateWidget)
     colend.widget.attrs['id'] = 'colend-input'
 
+    # sorting parameters
+    sortfield = forms.CharField(required=False, max_length=100)
+    sortfield.widget.attrs['id'] = 'sortfield-choices'
+    sortorder = forms.BooleanField(required=False)
+    sortorder.widget.attrs['id'] = 'sortorder-field'
+
+    # Coordinates filtering
+    latl = forms.FloatField(required=False)
+    latu = forms.FloatField(required=False)
+    lonl = forms.FloatField(required=False)
+    lonu = forms.FloatField(required=False)
+
 
 class GenusForm(TaxonCleanerMixin):
     class Meta:
