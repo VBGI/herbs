@@ -66,7 +66,12 @@ def show_herbs(request):
     if request.is_ajax():
         dataform = SearchForm(request.GET)
         if dataform.is_valid():
-            data = {key: dataform.cleaned_data[key].strip() for key in dataform.fields}
+            data = {}
+            for key in dataform.fields:
+                if hasattr(dataform.cleaned_data[key], 'strip'):
+                    data.update({key: dataform.cleaned_data[key].strip()})
+                else:
+                    data.update({key: dataform.cleaned_data[key]})
             bigquery = [Q(public=True)]
             bigquery += [Q(species__genus__family__name__iexact=data['family'])] if data['family'] else []
             bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
