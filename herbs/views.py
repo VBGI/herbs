@@ -66,33 +66,37 @@ def show_herbs(request):
     if request.is_ajax():
         dataform = SearchForm(request.GET)
         if dataform.is_valid():
-            data = {key: dataform.cleaned_data[key] for key in dataform.fields}
+            data = {key: dataform.cleaned_data[key].strip() for key in dataform.fields}
             bigquery = [Q(public=True)]
             bigquery += [Q(species__genus__family__name__iexact=data['family'])] if data['family'] else []
             bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
             bigquery += [Q(species__name__iexact=data['species'])] if data['species'] else []
-            bigquery += [Q(itemcode__icontains=data['itemcode'])] if data['itemcode'] else []
-            bigquery += [Q(species__genus__gcode__contains=data['gcode'])] if data['gcode'] else []
+            if data['itemcode']:
+                bigquery += [Q(itemcode__icontains=data['itemcode'])|
+                             Q(fieldid__icontains=data['itemcode'])|
+                             Q(id__exact=data['itemcode'])
+                             ]
             bigquery += [Q(collectedby__icontains=data['collectedby'])] if data['collectedby'] else []
             bigquery += [Q(identifiedby__icontains=data['identifiedby'])] if data['identifiedby'] else []
-
             if data['country']:
                 bigquery += [Q(country__name_ru__icontains=data['country'])|
                              Q(country__name_en__icontains=data['country'])]
 
-            # place handle
-            bigquery += [Q(region__icontains=data['place'])|\
-                         Q(detailed__icontains=data['place'])|\
+            # place handle #TODO: Probably note should be added to search fields
+            bigquery += [Q(region__icontains=data['place'])|
+                         Q(detailed__icontains=data['place'])|
                          Q(district__icontains=data['place'])] if data['place'] else []
 
             # dates
             stdate = parse_date(request.GET.get('colstart', ''))
             endate = parse_date(request.GET.get('colend', ''))
 
+            #TODO: testing needed
             bigquery += [Q(collected_s__gt=stdate)] if stdate else []
             bigquery += [Q(collected_e__lt=endate)] if endate else []
 
-            object_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery))
+            object_filtered = HerbItem.objects.filter(reduce(operator.and_,
+                                                             bigquery))
 
             if not object_filtered.exists():
                 context.update({'herbobjs' : [],
@@ -103,6 +107,8 @@ def show_herbs(request):
             # ------- Sorting items --------------
             # sorting isn't implemented yet
             # ---------  pagination-----------------
+
+
             pagcount = request.GET.get('pagcount', '')
             page = request.GET.get('page', '1')
             pagcount = int(pagcount) if pagcount.isdigit() else settings.HERBS_PAGINATION_COUNT
@@ -183,21 +189,13 @@ def advice_select(request):
             cfield = 'species'
         query = request.GET.get('q', '')
         RU = translation.get_language() == 'ru'
-        if cfield == 'itemcode':
-            if query:
-                objects = HerbItem.objects.filter(itemcode__contains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
-            else:
-                objects = HerbItem.objects.all()[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
-            data = [{'id': item.pk, 'text': item.itemcode} for item in objects]
-        elif cfield == 'family':
+        if cfield == 'family':
+            # TODO: Returned families should be restricted by existance in the DB.
             if query:
                 objects = Family.objects.filter(name__icontains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             else:
                 objects = Family.objects.all()[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             data = [{'id': item.pk, 'text': item.name} for item in objects]
-        elif cfield == 'gcode':
-            objects = Genus.objects.filter(gcode__contains=query).order_by('gcode')
-            data = [{'id': item.pk, 'text': item.gcode} for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'genus':
             if dataform.cleaned_data['family']:
                 if query:
@@ -211,40 +209,11 @@ def advice_select(request):
                 else:
                     objects = Genus.objects.all()
             data = [{'id': item.pk, 'text': item.name} for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
-        elif cfield == 'species':
-            if dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
-                if query:
-                    objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'],
-                                                     genus__name__iexact=dataform.cleaned_data['genus'],
-                                                     name__icontains=query)
-                else:
-                    objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'],
-                                                     genus__name__iexact=dataform.cleaned_data['genus'])
-            elif dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
-                if query:
-                    objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'],
-                                                     name__icontains=query)
-                else:
-                    objects = Species.objects.filter(genus__family__name__iexact=dataform.cleaned_data['family'])
-            elif not dataform.cleaned_data['family'] and dataform.cleaned_data['genus']:
-                if query:
-                    objects = Species.objects.filter(genus__name__iexact=dataform.cleaned_data['genus'],
-                                                     name__icontains=query)
-                else:
-                    objects = Species.objects.filter(genus__name__iexact=dataform.cleaned_data['genus'])
-            elif not dataform.cleaned_data['family'] and not dataform.cleaned_data['genus']:
-                if query:
-                    objects = Species.objects.filter(name__icontains=query)
-                else:
-                    objects = Species.objects.all()
-            data = [{'id': item.pk, 'text': item.name}
-                    for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'country':
             objects = Country.objects.filter(Q(name_ru__icontains=query)|
                                              Q(name_en__icontains=query))
             data = [{'id': item.pk, 'text': item.name_ru if RU else item.name_en}
                     for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
-
     else:
         context.update({'error': 'Странный запрос'})
         data = []
