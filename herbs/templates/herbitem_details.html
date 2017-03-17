@@ -30,7 +30,15 @@
       <div id="herbitem-text-container"> 
       <p><strong>{%trans "Семейство"%}:</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
       <p><strong>{%trans "Род"%}:</strong>&nbsp;<i>{{curobj.species.genus.get_full_name|capfirst}}</i></p>
-      {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.genus.name|capfirst}} {{curobj.species.name}}</i> {{curobj.species.authorship}} </p>{%endif%}
+        {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.genus.name|capfirst}} {{curobj.species.name}}</i> {{curobj.species.authorship}} </p>{%endif%}
+      {%if curobj.additionals%}
+      <p><strong>{%trans "Дополнительные виды" %}:</strong></p>
+      <ul>
+        {%for item in curobj.additionals.all%}
+          <li>{{item.identifiedby}}: {{item.species}} {%trans "Валидность"%}: {{item.identified_s}} &mdash; {{item.identified_e}} </li>
+        {%endfor%}
+      </ul>
+      {%endif%}
       <p><strong>{%trans "Координаты сбора"%}:</strong></p>
       {%if curobj.coordinates.latitude and curobj.coordinates.longitude %}
       <p><strong>{%trans "Широта"%}:</strong> {{curobj.coordinates.latitude}}&deg;, &nbsp; 
@@ -64,6 +72,18 @@
       {%if curobj.colldate %}<p><strong>{%trans "Дата сбора"%}:</strong>&nbsp;{{curobj.colldate}}</p>{%endif%}
       {%if curobj.identifiedby %}<p><strong>{%trans "Определил(и)"%}:</strong>&nbsp;{{curobj.identifiedby}}</p>{%endif%}
       {%if curobj.detdate %}<p><strong>{%trans "Дата определения"%}:</strong>&nbsp;{{curobj.detdate}}</p>{%endif%}
+
+      {%if curobj.dethistory%}
+      <p><strong>{%trans "История определений" %}:</strong></p>
+      <ul>
+        {%for item in curobj.dethistory.all%}
+        <li>{{item.identifiedby}}: {{item.species}} ({{item.identified_s}}) </li>
+        {%endfor%}
+      </ul>
+
+      {%endif%}
+
+
       {%if curobj.note %}<p><strong>{%trans "Примечание"%}:</strong>&nbsp;{{curobj.note}}</p>{%endif%}
 
       <script type="text/javascript" > //make automatic queries for images
