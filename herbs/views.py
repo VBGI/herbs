@@ -75,7 +75,7 @@ def show_herbs(request):
             bigquery = [Q(public=True)]
             bigquery += [Q(species__genus__family__name__iexact=data['family'])] if data['family'] else []
             bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
-            bigquery += [Q(species__name__iexact=data['species'])] if data['species'] else []
+            bigquery += [Q(species__name__icontains=data['species'])] if data['species'] else []
             if data['itemcode']:
                 bigquery += [Q(itemcode__icontains=data['itemcode'])|
                              Q(fieldid__icontains=data['itemcode'])|
