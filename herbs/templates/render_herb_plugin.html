@@ -77,7 +77,7 @@ Created: 30 Aug, 2016
        var idstr = itemcode + '/' + herbid + fieldid;
 
 		if (index % 2 == 0) { %>
-    <tr class="herbitem-even" onclick="window.location.href='http://botsad.ru/hitem/<%= herbid %>';">
+    <tr class="herbitem-even" onclick="window.open('http://botsad.ru/hitem/<%= herbid %>');">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -85,7 +85,7 @@ Created: 30 Aug, 2016
 			<td><%= identifiers %></td>
 		</tr>
    <%	} else { %>
-    <tr class="herbitem-odd" onclick="window.location.href='http://botsad.ru/hitem/<%= herbid %>';">
+    <tr class="herbitem-odd" onclick="window.open('http://botsad.ru/hitem/<%= herbid %>');">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
