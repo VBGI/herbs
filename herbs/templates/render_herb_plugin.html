@@ -41,7 +41,7 @@ Created: 30 Aug, 2016
 <!-- ============-Searchform template ======================== -->
 <script id="searchform-template" type="text/x-underscore-template">
 
-<div style="text-align:center;">
+<div id="herbitem-page-lister">
     <span class="step-links">
         <% if (has_previous){ %>
             <span id="herbitem-previous-page"  onclick="incrPage(this,-1)">{% trans "Предыдущая" %}</span>
@@ -69,17 +69,17 @@ Created: 30 Aug, 2016
 	<tbody>
 		<%
         _.each(items, function(item, index, list){
-       var itemcode = item.itemcode;
-			 var fieldid  = item.fieldid;
-			 var herbid = item.id;
+       var itemcode = (item.itemcode == '') ? '*': item.itemcode;
+			 var fieldid  = (item.fieldid == '') ? '': ('/' + String(item.fieldid));
+       var herbid = item.id;
        var coldate = item.collected_s;
        var collectors  = item.collectedby;
 			 var species = item.species;
        var identifiers = item.identifiedby; 
-       var idstr = itemcode + '/' + herbid + (fieldid==='') ? '': '/' + fieldid; 
+       var idstr = itemcode + '/' + herbid + fieldid;
 
 		if (index % 2 == 0) { %>
-		<tr class="herbitem-even" onclick="showItem(<%= herbid %>)" >
+    <tr class="herbitem-even" data-id="<%= herbid %>">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -87,7 +87,7 @@ Created: 30 Aug, 2016
 			<td><%= identifiers %></td>
 		</tr>
    <%	} else { %>
-		<tr class="herbitem-odd" onclick="showItem(<%= herbid %>)" >
+    <tr class="herbitem-odd" data-id="<%= herbid %>">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -108,7 +108,7 @@ Created: 30 Aug, 2016
 #family-input, #genus-input, #species-input, #country-input, #itemcode-input 
 	{
 	width:300px;
-	}
+  }
 .clear-button{
 	display: none;
 	cursor:pointer;
@@ -127,6 +127,11 @@ label + * {margin-left: 2em; margin-top: 5px;}
   height: 2em;
 
 }
+#herbitem-page-lister{
+  text-align: center;
+  margin-bottom: 5px;  
+}
+
 .herbitem-odd{
   background: #FFFFFF;
   height: 2em;
@@ -137,7 +142,7 @@ cursor: pointer;
 }
 
 #herbitem-table > thead{
-background: #AAFFEE;
+background: #22FFAA;
 }
 
 #herbitem-content-found {
@@ -288,6 +293,12 @@ function herbitemFind(){
 <!-- ============ When DOM is ready ============  -->
 $(document).ready(function() { 
 
+$("#herbitem-table>tr").click(
+    function(e){
+    var curid=$(this).data('id'); 
+    location.href='http://botsad.ru/hitem/' + String(curid);
+    });
+  
 bindSearch('family', "{% trans 'Семейство'%}");
 bindSearch('genus', "{% trans 'Род'%}");
 bindSearch('country', "{% trans 'Страну'%}");
