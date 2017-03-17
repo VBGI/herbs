@@ -38,7 +38,7 @@ Created: 30 Aug, 2016
 
 <!-- ============-Searchform template ======================== -->
 <script id="searchform-template" type="text/x-underscore-template">
-
+<h2> {%trans "Результаты поиска:"%} </h2>
 <div id="herbitem-page-lister">
     <span class="step-links">
         <% if (has_previous){ %>
@@ -93,6 +93,7 @@ Created: 30 Aug, 2016
 			<td><%= identifiers %></td>
 		</tr>
 	<%	}}); %>
+<tfoot><tr><td>{%trans "Всего:"%} <%= total %></td></tr></tfoot>
 	</tbody>   
 </table>
 </script>
@@ -103,9 +104,10 @@ Created: 30 Aug, 2016
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
 
 <style type="text/css">
-#family-input, #genus-input, #species-input, #country-input, #itemcode-input 
+#family-input, #genus-input, #species-input, #country-input, #itemcode-input, #collectedby-input, #identifiedby-input,
+#place-input
 	{
-	width:300px;
+	width:200px;
   }
 .clear-button{
 	display: none;
@@ -128,6 +130,16 @@ label + * {margin-left: 2em; margin-top: 5px;}
 #herbitem-page-lister{
   text-align: center;
   margin-bottom: 5px;  
+}
+
+#searchform-clear{
+padding: 10px;
+font-size: medium;
+}
+
+#herbitemform-button{
+padding:10px;
+font-size:medium;
 }
 
 .herbitem-odd{
