@@ -302,6 +302,7 @@ bindSearch('country', "{% trans 'Страну'%}");
 
 $('#herbitemform-button').click(function (event){
 	event.preventDefault();
+  cpage = 1;
 	herbitemFind();
 	})
 $("#colstart-input, #colend-input").click(function (event){
