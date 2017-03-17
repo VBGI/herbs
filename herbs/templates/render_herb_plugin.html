@@ -29,12 +29,10 @@ Created: 30 Aug, 2016
   </ul>
 </div> 
 
-<!--  ======================================================== -->
-
+<!--  ======================================================== -->w
 <!--  ============Herbitem content found ===================== --> 
 <div id="herbitem-content-found"></div>
 <!--  ======================================================== -->
-
 
 <!--  ======================================================== -->
 
@@ -79,7 +77,7 @@ Created: 30 Aug, 2016
        var idstr = itemcode + '/' + herbid + fieldid;
 
 		if (index % 2 == 0) { %>
-    <tr class="herbitem-even" data-id="<%= herbid %>">
+    <tr class="herbitem-even" onclick="window.location.href='http://botsad.ru/hitem/<%= herbid %>';">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -87,7 +85,7 @@ Created: 30 Aug, 2016
 			<td><%= identifiers %></td>
 		</tr>
    <%	} else { %>
-    <tr class="herbitem-odd" data-id="<%= herbid %>">
+    <tr class="herbitem-odd" onclick="window.location.href='http://botsad.ru/hitem/<%= herbid %>';">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -139,6 +137,10 @@ label + * {margin-left: 2em; margin-top: 5px;}
 .herbitem-even:hover, .herbitem-odd:hover{
 background: #EEFFAA;
 cursor: pointer;
+}
+
+#herbitem-table {
+width:100%;
 }
 
 #herbitem-table > thead{
@@ -293,12 +295,7 @@ function herbitemFind(){
 <!-- ============ When DOM is ready ============  -->
 $(document).ready(function() { 
 
-$("#herbitem-table>tr").click(
-    function(e){
-    var curid=$(this).data('id'); 
-    location.href='http://botsad.ru/hitem/' + String(curid);
-    });
-  
+ 
 bindSearch('family', "{% trans 'Семейство'%}");
 bindSearch('genus', "{% trans 'Род'%}");
 bindSearch('country', "{% trans 'Страну'%}");
