@@ -76,7 +76,7 @@ Created: 30 Aug, 2016
        var collectors  = item.collectedby;
 			 var species = item.species;
        var identifiers = item.identifiedby; 
-       var idstr = itemcode + '/' + herbid + (fieldid) ? '/' + fieldid : '';
+       var idstr = itemcode + '/' + herbid + (fieldid==='') ? '': '/' + fieldid; 
 
 		if (index % 2 == 0) { %>
 		<tr class="herbitem-even" onclick="showItem(<%= herbid %>)" >

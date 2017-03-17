@@ -128,24 +128,20 @@ def show_herbs(request):
             data_tojson = []
             for item in obj_to_show.object_list:
                 data_tojson.append(
-                    {'family': item.species.genus.family.name if item.species else '',
-                     'genus':  item.species.genus.name if item.species else '',
-                     'species': item.species.name if item.species else '',
+                    {
+                     'species': item.get_full_name(),
                      'itemcode': item.itemcode,
                      'id': item.pk,
+                     'fieldid': item.fieldid,
                     # Extra data to show herbitem details
-                     'altitude': item.altitude,
-                     'district': item.district,
-                     'region': item.region,
                      'collectedby': item.collectedby,
                      'collected_s': item.collected_s,
                      'identifiedby': item.identifiedby,
-                     'note': item.note,
                      'created': str(item.created),
                      'updated': str(item.updated)
                      })
 
-            # ---------------------------------------------------------------------
+            # ------------------------------------------------------------------
             context.update({'herbobjs' : data_tojson,
                             'has_previous': obj_to_show.has_previous(),
                             'has_next': obj_to_show.has_next(),
