@@ -31,7 +31,7 @@
       <p><strong>{%trans "Семейство"%}:</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
       <p><strong>{%trans "Род"%}:</strong>&nbsp;<i>{{curobj.species.genus.get_full_name|capfirst}}</i></p>
       {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.genus.name|capfirst}} {{curobj.species.name}}</i> {{curobj.species.authorship}} </p>{%endif%}
-      <p><strong>{%trans "Место сбора"%}:</strong></p>
+      <p><strong>{%trans "Координаты сбора"%}:</strong></p>
       {%if curobj.coordinates.latitude and curobj.coordinates.longitude %}
       <p><strong>{%trans "Широта"%}:</strong> {{curobj.coordinates.latitude}}, &nbsp; 
       <strong>{%trans "Долгота"%}:</strong> {{curobj.coordinates.longitude}}</p>
