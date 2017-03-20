@@ -127,38 +127,50 @@ class PDF_DOC:
                      x + LABEL_WIDTH - PADDING_X, self.goto(y,2) + 4)
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln) + 1)
-        self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
+        self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         if family:
             self.pdf.cell(LABEL_WIDTH - 2 * PADDING_X, 0, family,
                           align='C')
         else:
-            self.pdf.cell(LABEL_WIDTH - 2 * PADDING_X, 0, '_____________________',
+            self.pdf.cell(LABEL_WIDTH - 2 * PADDING_X, 0, ' ' * 20,
                           align='C')
+
+        self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
         if gform:
             self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln) + 1)
             if gform == 'G':
                 self.pdf.cell(0, 0, 'Growth form')
             elif gform == 'D':
-                self.pdf.cell(0, 0, 'Dev.stage')
+                self.pdf.cell(0, 0, 'Dev.stage partly')
 
         # -------------- Plot Species name ------------
+        self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
         species_name = species
         author_name =  spauth if spauth else ''
-        self.pdf.set_font_size(SMALL_FONT_SIZE)
         sp_w = self.pdf.get_string_width(species_name)
-        self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
+        self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
         au_w = self.pdf.get_string_width(author_name)
         x_pos = LABEL_WIDTH / 2 - (au_w + sp_w + 2) / 2
         if x_pos > PADDING_X:
             self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
-        self.pdf.set_font('DejaVui', '', SMALL_FONT_SIZE)
-        self.pdf.set_font_size(SMALL_FONT_SIZE)
-        self.pdf.cell(0, 0, species_name)
-        self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
-        self.pdf.set_xy(x+ x_pos + sp_w + 2, self.goto(y, self._ln))
-        self.pdf.cell(0, 0, author_name)
+            self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
+            self.pdf.cell(0, 0, species_name)
+            self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
+            self.pdf.set_xy(x + x_pos + sp_w + 2, self.goto(y, self._ln))
+            self.pdf.cell(0, 0, author_name)
+        else:
+            x_pos = LABEL_WIDTH / 2 - sp_w / 2
+            self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
+            self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
+            self.pdf.cell(0, 0, species_name)
+            self._ln += 1
+            x_pos = LABEL_WIDTH / 2 - au_w / 2
+            self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
+            self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
+            self.pdf.cell(0, 0, author_name)
+
         # ----------------------------------------------
 
 
