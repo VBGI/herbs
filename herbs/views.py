@@ -253,10 +253,13 @@ def make_label(request, q):
     if objs.exists():
         for item in objs:
             # -------------- get indentifiedby ---------------
-            try:
-                dhist = DetHistory.objects.filter(herbitem=item).latest('identified_s')
-                identified = dhist.identifiedby
-            except DetHistory.DoesNotExist:
+            if not item.identifiedby:
+                try:
+                    dhist = DetHistory.objects.filter(herbitem=item).latest('identified_s')
+                    identified = dhist.identifiedby
+                except DetHistory.DoesNotExist:
+                    identified = ''
+            else:
                 identified = item.identifiedby
             ddict = _smartify_species(item)
             ddict.update({'date': _smartify_dates(item)})

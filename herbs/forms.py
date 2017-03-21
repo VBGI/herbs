@@ -99,12 +99,10 @@ class HerbItemForm(forms.ModelForm):
             icode = icode.strip()
         if ispub:
             if not icode:
-                self._errors.setdefault('public', ErrorList())
-                self._errors['public'].append(_('публиковать можно только при непустом уникальном коде образца'))
+                forms.ValidationError(_('публиковать можно только при непустом уникальном коде образца'))
             if sp:
                 if sp.status not in ['A', 'P']:
-                    self._errors.setdefault('species', ErrorList())
-                    self._errors['species'].append(_('вид не одобрен куратором; опубликовать можно только одобренные виды'))
+                    raise forms.ValidationError(_('вид не одобрен куратором; опубликовать можно только одобренные виды'))
         return formdata
 
 

@@ -26,6 +26,7 @@ def publish_herbitem(modeladmin, request, queryset):
     if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
         queryset.update(public=True)
         messages.success(request, 'Опубликовано %s записей' % (total,))
+        # TODO: Species status verification -- should be added
     else:
         messages.error(request, 'Вы должны быть куратором гербария, чтобы опубликовать записи')
 
