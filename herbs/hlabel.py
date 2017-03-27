@@ -31,13 +31,13 @@ registry.unregister(RussianLanguagePack)
 # - new mappings (modified russian language pack)
 
 new_mapping = (
-    u"abvgdeziiklmnoprstufhcC'y'ABVGDEZIIKLMNOPRSTUFH'Y'",
-    u"абвгдезийклмнопрстуфхцЦъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ",
+    u"abvgdeziklmnoprstufhcC'y'ABVGDEZIKLMNOPRSTUFH'Y'",
+    u"абвгдезиклмнопрстуфхцЦъыьАБВГДЕЗИКЛМНОПРСТУФХЪЫЬ",
 )
 
 new_reversed_specific_mapping = (
-    u"эЭъьЪЬ",
-    u"eE''''"
+    u"йЙэЭъьЪЬ",
+    u"иИeE''''"
 )
 
 new_pre_processor_mapping = {
