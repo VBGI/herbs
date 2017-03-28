@@ -182,10 +182,21 @@ class AdditionalsAdminInline(AjaxSelectAdminTabularInline):
 class FamilyAdmin(admin.ModelAdmin):
     form = FamilyForm
     search_fields = ('name',)
+    list_display = ('id', 'name', 'authorship', 'countobjs')
+
+    def countobjs(self, obj):
+       return  HerbItem.objects.filter(species__genus__family=obj).count()
+    countobjs.short_description = 'Количество объектов в БД'
+
 
 class GenusAdmin(AjaxSelectAdmin):
     form = GenusForm
     search_fileds = ('name', )
+    list_display = ('id', 'name', 'authorship', 'countobjs')
+
+    def countobjs(self, obj):
+       return  HerbItem.objects.filter(species__genus=obj).count()
+    countobjs.short_description = 'Количество объектов в БД'
 
 
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
@@ -373,6 +384,17 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 class SpeciesAdmin(AjaxSelectAdmin):
     form = SpeciesForm
     list_filter = ('status',)
+
+    list_display = ('id', 'defaultname', 'countobjs')
+
+    def defaultname(self, obj):
+        return obj.get_full_name()
+    defaultname.short_description = 'Название вида'
+
+    def countobjs(self, obj):
+       return  HerbItem.objects.filter(species=obj).count()
+    countobjs.short_description = 'Количество объектов в БД'
+
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
             if not request.user.has_perm('herbs.can_change_status'):
