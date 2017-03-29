@@ -201,7 +201,7 @@ class GenusAdmin(AjaxSelectAdmin):
 
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     model = HerbItem
-    search_fields = ('id', 'itemcode', 'collectedby', 'identifiedby',
+    search_fields = ('id', 'itemcode', 'fieldid', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
     list_display = ('id', 'get_full_name')
     list_display_links = ('id', 'get_full_name', )
