@@ -20,7 +20,7 @@ CS = getattr(settings,
 
 
 taxon_name_pat = re.compile(r'[a-z]+')
-itemcode_pat = re.compile(r'\d+')
+itemcode_pat = re.compile(r'^\d+$')
 
 class TaxonCleanerMixin(forms.ModelForm):
     def clean_name(self):
@@ -61,7 +61,7 @@ class HerbItemForm(forms.ModelForm):
             else:
                 query = None
             if query:
-                if mainquery.exclude(acronym=query[0]).exists():
+                if mainquery.filter(acronym=query[0]).exists():
                     raise forms.ValidationError(_("запись с таким кодом уже существует"))
             if not itemcode_pat.match(data):
                 raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
