@@ -292,12 +292,12 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return inlines
 
     def get_form(self, request, obj=None, **kwargs):
-        self.form = HerbItemForm
         if obj:
-            if obj.public:
-                self.form = HerbItemFormSimple
-                return super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
+            if obj.public and HerbItem.objects.filter(id=obj.pk).exists():
+                kwargs['form'] = HerbItemFormSimple
+                return  super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
 
+        kwargs['form'] = HerbItemForm
         ExtendedForm = super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
         class NewModelForm(ExtendedForm):
             def __new__(self, *args, **kwargs):
