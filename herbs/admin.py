@@ -220,7 +220,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return ('id', 'get_full_name')
 
     def get_list_display(self, request):
-        if request.user.has_perm('herbs.can_see_additionals'):
+        if not request.user.has_perm('herbs.can_see_additionals'):
             list_display = ('id', 'get_full_name', 'itemcode', 'public',
                         'collectedby', 'updated', 'collected_s')
         else:
