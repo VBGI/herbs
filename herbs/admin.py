@@ -203,11 +203,9 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     model = HerbItem
     search_fields = ('id', 'itemcode', 'fieldid', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
-    list_display = ('id', 'get_full_name')
     list_display_links = ('id', 'get_full_name', )
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, 'delete_selected')
     exclude = ('ecodescr',)
-    inlines = (DetHistoryAdminInline, AdditionalsAdminInline)
 
     def delete_selected(self, request, obj):
         nquery = obj.filter(public=False)
@@ -220,7 +218,11 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     delete_selected.short_description = 'Удалить гербарные образцы'
 
     def get_list_display(self, request):
-        list_display = ('id', 'get_full_name', 'itemcode', 'public',
+        if request.user.has_perm('herbs.can_see_additionals'):
+            list_display = ('id', 'get_full_name', 'itemcode', 'public',
+                        'collectedby', 'updated', 'collected_s')
+        else:
+            list_display = ('id', 'get_full_name', 'itemcode', 'fieldid', 'public',
                         'collectedby', 'updated', 'collected_s')
         if request.user.has_perm('herbs.can_set_code') or request.user.is_superuser:
            list_display += ('user',)
@@ -280,8 +282,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return readonly_fields
 
     def get_inline_instances(self, request, obj=None):
-        inlines = list(super(HerbItemAdmin,
-                             self).get_inline_instances(request, obj=obj))
+        inlines = [DetHistoryAdminInline, AdditionalsAdminInline]
         if obj:
             if obj.public:
                 inlines = []
