@@ -203,7 +203,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     model = HerbItem
     search_fields = ('id', 'itemcode', 'fieldid', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
-    list_display_links = ('id', 'get_full_name', )
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, 'delete_selected')
     exclude = ('ecodescr',)
 
@@ -216,6 +215,9 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         else:
             messages.error(request, 'Нечего удалять. Гербарные образцы должны быть сняты с публикации перед удалением.')
     delete_selected.short_description = 'Удалить гербарные образцы'
+
+    def get_list_display_links(self, request, list_display):
+        return ('id', 'get_full_name')
 
     def get_list_display(self, request):
         if request.user.has_perm('herbs.can_see_additionals'):
@@ -283,14 +285,18 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
     def get_inline_instances(self, request, obj=None):
         inlines = [DetHistoryAdminInline, AdditionalsAdminInline]
+        inline_instances = []
         if obj:
             if obj.public:
-                inlines = []
-        if not request.user.has_perm('herbs.can_see_additionals'):
-            inlines = filter(lambda x: not isinstance(x,
-                                                      AdditionalsAdminInline),
-                             inlines)
-        return inlines
+                return []
+        for inl_cl in inlines:
+            cur_inline = inl_cl(self.model, self.admin_site)
+            if not request.user.has_perm('herbs.can_see_additionals'):
+                if not isinstance(cur_inline, AdditionalsAdminInline):
+                    inline_instances.append(cur_inline)
+            else:
+                inline_instances.append(cur_inline)
+        return inline_instances
 
     def get_form(self, request, obj=None, **kwargs):
         if obj:
