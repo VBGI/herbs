@@ -3,7 +3,12 @@
 
 import fpdf
 import tempfile
-import qrcode, os
+import qrcode
+import os
+from transliterate.base import TranslitLanguagePack, registry
+from transliterate import translit
+from transliterate.contrib.languages.ru.translit_language_pack import RussianLanguagePack
+
 
 msgs = {'org':   'Herbarium',
         'descr': 'of the %s (%s)',
@@ -20,11 +25,6 @@ msgs = {'org':   'Herbarium',
 
 
 # -------------- Transliterate customization -------
-
-from transliterate.base import TranslitLanguagePack, registry
-from transliterate import translit
-
-from transliterate.contrib.languages.ru.translit_language_pack import RussianLanguagePack
 
 registry.unregister(RussianLanguagePack)
 
@@ -73,7 +73,6 @@ registry.register(NewRussianLanguagePack)
 # --------------------------------------------------
 
 
-
 FPDF = fpdf.FPDF
 
 BASE_URL = os.path.dirname(os.path.abspath(__file__))
@@ -105,7 +104,8 @@ HERBURL = 'http://botsad.ru/hitem/%s'
 
 
 def insert_qr(pdf, x, y, code=1234567):
-    if len(code) > 8: return;
+    if len(code) > 8:
+        return
     qr = qrcode.QRCode(
         version=2,
         error_correction=qrcode.constants.ERROR_CORRECT_M,
@@ -130,6 +130,7 @@ def insert_qr(pdf, x, y, code=1234567):
         except IOError:
             pass
 
+
 class PDF_DOC:
     def __init__(self):
         self.pdf = FPDF(orientation='L')
@@ -142,9 +143,8 @@ class PDF_DOC:
         self._ln = 0
         self.lnhght = LINE_HEIGHT
 
-
     def goto(self, y, n, inter=0):
-        return  y + PADDING_Y + (self.lnhght + INTERSPACE) * n + inter
+        return y + PADDING_Y + (self.lnhght + INTERSPACE) * n + inter
 
     def _add_label(self, x, y, family='', species='', spauth='',
                    date='', latitude='', longitude='',
@@ -170,8 +170,8 @@ class PDF_DOC:
         self.pdf.set_xy(x + PADDING_X + LOGO_WIDTH, self.goto(y, self._ln))
         self.pdf.cell(LABEL_WIDTH - LOGO_WIDTH - 2 * PADDING_X, 0, address,
                       align='C')
-        self.pdf.line(x + PADDING_X, self.goto(y,2) + 4,
-                     x + LABEL_WIDTH - PADDING_X, self.goto(y,2) + 4)
+        self.pdf.line(x + PADDING_X, self.goto(y, 2) + 4,
+                      x + LABEL_WIDTH - PADDING_X, self.goto(y, 2) + 4)
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln) + 1)
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
@@ -195,7 +195,7 @@ class PDF_DOC:
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
         species_name = species
-        author_name =  spauth if spauth else ''
+        author_name = spauth if spauth else ''
         sp_w = self.pdf.get_string_width(species_name)
         self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
         au_w = self.pdf.get_string_width(author_name)
@@ -223,17 +223,17 @@ class PDF_DOC:
             scaled = True
         # ----------------------------------------------
 
-
         # ------------- place of collecting ------------
-        if not country: country = ''
+        if not country:
+            country = ''
         self._ln += 1
-        self.pdf.set_xy(x + PADDING_X, self.goto(y,self._ln))
+        self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
         tw = self.pdf.get_string_width(msgs['country'])
-        self.pdf.cell(0,0, msgs['country'])
+        self.pdf.cell(0, 0, msgs['country'])
         self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
-        cw = self.pdf.get_string_width( country)
+        cw = self.pdf.get_string_width(country)
         self.pdf.cell(0, 0, country)
 
         if region:
@@ -278,14 +278,14 @@ class PDF_DOC:
                 self.lnhght *= LINE_SCALE**2
                 self._ln += 2 if not scaled else 2.5
             elif len(prepare) == 3:
-        	self.lnhght *= LINE_SCALE
-        	self._ln+=1
+                self.lnhght *= LINE_SCALE
+                self._ln += 1
             for line in prepare[1:4]:
                 self._ln += 1
                 self.pdf.set_xy(x + PADDING_X + 2, self.goto(y, self._ln))
                 self.pdf.cell(0, 0, line)
 
-       # ----------------------------------------------
+        # ----------------------------------------------
         # ------------- Altitude info ------------------
         self._ln += 1
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
@@ -305,7 +305,7 @@ class PDF_DOC:
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         if latitude and longitude:
             self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
-            self.pdf.cell(0, 0, 'LAT=' + str(latitude) + u'\N{DEGREE SIGN},'+\
+            self.pdf.cell(0, 0, 'LAT=' + str(latitude) + u'\N{DEGREE SIGN},' +
                           ' LON=' + str(longitude) + u'\N{DEGREE SIGN}')
         # ----------------------------------------------
 
@@ -334,14 +334,14 @@ class PDF_DOC:
             ss += self.pdf.get_string_width(k + ' ')
             if (ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)) and fflag:
                 fline.append(k)
-            if  (ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)) and fflag:
+            if (ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)) and fflag:
                 break
         if fline:
             fline = ' '.join(fline).strip()
-            if fline[-1] == ',': fline = fline[:-1]
+            if fline[-1] == ',':
+                fline = fline[:-1]
             self.pdf.cell(0, 0, fline)
         # ----------------------------------------------
-
 
         # --------------- Identified by ----------------
         identified = translit(identified, 'ru', reversed=True)
@@ -366,7 +366,7 @@ class PDF_DOC:
         self.pdf.set_font_size(SMALL_FONT_SIZE-4)
         tw = self.pdf.get_string_width(HERBURL % itemid)
         self.pdf.set_xy(x + LABEL_WIDTH - PADDING_X - tw, y + LABEL_HEIGHT - 2)
-        self.pdf.cell(0,0, HERBURL % itemid)
+        self.pdf.cell(0, 0, HERBURL % itemid)
 
         # ----------------------------------------------
 
@@ -392,7 +392,6 @@ class PDF_DOC:
 
         # ----------------------------------------------
 
-
     def make_label(self, x, y, **kwargs):
         self._ln = 0
         self._add_label(x, y, **kwargs)
@@ -408,7 +407,7 @@ class PDF_DOC:
         elif len(l_labels) == 3:
             self.make_label(x, y, **l_labels[0])
             self.make_label(x + LABEL_WIDTH + 2, y, **l_labels[1])
-            self.make_label(x, y+ LABEL_HEIGHT + 1, **l_labels[2])
+            self.make_label(x, y + LABEL_HEIGHT + 1, **l_labels[2])
         elif len(l_labels) == 4:
             self.make_label(x, y, **l_labels[0])
             self.make_label(x + LABEL_WIDTH + 2, y, **l_labels[1])
@@ -419,8 +418,8 @@ class PDF_DOC:
             pass
 
     def _test_page(self):
-        testdict = {'family': 'AWESOMEFAMILY', 'species':'Some species',
-                    'spauth':'(Somebody) Author',
+        testdict = {'family': 'AWESOMEFAMILY', 'species': 'Some species',
+                    'spauth': '(Somebody) Author',
                     'date': '12 Nov 2002',
                     'latitude': '12.1231',
                     'longitude': '123.212312',
@@ -428,10 +427,10 @@ class PDF_DOC:
                     'altitude': '123 m o.s.l',
                     'country': u'Россия',
                     'place': u'Никому неизвестное село глубоко в лесу; На горе росли цветы небывалой красоты, мы собрали их в дождливую погоду и было очень прохладно',
-                    'collected':u'Один М.С., Другой Б.В., Третий А.А., Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой' ,
-                    'identified':u'Один, Другой',
+                    'collected': u'Один М.С., Другой Б.В., Третий А.А., Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой',
+                    'identified': u'Один, Другой',
                     'number': '17823781', 'itemid': '12312', 'fieldid': '123456789asdfghj',
-                    'acronym':'VBGI',
+                    'acronym': 'VBGI',
                     'institute': 'Botanical Garden-Institute FEB RAS',
                     'address': '690018, Russia, Vladivosotk, Makovskogo st. 142',
                     'gform': 'G'}
