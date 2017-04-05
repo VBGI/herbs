@@ -3,7 +3,7 @@
 import re
 
 from ajax_select.fields import (AutoCompleteSelectField,
-                               AutoCompleteField)
+                                AutoCompleteField)
 from django import forms
 from django.utils.translation import gettext as _
 
@@ -18,9 +18,9 @@ CS = getattr(settings,
              '%s_CH_SIZE' % HerbsAppConf.Meta.prefix.upper(), 80)
 
 
-
 taxon_name_pat = re.compile(r'[a-z]+')
 itemcode_pat = re.compile(r'^\d+$')
+
 
 class TaxonCleanerMixin(forms.ModelForm):
     def clean_name(self):
@@ -67,7 +67,6 @@ class HerbItemForm(forms.ModelForm):
                 raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
         return data
 
-
     def clean(self):
         '''Checking consistency for dates '''
         formdata = self.cleaned_data
@@ -105,7 +104,6 @@ class HerbItemForm(forms.ModelForm):
                     raise forms.ValidationError(_('вид не одобрен куратором; опубликовать можно только одобренные виды'))
         return formdata
 
-
     class Meta:
         model = HerbItem
 
@@ -113,11 +111,11 @@ class HerbItemForm(forms.ModelForm):
     detailed = forms.CharField(widget=forms.Textarea, required=False, label=_('Место сбора'))
     detailed.help_text = _("локализация, экоусловия")
     note = forms.CharField(widget=forms.Textarea, required=False, label=_('Заметки'))
-    country =  AutoCompleteSelectField('country', required=False, help_text=None, label=_("Страна"))
-    region =  AutoCompleteField('region', required=False, help_text=None, label=_("Регион"), attrs={'size': CS})
-    district =  AutoCompleteField('district', required=False, help_text=None, label=_("Район"), attrs={'size': CS})
-    collectedby =  AutoCompleteField('collectedby', required=False, help_text=None, label=_("Собрали"), attrs={'size': CS})
-    identifiedby =  AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Определили"), attrs={'size': CS})
+    country = AutoCompleteSelectField('country', required=False, help_text=None, label=_("Страна"))
+    region = AutoCompleteField('region', required=False, help_text=None, label=_("Регион"), attrs={'size': CS})
+    district = AutoCompleteField('district', required=False, help_text=None, label=_("Район"), attrs={'size': CS})
+    collectedby = AutoCompleteField('collectedby', required=False, help_text=None, label=_("Собрали"), attrs={'size': CS})
+    identifiedby = AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Определили"), attrs={'size': CS})
 
 
 class DetHistoryForm(forms.ModelForm):
@@ -147,12 +145,12 @@ class SearchForm(forms.Form):
     itemcode = forms.CharField(required=False, label=_('Код1'), max_length=15)
     collectedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     identifiedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
-    country =  AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
+    country = AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
     country.widget.attrs['id'] = 'country-input'
     place = forms.CharField(required=False, label=_('Место'), max_length=30)
-    colstart = forms.DateField(required=False, label=_('Начало сбора'), widget = AdminDateWidget)
+    colstart = forms.DateField(required=False, label=_('Начало сбора'), widget=AdminDateWidget)
     colstart.widget.attrs['id'] = 'colstart-input'
-    colend = forms.DateField(required=False, label=_('Конец сбора'), widget = AdminDateWidget)
+    colend = forms.DateField(required=False, label=_('Конец сбора'), widget=AdminDateWidget)
     colend.widget.attrs['id'] = 'colend-input'
 
     # sorting parameters
