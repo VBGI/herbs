@@ -17,14 +17,14 @@ ACHAR = getattr(settings,
 class FamilyLookup(LookupChannel):
     model = Family
     def get_query(self, q, request):
-        return self.model.objects.filter(name__icontains=q).order_by('name')[:NS]
+        return self.model.objects.filter(name__istartswith=q).order_by('name')[:NS]
 
 
 @register('genus')
 class GenusLookup(LookupChannel):
     model = Genus
     def get_query(self, q, request):
-        return self.model.objects.filter(name__icontains=q).order_by('name')[:NS]
+        return self.model.objects.filter(name__istartswith=q).order_by('name')[:NS]
 
 
 @register('species')
