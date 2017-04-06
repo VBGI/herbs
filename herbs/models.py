@@ -37,7 +37,7 @@ class HerbItemMixin(models.Model):
                  )
 
     species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
-                                verbose_name=_('вид'))
+                                verbose_name=_('вид'), related_name='herbitem')
 
     # item specific codes (used in the herbarium store)
     itemcode = models.CharField(max_length=15, default='', null=True,
