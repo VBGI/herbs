@@ -189,23 +189,28 @@ def advice_select(request):
         query = request.GET.get('q', '')
         RU = translation.get_language() == 'ru'
         if cfield == 'family':
+            famquery = Family.objects.annotate(herbitem_count=Count('genus__species__herbitem'))
             if query:
-                objects = Family.objects.annotate(herbitem_count = Count('genus__species__herbitem')).filter(herbitem_count__gt=0)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+                objects = famquery.filter(name__istartswith=query, herbitem_count__gt=0)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             else:
-                objects = Family.objects.all()[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+                objects = famquery.filter(herbitem__count__gt=0)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             data = [{'id': item.pk, 'text': item.name} for item in objects]
         elif cfield == 'genus':
+            genquery = Genus.objects.annotate(herbitem_count=Count('species__herbitem'))
             if dataform.cleaned_data['family']:
                 if query:
-                    objects = Genus.objects.filter(family__name__iexact=dataform.cleaned_data['family'],
-                                                   name__icontains=query)
+
+                    objects = genquery.filter(family__name__iexact=dataform.cleaned_data['family'],
+                                                   name__istartswith=query,
+                                              herbitem_count__gt=0)
                 else:
-                    objects = Genus.objects.filter(family__name__iexact=dataform.cleaned_data['family'])
+                    objects = genquery.filter(family__name__iexact=dataform.cleaned_data['family'],
+                                                   herbitem_count__gt=0)
             else:
                 if query:
-                    objects = Genus.objects.filter(name__icontains=query)
+                    objects = genquery.filter(name__istartswith=query, herbitem_count__gt=0)
                 else:
-                    objects = Genus.objects.all()
+                    objects = genquery.filter(herbitem_count__gt=0)
             data = [{'id': item.pk, 'text': item.name} for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
         elif cfield == 'country':
             objects = Country.objects.filter(Q(name_ru__icontains=query)|
