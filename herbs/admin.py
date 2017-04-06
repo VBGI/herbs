@@ -191,7 +191,7 @@ class FamilyAdmin(admin.ModelAdmin):
 
 class GenusAdmin(AjaxSelectAdmin):
     form = GenusForm
-    search_fileds = ('name', )
+    search_fields = ('name', )
     list_display = ('id', 'name', 'authorship', 'countobjs')
 
     def countobjs(self, obj):
@@ -391,7 +391,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 class SpeciesAdmin(AjaxSelectAdmin):
     form = SpeciesForm
     list_filter = ('status',)
-
+    search_fields = ('genus__name', )
     list_display = ('id', 'defaultname', 'countobjs')
 
     def defaultname(self, obj):
