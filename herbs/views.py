@@ -190,7 +190,7 @@ def advice_select(request):
             if query:
                 objects = famquery.filter(name__istartswith=query, herbitem_count__gt=0)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             else:
-                objects = famquery.filter(herbitem__count__gt=0)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+                objects = famquery.filter(herbitem_count__gt=0)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             data = [{'id': item.pk, 'text': item.name} for item in objects]
         elif cfield == 'genus':
             genquery = Genus.objects.annotate(herbitem_count=Count('species__herbitem'))
