@@ -391,7 +391,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 class SpeciesAdmin(AjaxSelectAdmin):
     form = SpeciesForm
     list_filter = ('status',)
-
+    search_fileds = ('genus__name', )
     list_display = ('id', 'defaultname', 'countobjs')
 
     def defaultname(self, obj):
