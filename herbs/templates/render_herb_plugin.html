@@ -348,8 +348,8 @@ el.select2('val', '');
 $(this).siblings('input[type=search]').val(''); //cleaning regular input field
 }
 })
-$("#colstart-input").datepicker();
-$("#colend-input").datepicker();
+$("#colstart-input").datepicker({dateFormat: 'dd.mm.yy'});
+$("#colend-input").datepicker({dateFormat: 'dd.mm.yy'});
 $("#searchform-clear").click(function (event){
 	event.preventDefault();
 $('#family-input').select2('val',''); 

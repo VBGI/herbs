@@ -93,12 +93,10 @@ def show_herbs(request):
                          Q(district__icontains=data['place'])] if data['place'] else []
 
             # dates
-            stdate = parse_date(request.GET.get('colstart', ''))
-            endate = parse_date(request.GET.get('colend', ''))
-
-            #TODO: testing needed
-            bigquery += [Q(collected_s__gt=stdate)] if stdate else []
-            bigquery += [Q(collected_e__lt=endate)] if endate else []
+            if data['colend']:
+                bigquery += [Q(collected_e__lt=data['colend'])]
+            if data['colstart']:
+                bigquery += [Q(collected_s__gt=data['colstart'])]
 
             object_filtered = HerbItem.objects.filter(reduce(operator.and_,
                                                              bigquery))
@@ -112,7 +110,6 @@ def show_herbs(request):
             # ------- Sorting items --------------
             # sorting isn't implemented yet
             # ---------  pagination-----------------
-
 
             pagcount = request.GET.get('pagcount', '')
             page = request.GET.get('page', '1')
