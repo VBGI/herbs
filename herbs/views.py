@@ -3,7 +3,7 @@ import operator
 import datetime
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.forms.models import model_to_dict
 from .models import Family, Genus, HerbItem, Species, Country, DetHistory
 from .forms import SearchForm
@@ -189,9 +189,8 @@ def advice_select(request):
         query = request.GET.get('q', '')
         RU = translation.get_language() == 'ru'
         if cfield == 'family':
-            # TODO: Returned families should be restricted by existance in the DB.
             if query:
-                objects = Family.objects.filter(name__icontains=query)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+                objects = Family.objects.annotate(herbitem_count = Count('genus__species__herbitem')).filter(herbitem_count__gt=0)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             else:
                 objects = Family.objects.all()[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
             data = [{'id': item.pk, 'text': item.name} for item in objects]
