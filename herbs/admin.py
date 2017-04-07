@@ -219,6 +219,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     def get_list_display_links(self, request, list_display):
         return ('id', 'get_full_name')
 
+
     def get_list_display(self, request):
         if not request.user.has_perm('herbs.can_see_additionals'):
             list_display = ('id', 'get_full_name', 'itemcode', 'public',
