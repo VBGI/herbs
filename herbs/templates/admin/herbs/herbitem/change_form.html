@@ -64,8 +64,7 @@
 {% block after_related_objects %}{% endblock %}
 
 {% block submit_buttons_bottom %}
-
-{%if not original.public%}{% submit_row %}{%endif%}
+{% submit_row %}
 
 <div id="save-for-next-herbitem" class="submit-row">
   {%if request.session.sfn%}
