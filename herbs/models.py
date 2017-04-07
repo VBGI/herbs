@@ -16,7 +16,7 @@ from django.core.exceptions import PermissionDenied
 from .utils import  _smartify_dates
 
 
-
+#TODO: Move to settings...
 UPLOAD_MAX_FILE_SIZE = 5 * 10 ** 6 # 5 MB defualt
 
 _fields_to_copy = ('family', 'genus',  'species',
@@ -330,6 +330,8 @@ class HerbItem(HerbItemMixin):
         permissions = (('can_set_code', 'Can set item code and publish'),
                        ('can_see_additionals', 'Can see additional species'))
 
+    def get_absolute_url(self):
+        return  getattr(settings, 'HERBS_HERBITEM_PAGE') + '%s' % self.id
 
     def delete(self, *args, **kwargs):
         if self.public:
