@@ -283,30 +283,31 @@ def  _smartify_family(family):
         return ''
     return family.upper()
 
-def _smartify_dates(item):
-
-    if not (item.collected_s or item.collected_e):
+def _smartify_dates(item, prefix='collected'):
+    date_s = getattr(item, prefix + '_s', None)
+    date_e = getattr(item, prefix + '_e', None)
+    if not (date_s or date_e):
         return ''
-    if item.collected_s:
-        if item.collected_e:
-            if (item.collected_e.month == item.collected_s.month) and\
-                    (item.collected_s.day == 1) and (item.collected_e.day in\
+    if date_s:
+        if date_e:
+            if (date_e.month == date_s.month) and\
+                    (date_s.day == 1) and (date_e.day in\
                                                      [30,31]):
-                return item.collected_s.strftime('%b %Y')
+                return date_s.strftime('%b %Y')
             else:
-                if item.collected_s < item.collected_e:
-                    return '%s ' % item.collected_s.strftime('%d %b %Y') +\
-                       u'\N{EM DASH}' + ' %s' % item.collected_e.strftime('%d %b %Y')
-                elif item.collected_s == item.collected_e:
-                    return '%s ' % item.collected_s.strftime('%d %b %Y')
+                if date_s < date_e:
+                    return '%s ' % date_s.strftime('%d %b %Y') +\
+                       u'\N{EM DASH}' + ' %s' % date_e.strftime('%d %b %Y')
+                elif date_s == date_e:
+                    return '%s ' % date_s.strftime('%d %b %Y')
                 else:
-                    return '%s ' % item.collected_s.strftime('%d %b %Y') + u'\N{EM DASH}' + ' '*8
+                    return '%s ' % date_s.strftime('%d %b %Y') + u'\N{EM DASH}' + ' '*8
 
         else:
-             return '%s' % item.collected_s.strftime('%d %b %Y')
-    elif item.collected_e:
+             return '%s' % date_s.strftime('%d %b %Y')
+    elif date_e:
         return ' ' * 8 + u'\N{EM DASH}' +\
-            ' %s' % item.collected_e.strftime('%d %b %Y')
+            ' %s' % date_e.strftime('%d %b %Y')
 
 
 
