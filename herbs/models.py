@@ -134,7 +134,7 @@ class HerbItemMixin(models.Model):
 
     @property
     def detdate(self):
-        return _smartify_dates(self)
+        return _smartify_dates(self, prefix='identified')
 
 
     class Meta:
