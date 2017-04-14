@@ -94,7 +94,7 @@ def show_herbs(request):
 
             # dates
             if data['colend'] and data['colstart']:
-                colendin = Q(collected_e__gte=data['colstart']) & Q(collected_e_lte=data['colend'])
+                colendin = Q(collected_e__gte=data['colstart']) & Q(collected_e__lte=data['colend'])
                 colstartin = Q(collected_s__gte=data['colstart']) & Q(collected_s__lte=data['colend'])
                 bigquery += [colstartin | colendin]
 
