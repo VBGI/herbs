@@ -35,10 +35,16 @@ Created: 30 Aug, 2016
 </div> 
 
 <!--  ======================================================== -->
+
 <!--  ============Herbitem content found ===================== --> 
 <div id="herbitem-content-found"></div>
 <!--  ======================================================== -->
 
+
+<!--  ============Herbitem popup ============================= --> 
+<div id="herbitem-popup">
+  <iframe id="herbitem-iframe" src=""></iframe>
+</div>
 <!--  ======================================================== -->
 
 <!-- ============-Searchform template ======================== -->
@@ -82,7 +88,7 @@ Created: 30 Aug, 2016
        var idstr = itemcode + '/' + herbid + fieldid;
 
 		if (index % 2 == 0) { %>
-    <tr class="herbitem-even" onclick="window.open('http://botsad.ru/hitem/<%= herbid %>');">
+    <tr class="herbitem-even" onclick="showHerbitem(<%= herbid %>)">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -90,7 +96,7 @@ Created: 30 Aug, 2016
 			<td><%= identifiers %></td>
 		</tr>
    <%	} else { %>
-    <tr class="herbitem-odd" onclick="window.open('http://botsad.ru/hitem/<%= herbid %>');">
+    <tr class="herbitem-odd" onclick="showHerbitem(<%= herbid %>);">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -180,6 +186,10 @@ padding: 4px;
   float:left;
 }
 
+
+#herbitem-popup{
+display: none;
+}
 
 #herbitem-next-page, #herbitem-previous-page {
   cursor: pointer;
@@ -271,6 +281,15 @@ $(element).select2({
     	 escapeMarkup: function (m) { return m; }
     		});
 }
+
+
+function showHerbitem(herbid){
+  $("#herbitem-popup").hide();
+  $("#herbitem-popup").html("");
+  $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
+  $("#herbitem-dialog").dialog("open"); 
+ }
+
 
 function herbitemFind(){
 	var family = getornone('#family-input');
@@ -364,6 +383,17 @@ $( "div#herb-search-form ul li input:text" ).each(function() {
 cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
 });
 herbitemFind();
+
+$("#herbitem-popup").dialog({
+    autoOpen: false,
+    modal: true,
+    minWidth: 200,
+    maxWidth: 1000,
+    minHeight: 200,
+    maxHeight: 1000,
+    width: 400 
+     });
+
 });
 <!--  =========================================== -->
 </script>
