@@ -187,10 +187,6 @@ padding: 4px;
 }
 
 
-#herbitem-popup{
-display: none;
-}
-
 #herbitem-next-page, #herbitem-previous-page {
   cursor: pointer;
   border-radius: 5px;
@@ -284,8 +280,7 @@ $(element).select2({
 
 
 function showHerbitem(herbid){
-  $("#herbitem-popup").hide();
-  $("#herbitem-popup").html("");
+  $("#herbitem-popup").dialog("close");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
   $("#herbitem-dialog").dialog("open"); 
  }
