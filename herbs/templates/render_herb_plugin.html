@@ -289,7 +289,7 @@ function showHerbitem(herbid){
   $("#herbitem-popup").dialog("close");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
   $("#herbitem-popup").dialog("open"); 
-  $('span[class*=ui-icon-arrowthick-1-ne]').click(function(){
+  $("span[class*='ui-icon-arrowthick-1-ne']").click(function(){
     $("#herbitem-popup").dialog("close");
     var win = window.open('{{herbitem_personal_url}} + herbid', '_blank');
       if (win) {
@@ -401,10 +401,11 @@ $("#herbitem-popup").dialog({
     maxWidth: 1000,
     minHeight: 200,
     maxHeight: 1000,
-    width: 400 
+    width: 400,
+    dialogClass: 'herbitem-main-popup'  
      });
 
-$("#herbitem-popup").children(".ui-dialog-titlebar").append("<span class='ui-icon ui-icon-arrowthick-1-nep'></span>");
+$("herbitem-main-popup").children(".ui-dialog-titlebar").append("<span class='ui-icon ui-icon-arrowthick-1-ne'></span>");
 
 
 
