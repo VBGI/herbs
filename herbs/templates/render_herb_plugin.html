@@ -289,7 +289,7 @@ $(element).select2({
 
 
 function showHerbitem(herbid){
-  var el = $("span[class='ui-icon ui-icon-arrowthick-1-ne']");
+  var el = $("button[class*='herbitem-newpage']");
   $("#herbitem-popup").dialog("close");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
   $("#herbitem-popup").dialog("open"); 
@@ -410,10 +410,7 @@ $("#herbitem-popup").dialog({
     dialogClass: 'herbitem-main-popup'  
      });
 
-$(".herbitem-main-popup").children(".ui-dialog-titlebar").append("<span class='ui-icon ui-icon-arrowthick-1-ne'></span>");
-
-
-
+$(".herbitem-main-popup").children(".ui-dialog-titlebar").append("<button title='{% trans 'Открыть в отедльном окне'%}' class='ui-button ui-corner-all ui-widget ui-button-icon-only herbitem-newpage' type='button'><span class='ui-button-icon ui-icon ui-icon-arrowthick-1-ne'></span><span class='ui-button-icon-space'> </span></button>");
 });
 <!--  =========================================== -->
 </script>
