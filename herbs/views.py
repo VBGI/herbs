@@ -123,6 +123,8 @@ def show_herbs(request):
             page = request.GET.get('page', '1')
             pagcount = int(pagcount) if pagcount.isdigit() else settings.HERBS_PAGINATION_COUNT
             page = int(page) if page.isdigit() else 1
+            if pagcount <= 0 or pagcount > 1000:
+                pagcount = settings.HERBS_PAGINATION_COUNT
             paginator = Paginator(object_filtered, pagcount)
             try:
                 obj_to_show = paginator.page(page)
