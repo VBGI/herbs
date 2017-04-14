@@ -192,6 +192,9 @@ padding: 4px;
   float:left;
 }
 
+.ui-icon-arrowthick-1-ne {
+cursor: pointer;
+}
 
 #herbitem-next-page, #herbitem-previous-page {
   cursor: pointer;
@@ -286,12 +289,14 @@ $(element).select2({
 
 
 function showHerbitem(herbid){
+  var el = $("span[class='ui-icon ui-icon-arrowthick-1-ne']");
   $("#herbitem-popup").dialog("close");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
   $("#herbitem-popup").dialog("open"); 
-  $("span[class*='ui-icon-arrowthick-1-ne']").click(function(){
+  el.unbind("click");
+  el.click(function(){
     $("#herbitem-popup").dialog("close");
-    var win = window.open('{{herbitem_personal_url}} + herbid', '_blank');
+    var win = window.open('{{herbitem_personal_url}}' + herbid, '_blank');
       if (win) {
          win.focus();
           } else {
@@ -405,7 +410,7 @@ $("#herbitem-popup").dialog({
     dialogClass: 'herbitem-main-popup'  
      });
 
-$("herbitem-main-popup").children(".ui-dialog-titlebar").append("<span class='ui-icon ui-icon-arrowthick-1-ne'></span>");
+$(".herbitem-main-popup").children(".ui-dialog-titlebar").append("<span class='ui-icon ui-icon-arrowthick-1-ne'></span>");
 
 
 
