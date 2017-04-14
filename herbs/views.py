@@ -93,16 +93,9 @@ def show_herbs(request):
                          Q(district__icontains=data['place'])] if data['place'] else []
 
             # dates
-            if data['colend']:
-                colendin = Q(collected_e__gt=data['colend']) & Q(collected_s_lt=data['colend'])
-            else:
-                colendin = None
-            if data['colstart']:
-                colstartin = Q(collected_e__gt=data['colstart']) & Q(collected_s__lt=data['colstart'])
-            else:
-                colstartin = None
-
-            if colstartin or colendin:
+            if data['colend'] and data['colstart']:
+                colendin = Q(collected_e__gte=data['colstart']) & Q(collected_e_lte=data['colend'])
+                colstartin = Q(collected_s__gte=data['colstart']) & Q(collected_s__lte=data['colend'])
                 bigquery += [colstartin | colendin]
 
 
