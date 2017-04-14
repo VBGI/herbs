@@ -79,6 +79,8 @@ BASE_URL = os.path.dirname(os.path.abspath(__file__))
 
 fpdf.set_global('FPDF_FONT_DIR', os.path.join(BASE_URL, './fonts'))
 
+#TODO: refactoring needed:::!!!
+
 BGI_LOGO_IMG = os.path.join(BASE_URL, './imgs', 'bgi_logo.png')
 
 LABEL_WIDTH = 140
