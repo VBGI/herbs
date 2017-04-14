@@ -43,6 +43,7 @@ Created: 30 Aug, 2016
 
 <!--  ============Herbitem popup ============================= --> 
 <div id="herbitem-popup">
+  <div class="herbitem-newpage"></div>
   <iframe id="herbitem-iframe" src=""></iframe>
 </div>
 <!--  ======================================================== -->
@@ -192,8 +193,12 @@ padding: 4px;
   float:left;
 }
 
-.ui-icon-arrowthick-1-ne {
-cursor: pointer;
+.herbitem-newpage{
+color: blue;
+}
+.herbitem-newpage:hover{
+  cursor: pointer;
+  color: yellow;
 }
 
 #herbitem-next-page, #herbitem-previous-page {
@@ -289,7 +294,9 @@ $(element).select2({
 
 
 function showHerbitem(herbid){
-  var el = $("button[class*='herbitem-newpage']");
+  var el = $("div.herbitem-newpage");
+  el.html('');
+  el.append("<h2>{%trans "Открыть в отдельном окне"%}</h2>");
   $("#herbitem-popup").dialog("close");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
   $("#herbitem-popup").dialog("open"); 
@@ -410,7 +417,6 @@ $("#herbitem-popup").dialog({
     dialogClass: 'herbitem-main-popup'  
      });
 
-$(".herbitem-main-popup").children(".ui-dialog-titlebar").append("<button title='{% trans 'Открыть в отедльном окне'%}' class='ui-button ui-corner-all ui-widget ui-button-icon-only herbitem-newpage' type='button'><span class='ui-button-icon ui-icon ui-icon-arrowthick-1-ne'></span><span class='ui-button-icon-space'> </span></button>");
 });
 <!--  =========================================== -->
 </script>
