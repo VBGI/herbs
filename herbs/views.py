@@ -94,9 +94,17 @@ def show_herbs(request):
 
             # dates
             if data['colend']:
-                bigquery += [Q(collected_e__lt=data['colend'])|Q(collected_s_lt=data['colend'])]
+                colendin = Q(collected_e__gt=data['colend']) & Q(collected_s_lt=data['colend'])
+            else:
+                colendin = None
             if data['colstart']:
-                bigquery += [Q(collected_s__gt=data['colstart'])|Q(collected_e__gt=data['colend'])]
+                colstartin = Q(collected_e__gt=data['colstart']) & Q(collected_s__lt=data['colstart'])
+            else:
+                colstartin = None
+
+            if colstartin or colendin:
+                bigquery += [colstartin | colendin]
+
 
             object_filtered = HerbItem.objects.filter(reduce(operator.and_,
                                                              bigquery))
