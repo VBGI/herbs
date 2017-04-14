@@ -139,6 +139,12 @@ label + * {margin-left: 2em; margin-top: 5px;}
   height: 2em;
 
 }
+
+#herbitem-iframe{
+width: 100%;
+height: 100%
+}
+
 #herbitem-page-lister{
   text-align: center;
   margin-bottom: 5px;  
@@ -282,7 +288,16 @@ $(element).select2({
 function showHerbitem(herbid){
   $("#herbitem-popup").dialog("close");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
-  $("#herbitem-dialog").dialog("open"); 
+  $("#herbitem-popup").dialog("open"); 
+  $('span[class*=ui-icon-arrowthick-1-ne]').click(function(){
+    $("#herbitem-popup").dialog("close");
+    var win = window.open('{{herbitem_personal_url}} + herbid', '_blank');
+      if (win) {
+         win.focus();
+          } else {
+           alert('Please allow popups for this website');
+            }
+  });
  }
 
 
@@ -388,6 +403,10 @@ $("#herbitem-popup").dialog({
     maxHeight: 1000,
     width: 400 
      });
+
+$("#herbitem-popup").children(".ui-dialog-titlebar").append("<span class='ui-icon ui-icon-arrowthick-1-nep'></span>");
+
+
 
 });
 <!--  =========================================== -->
