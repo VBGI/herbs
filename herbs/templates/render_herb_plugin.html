@@ -195,6 +195,7 @@ padding: 4px;
 
 .herbitem-newpage{
 color: blue;
+float: right;
 }
 .herbitem-newpage:hover{
   cursor: pointer;
@@ -296,7 +297,7 @@ $(element).select2({
 function showHerbitem(herbid){
   var el = $("div.herbitem-newpage");
   el.html('');
-  el.append("<h2>{%trans "Открыть в отдельном окне"%}</h2>");
+  el.append("<h3>{%trans "Открыть в отдельном окне"%}</h3>");
   $("#herbitem-popup").dialog("close");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
   $("#herbitem-popup").dialog("open"); 
@@ -409,11 +410,10 @@ herbitemFind();
 $("#herbitem-popup").dialog({
     autoOpen: false,
     modal: true,
-    minWidth: 200,
+    minWidth: 250,
     maxWidth: 1000,
-    minHeight: 200,
+    minHeight: 400,
     maxHeight: 1000,
-    width: 400,
     dialogClass: 'herbitem-main-popup'  
      });
 
