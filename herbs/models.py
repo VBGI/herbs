@@ -298,7 +298,8 @@ class Genus(TaxonMixin):
 class Species(TaxonMixin):
     SP_STATUSES = (('A', 'Approved'),
                    ('P', 'From plantlist'),
-                   ('N', 'Recently added')
+                   ('N', 'Recently added'),
+                   ('D', 'Deleted')
                    )
     genus = models.ForeignKey(Genus, null=True, blank=False,
                               verbose_name=_('род'),

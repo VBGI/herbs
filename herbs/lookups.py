@@ -1,4 +1,4 @@
-from ajax_select import register, LookupChannel
+, 'Deleted')rom ajax_select import register, LookupChannel
 from .models import Family, Genus, Species, Country, HerbItem
 from .conf import settings, HerbsAppConf
 from django.db.models import Count
@@ -37,9 +37,9 @@ class SpeciesLookup(LookupChannel):
             splitted = mq.split()
             if len(splitted) > 1:
                 res = self.model.objects.filter(genus__name__istartswith=splitted[0],
-                                             name__icontains=splitted[1])
+                                             name__icontains=splitted[1]).exclude(status='D')
             else:
-                res = self.model.objects.filter(genus__name__istartswith=splitted[0])
+                res = self.model.objects.filter(genus__name__istartswith=splitted[0]).exclude(status='D')
         return res[:NS]
 
 

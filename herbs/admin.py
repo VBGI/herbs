@@ -24,8 +24,8 @@ import json
 def publish_herbitem(modeladmin, request, queryset):
     total = queryset.count()
     if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
-        approved_sp = queryset.exclude(species__status='N').count()
-        queryset.exclude(species__status='N').update(public=True)
+        approved_sp = queryset.exclude(species__status='N').exclude(species__status='D').count()
+        queryset.exclude(species__status='N').exclude(species__status='D').update(public=True)
         messages.success(request, 'Опубликовано %s записей' % (approved_sp,))
         if approved_sp != total:
             messages.error(request, 'У %s записей виды не одобрены куратором' % (total - approved_sp))
@@ -395,7 +395,7 @@ class SpeciesAdmin(AjaxSelectAdmin):
     form = SpeciesForm
     list_filter = ('status',)
     search_fields = ('genus__name', )
-    list_display = ('id', 'defaultname', 'countobjs')
+    list_display = ('id', 'defaultname', 'countobjs', 'status')
 
     def defaultname(self, obj):
         return obj.get_full_name()
