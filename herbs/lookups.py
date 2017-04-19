@@ -1,4 +1,4 @@
-, 'Deleted')rom ajax_select import register, LookupChannel
+from ajax_select import register, LookupChannel
 from .models import Family, Genus, Species, Country, HerbItem
 from .conf import settings, HerbsAppConf
 from django.db.models import Count
