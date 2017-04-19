@@ -402,7 +402,10 @@ class SpeciesAdmin(AjaxSelectAdmin):
     defaultname.short_description = 'Название вида'
 
     def countobjs(self, obj):
-       return  HerbItem.objects.filter(species=obj).count()
+        res = 'Основные виды: ' + str(HerbItem.objects.filter(species=obj).count()) +\
+             ' | ' + 'Переопределенные: ' + str(DetHistory.objects.filter(species=obj).exclude(herbitem__isnull=True).count()) +\
+             ' | ' + 'Дополнительные: ' + str(Additionals.objects.filter(species=obj).exclude(herbitem__isnull=True).count())
+        return res
     countobjs.short_description = 'Количество объектов в БД'
 
     def get_form(self, request, obj=None, **kwargs):
