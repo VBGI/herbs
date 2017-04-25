@@ -35,3 +35,36 @@ height:auto;
 float:none;
 }
 
+
+.herbitem-ru-icon {
+background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAYAAAB24g05AAAB7klEQVQokW3MvUtbYRiG8WcX2oIucVBBHYziETEBDRK/EogZImghiwU7ODhUcHApDg6CQyCDIIIg/gvSuRRKKVJKaenaEERCCEEOyck57/l6z9UhYir0hmv83WLb8DyNZXVrtTSmGWCaHg8PimbTptGwqNdb1Gomd/cmYts8LYqip7SO0FoThiFhGBIEAb7v43keruuilKJabfYOnmP9hP8HHcdBKUWl0kByObi5ibi+jri6iri81FxcaM7PQ87OAspln1LJ4/TU5eREcXzscHRkUy47iNQREc3hYUSxGLG1pdkoaPL5kGw2YHnZJ5XySCZdZmYUk5MO4+M2IyMd0mm7d3BwELG5qSkUQvLrXby09BzHH/HwcIfBQYtUykak1j3Y3+/i3HpAJtPDiYSLYSjicYexsS6OxSwGBtokkx1E7pEPIvzZK/E7d8CvzDt+pvf4sbDL97kdvhnb3MaLfB3b5Mtwgc+xPJ8Gsnx8tcrt7BveiyCeCOHuLv7aGn46jbewgDs3h5qexpmYwB4dpTM0hBWL0e7vp/XyBa2+PtqGQVUEUSIEO2/xt7fxikW8rde4GxuofB6VzeKsrGAvLtKZn8dKJGjPztI2DNpTU1REEFsES4SWCKYID481RWiIUBehJsK9CHciVEWo/NNf98bqGiXyomoAAAAASUVORK5CYII=) no-repeat top left;
+width: 16px;
+height: 11px;
+padding: 1px;
+cursor: pointer;
+border: none;
+}
+
+.herbitem-en-icon{
+background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAYAAAB24g05AAACJklEQVQokWXSz0uTARzH8W/+HYIgIkMU0YG/0IM7CNLCg5QMPXTwFiSdEpaFiKeoQ+HZg7ppdQpdbpqJEGU2Zm0Gm9M2x/bsebZnc5tzOh737mCMpMPn+n19+PCV0ZkD/o1t2s/Isx/cnfIxbPcy9HiXmNlMxGTiqKaGsAhBEX6J4BdBRmcOqFQqePZ0ripXuHfTGIaB66tGuVxm9bNCqVTi/Pycs7Mz8vk8+Xye09NTJicnrw949nTebau8/ZTkzZbC8mYc50YMh+eEhfUImfFxMvdGSN+2krJYUHt6SN2x4hVBbDN+3N90DMNgZUuhXC7j3IhRKpVYWI/w2vW7KmYyGdLpNKmUhq7rOJ1OxDbtx72bYuVjoiovua/lV65jnqwekRocROvvR+3uJtneTqKlBdViwSOCjEz5MAyD5c04FxcXLLlPKBaLvFw7JpfL8dAZqsqapqGqKoqioGoas7OzyLDdi+uLisMTY9EdZeFDhBdrx9hXwzxYDHF/LkiyqwulrY1EczMxk4nDhgYOe3uZF0F8Ph+Xl5fVlQuFArlcjmw2e0NOJpMoikI8HiccDhMOhbBarUjMbCY/P092YoLM2BjpoSFSAwOofX0kOzpQWltJNDURaWwkWF9PoK4Ob20t/s5OnoogOzs713qxSKFQuLG4rus3GkSjUYLBEIFAgP39fcZsNuSo5tZ/3/VTBJ8I30XYFuG9CA4R5kR4LoJdhEd/8wdTjwiVb0I8gQAAAABJRU5ErkJggg==) no-repeat top left;
+width: 16px;
+height: 11px;
+padding: 1px;
+border: none;
+cursor:pointer;
+}
+
+.herbitem-languages {
+display: block;
+float: right;
+}
+
+.herbitem-current-lang{
+border: 1px solid red;
+}
+
+.herbitem-languages form{
+display: inline;
+margin-right: 7px;
+}
+
