@@ -23,6 +23,15 @@
       <div id="herbitem-our-heading">
         <div style="display:block"><a href="http://botsad.ru"> <img src="{%static "images/bgi_logo_white.png"%}" alt="{%trans "Перейти на главную старницу сайта"%} botsad.ru" width="35" height="35" style="float:left; display:block;"></a></div>
         {%trans "Ботанический сад-институт ДВО РАН"%}
+        {%get_current_language as curlang%}
+        <div class="herbitem-languages">
+          <form action="" method="post">
+            <button class="herbitem-ru-icon {%if curlang == "ru"%}herbitem-current-lang{%endif%}" name="lang" value="ru"></button>
+          </form>
+          <form action="" method="post">
+            <button class="herbitem-en-icon {%if curlang == "en"%}herbitem-current-lang{%endif%}" name="lang" value="en"></button>
+          </form>
+        </div>
         <div style="clear:both"></div>   
       </div>  
       {%if not error%}

@@ -37,16 +37,22 @@ Created: 30 Aug, 2016
 <!--  ======================================================== -->
 
 <!--  ============Herbitem content found ===================== --> 
+<div id="herbitem-tabs">
+  <ul>
+    <li><a href="#herbitem-content-found">{%trans "Общая информация"%}</a></li>
+    <li><a href="#herbitem-details">{%trans "Информация об образце"%}</a></li>
+    <li><a href="#herbitem-map">{%trans "Карта" %}</a></li>
+  </ul>
 <div id="herbitem-content-found"></div>
-<!--  ======================================================== -->
-
-
-<!--  ============Herbitem popup ============================= --> 
-<div id="herbitem-popup">
-  <div class="herbitem-newpage"></div>
-  <iframe id="herbitem-iframe" src="" width=100% height=100% style="border:0"></iframe>
+<div id="herbitem-details">
+  <div class="herbitem-newpage"><h2>{%trans "Не выбран ни один элемент"%}<h2></div>
+  <iframe id="herbitem-iframe" src="" width=100% height=1000px style="border:0"></iframe>
+</div>
+<div id="herbitem-map"><h3>Still under construction...<h3></div>
 </div>
 <!--  ======================================================== -->
+
+
 
 <!-- ============-Searchform template ======================== -->
 <script id="searchform-template" type="text/x-underscore-template">
@@ -165,6 +171,11 @@ font-size:medium;
 .herbitem-even:hover, .herbitem-odd:hover{
 background: #EEFFAA;
 cursor: pointer;
+}
+
+#herbitem-tabs{
+float: right;
+width: 50%;
 }
 
 #herbitem-table {
@@ -293,14 +304,11 @@ $(element).select2({
 
 function showHerbitem(herbid){
   var el = $("div.herbitem-newpage");
-  el.html('');
-  el.append("<h3>{%trans "Открыть в отдельном окне"%}</h3>");
-  $("#herbitem-popup").dialog("close");
+  el.html("<h3>{%trans "Открыть в отдельном окне"%}</h3>");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
-  $("#herbitem-popup").dialog("open"); 
+  $("#herbitem-tabs").tabs('option','active',1);
   el.unbind("click");
   el.click(function(){
-    $("#herbitem-popup").dialog("close");
     var win = window.open('{{herbitem_personal_url}}' + herbid, '_blank');
       if (win) {
          win.focus();
@@ -312,6 +320,7 @@ function showHerbitem(herbid){
 
 
 function herbitemFind(){
+  $("#herbitem-tabs").tabs('option','active',0);
 	var family = getornone('#family-input');
 	var genus = getornone('#genus-input');
 	var species = $('#species-input').val();
@@ -402,18 +411,13 @@ $( "div#herb-search-form ul li input:text" ).each(function() {
 
 cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
 });
+
+
+$("#herbitem-tabs").tabs({active: 0});
+var colwidth = $("div.centralcontainer").width();
+var swidth = $("#herb-search-form").width();
+$("#herbitem-tabs").width(colwidth-swidth-20 + 'px')
 herbitemFind();
-
-$("#herbitem-popup").dialog({
-    autoOpen: false,
-    modal: true,
-    minWidth: 250,
-    maxWidth: 1000,
-    minHeight: 400,
-    maxHeight: 1000,
-    dialogClass: 'herbitem-main-popup'  
-     });
-
 });
 <!--  =========================================== -->
 </script>

@@ -328,15 +328,15 @@ class HerbItem(HerbItemMixin):
         verbose_name = _('гербарный образeц')
         verbose_name_plural = _('гербарные образцы')
         ordering = ['-created']
-        permissions = (('can_set_code', 'Can set item code and publish'),
-                       ('can_see_additionals', 'Can see additional species'))
+        permissions = (('can_set_code', _('может публиковать и назначать код')),
+                       ('can_see_additionals', _('видит дополнительные виды')))
 
     def get_absolute_url(self):
         return  getattr(settings, 'HERBS_HERBITEM_PAGE') + '%s' % self.id
 
     def delete(self, *args, **kwargs):
         if self.public:
-            raise PermissionDenied('The object shoud not be published to perform this operation')
+            raise PermissionDenied(_('нельзя удалить опубликованные объекты'))
         else:
             super(HerbItem, self).delete(*args, **kwargs)
 

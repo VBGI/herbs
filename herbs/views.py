@@ -2,13 +2,14 @@
 import operator
 import datetime
 from django.http import HttpResponse
-from django.core.paginator import Paginator, EmptyPage
+from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.forms.models import model_to_dict
-from .models import Family, Genus, HerbItem, Species, Country, DetHistory
+from django.utils.translation import gettext as _
+from .models import Family, Genus, HerbItem, Country, DetHistory
 from .forms import SearchForm
 from .conf import settings
-from .utils import _smartify_altitude,_smartify_family, _smartify_dates
+from .utils import _smartify_altitude, _smartify_dates
 from django.utils.text import capfirst
 from django.contrib.auth.decorators import login_required
 from django.utils import translation, timezone
@@ -58,7 +59,7 @@ def show_herbs(request):
     Get herbitems view
     '''
     if request.method == 'POST':
-        return HttpResponse('Only GET-queries are acceptable')
+        return HttpResponse(_('Допустимы только GET-запросы'))
 
     context = {'error': '', 'has_previous': None, 'has_next': None,
                'pagenumber': 1, 'pagecount': 0}
@@ -105,7 +106,7 @@ def show_herbs(request):
             if not object_filtered.exists():
                 context.update({'herbobjs' : [],
                                 'total': 0,
-                                'error': 'Ни одного элемента не удолетворяет условиям запроса'})
+                                'error': _('Ни одного элемента не удолетворяет условиям запроса')})
                 return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
 
             # ------- Sorting items --------------
@@ -157,17 +158,23 @@ def show_herbs(request):
                             'error': 'Ошибка в форме поиска'})
             return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder), content_type="application/json;charset=utf-8")
     else:
-        return HttpResponse('Only ajax-requests are acceptable')
+        return HttpResponse(_('Допустимы только XMLHttp-запросы'))
 
 
 @never_cache
+@csrf_exempt
 def show_herbitem(request, inum):
     context = {'error': ''}
+    clang = request.POST.get('lang', 'ru')
+    if clang not in ['ru', 'en']:
+        translation.activate('ru')
+    else:
+        translation.activate(clang)
     try:
         hobj = HerbItem.objects.get(id=inum)
         context.update({'curobj': hobj})
     except HerbItem.DoesNotExist:
-        context.update({'error': 'No herbarium sheet with id=%s was found'%inum})
+        context.update({'error': _('Гербарного образца с id=%s не было найдено')%inum})
     result = render_to_string('herbitem_details.html', context,
                               context_instance=RequestContext(request))
     return HttpResponse(result)
@@ -176,9 +183,9 @@ def show_herbitem(request, inum):
 @never_cache
 def advice_select(request):
     if not request.is_ajax():
-        return HttpResponse('Only ajax-requests are acceptable')
+        return HttpResponse(_('Допустимы только XMLHttp запросы'))
     if request.method == 'POST':
-        return HttpResponse('Only GET-methods are acceptable')
+        return HttpResponse(_('Допустимы только GET-методы'))
 
     dataform = SearchForm(request.GET)
     context = {'error': ''}
@@ -218,7 +225,7 @@ def advice_select(request):
             data = [{'id': item.pk, 'text': item.name_ru if RU else item.name_en}
                     for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
     else:
-        context.update({'error': 'Странный запрос'})
+        context.update({'error': _('Странный запрос')})
         data = []
     if data:
         for item in data: item['text'] = capfirst(item['text'])
@@ -232,13 +239,13 @@ def make_label(request, q):
     '''Return pdf-doc or error page otherwise.
     '''
     if len(q) > 100:
-        return HttpResponse('Your query is too long... Try again')
+        return HttpResponse(_('Ваш запрос слишком длинный, выберите меньшее количество элементов'))
 
     q = q.split(',')
     q = filter(lambda x: len(x) <= 15, q)
 
     if len(q) > 4:
-        return HttpResponse('You cannt generate more than 4 labels at a time. Try again.')
+        return HttpResponse(_('Вы не можете создать более 4-х этикеток одновременно'))
 
 
     # --------  Gathering data for labels ... --------
@@ -246,11 +253,9 @@ def make_label(request, q):
     try:
        objs = HerbItem.objects.filter(public=True, id__in=q)
     except HerbItem.DoesNotExist:
-       return HttpResponse('No herbarium sheets were found.\
-                                Make sure you made search for public items.\
-                                Non-public items not showed.')
+       return HttpResponse(_('Выбранный образцы либо не опубликованы, либо не существуют'))
     if not objs.exists():
-        return HttpResponse('Empty or malformed query. Try again')
+        return HttpResponse(_('Пустой или неправильно сформированный запрос'))
     lang = translation.get_language()
     translation.activate('en')  # Labels are constructed in Eng. only
     llabel_data = []
