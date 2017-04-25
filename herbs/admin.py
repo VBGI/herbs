@@ -8,6 +8,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.conf.urls import url
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext as _
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm, HerbItemFormSimple, AdditionalsForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
@@ -26,24 +27,24 @@ def publish_herbitem(modeladmin, request, queryset):
     if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
         approved_sp = queryset.exclude(species__status='N').exclude(species__status='D').count()
         queryset.exclude(species__status='N').exclude(species__status='D').update(public=True)
-        messages.success(request, 'Опубликовано %s записей' % (approved_sp,))
+        messages.success(request, _('Опубликовано %s записей') % (approved_sp,))
         if approved_sp != total:
-            messages.error(request, 'У %s записей виды не одобрены куратором' % (total - approved_sp))
+            messages.error(request, _('У %s записей виды не одобрены куратором') % (total - approved_sp))
     else:
-        messages.error(request, 'Вы должны быть куратором гербария, чтобы опубликовать записи')
+        messages.error(request, _('Вы должны быть куратором гербария, чтобы опубликовать записи'))
 
 
 def unpublish_herbitem(modeladmin, request, queryset):
     total = queryset.count()
     if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
         queryset.update(public=False)
-        messages.success(request, 'Снято с публикации %s записей' % (total,))
+        messages.success(request, _('Снято с публикации %s записей') % (total,))
     else:
-        messages.error(request, 'Вы должны быть куратором гербария, чтобы снять  записи с публикации')
+        messages.error(request, _('Вы должны быть куратором гербария, чтобы снять  записи с публикации'))
 
 
-publish_herbitem.short_description = "Опубликовать записи"
-unpublish_herbitem.short_description = "Снять с публикации"
+publish_herbitem.short_description = _("Опубликовать записи")
+unpublish_herbitem.short_description = _("Снять с публикации")
 # ---------------------------------------------------------------------------
 
 
@@ -52,12 +53,12 @@ unpublish_herbitem.short_description = "Снять с публикации"
 def create_pdf(modeladmin, request, queryset):
     c = queryset.count()
     if c == 0 or c > 4:
-        messages.error(request, 'Выделите не менее одной и не более 4-х гербарных образцов')
+        messages.error(request, _('Выделите не менее одной и не более 4-х гербарных образцов'))
         return
     urlfinal = reverse('herbiteminfo', args=[','.join([str(item.pk) for item in queryset])])
     urlfinal += '?'+''.join([random.choice(string.ascii_letters) for k in range(4)])
     return HttpResponseRedirect(urlfinal)
-create_pdf.short_description = "Создать этикетки"
+create_pdf.short_description = _("Создать этикетки")
 
 # ---------------------------------------------------------------------------
 
@@ -92,7 +93,7 @@ create_pdf.short_description = "Создать этикетки"
 
 
 class HerbItemCustomListFilter(SimpleListFilter):
-    title = 'Пользователь'
+    title = _('Пользователь')
     parameter_name = 'user'
 
     def lookups(self, request, model_admin):
@@ -188,7 +189,7 @@ class FamilyAdmin(admin.ModelAdmin):
 
     def countobjs(self, obj):
        return  HerbItem.objects.filter(species__genus__family=obj).count()
-    countobjs.short_description = 'Количество объектов в БД'
+    countobjs.short_description = _('Количество объектов в БД')
 
 
 class GenusAdmin(AjaxSelectAdmin):
@@ -198,7 +199,7 @@ class GenusAdmin(AjaxSelectAdmin):
 
     def countobjs(self, obj):
        return  HerbItem.objects.filter(species__genus=obj).count()
-    countobjs.short_description = 'Количество объектов в БД'
+    countobjs.short_description = _('Количество объектов в БД')
 
 
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
@@ -213,10 +214,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         if nquery.exists():
             n = nquery.count()
             nquery.delete()
-            messages.success(request, 'Удалено %s гербарных объектов' % n)
+            messages.success(request, _('Удалено %s гербарных объектов') % n)
         else:
-            messages.error(request, 'Нечего удалять. Гербарные образцы должны быть сняты с публикации перед удалением.')
-    delete_selected.short_description = 'Удалить гербарные образцы'
+            messages.error(request, _('Нечего удалять. Гербарные образцы должны быть сняты с публикации перед удалением.'))
+    delete_selected.short_description = _('Удалить гербарные образцы')
 
     def get_list_display_links(self, request, list_display):
         return ('id', 'get_full_name')
@@ -325,15 +326,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return list_filter
 
 
-#    def save_formset(self, request, form, formset, change):
-#        instances = formset.save(commit=False)
-#        for instance in instances:
-#            if isinstance(instance, HerbImage):
-#                if not request.user.is_superuser:
-#                    instance.user = request.user
-#                instance.save()
-#
-
     def get_urls(self):
         urls = super(HerbItemAdmin, self).get_urls()
         new_urls = [
@@ -399,14 +391,14 @@ class SpeciesAdmin(AjaxSelectAdmin):
 
     def defaultname(self, obj):
         return obj.get_full_name()
-    defaultname.short_description = 'Название вида'
+    defaultname.short_description = _('Название вида')
 
     def countobjs(self, obj):
-        res = 'Основные виды: ' + str(HerbItem.objects.filter(species=obj).count()) +\
-             ' | ' + 'Переопределенные: ' + str(DetHistory.objects.filter(species=obj).exclude(herbitem__isnull=True).count()) +\
-             ' | ' + 'Дополнительные: ' + str(Additionals.objects.filter(species=obj).exclude(herbitem__isnull=True).count())
+        res = _('Основные виды: ') + str(HerbItem.objects.filter(species=obj).count()) +\
+             ' | ' + _('Переопределенные: ') + str(DetHistory.objects.filter(species=obj).exclude(herbitem__isnull=True).count()) +\
+             ' | ' + _('Дополнительные: ') + str(Additionals.objects.filter(species=obj).exclude(herbitem__isnull=True).count())
         return res
-    countobjs.short_description = 'Количество объектов в БД'
+    countobjs.short_description = _('Количество объектов в БД')
 
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
