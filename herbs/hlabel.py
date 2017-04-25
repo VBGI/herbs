@@ -396,6 +396,7 @@ class PDF_DOC:
 
     def make_label(self, x, y, **kwargs):
         self._ln = 0
+        self.lnhght = LINE_HEIGHT
         self._add_label(x, y, **kwargs)
 
     def tile_labels(self, l_labels):
