@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-25 14:53+1000\n"
+"POT-Creation-Date: 2017-04-26 12:59+1000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -517,7 +517,7 @@ msgstr "Botanical Garden-Institute FEB RAS"
 msgid "Валидность"
 msgstr "Validity"
 
-#: templates/herbitem_details.html:51
+#: templates/herbitem_details.html:52
 msgid "Координаты сбора"
 msgstr "Coordinates"
 

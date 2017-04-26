@@ -5,7 +5,7 @@ import re
 from datetime import date
 
 from django.utils.text import capfirst
-
+from django.utils.dateformat import DateFormat
 # --------------- Author string validation and extraction --------
 validate_auth_str_pat = re.compile(r'^[\sa-zA-Z\.\-\(\)]+')
 parenthesis_pat = re.compile(r'\(([\sa-zA-Z\.\-]+)\)')
@@ -290,25 +290,24 @@ def _smartify_dates(item, prefix='collected'):
         return ''
     if date_s:
         if date_e:
+            fdate_s = DateFormat(date_s)
+            fdate_e = DateFormat(date_e)
             if (date_e.month == date_s.month) and\
                     (date_s.day == 1) and (date_e.day in\
                                                      [30,31]):
-                return date_s.strftime('%b %Y')
+                return fdate_s.format('M Y')
             else:
                 if date_s < date_e:
-                    return '%s ' % date_s.strftime('%d %b %Y') +\
-                       u'\N{EM DASH}' + ' %s' % date_e.strftime('%d %b %Y')
-                elif date_s == date_e:
-                    return '%s ' % date_s.strftime('%d %b %Y')
+                    return fdate_s.format('d M Y') +\
+                       u'\N{EM DASH}' + fdate_e.format('d M Y')
                 else:
-                    return '%s ' % date_s.strftime('%d %b %Y') + u'\N{EM DASH}' + ' '*8
-
+                    return fdate_s.format('d M Y')
         else:
-             return '%s' % date_s.strftime('%d %b %Y')
+            fdate_s = DateFormat(date_s)
+            return fdate_s.format('d M Y')
     elif date_e:
-        return ' ' * 8 + u'\N{EM DASH}' +\
-            ' %s' % date_e.strftime('%d %b %Y')
-
+        fdate_e = DateFormat(date_e)
+        return fdate_e.format('d M Y')
 
 
 def _smartify_altitude(alt):

@@ -174,7 +174,7 @@ def show_herbitem(request, inum):
         hobj = HerbItem.objects.get(id=inum)
         context.update({'curobj': hobj})
     except HerbItem.DoesNotExist:
-        context.update({'error': _('Гербарного образца с id=%s не было найдено')%inum})
+        context.update({'error': _(u'Гербарного образца с id=%s не было найдено') % inum})
     result = render_to_string('herbitem_details.html', context,
                               context_instance=RequestContext(request))
     return HttpResponse(result)

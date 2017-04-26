@@ -27,24 +27,24 @@ def publish_herbitem(modeladmin, request, queryset):
     if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
         approved_sp = queryset.exclude(species__status='N').exclude(species__status='D').count()
         queryset.exclude(species__status='N').exclude(species__status='D').update(public=True)
-        messages.success(request, _('Опубликовано %s записей') % (approved_sp,))
+        messages.success(request, _(u'Опубликовано %s записей') % (approved_sp,))
         if approved_sp != total:
-            messages.error(request, _('У %s записей виды не одобрены куратором') % (total - approved_sp))
+            messages.error(request, _(u'У %s записей виды не одобрены куратором') % (total - approved_sp))
     else:
-        messages.error(request, _('Вы должны быть куратором гербария, чтобы опубликовать записи'))
+        messages.error(request, _(u'Вы должны быть куратором гербария, чтобы опубликовать записи'))
 
 
 def unpublish_herbitem(modeladmin, request, queryset):
     total = queryset.count()
     if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
         queryset.update(public=False)
-        messages.success(request, _('Снято с публикации %s записей') % (total,))
+        messages.success(request, _(u'Снято с публикации %s записей') % (total,))
     else:
-        messages.error(request, _('Вы должны быть куратором гербария, чтобы снять  записи с публикации'))
+        messages.error(request, _(u'Вы должны быть куратором гербария, чтобы снять  записи с публикации'))
 
 
-publish_herbitem.short_description = _("Опубликовать записи")
-unpublish_herbitem.short_description = _("Снять с публикации")
+publish_herbitem.short_description = _(u"Опубликовать записи")
+unpublish_herbitem.short_description = _(u"Снять с публикации")
 # ---------------------------------------------------------------------------
 
 
@@ -53,12 +53,12 @@ unpublish_herbitem.short_description = _("Снять с публикации")
 def create_pdf(modeladmin, request, queryset):
     c = queryset.count()
     if c == 0 or c > 4:
-        messages.error(request, _('Выделите не менее одной и не более 4-х гербарных образцов'))
+        messages.error(request, _(u'Выделите не менее одной и не более 4-х гербарных образцов'))
         return
     urlfinal = reverse('herbiteminfo', args=[','.join([str(item.pk) for item in queryset])])
     urlfinal += '?'+''.join([random.choice(string.ascii_letters) for k in range(4)])
     return HttpResponseRedirect(urlfinal)
-create_pdf.short_description = _("Создать этикетки")
+create_pdf.short_description = _(u"Создать этикетки")
 
 # ---------------------------------------------------------------------------
 

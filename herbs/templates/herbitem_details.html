@@ -48,8 +48,8 @@
         {%endfor%}
       </ul>
       {%endif%}
-      <p><strong>{%trans "Координаты сбора"%}:</strong></p>
       {%if curobj.coordinates.latitude and curobj.coordinates.longitude %}
+      <p><strong>{%trans "Координаты сбора"%}:</strong></p>
       <p><strong>{%trans "Широта"%}:</strong> {{curobj.coordinates.latitude}}&deg;, &nbsp; 
       <strong>{%trans "Долгота"%}:</strong> {{curobj.coordinates.longitude}}&deg;</p>
        <div id="herbitem-map" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"f" }}"></div>
@@ -78,9 +78,9 @@
       {%if curobj.altitude %}<p><strong>{%trans "Высота"%}:</strong>&nbsp;{{curobj.altitude}}</p>{%endif%}
       {%if curobj.ecodescr %}<p><strong>{%trans "Экология"%}:</strong>&nbsp;{{curobj.ecodescr}}</p>{%endif%}
       {%if curobj.collectedby %}<p><strong>{%trans "Собрал(и)"%}:</strong>&nbsp;{{curobj.collectedby}}</p>{%endif%}
-      {%if curobj.colldate %}<p><strong>{%trans "Дата сбора"%}:</strong>&nbsp;{{curobj.colldate}}</p>{%endif%}
+      {%if curobj.colldate %}<p><strong>{%trans "Дата сбора"%}:</strong>&nbsp;{{curobj.collected_s}}{%if curobj.collected_e%} &mdash; {{curobj.collected_e}}{%endif%}</p>{%endif%}
       {%if curobj.identifiedby %}<p><strong>{%trans "Определил(и)"%}:</strong>&nbsp;{{curobj.identifiedby}}</p>{%endif%}
-      {%if curobj.detdate %}<p><strong>{%trans "Дата определения"%}:</strong>&nbsp;{{curobj.detdate}}</p>{%endif%}
+      {%if curobj.detdate %}<p><strong>{%trans "Дата определения"%}:</strong>&nbsp; {{curobj.identified_s}}{%if curobj.identified_e%} &mdash; {{curobj.identified_e}}{%endif%}</p>{%endif%}
 
       {%if curobj.dethistory.all%}
       <p><strong>{%trans "История определений" %}:</strong></p>
