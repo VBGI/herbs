@@ -416,7 +416,7 @@ class SpeciesAdmin(AjaxSelectAdmin):
         if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
             readonly_fields = list()
         else:
-            readonly_fields += ['name', 'genus', 'authorship']
+            readonly_fields += ['status',]
         return readonly_fields
 
 
