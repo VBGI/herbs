@@ -409,14 +409,15 @@ class SpeciesAdmin(AjaxSelectAdmin):
         return res
     countobjs.short_description = _('Количество объектов в БД')
 
-    def get_form(self, request, obj=None, **kwargs):
-        if not request.user.is_superuser:
-            if not request.user.has_perm('herbs.can_change_status'):
-                if 'status' not in self.readonly_fields:
-                    self.readonly_fields += ('status',)
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super(SpeciesAdmin, self).get_readonly_fields(request, obj)
+        readonly_fields = list(readonly_fields)
+
+        if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+            readonly_fields = list()
         else:
-            self.readonly_fields = ()
-        return super(SpeciesAdmin, self).get_form(request, obj, **kwargs)
+            readonly_fields += ['name', 'genus', 'authorship']
+        return readonly_fileds
 
 
 
