@@ -417,7 +417,7 @@ class SpeciesAdmin(AjaxSelectAdmin):
             readonly_fields = list()
         else:
             readonly_fields += ['name', 'genus', 'authorship']
-        return readonly_fileds
+        return readonly_fields
 
 
 
