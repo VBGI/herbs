@@ -14,6 +14,7 @@ from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
 from .models import (Family, Genus, HerbItem, Species, Country,
                      HerbAcronym, DetHistory, Additionals, Subdivision)
 from django.forms import model_to_dict
+from django.utils.text import capfirst
 import random
 import string
 import json
@@ -223,12 +224,12 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return ('id', 'get_full_name')
 
 
-    def edit_related_species(self):
+    def edit_related_species(self, obj):
         url = reverse('admin:%s_%s_change' %('herbs', 'species'),
-                      args=[object.id])
-        return '<a href="%s">Edit sp.</a>' %(url,)
+                      args=[obj.species.pk])
+        return '<a href="%s" title="%s">Edit sp.</a>'  % (url, capfirst(obj.species.get_full_name()))
     edit_related_species.allow_tags = True
-    edit_related_species.short_desription = _('Вид')
+    edit_related_species.short_description = _('Вид')
 
 
     def get_list_display(self, request):
