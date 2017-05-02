@@ -223,6 +223,14 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         return ('id', 'get_full_name')
 
 
+    def edit_related_species(self):
+        url = reverse('admin:%s_%s_change' %('herbs', 'species'),
+                      args=[object.id])
+        return '<a href="%s">Edit sp.</a>' %(url,)
+    edit_related_species.allow_tags = True
+    edit_related_species.short_desription = _('Вид')
+
+
     def get_list_display(self, request):
         if not request.user.has_perm('herbs.can_see_additionals'):
             list_display = ('id', 'get_full_name', 'itemcode', 'public',
@@ -231,7 +239,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             list_display = ('id', 'get_full_name', 'itemcode', 'fieldid', 'public',
                         'collectedby', 'updated', 'collected_s')
         if request.user.has_perm('herbs.can_set_code') or request.user.is_superuser:
-           list_display += ('user',)
+           list_display += ('user', 'edit_related_species')
         return list_display
 
     def save_model(self, request, obj, form, change):
