@@ -207,8 +207,8 @@ class DetHistory(models.Model):
     species = models.ForeignKey('Species', blank=True, null=True,
                                 verbose_name=_('вид'))
     class Meta:
-        verbose_name = _('определение')
-        verbose_name_plural = _('определения')
+        verbose_name = _('переопределение')
+        verbose_name_plural = _('переопределения')
 
 
 class Additionals(models.Model):
