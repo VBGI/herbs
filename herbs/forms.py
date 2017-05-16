@@ -123,7 +123,7 @@ class DetHistoryForm(forms.ModelForm):
         model = DetHistory
     species = AutoCompleteSelectField('species', required=False, label=_("Вид"))
     identifiedby = AutoCompleteField('identifiedby', required=False,
-                                     label=_("Определелил(и)"),
+                                     label=_("Переопределелил(и)"),
                                      attrs={'size': CS})
 
 
