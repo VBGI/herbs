@@ -29,7 +29,8 @@ Created: 30 Aug, 2016
   </li>
  <li><label for="colend-input">{%trans "Дата сбора (окончание)"%}:</label><div>
   <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}"> <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-	<li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}"></li>
+     
+  <li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}"></li>
   <li><input type="submit" id="herbitemform-button" value="{% trans "Найти" %}"></li> 
   </ul>
 </div> 
@@ -39,11 +40,39 @@ Created: 30 Aug, 2016
 <!--  ============Herbitem content found ===================== --> 
 <div id="herbitem-tabs">
   <ul>
-    <li><a href="#herbitem-content-found">{%trans "Общая информация"%}</a></li>
+    <li><a href="#herbitem-content-main">{%trans "Общая информация"%}</a></li>
     <li><a href="#herbitem-details">{%trans "Информация об образце"%}</a></li>
     <li><a href="#herbitem-map">{%trans "Карта" %}</a></li>
-  </ul>
-<div id="herbitem-content-found"></div>
+    </ul>
+    <div id="herbitem-content-main"> 
+        <ul class="herbitem-search-filtering">
+           <li><select id="herbitem-pagination"> 
+               <option value="">{%trans "Количество на странице"%}</option>
+               <option value="20">20</option>
+               <option value="50">50</option>
+               <option value="100">100</option>
+               <option value="200">200</option>
+               </select>   
+           </li> 
+           <li><select id="herbitem-acronym">
+               <option value="">{%trans "Название гербария"%}</option>
+               {%for acronym in acronyms%} 
+                 <option value="{{acronym.pk}}">{{acronym.institute}} ({{acronym.name}})</option>
+               {%endfor%}
+              </select>   
+           </li>
+           <li><select id="herbitem-subdivision">
+               <option value="">{%trans "Подраздел гербария"%}</option>
+               {%for subdivision in subdivisions%} 
+                 <option value="{{subdivision.pk}}">{{subdivision.name}}</option>
+               {%endfor%}
+              </select>   
+           </li>
+
+        <ul>
+      <div id="herbitem-content-found"><div class="herbitem-loader"></div></div>
+    </div>
+
 <div id="herbitem-details">
   <div class="herbitem-newpage"><h2>{%trans "Не выбран ни один элемент"%}<h2></div>
   <iframe id="herbitem-iframe" src="" width=100% height=1000px style="border:0"></iframe>
@@ -146,24 +175,18 @@ label + * {margin-left: 2em; margin-top: 5px;}
   height: 2em;
 
 }
-
-
-
 #herbitem-page-lister{
   text-align: center;
   margin-bottom: 5px;  
 }
-
 #searchform-clear{
 padding: 10px;
 font-size: medium;
 }
-
 #herbitemform-button{
 padding:10px;
 font-size:medium;
 }
-
 .herbitem-odd{
   background: #FFFFFF;
   height: 2em;
@@ -172,35 +195,29 @@ font-size:medium;
 background: #EEFFAA;
 cursor: pointer;
 }
-
 #herbitem-tabs{
 float: right;
 width: 50%;
+display: none;
 }
-
 #herbitem-table {
 width:100%;
 padding: 10px;
 }
-
 #herbitem-table > thead{
 background: #22FFAA;
 }
-
 #herbitem-table tr td {
 padding: 4px;
 }
-
 #herbitem-content-found {
   display: block;
   float: left;
 }
-
 #herb-search-form{
   display:block;
   float:left;
 }
-
 .herbitem-newpage{
 color: blue;
 float: right;
@@ -220,9 +237,27 @@ float: right;
   background: #EEFFAA;
 }
 
+
+.herbitem-loader {
+  background: url("../images/herbitem-loader.gif") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+  height: 32px;
+  margin-left: auto;
+  width: 50%;
+  z-index: 100;
+}
+
+ul#herbitem-search-filtering{
+  list-style-type: none;
+  width: 100%;
+  margin-left:auto;
+  margin-bottom: 5px;
+}
+
+ul#herbitem-search-filtering li{
+  float: center;
+  margin-right: 5px;  
+}
 </style>
-
-
 {%endaddtoblock%}
 
 {%addtoblock "js"%}
@@ -331,6 +366,12 @@ function herbitemFind(){
 	var colstart = $("#colstart-input").val();
   var colend = $("#colend-input").val();
   var place = $("#place-input").val();
+
+  var acronym = $("#herbitem-acronym").val();
+  var pagcount = $("#herbitem-pagination").val();
+  var subdivision = $("#herbitem-subdivision").val();
+
+
   // TODO: orderby field, increasing decreasing ordering
   // 
   var orderby = null;
@@ -342,11 +383,11 @@ function herbitemFind(){
   var lonu = null
   var outputHTML = '';
   var commonError = "{%trans "Возникла ошибка при получении ответа за поисковый запрос" %}";
-	$("herbitem-content-found").html('<div class="centered-ajax-loader"></div>');
+	$("herbitem-content-found").html('<div class="herbitem-loader"></div>');
 	$.get("{% url 'herbs.views.show_herbs' %}",
 			{family:family, genus:genus, species:species, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
-			colend:colend, page:cpage,
+			colend:colend, page:cpage, pagcount: pagcount,acronym:acronym, subdivision:subdivision,
       latl:latl, lonl: lonl, latu:latu, lonu:lonu,
       orderby:orderby, order:order      
       }).done(function(data) {
@@ -411,8 +452,7 @@ $( "div#herb-search-form ul li input:text" ).each(function() {
 
 cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
 });
-
-
+$("#herbitem-search-filtering select").change(herbitemFind);
 $("#herbitem-tabs").tabs({active: 0});
 var colwidth = $("div.centralcontainer").width();
 var swidth = $("#herb-search-form").width();

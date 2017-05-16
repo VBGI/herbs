@@ -5,6 +5,7 @@ from cms.plugin_pool import plugin_pool
 from django.utils.translation import ugettext_lazy as _
 from .forms import SearchForm
 from django.conf import settings
+from .models import HerbAcronym, Subdivision
 
 class PrintHerbitemObjects(CMSPluginBase):
     model = CMSPlugin
@@ -13,7 +14,9 @@ class PrintHerbitemObjects(CMSPluginBase):
 
     def render(self, context, instance, placeholder):
         context.update({'searchform': SearchForm(),
-                        'herbitem_personal_url': settings.HERBS_HERBITEM_PAGE
+                        'herbitem_personal_url': settings.HERBS_HERBITEM_PAGE,
+                        'acronyms': HerbAcronym.objects.all(),
+                        'subdivisions': Subdivision.objects.all()
                         })
         return context
 

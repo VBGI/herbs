@@ -99,6 +99,21 @@ def show_herbs(request):
                 colstartin = Q(collected_s__gte=data['colstart']) & Q(collected_s__lte=data['colend'])
                 bigquery += [colstartin | colendin]
 
+            # acronym filtering
+            acronym = request.GET.get('acronym', '')
+            try:
+                acronym = int(acronym)
+                bigquery += [Q(acronym__id=acronym)]
+            except ValueError:
+                pass
+
+            # subdivision filtering
+            subdivision = request.GET.get('subdivision', '')
+            try:
+                subdivision = int(subdivision)
+                bigquery += [Q(subdivision__id=subdivision)]
+            except ValueError:
+                pass
 
             object_filtered = HerbItem.objects.filter(reduce(operator.and_,
                                                              bigquery))
