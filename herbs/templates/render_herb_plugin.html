@@ -470,12 +470,14 @@ $('#family-input').select2('val','');
 $('#genus-input').select2('val', '');
 $('#country-input').select2('val', '');
 $('div>input[type=search]').val('');
+$("#herbitem-search-filtering select").val('');
 $('div.clear-button').hide();
 $( "div#herb-search-form ul li input:text" ).each(function() {  
 	$(this).val('');
 });
 
 cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
+herbitemFind();
 });
 $("#herbitem-search-filtering select").change(herbitemFind);
 $("#herbitem-tabs").tabs({active: 0});
