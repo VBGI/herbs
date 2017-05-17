@@ -45,7 +45,7 @@ Created: 30 Aug, 2016
     <li><a href="#herbitem-map">{%trans "Карта" %}</a></li>
     </ul>
     <div id="herbitem-content-main"> 
-        <ul class="herbitem-search-filtering">
+        <ul id="herbitem-search-filtering">
            <li><select id="herbitem-pagination"> 
                <option value="">{%trans "Количество на странице"%}</option>
                <option value="20">20</option>
@@ -255,7 +255,8 @@ ul#herbitem-search-filtering{
 
 ul#herbitem-search-filtering li{
   float: center;
-  margin-right: 5px;  
+  margin-right: 5px;
+  max-width: 100px;
 }
 </style>
 {%endaddtoblock%}
@@ -458,6 +459,7 @@ var colwidth = $("div.centralcontainer").width();
 var swidth = $("#herb-search-form").width();
 $("#herbitem-tabs").width(colwidth-swidth-40 + 'px')
 herbitemFind();
+$(#herbitem-tabs).show();
 });
 <!--  =========================================== -->
 </script>
