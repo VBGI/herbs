@@ -44,10 +44,11 @@ Created: 30 Aug, 2016
     <li><a href="#herbitem-details">{%trans "Информация об образце"%}</a></li>
     <li><a href="#herbitem-map">{%trans "Карта" %}</a></li>
     </ul>
-    <div id="herbitem-content-main"> 
+    <div id="herbitem-content-main">
+       <div id="herbitem-filtering"> 
         <ul id="herbitem-search-filtering">
            <li><select id="herbitem-pagination"> 
-               <option value="">{%trans "Количество на странице"%}</option>
+               <option value="">{%trans "Количество"%}</option>
                <option value="20">20</option>
                <option value="50">50</option>
                <option value="100">100</option>
@@ -68,8 +69,8 @@ Created: 30 Aug, 2016
                {%endfor%}
               </select>   
            </li>
-
-        <ul>
+         <ul>
+       </div>
       <div id="herbitem-content-found"><div class="herbitem-loader"></div></div>
     </div>
 
@@ -246,17 +247,40 @@ float: right;
   z-index: 100;
 }
 
-ul#herbitem-search-filtering{
-  list-style-type: none;
-  width: 100%;
-  margin-left:auto;
-  margin-bottom: 5px;
+#herbitem-filtering{
+   float:left;
+   width:100%;
+   overflow:hidden;
+   position:relative;
+   margin-bottom: 5px;
 }
 
+ul#herbitem-search-filtering{
+   clear:left;
+   float:left;
+   list-style:none;
+   margin:0;
+   padding:0;
+   position:relative;
+   left:50%;
+   text-align:center;
+}
+
+
+
 ul#herbitem-search-filtering li{
-  float: center;
-  margin-right: 5px;
-  max-width: 100px;
+  display:block;
+  float:left;
+  list-style:none;
+  margin:0;
+  padding:0;
+  position:relative;
+  right:50%;
+}
+
+#herbitem-pagination, #herbitem-acronym, #herbitem-subdivision{
+max-width: 100px;
+height: 2em;
 }
 </style>
 {%endaddtoblock%}
@@ -459,7 +483,7 @@ var colwidth = $("div.centralcontainer").width();
 var swidth = $("#herb-search-form").width();
 $("#herbitem-tabs").width(colwidth-swidth-40 + 'px')
 herbitemFind();
-$(#herbitem-tabs).show();
+$("#herbitem-tabs").show();
 });
 <!--  =========================================== -->
 </script>
