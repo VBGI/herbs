@@ -364,7 +364,7 @@ $(element).select2({
 var scrollPosition = 0;
 
 function showHerbitem(herbid){
-  scrollPosition = $('body').scrollTop();
+  scrollPosition = $('body,html').scrollTop();
   var el = $("div.herbitem-newpage");
   el.html("<h3>{%trans "Открыть в отдельном окне"%}</h3>");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
@@ -378,7 +378,7 @@ function showHerbitem(herbid){
            alert('Please allow popups for this website');
             }
   });
-  $('body').scrollTop(0);
+  $('body,html').scrollTop(0);
  }
 
 
@@ -486,7 +486,7 @@ $("#herbitem-search-filtering select").change(herbitemFind);
 $("#herbitem-tabs").tabs({active: 0, 
   activate: function(el,ui){
    if (ui.newPanel.selector == "#herbitem-content-main"){
-    $('body').scrollTop(scrollPosition);
+    $('body,html').scrollTop(scrollPosition);
     scrollPosition = 0;
    }}});
 
