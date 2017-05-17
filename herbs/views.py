@@ -78,10 +78,18 @@ def show_herbs(request):
             bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
             bigquery += [Q(species__name__icontains=data['species'])] if data['species'] else []
             if data['itemcode']:
-                bigquery += [Q(itemcode__icontains=data['itemcode'])|
+                try:
+                    intitemcode = int(data['itemcode'])
+                    bigquery += [Q(itemcode__icontains=data['itemcode'])|
                              Q(fieldid__icontains=data['itemcode'])|
-                             Q(id__exact=data['itemcode'])
+                             Q(id__exact=intitemcode)
                              ]
+
+                except ValueError:
+                     bigquery += [Q(itemcode__icontains=data['itemcode'])|
+                             Q(fieldid__icontains=data['itemcode'])
+                             ]
+
             bigquery += [Q(collectedby__icontains=data['collectedby'])] if data['collectedby'] else []
             bigquery += [Q(identifiedby__icontains=data['identifiedby'])] if data['identifiedby'] else []
             if data['country']:
