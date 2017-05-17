@@ -361,8 +361,10 @@ $(element).select2({
     		});
 }
 
+var scrollPosition = 0;
 
 function showHerbitem(herbid){
+  scrollPosition = $('body').scrollTop();
   var el = $("div.herbitem-newpage");
   el.html("<h3>{%trans "Открыть в отдельном окне"%}</h3>");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
@@ -376,6 +378,7 @@ function showHerbitem(herbid){
            alert('Please allow popups for this website');
             }
   });
+  $('body').scrollTop(0);
  }
 
 
@@ -480,7 +483,13 @@ cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination c
 herbitemFind();
 });
 $("#herbitem-search-filtering select").change(herbitemFind);
-$("#herbitem-tabs").tabs({active: 0});
+$("#herbitem-tabs").tabs({active: 0, 
+  activate: function(el,ui){
+   if (ui.newPanel.selector == "#herbitem-content-main"){
+    $('body').scrollTop(scrollPosition);
+    scrollPosition = 0;
+   }}}});
+
 var colwidth = $("div.centralcontainer").width();
 var swidth = $("#herb-search-form").width();
 $("#herbitem-tabs").width(colwidth-swidth-40 + 'px')
