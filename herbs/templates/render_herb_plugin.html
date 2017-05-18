@@ -38,6 +38,7 @@ Created: 30 Aug, 2016
 <!--  ======================================================== -->
 
 <!--  ============Herbitem content found ===================== --> 
+<div id="tab-preloader"></div>
 <div id="herbitem-tabs">
   <ul>
     <li><a href="#herbitem-content-main">{%trans "Общая информация"%}</a></li>
@@ -239,7 +240,7 @@ float: right;
 }
 
 
-.herbitem-loader {
+.herbitem-loader, #tab-preloader {
   background: url("{{STATIC_URL}}/images/herbitem-loader.gif") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
   height: 32px;
   margin-left: auto;
@@ -411,7 +412,7 @@ function herbitemFind(){
   var lonu = null
   var outputHTML = '';
   var commonError = "{%trans "Возникла ошибка при получении ответа за поисковый запрос" %}";
-	$("herbitem-content-found").html('<div class="herbitem-loader"></div>');
+	$("#herbitem-content-found").html('<div class="herbitem-loader"></div>');
 	$.get("{% url 'herbs.views.show_herbs' %}",
 			{family:family, genus:genus, species:species, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
@@ -494,6 +495,7 @@ var colwidth = $("div.centralcontainer").width();
 var swidth = $("#herb-search-form").width();
 $("#herbitem-tabs").width(colwidth-swidth-40 + 'px')
 herbitemFind();
+$("#tab-preloader").remove();
 $("#herbitem-tabs").show();
 });
 <!--  =========================================== -->
