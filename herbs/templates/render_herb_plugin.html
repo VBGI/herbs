@@ -126,7 +126,7 @@ Created: 30 Aug, 2016
        var idstr = itemcode + '/' + herbid + fieldid;
 
 		if (index % 2 == 0) { %>
-    <tr class="herbitem-even" onclick="showHerbitem(<%= herbid %>)">
+    <tr class="herbitem-even" id="herbitem-<%= herbid %>"  onclick="showHerbitem(<%= herbid %>)">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -134,7 +134,7 @@ Created: 30 Aug, 2016
 			<td><%= identifiers %></td>
 		</tr>
    <%	} else { %>
-    <tr class="herbitem-odd" onclick="showHerbitem(<%= herbid %>);">
+    <tr class="herbitem-odd" id="herbitem-<%= herbid %>" onclick="showHerbitem(<%= herbid %>);">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -179,7 +179,7 @@ label + * {margin-left: 2em; margin-top: 5px;}
 }
 
 .herbitem-selected {
-background: #EEFFAA;
+background: #EEFFAA !important;
 }
 
 #herbitem-page-lister{
@@ -373,6 +373,8 @@ $(element).select2({
 var scrollPosition = 0;
 
 function showHerbitem(herbid){
+  $("table#herbitem-table tr").removeClass("herbitem-selected");
+  $("#herbitem-"+herbid).addClass("herbitem-selected");
   scrollPosition = $(document).scrollTop();
   var el = $("div.herbitem-newpage");
   el.html("<h3>{%trans "Открыть в отдельном окне"%}</h3>");
