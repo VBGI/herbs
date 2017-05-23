@@ -44,7 +44,11 @@
       <p><strong>{%trans "Дополнительные виды" %}:</strong></p>
       <ul>
         {%for item in curobj.additionals.all%}
-          <li>{{item.identifiedby}}: {{item.species}} {%trans "Валидность"%}: {{item.identified_s}} &mdash; {{item.identified_e}} </li>
+          <li>{{item.identifiedby}}: {{item.species}} {%trans "Валидность"%}: 
+              {%if item.identified_s and item.identified_e%}{{item.identified_s}} &mdash; {{item.identified_e}}
+              {%elif item.identified_s%} {{item.identified_s}} {%trans "начало"%}
+              {%elif item.identified_e%} {{item.identified_e}} {%trans "конец"%}
+              {%else%} {%trans "не задана"%} </li>
         {%endfor%}
       </ul>
       {%endif%}
@@ -86,7 +90,7 @@
       <p><strong>{%trans "История определений" %}:</strong></p>
       <ul>
         {%for item in curobj.dethistory.all%}
-        <li>{{item.identifiedby}}: {{item.species}} ({{item.identified_s}}) </li>
+        <li>{{item.identifiedby}}: {{item.species}} {%if item.identified_s and item.identified_e%} ({{item.identified_s}} &mdash; {{item.identified_e}}) {%elif item.identified_s%} ({{item.identified_s}}) {%elif item.identified_e%} ({{item.identified_e}}){%else%}{%endif%}</li>
         {%endfor%}
       </ul>
 
