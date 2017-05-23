@@ -436,9 +436,13 @@ function herbitemFind(){
 }
 
 <!-- ============ When DOM is ready ============  -->
+function applyFilter(){
+  cpage = 1
+  herbitemFind()
+}
+
 $(document).ready(function() { 
 
- 
 bindSearch('family', "{% trans 'Семейство'%}");
 bindSearch('genus', "{% trans 'Род'%}");
 bindSearch('country', "{% trans 'Страну'%}");
@@ -485,7 +489,7 @@ $( "div#herb-search-form ul li input:text" ).each(function() {
 cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
 herbitemFind();
 });
-$("#herbitem-search-filtering select").change(herbitemFind);
+$("#herbitem-search-filtering select").change(applyFilter);
 $("#herbitem-tabs").tabs({active: 0, 
   activate: function(el,ui){
    if (ui.newPanel.selector == "#herbitem-content-main"){
