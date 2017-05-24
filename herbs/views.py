@@ -157,6 +157,8 @@ def show_herbs(request):
                      'itemcode': item.itemcode,
                      'id': item.pk,
                      'fieldid': item.fieldid,
+                     'lat': item.coordinates.latitude,
+                     'lon': item.coordinates.longitude,
                     # Extra data to show herbitem details
                      'collectedby': item.collectedby,
                      'collected_s': item.collected_s,
@@ -166,7 +168,7 @@ def show_herbs(request):
                      })
 
             # ------------------------------------------------------------------
-            context.update({'herbobjs' : data_tojson,
+            context.update({'herbitems' : data_tojson,
                             'has_previous': obj_to_show.has_previous(),
                             'has_next': obj_to_show.has_next(),
                             'pagenumber': page,
