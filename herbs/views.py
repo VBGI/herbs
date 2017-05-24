@@ -157,8 +157,8 @@ def show_herbs(request):
                      'itemcode': item.itemcode,
                      'id': item.pk,
                      'fieldid': item.fieldid,
-                     'lat': item.coordinates.latitude,
-                     'lon': item.coordinates.longitude,
+                     'lat': item.coordinates.latitude if item.coordinates else 0.0,
+                     'lon': item.coordinates.longitude if item.coordinates else 0.0,
                     # Extra data to show herbitem details
                      'collectedby': item.collectedby,
                      'collected_s': item.collected_s,

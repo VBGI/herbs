@@ -81,6 +81,8 @@ Created: 30 Aug, 2016
 </div>
 
 <div id="herbitem-map">
+<div id="herbitem-map-pagelister"></div>
+<div id="herbitem-map-placeholder"></div>
 </div>
 </div>
 <!--  ======================================================== -->
@@ -89,7 +91,6 @@ Created: 30 Aug, 2016
 
 <!-- ============-Searchform template ======================== -->
 <script id="herbitem-map-template" type="text/x-underscore-template">
-<div id="herbitem-map-container">
 <div class="herbitem-page-lister">
     <span class="step-links">
         <% if (has_previous){ %>
@@ -104,8 +105,6 @@ Created: 30 Aug, 2016
         <% } %>
     </span>
 </div>
-</div>
-<div id="herbitem-map-placeholder"></div>
 </script>
 
 <script id="searchform-template" type="text/x-underscore-template">
@@ -313,12 +312,21 @@ ul#herbitem-search-filtering li{
 max-width: 150px;
 height: 2em;
 }
+
+#herbitem-map-placeholder{
+min-width: 200px;
+width: 100%;
+min-height: 200px;
+height: 400px;
+}
+
 </style>
 {%endaddtoblock%}
 
 {%addtoblock "js"%}
 <!-- 	================== Main javascript code ===============- -->
 
+<script type="text/javascript"  src="//maps.googleapis.com/maps/api/js?key=AIzaSyC_3-gteTrZllW9zGCes2o1HT9ylM6QRXk" async defer></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
@@ -368,7 +376,7 @@ var map = maptempl({items:idata.herbitems, has_previous: idata.has_previous,
 							}); 
 var result={};
 result.map = map;
-result.table = output;
+result.table = table;
 return result 
 }
 
@@ -476,57 +484,82 @@ function herbitemFind(){
         $("#herbitem-map").html("<h2>" + commonError + "</h2>")
       }).always(function () {
 				$("#herbitem-content-found").html(outputHTML.table); 														 	
-        $("#herbitem-map").html(outputHTML.map);
-
-        if (data) { //render map if data is provided
-            renderMap(data);       
+        $("#herbitem-map-pagelister").html(outputHTML.map);
+        if (outputData&&google) { //render map if data is provided
+            renderMap(outputData);       
           };      
       })	
 };
 
 var markers=[];
 var map=null;
-
-function initMapData(data){
-for(var i=0; i<data.herbitems.length; i++){
-  var marker=new google.maps.Marker({
-    position: new goolge.maps.LatLng(data.herbitems[i].lat, data.herbitems[i].lon);
-              map: null;});
-  markers.push(marker);
-};}
-
                                          
 function clearMarkers() {
   for (var i = 0; i < markers.length; i++ ) {
     markers[i].setMap(null);
 }
-markers.length = 0;}
+markers.length = 0};
 
 
 function initHerbitemMap(){
-if (map == null){ 
-    map = new google.maps.Map(document.getElementById('#herbitem-map-placeholder'), {
+el = document.getElementById('herbitem-map-placeholder');
+if (map == null && google){ 
+    map = new google.maps.Map(el, {
             zoom: 8,
             center: new google.maps.LatLng(43.0,132.0),
-            mapTypeId: 'sattelite'});
+            mapTypeId: 'hybrid'});
             }
-}
-
-function renderMap(data){
-var avLat, avLon;
-
-clearMarkers();
-initMapData(data);
-
-for(var i = 0; i < data.herbitems.length; i++){
-   avLat += data.herbitems[i].lat;
-   avLng += data.herbitems[i].lon;
 };
 
-avLat = avLat/data.herbitems.length;
-avLon = avLon/data.herbitems.length;
-map.setCenter({'lat': avLat, 'lon': avLon}); 
-for (var i =0; i<markers.length; i++){markers[i].setMap(map);};
+function renderMap(data){
+  var avLat=0.0, avLon=0.0;
+
+if (map&&google) {
+clearMarkers();
+}
+else if (google){
+initHerbitemMap();
+clearMarkers();
+}
+else{return;}
+
+for(var i=0; i<data.herbitems.length; i++){
+  var pos={'lat': parseFloat(data.herbitems[i].lat), 'lng': parseFloat(data.herbitems[i].lon)}
+  var marker=new google.maps.Marker({
+              position: pos,
+              map: map,
+              herbitemid: data.herbitems[i].id
+              });
+
+ marker.addListener('click', function() {
+      showHerbitem(this.herbitemid);
+        });
+
+  markers.push(marker);
+}
+
+var a,b, cnt=0;
+for(var i = 0; i < markers.length; i++){
+   a =  markers[i].getPosition().lat();
+   b  =  markers[i].getPosition().lng();
+  if ((a!=0.0)&&(b!=0.0)){
+   cnt += 1
+   avLat += a;
+   avLon += b;
+    };
+
+  };
+
+if (cnt == 0) {
+  avLat=0.0; avLon=0.0;
+  }
+else {
+  avLat = avLat/cnt;
+  avLon = avLon/cnt;
+  }
+
+map.setCenter({'lat': avLat, 'lng': avLon}); 
+for (var i =0; i<markers.length; i++){markers[i].setMap(map)};
 };
 
 function applyFilter(){
@@ -534,7 +567,7 @@ function applyFilter(){
   herbitemFind()
 }
 
-<!-- ============ When DOM is ready ============  -->
+//<!-- ============ When DOM is ready ============  -->
 $(document).ready(function() { 
 
 bindSearch('family', "{% trans 'Семейство'%}");
@@ -589,7 +622,13 @@ $("#herbitem-tabs").tabs({active: 0,
    if (ui.newPanel.selector == "#herbitem-content-main"){
     $(document).scrollTop(scrollPosition);
     scrollPosition = 0;
-   }}});
+   }
+  if (ui.newPanel.selector == '#herbitem-map'){
+     if (google&&map){google.maps.event.trigger(map,'resize');
+        };
+  }
+
+}});
 
 var colwidth = $("div.centralcontainer").width();
 var swidth = $("#herb-search-form").width();
@@ -597,12 +636,9 @@ $("#herbitem-tabs").width(colwidth-swidth-40 + 'px')
 herbitemFind();
 $("#tab-preloader").remove();
 $("#herbitem-tabs").show();
+initHerbitemMap();
 });
 <!--  =========================================== -->
-</script>
-
-<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_3-gteTrZllW9zGCes2o1HT9ylM6QRXk&callback=initHerbitemMap">
 </script>
 
 
