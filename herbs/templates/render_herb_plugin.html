@@ -81,7 +81,8 @@ Created: 30 Aug, 2016
 </div>
 
 <div id="herbitem-map">
-<div id="herbitem-map-pagelister"></div>
+  <div id="herbitem-map-pagelister"></div>
+  <h2>Under construction...</h2>
 <div id="herbitem-map-placeholder"></div>
 </div>
 </div>
@@ -434,7 +435,6 @@ function showHerbitem(herbid){
 
 
 function herbitemFind(){
-  $("#herbitem-tabs").tabs('option','active',0);
 	var family = getornone('#family-input');
 	var genus = getornone('#genus-input');
 	var species = $('#species-input').val();
@@ -540,8 +540,8 @@ for(var i=0; i<data.herbitems.length; i++){
 
 var a,b, cnt=0;
 for(var i = 0; i < markers.length; i++){
-   a =  markers[i].getPosition().lat();
-   b  =  markers[i].getPosition().lng();
+   a =  pos['lat'];
+   b  = pos['lng']
   if ((a!=0.0)&&(b!=0.0)){
    cnt += 1
    avLat += a;
@@ -634,6 +634,7 @@ var colwidth = $("div.centralcontainer").width();
 var swidth = $("#herb-search-form").width();
 $("#herbitem-tabs").width(colwidth-swidth-40 + 'px')
 herbitemFind();
+$("#herbitem-tabs").tabs('option','active',0);
 $("#tab-preloader").remove();
 $("#herbitem-tabs").show();
 initHerbitemMap();
