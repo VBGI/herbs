@@ -106,6 +106,10 @@ def show_herbs(request):
                 colendin = Q(collected_e__gte=data['colstart']) & Q(collected_e__lte=data['colend'])
                 colstartin = Q(collected_s__gte=data['colstart']) & Q(collected_s__lte=data['colend'])
                 bigquery += [colstartin | colendin]
+            elif data['colstart']:
+                bigquery += [Q(collected_s__gte=data['colstart']) | Q(collected_e__gte=data['colstart'])]
+            elif data['colend']:
+                bigquery += [Q(collected_s__lte=data['colend']) | Q(collected_e__lte=data['colend'])]
 
             # acronym filtering
             acronym = request.GET.get('acronym', '')
