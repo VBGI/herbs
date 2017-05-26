@@ -594,7 +594,7 @@ function initHerbitemMap(){
 el = document.getElementById('herbitem-map-placeholder');
 if (map == null && google){ 
     map = new google.maps.Map(el, {
-            zoom: 8,
+            zoom: 4,
             center: new google.maps.LatLng(43.0,132.0),
             mapTypeId: 'hybrid'});
             }
@@ -614,7 +614,8 @@ else{return;}
 
 for(var i=0; i<data.herbitems.length; i++){
   var pos={'lat': parseFloat(data.herbitems[i].lat), 'lng': parseFloat(data.herbitems[i].lon)}
-  var marker=new google.maps.Marker({
+if ((!pos['lat']==0)&&(!pos['lng']==0)){                                          
+var marker=new google.maps.Marker({
               position: pos,
               map: map,
               herbitemid: data.herbitems[i].id
@@ -625,7 +626,7 @@ for(var i=0; i<data.herbitems.length; i++){
         });
 
   markers.push(marker);
-}
+   }}
 
 var a,b, cnt=0;
 for(var i = 0; i < markers.length; i++){
