@@ -562,8 +562,8 @@ function herbitemFind(csvFlag){
         $("#herbitem-content-found").html("<h2>" + commonError + "</h2>")
         $("#herbitem-map").html("<h2>" + commonError + "</h2>")
       }).always(function () {
-				$("#herbitem-content-found").html(outputHTML.table); 														 	
-        $("#herbitem-map-pagelister").html(outputHTML.map);
+				$("#herbitem-content-found").html( outputHTML.hasOwnProperty('table') ? outputHTML.table : outputHTML);
+        $("#herbitem-map-pagelister").html(outputHTML.hasOwnProperty('map') ? outputHTML.map : outputHTML);
         if (outputData&&google) { //render map if data is provided
             renderMap(outputData);       
           };      
