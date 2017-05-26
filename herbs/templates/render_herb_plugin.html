@@ -503,6 +503,7 @@ function csvDownloader(response, status, xhr) {
             }
 
             setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100); // cleanup
+        $("#herbitem-csv-loading").remove();
         }
     }; 
 
@@ -536,6 +537,9 @@ function herbitemFind(csvFlag){
   var outputHTML = '';
   var outputData = null;
   var commonError = "{%trans "Возникла ошибка при получении ответа за поисковый запрос" %}";
+  if (csvFlag){
+    $("#herbitem-csv-export").append('<div class="herbitem-loader" id="herbitem-csv-loading" style="width: 16px; height: 16px;background-size:cover;"></div>');
+  }
 
   if (!csvFlag) {
    $("#herbitem-content-found").html('<div class="herbitem-loader"></div>')
@@ -572,7 +576,7 @@ function herbitemFind(csvFlag){
 			colend:colend, page:cpage, pagcount: pagcount,acronym:acronym, subdivision:subdivision,
       latl:latl, lonl: lonl, latu:latu, lonu:lonu, getcsv:csvFlag,
       orderby:orderby, order:order      
-      },csvDownloader);
+      }, csvDownloader);
     }
 };
 

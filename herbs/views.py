@@ -37,7 +37,6 @@ def _get_rows_for_csv(queryset):
     for field in HerbItem._meta.fields:
         header.append(field.name)
     yield header
-
     for qs_obj in queryset.iterator():
         row = []
         for field in header:
@@ -59,14 +58,13 @@ def _get_rows_for_csv(queryset):
 
                 if field == 'devstage':
                     val = qs_obj.get_devstage_display()
-                row.append(val)
 
                 if field == 'coordinates':
                     val = '(%s, %s)' % (cur_property.latitude,
                                         cur_property.longitude)
             else:
                  val = ''
-
+            row.append(val)
         yield row
 
 
