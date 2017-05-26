@@ -119,7 +119,7 @@ Created: 30 Aug, 2016
 
 <script id="searchform-template" type="text/x-underscore-template">
 {% if user.is_authenticated %}
-<div id="herbitem-csv-export" onclick="herbitemFind(true)"> <h4>{%trans "Сохранить в csv-файл" %}</h4></div>
+<div id="herbitem-csv-export" onclick="herbitemFind(true)"> {%trans "Сохранить в csv-файл" %}</div>
 {%endif%}
 <h2> {%trans "Результаты поиска:"%} </h2>
 <div class="herbitem-page-lister">
@@ -272,11 +272,14 @@ float: right;
 #herbitem-csv-export{
 float: right;
 padding: 5px;
+font-size: 14pt;
+font-weight: bold;
 }
 
 #herbitem-csv-export:hover{
 cursor: pointer;
 background: #EEFFAA;
+
 }
 
 #herbitem-next-page, #herbitem-previous-page {
