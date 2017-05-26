@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-26 13:07+1000\n"
+"POT-Creation-Date: 2017-05-26 05:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,81 +17,87 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: admin.py:30
+#: admin.py:31
 #, python-format
 msgid "Опубликовано %s записей"
 msgstr "%s items were published"
 
-#: admin.py:32
+#: admin.py:33
 #, python-format
 msgid "У %s записей виды не одобрены куратором"
 msgstr "%s items have unapproved species"
 
-#: admin.py:34
+#: admin.py:35
 msgid "Вы должны быть куратором гербария, чтобы опубликовать записи"
 msgstr "You should be a curator to publish items"
 
-#: admin.py:41
+#: admin.py:42
 #, python-format
 msgid "Снято с публикации %s записей"
 msgstr "%s items were unpublished"
 
-#: admin.py:43
+#: admin.py:44
 msgid "Вы должны быть куратором гербария, чтобы снять  записи с публикации"
 msgstr "You should be a curator to unpublish items"
 
-#: admin.py:46
+#: admin.py:47
 msgid "Опубликовать записи"
 msgstr "Publish items"
 
-#: admin.py:47
+#: admin.py:48
 msgid "Снять с публикации"
 msgstr "Unpublish items"
 
-#: admin.py:56
+#: admin.py:57
 msgid "Выделите не менее одной и не более 4-х гербарных образцов"
 msgstr "Select at least one and no more 4 items"
 
-#: admin.py:61
+#: admin.py:62
 msgid "Создать этикетки"
 msgstr "Create labels"
 
-#: admin.py:96
+#: admin.py:97
 msgid "Пользователь"
 msgstr "User"
 
-#: admin.py:192 admin.py:202 admin.py:401
+#: admin.py:193 admin.py:203 admin.py:410
 msgid "Количество объектов в БД"
 msgstr "The number of objects in DB"
 
-#: admin.py:217
+#: admin.py:218
 #, python-format
 msgid "Удалено %s гербарных объектов"
 msgstr "%s items were deleted"
 
-#: admin.py:219
+#: admin.py:220
 msgid ""
 "Нечего удалять. Гербарные образцы должны быть сняты с публикации перед "
 "удалением."
 msgstr "Nothing to delete. Items should be unpublished first"
 
-#: admin.py:220
+#: admin.py:221
 msgid "Удалить гербарные образцы"
 msgstr "Delete herbarium items"
 
-#: admin.py:394
+#: admin.py:232 forms.py:110 forms.py:124 forms.py:133 forms.py:144
+#: templates/herbitem_details.html:42 templates/render_herb_plugin.html:15
+#: templates/render_herb_plugin.html:144
+msgid "Вид"
+msgstr "Species"
+
+#: admin.py:403
 msgid "Название вида"
 msgstr "Species name"
 
-#: admin.py:397
+#: admin.py:406
 msgid "Основные виды: "
 msgstr "Base species: "
 
-#: admin.py:398
+#: admin.py:407
 msgid "Переопределенные: "
 msgstr "Redeterminations: "
 
-#: admin.py:399
+#: admin.py:408
 msgid "Дополнительные: "
 msgstr "Additional: "
 
@@ -99,7 +105,7 @@ msgstr "Additional: "
 msgid "Ajax-служба управления гербарием"
 msgstr "Ajax-service for herbarium control"
 
-#: cms_plugins.py:11
+#: cms_plugins.py:12
 msgid "Отображение гербарных образцов"
 msgstr "View herbarium items"
 
@@ -145,13 +151,7 @@ msgstr ""
 "the species isn't approved; items with approved species only could be "
 "published"
 
-#: forms.py:110 forms.py:124 forms.py:133 forms.py:144
-#: templates/herbitem_details.html:42 templates/render_herb_plugin.html:15
-#: templates/render_herb_plugin.html:79
-msgid "Вид"
-msgstr "Species"
-
-#: forms.py:111 templates/herbitem_details.html:67
+#: forms.py:111 templates/herbitem_details.html:71
 #: templates/render_herb_plugin.html:23
 msgid "Место сбора"
 msgstr "Place"
@@ -164,16 +164,16 @@ msgstr "location, environment conditions"
 msgid "Заметки"
 msgstr "Notes"
 
-#: forms.py:114 forms.py:148 templates/herbitem_details.html:74
+#: forms.py:114 forms.py:148 templates/herbitem_details.html:78
 #: templates/render_herb_plugin.html:21
 msgid "Страна"
 msgstr "Country"
 
-#: forms.py:115 templates/herbitem_details.html:75
+#: forms.py:115 templates/herbitem_details.html:79
 msgid "Регион"
 msgstr "Region"
 
-#: forms.py:116 templates/herbitem_details.html:76
+#: forms.py:116 templates/herbitem_details.html:80
 msgid "Район"
 msgstr "District"
 
@@ -185,17 +185,21 @@ msgstr "collector(s)"
 msgid "Определили"
 msgstr "Identifier(s)"
 
-#: forms.py:126 forms.py:135
+#: forms.py:126
+msgid "Переопределелил(и)"
+msgstr "Identifier(s)"
+
+#: forms.py:135
 msgid "Определелил(и)"
 msgstr "Identifier(s)"
 
 #: forms.py:142 forms.py:172 templates/herbitem_details.html:40
-#: templates/render_herb_plugin.html:13 templates/render_herb_plugin.html:370
+#: templates/render_herb_plugin.html:13 templates/render_herb_plugin.html:663
 msgid "Семейство"
 msgstr "Family"
 
 #: forms.py:143 forms.py:193 templates/herbitem_details.html:41
-#: templates/render_herb_plugin.html:14 templates/render_herb_plugin.html:371
+#: templates/render_herb_plugin.html:14 templates/render_herb_plugin.html:664
 msgid "Род"
 msgstr "Genus"
 
@@ -380,12 +384,14 @@ msgid "акронимы гербария"
 msgstr "herbarium acronyms"
 
 #: models.py:210
-msgid "определение"
-msgstr "definition"
+#, fuzzy
+msgid "переопределение"
+msgstr "Redeterminations: "
 
 #: models.py:211
-msgid "определения"
-msgstr "definitions"
+#, fuzzy
+msgid "переопределения"
+msgstr "Identification date"
 
 #: models.py:220
 msgid "валиден с"
@@ -471,6 +477,262 @@ msgstr "view additional species"
 msgid "нельзя удалить опубликованные объекты"
 msgstr "Cann't delete published items"
 
+#: views.py:104
+msgid "Допустимы только GET-запросы"
+msgstr "Only GET-methods are allowed"
+
+#: views.py:185
+msgid "Ни одного элемента не удолетворяет условиям запроса"
+msgstr "There are no items found for your request"
+
+#: views.py:239
+msgid "Допустимы только XMLHttp-запросы"
+msgstr "Only XMLHttp-requests are allowed"
+
+#: views.py:255
+#, python-format
+msgid "Гербарного образца с id=%s не было найдено"
+msgstr "Herbarium item with id=%s wasn't found"
+
+#: views.py:264
+msgid "Допустимы только XMLHttp запросы"
+msgstr "Only XMLHttp-requests are allowed"
+
+#: views.py:266
+msgid "Допустимы только GET-методы"
+msgstr "Only GET-method are allowed"
+
+#: views.py:306
+msgid "Странный запрос"
+msgstr "Strange request"
+
+#: views.py:320
+msgid "Ваш запрос слишком длинный, выберите меньшее количество элементов"
+msgstr "Your request is quite long, try to select lesser number of items"
+
+#: views.py:326
+msgid "Вы не можете создать более 4-х этикеток одновременно"
+msgstr "You cann't create more than 4 herbarium labels simultaneously"
+
+#: views.py:334
+msgid "Выбранный образцы либо не опубликованы, либо не существуют"
+msgstr "Selected items either unpublished or doesn't exist"
+
+#: views.py:336
+msgid "Пустой или неправильно сформированный запрос"
+msgstr "Empty or malformed query"
+
+#: templates/herbitem_details.html:6
+msgid "Гербарный объект"
+msgstr "Herbarium object"
+
+#: templates/herbitem_details.html:13
+msgid "Гербарный образец с таким идентификатором не найден"
+msgstr "Herbarium object with this ID wasn't found"
+
+#: templates/herbitem_details.html:24
+msgid "Перейти на главную старницу сайта"
+msgstr "Go to main website page"
+
+#: templates/herbitem_details.html:25
+msgid "Ботанический сад-институт ДВО РАН"
+msgstr "Botanical Garden-Institute FEB RAS"
+
+#: templates/herbitem_details.html:47
+msgid "Валидность"
+msgstr "Validity"
+
+#: templates/herbitem_details.html:49
+msgid "с"
+msgstr "from"
+
+#: templates/herbitem_details.html:50
+#, fuzzy
+msgid "по"
+msgstr "Genus"
+
+#: templates/herbitem_details.html:51
+msgid "не задана"
+msgstr "Not provided"
+
+#: templates/herbitem_details.html:56
+msgid "Координаты сбора"
+msgstr "Coordinates"
+
+#: templates/herbitem_details.html:57
+msgid "Широта"
+msgstr "Latitude"
+
+#: templates/herbitem_details.html:58
+msgid "Долгота"
+msgstr "Longitude"
+
+#: templates/herbitem_details.html:81
+msgid "Дополнительно"
+msgstr "Additional"
+
+#: templates/herbitem_details.html:82
+msgid "Высота"
+msgstr "Altitude"
+
+#: templates/herbitem_details.html:83
+msgid "Экология"
+msgstr "Environmental conditions"
+
+#: templates/herbitem_details.html:84 templates/render_herb_plugin.html:18
+msgid "Собрал(и)"
+msgstr "Collector(s)"
+
+#: templates/herbitem_details.html:85 templates/render_herb_plugin.html:145
+msgid "Дата сбора"
+msgstr "Collection date"
+
+#: templates/herbitem_details.html:86 templates/render_herb_plugin.html:19
+#: templates/render_herb_plugin.html:147
+msgid "Определил(и)"
+msgstr "Identifier(s)"
+
+#: templates/herbitem_details.html:87
+msgid "Дата определения"
+msgstr "Identification date"
+
+#: templates/herbitem_details.html:90
+msgid "История определений"
+msgstr "History of identifications"
+
+#: templates/herbitem_details.html:100
+msgid "Примечание"
+msgstr "Note"
+
+#: templates/herbitem_details.html:115
+msgid ""
+"Для корректного отображения изображений гербарных образцов должен быть "
+"включен JavaScript."
+msgstr "JavaScript interpreter should be turned on to render page properly."
+
+#: templates/herbitem_details.html:116
+msgid "Последнее изменение"
+msgstr "Last updated"
+
+#: templates/herbitem_details.html:120
+msgid "Образец с номером "
+msgstr "Items with the number"
+
+#: templates/herbitem_details.html:120
+msgid "не опубликован."
+msgstr "was'nt published"
+
+#: templates/render_herb_plugin.html:16
+msgid "Код"
+msgstr "Code"
+
+#: templates/render_herb_plugin.html:18 templates/render_herb_plugin.html:19
+msgid "Текстовое поле"
+msgstr "Text field"
+
+#: templates/render_herb_plugin.html:25
+msgid "Дата сбора (начало)"
+msgstr "Collection start date"
+
+#: templates/render_herb_plugin.html:30
+msgid "Дата сбора (окончание)"
+msgstr "Collection end date"
+
+#: templates/render_herb_plugin.html:33
+msgid "Очистить"
+msgstr "Clear"
+
+#: templates/render_herb_plugin.html:34
+msgid "Найти"
+msgstr "Search"
+
+#: templates/render_herb_plugin.html:45
+msgid "Применить фильтры"
+msgstr "Apply filters"
+
+#: templates/render_herb_plugin.html:48
+#, fuzzy
+msgid "Количество"
+msgstr "Family"
+
+#: templates/render_herb_plugin.html:56
+#, fuzzy
+msgid "Название гербария"
+msgstr "herbarium acronym"
+
+#: templates/render_herb_plugin.html:63
+#, fuzzy
+msgid "Подраздел гербария"
+msgstr "herbarium branch"
+
+#: templates/render_herb_plugin.html:76
+msgid "Общая информация"
+msgstr "Table"
+
+#: templates/render_herb_plugin.html:77
+msgid "Информация об образце"
+msgstr "Details"
+
+#: templates/render_herb_plugin.html:78
+msgid "Карта"
+msgstr "Map"
+
+#: templates/render_herb_plugin.html:85
+msgid "Не выбран ни один элемент"
+msgstr "No items were selected"
+
+#: templates/render_herb_plugin.html:107 templates/render_herb_plugin.html:128
+msgid "Предыдущая"
+msgstr "Previous"
+
+#: templates/render_herb_plugin.html:111 templates/render_herb_plugin.html:132
+msgid "Страница"
+msgstr "Page"
+
+#: templates/render_herb_plugin.html:111 templates/render_herb_plugin.html:132
+msgid "из"
+msgstr "of"
+
+#: templates/render_herb_plugin.html:114 templates/render_herb_plugin.html:135
+msgid "Следующая"
+msgstr "Next"
+
+#: templates/render_herb_plugin.html:122
+msgid "Сохранить в csv-файл"
+msgstr "Export to csv-file"
+
+#: templates/render_herb_plugin.html:124
+msgid "Результаты поиска:"
+msgstr "Search results:"
+
+#: templates/render_herb_plugin.html:143
+msgid "Код объекта"
+msgstr "Item code"
+
+#: templates/render_herb_plugin.html:146
+msgid "Коллектор(ы)"
+msgstr "Collector(s)"
+
+#: templates/render_herb_plugin.html:179
+msgid "Всего:"
+msgstr "Total:"
+
+#: templates/render_herb_plugin.html:421
+msgid "Выберите "
+msgstr "Select "
+
+#: templates/render_herb_plugin.html:453
+msgid "Открыть в отдельном окне"
+msgstr "Open in a new window"
+
+#: templates/render_herb_plugin.html:539
+msgid "Возникла ошибка при получении ответа за поисковый запрос"
+msgstr "An error occurred when trying to get response on your search query"
+
+#: templates/render_herb_plugin.html:665
+msgid "Страну"
+msgstr "Country"
+
 #: templates/admin/herbs/herbitem/change_form.html:19
 msgid "Home"
 msgstr ""
@@ -497,222 +759,8 @@ msgid_plural "Please correct the errors below."
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/herbitem_details.html:6
-msgid "Гербарный объект"
-msgstr "Herbarium object"
+#~ msgid "определение"
+#~ msgstr "definition"
 
-#: templates/herbitem_details.html:13
-msgid "Гербарный образец с таким идентификатором не найден"
-msgstr "Herbarium object with this ID wasn't found"
-
-#: templates/herbitem_details.html:24
-msgid "Перейти на главную старницу сайта"
-msgstr "Go to main website page"
-
-#: templates/herbitem_details.html:25
-msgid "Ботанический сад-институт ДВО РАН"
-msgstr "Botanical Garden-Institute FEB RAS"
-
-#: templates/herbitem_details.html:47
-msgid "Валидность"
-msgstr "Validity"
-
-#: templates/herbitem_details.html:52
-msgid "Координаты сбора"
-msgstr "Coordinates"
-
-#: templates/herbitem_details.html:53
-msgid "Широта"
-msgstr "Latitude"
-
-#: templates/herbitem_details.html:54
-msgid "Долгота"
-msgstr "Longitude"
-
-#: templates/herbitem_details.html:77
-msgid "Дополнительно"
-msgstr "Additional"
-
-#: templates/herbitem_details.html:78
-msgid "Высота"
-msgstr "Altitude"
-
-#: templates/herbitem_details.html:79
-msgid "Экология"
-msgstr "Environmental conditions"
-
-#: templates/herbitem_details.html:80 templates/render_herb_plugin.html:18
-msgid "Собрал(и)"
-msgstr "Collector(s)"
-
-#: templates/herbitem_details.html:81 templates/render_herb_plugin.html:80
-msgid "Дата сбора"
-msgstr "Collection date"
-
-#: templates/herbitem_details.html:82 templates/render_herb_plugin.html:19
-#: templates/render_herb_plugin.html:82
-msgid "Определил(и)"
-msgstr "Identifier(s)"
-
-#: templates/herbitem_details.html:83
-msgid "Дата определения"
-msgstr "Identification date"
-
-#: templates/herbitem_details.html:86
-msgid "История определений"
-msgstr "History of identifications"
-
-#: templates/herbitem_details.html:96
-msgid "Примечание"
-msgstr "Note"
-
-#: templates/herbitem_details.html:111
-msgid ""
-"Для корректного отображения изображений гербарных образцов должен быть "
-"включен JavaScript."
-msgstr "JavaScript interpreter should be turned on to render page properly."
-
-#: templates/herbitem_details.html:112
-msgid "Последнее изменение"
-msgstr "Last updated"
-
-#: templates/herbitem_details.html:116
-msgid "Образец с номером "
-msgstr "Items with the number"
-
-#: templates/herbitem_details.html:116
-msgid "не опубликован."
-msgstr "was'nt published"
-
-#: templates/render_herb_plugin.html:16
-msgid "Код"
-msgstr "Code"
-
-#: templates/render_herb_plugin.html:18 templates/render_herb_plugin.html:19
-msgid "Текстовое поле"
-msgstr "Text field"
-
-#: templates/render_herb_plugin.html:25
-msgid "Дата сбора (начало)"
-msgstr "Collection start date"
-
-#: templates/render_herb_plugin.html:30
-msgid "Дата сбора (окончание)"
-msgstr "Collection end date"
-
-#: templates/render_herb_plugin.html:32
-msgid "Очистить"
-msgstr "Clear"
-
-#: templates/render_herb_plugin.html:33
-msgid "Найти"
-msgstr "Search"
-
-#: templates/render_herb_plugin.html:42
-msgid "Общая информация"
-msgstr "Table"
-
-#: templates/render_herb_plugin.html:43
-msgid "Информация об образце"
-msgstr "Details"
-
-#: templates/render_herb_plugin.html:44
-msgid "Карта"
-msgstr "Map"
-
-#: templates/render_herb_plugin.html:48
-msgid "Не выбран ни один элемент"
-msgstr "No items were selected"
-
-#: templates/render_herb_plugin.html:59
-msgid "Результаты поиска:"
-msgstr "Search results:"
-
-#: templates/render_herb_plugin.html:63
-msgid "Предыдущая"
-msgstr "Previous"
-
-#: templates/render_herb_plugin.html:67
-msgid "Страница"
-msgstr "Page"
-
-#: templates/render_herb_plugin.html:67
-msgid "из"
-msgstr "of"
-
-#: templates/render_herb_plugin.html:70
-msgid "Следующая"
-msgstr "Next"
-
-#: templates/render_herb_plugin.html:78
-msgid "Код объекта"
-msgstr "Item code"
-
-#: templates/render_herb_plugin.html:81
-msgid "Коллектор(ы)"
-msgstr "Collector(s)"
-
-#: templates/render_herb_plugin.html:114
-msgid "Всего:"
-msgstr "Total:"
-
-#: templates/render_herb_plugin.html:279
-msgid "Выберите "
-msgstr "Select "
-
-#: templates/render_herb_plugin.html:307
-msgid "Открыть в отдельном окне"
-msgstr "Open in a new window"
-
-#: templates/render_herb_plugin.html:344
-msgid "Возникла ошибка при получении ответа за поисковый запрос"
-msgstr "An error occurred when trying to get response on your search query"
-
-#: templates/render_herb_plugin.html:372
-msgid "Страну"
-msgstr "Country"
-
-#: views.py:62
-msgid "Допустимы только GET-запросы"
-msgstr "Only GET-methods are allowed"
-
-#: views.py:109
-msgid "Ни одного элемента не удолетворяет условиям запроса"
-msgstr "There are no items found for your request"
-
-#: views.py:161
-msgid "Допустимы только XMLHttp-запросы"
-msgstr "Only XMLHttp-requests are allowed"
-
-#: views.py:177
-#, python-format
-msgid "Гербарного образца с id=%s не было найдено"
-msgstr "Herbarium item with id=%s wasn't found"
-
-#: views.py:186
-msgid "Допустимы только XMLHttp запросы"
-msgstr "Only XMLHttp-requests are allowed"
-
-#: views.py:188
-msgid "Допустимы только GET-методы"
-msgstr "Only GET-method are allowed"
-
-#: views.py:228
-msgid "Странный запрос"
-msgstr "Strange request"
-
-#: views.py:242
-msgid "Ваш запрос слишком длинный, выберите меньшее количество элементов"
-msgstr "Your request is quite long, try to select lesser number of items"
-
-#: views.py:248
-msgid "Вы не можете создать более 4-х этикеток одновременно"
-msgstr "You cann't create more than 4 herbarium labels simultaneously"
-
-#: views.py:256
-msgid "Выбранный образцы либо не опубликованы, либо не существуют"
-msgstr "Selected items either unpublished or doesn't exist"
-
-#: views.py:258
-msgid "Пустой или неправильно сформированный запрос"
-msgstr "Empty or malformed query"
+#~ msgid "определения"
+#~ msgstr "definitions"
