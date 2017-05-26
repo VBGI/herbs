@@ -38,17 +38,13 @@ Created: 30 Aug, 2016
 <!--  ======================================================== -->
 
 <!--  ============Herbitem content found ===================== --> 
-<div id="tab-preloader"></div>
-<div id="herbitem-tabs">
-  <ul>
-    <li><a href="#herbitem-content-main">{%trans "Общая информация"%}</a></li>
-    <li><a href="#herbitem-details">{%trans "Информация об образце"%}</a></li>
-    <li><a href="#herbitem-map">{%trans "Карта" %}</a></li>
-    </ul>
-    <div id="herbitem-content-main">
-       <div id="herbitem-filtering"> 
+ 
+
+<div id="herbitem-filtering-container">
+<div id="herbitem-filtering">
+      <h3>{%trans "Применить фильтры"%}:</h3>
         <ul id="herbitem-search-filtering">
-           <li><select id="herbitem-pagination"> 
+           <li><select class="herbitem-pagination"> 
                <option value="">{%trans "Количество"%}</option>
                <option value="20">20</option>
                <option value="50">50</option>
@@ -71,22 +67,35 @@ Created: 30 Aug, 2016
               </select>   
            </li>
          <ul>
-       </div>
-      <div id="herbitem-content-found"><div class="herbitem-loader"></div></div>
+</div>
+</div> 
+
+<div id="tab-preloader"></div>
+<div id="herbitem-tabs">
+  <ul>
+    <li><a href="#herbitem-content-main">{%trans "Общая информация"%}</a></li>
+    <li><a href="#herbitem-details">{%trans "Информация об образце"%}</a></li>
+    <li><a href="#herbitem-map">{%trans "Карта" %}</a></li>
+    </ul>
+    <div id="herbitem-content-main">
+     <div id="herbitem-content-found"><div class="herbitem-loader"></div></div>
     </div>
 
-<div id="herbitem-details">
-  <div class="herbitem-newpage"><h2>{%trans "Не выбран ни один элемент"%}<h2></div>
-  <iframe id="herbitem-iframe" src="" width=100% height=1000px style="border:0"></iframe>
+    <div id="herbitem-details">
+     <div class="herbitem-newpage"><h2>{%trans "Не выбран ни один элемент"%}<h2></div>
+      <iframe id="herbitem-iframe" src="" width=100% height=1000px style="border:0"></iframe>
+    </div>
+  
+    <div id="herbitem-map">
+      <div id="herbitem-map-pagelister"></div>
+        <h2>Under construction...</h2>
+    <div id="herbitem-map-placeholder"></div>
+  </div>
 </div>
 
-<div id="herbitem-map">
-  <div id="herbitem-map-pagelister"></div>
-  <h2>Under construction...</h2>
-<div id="herbitem-map-placeholder"></div>
-</div>
-</div>
+
 <!--  ======================================================== -->
+
 
 
 
@@ -283,6 +292,7 @@ float: right;
    overflow:hidden;
    position:relative;
    margin-bottom: 5px;
+   display: none;
 }
 
 ul#herbitem-search-filtering{
@@ -452,9 +462,10 @@ function herbitemFind(){
 
 
   // TODO: orderby field, increasing decreasing ordering
-  // 
+  
   var orderby = null;
   var order = null;
+  
   // TODO: latl lonu etc... positioning needed
   var latl = null;
   var latu = null;
@@ -633,6 +644,8 @@ $("#herbitem-tabs").tabs({active: 0,
 var colwidth = $("div.centralcontainer").width();
 var swidth = $("#herb-search-form").width();
 $("#herbitem-tabs").width(colwidth-swidth-40 + 'px')
+$("#herbitem-filtering-container").width(colwidth-swidth-40+'px');
+$("#herbitem-filtering").show();
 herbitemFind();
 $("#herbitem-tabs").tabs('option','active',0);
 $("#tab-preloader").remove();
