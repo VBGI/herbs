@@ -42,24 +42,30 @@ def _get_rows_for_csv(queryset):
         row = []
         for field in header:
             cur_property = getattr(qs_obj, field)
-            if callable(cur_property):
-                val = cur_property()
-            if (field == 'family') or (field == 'species'):
-                val = capfirst(cur_property.get_full_name())
+            if cur_property is not None:
+                if callable(cur_property):
+                    val = cur_property()
+                else:
+                    val = cur_property
 
-            if (field == 'acronym') or (field == 'subdivision'):
-                val = cur_property.name
+                if (field == 'family') or (field == 'species'):
+                    val = capfirst(cur_property.get_full_name())
 
-            if field == 'country':
-                val = cur_property.name_ru if translation.get_language() == 'ru' else cur_property.name_en
+                if (field == 'acronym') or (field == 'subdivision'):
+                    val = cur_property.name
 
-            if field == 'devstage':
-                val = qs_obj.get_devstage_display()
-            row.append(val)
+                if field == 'country':
+                    val = cur_property.name_ru if translation.get_language() == 'ru' else cur_property.name_en
 
-            if field == 'coordinates':
-                val = '(%s, %s)' % (cur_property.latitude,
-                                    cur_property.longitude)
+                if field == 'devstage':
+                    val = qs_obj.get_devstage_display()
+                row.append(val)
+
+                if field == 'coordinates':
+                    val = '(%s, %s)' % (cur_property.latitude,
+                                        cur_property.longitude)
+            else:
+                 val = ''
 
         yield row
 
@@ -171,8 +177,8 @@ def show_herbs(request):
 
             if request.GET.get('getcsv', None) and request.user.is_authenticated():
                 writer = csv.writer(EchoCSV())
-                csv_response = StreamingHttpResponse((writer.writerow(row) for row in _get_rows_for_csv(object_filtered)), content_type="text/csv")
-                csv_response['Content-Disposition'] = 'attachment; filename="herb_data_%s.csv"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
+                csv_response = StreamingHttpResponse((writer.writerow([unicode(s).encode("utf-8") for s in row]) for row in _get_rows_for_csv(object_filtered)), content_type="text/csv")
+                csv_response['Content-Disposition'] = 'attachment; filename=herb_data_%s.csv' % timezone.now().strftime('%Y-%B-%d-%M-%s')
                 return csv_response
 
             if not object_filtered.exists():
