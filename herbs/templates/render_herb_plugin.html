@@ -44,7 +44,7 @@ Created: 30 Aug, 2016
 <div id="herbitem-filtering">
       <h3>{%trans "Применить фильтры"%}:</h3>
         <ul id="herbitem-search-filtering">
-           <li><select class="herbitem-pagination"> 
+           <li><select id="herbitem-pagination"> 
                <option value="">{%trans "Количество"%}</option>
                <option value="20">20</option>
                <option value="50">50</option>
@@ -295,6 +295,12 @@ float: right;
    display: none;
 }
 
+
+#herbitem-filtering-container{
+float: right;
+}
+
+
 ul#herbitem-search-filtering{
    clear:left;
    float:left;
@@ -321,7 +327,7 @@ ul#herbitem-search-filtering li{
 
 #herbitem-pagination, #herbitem-acronym, #herbitem-subdivision{
 max-width: 150px;
-height: 2em;
+height: 3em;
 }
 
 #herbitem-map-placeholder{
