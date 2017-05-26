@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import operator
 import datetime
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.forms.models import model_to_dict
@@ -21,9 +21,47 @@ from django.core.serializers.json import DjangoJSONEncoder
 import json
 import re
 import gc
+import csv
 from .hlabel import PDF_DOC
 
 digit_pat = re.compile(r'\d+')
+
+
+class EchoCSV(object):
+    def write(self, value):
+        return value
+
+
+def _get_rows_for_csv(queryset):
+    header = []
+    for field in HerbItem._meta.fields:
+        header.append(field.name)
+    yield header
+
+    for qs_obj in queryset.iterator():
+        row = []
+        for field in header:
+            cur_property = getattr(qs_obj, field)
+            if callable(cur_property):
+                val = cur_property()
+            if (field == 'family') or (field == 'species'):
+                val = capfirst(cur_property.get_full_name())
+
+            if (field == 'acronym') or (field == 'subdivision'):
+                val = cur_property.name
+
+            if field == 'country':
+                val = cur_property.name_ru if translation.get_language() == 'ru' else cur_property.name_en
+
+            if field == 'devstage':
+                val = qs_obj.get_devstage_display()
+            row.append(val)
+
+            if field == 'coordinates':
+                val = '(%s, %s)' % (cur_property.latitude,
+                                    cur_property.longitude)
+
+        yield row
 
 
 @csrf_exempt
@@ -129,6 +167,13 @@ def show_herbs(request):
 
             object_filtered = HerbItem.objects.filter(reduce(operator.and_,
                                                              bigquery))
+
+
+            if request.GET.get('getcsv', None) and request.user.is_authenticated():
+                writer = csv.writer(EchoCSV())
+                csv_response = StreamingHttpResponse((writer.writerow(row) for row in _get_rows_for_csv(object_filtered)), content_type="text/csv")
+                csv_response['Content-Disposition'] = 'attachment; filename="herb_data_%s.csv"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
+                return csv_response
 
             if not object_filtered.exists():
                 context.update({'herbobjs' : [],

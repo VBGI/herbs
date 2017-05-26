@@ -119,6 +119,11 @@ Created: 30 Aug, 2016
 
 <script id="searchform-template" type="text/x-underscore-template">
 <h2> {%trans "Результаты поиска:"%} </h2>
+
+{% if user.is_authenticated %}
+<div id="herbitem-csv-export"> <h4>{%trans "Сохранить в csv-файл" %}</h4></div>
+{%endif%}
+
 <div class="herbitem-page-lister">
     <span class="step-links">
         <% if (has_previous){ %>
@@ -266,6 +271,14 @@ float: right;
   color: green;
 }
 
+#herbitem-csv-export{
+float: right;
+}
+
+#herbitem-csv-export:hover{
+cursor: pointer;
+}
+
 #herbitem-next-page, #herbitem-previous-page {
   cursor: pointer;
   border-radius: 5px;
@@ -359,7 +372,7 @@ var cpage = 1; // Current paginated page
 
 function incrPage(el, inc){  // Just increment the page number 
 cpage = cpage + inc
-herbitemFind();
+herbitemFind(false);
 }
 
 function getornone(el){
@@ -450,7 +463,7 @@ function showHerbitem(herbid){
  }
 
 
-function herbitemFind(){
+function herbitemFind(csvFlag){
 	var family = getornone('#family-input');
 	var genus = getornone('#genus-input');
 	var species = $('#species-input').val();
@@ -485,7 +498,7 @@ function herbitemFind(){
 			{family:family, genus:genus, species:species, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
 			colend:colend, page:cpage, pagcount: pagcount,acronym:acronym, subdivision:subdivision,
-      latl:latl, lonl: lonl, latu:latu, lonu:lonu,
+      latl:latl, lonl: lonl, latu:latu, lonu:lonu, getcsv:csvFlag,
       orderby:orderby, order:order      
       }).done(function(data) {
 			if (data.error.length > 0) {
@@ -581,7 +594,7 @@ for (var i =0; i<markers.length; i++){markers[i].setMap(map)};
 
 function applyFilter(){
   cpage = 1
-  herbitemFind()
+  herbitemFind(false)
 }
 
 //<!-- ============ When DOM is ready ============  -->
@@ -594,7 +607,7 @@ bindSearch('country', "{% trans 'Страну'%}");
 $('#herbitemform-button').click(function (event){
 	event.preventDefault();
   cpage = 1;
-	herbitemFind();
+	herbitemFind(false);
 	})
 $("#colstart-input, #colend-input").click(function (event){
 	$(this).siblings('div.clear-button').css('display', 'inline-block');
@@ -606,6 +619,10 @@ $("div>input[type=search]" ).keypress(function() {
 $('select').on("select2:selecting", function(e) { 
   $(this).siblings('div.clear-button').css('display', 'inline-block')
 });
+
+
+$("#herbitem-csv-export").click(function(ev){
+ herbitemFind(true);});
 
 $('div.clear-button').click(function (event){
 $(this).css('display', 'none')
@@ -631,7 +648,7 @@ $( "div#herb-search-form ul li input:text" ).each(function() {
 });
 
 cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
-herbitemFind();
+herbitemFind(false);
 });
 $("#herbitem-search-filtering select").change(applyFilter);
 $("#herbitem-tabs").tabs({active: 0, 
@@ -652,7 +669,7 @@ var swidth = $("#herb-search-form").width();
 $("#herbitem-tabs").width(colwidth-swidth-40 + 'px')
 $("#herbitem-filtering-container").width(colwidth-swidth-40+'px');
 $("#herbitem-filtering").show();
-herbitemFind();
+herbitemFind(false);
 $("#herbitem-tabs").tabs('option','active',0);
 $("#tab-preloader").remove();
 $("#herbitem-tabs").show();
