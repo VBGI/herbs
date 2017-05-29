@@ -42,7 +42,6 @@ Created: 30 Aug, 2016
 
 <div id="herbitem-filtering-container">
 <div id="herbitem-filtering">
-      <h3>{%trans "Применить фильтры"%}:</h3>
         <ul id="herbitem-search-filtering">
            <li><select id="herbitem-pagination"> 
                <option value="">{%trans "Количество"%}</option>
@@ -89,7 +88,10 @@ Created: 30 Aug, 2016
     <div id="herbitem-map">
       <div id="herbitem-map-pagelister"></div>
         <h2>Under construction...</h2>
-    <div id="herbitem-map-placeholder"></div>
+
+        <div id="herbitem-markers-available"></div>
+        <div id="herbitem-map-placeholder"></div>
+        <div>*{%trans "Отображены только те записи, у которых заданы координаты сбора" %} </div>
   </div>
 </div>
 
@@ -353,6 +355,10 @@ min-height: 200px;
 height: 400px;
 }
 
+#herbitem-markers-available{
+float:right;
+font-size: 12pt;
+}
 </style>
 {%endaddtoblock%}
 
@@ -565,7 +571,7 @@ function herbitemFind(csvFlag){
 				$("#herbitem-content-found").html( outputHTML.hasOwnProperty('table') ? outputHTML.table : outputHTML);
         $("#herbitem-map-pagelister").html(outputHTML.hasOwnProperty('map') ? outputHTML.map : outputHTML);
         if (outputData&&google) { //render map if data is provided
-            renderMap(outputData);       
+            renderMap(outputData);      
           };      
       })	
   }
@@ -578,6 +584,7 @@ function herbitemFind(csvFlag){
       orderby:orderby, order:order      
       }, csvDownloader);
     }
+
 };
 
 var markers=[];
@@ -674,7 +681,8 @@ else {
 
 map.setZoom(2); 
 for (var i =0; i<markers.length; i++){markers[i].setMap(map)};
-};
+                                           $("#herbitem-markers-available").html('{% trans "На карте отображено" %} ' + markers.length + ' {% trans "маркеров" %}*');
+                                           };
 
 function applyFilter(){
   cpage = 1
