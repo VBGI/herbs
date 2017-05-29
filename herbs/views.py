@@ -62,9 +62,9 @@ def _get_rows_for_csv(queryset):
                 row.append(val)
             else:
                 if (field == 'latitude'):
-                    val = qs_obj.coordinates.latitude
+                    val = '%s' % qs_obj.coordinates.latitude if qs_obj.coordinates else ''
                 elif (field == 'longitude'):
-                    val = qs_obj.coordinates.longitude
+                    val = '%s'  % qs_obj.coordinates.longitude if qs_obj.coordinates else ''
                 elif (field =='family'):
                     val = capfirst(qs_obj.species.genus.family.name) if qs_obj.species else ''
                 else:
