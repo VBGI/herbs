@@ -318,7 +318,7 @@ class Species(TaxonMixin):
     status = models.CharField(max_length=1, default=SP_STATUSES[2][0], choices=SP_STATUSES,
                               blank=False)
     synonym = models.ForeignKey('self', null=True, blank=True, verbose_name=_('Синоним'), related_name='synrel')
-    updated = models.DateField(auto_now=True, verbose_name=_('изменен'))
+    updated = models.DateField(auto_now=True, verbose_name=_('изменен'), blank=True)
 
     def get_full_name(self):
         res = super(Species, self).get_full_name()
