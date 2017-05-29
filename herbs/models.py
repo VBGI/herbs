@@ -183,6 +183,11 @@ class SpeciesSynonym(models.Model):
     def __str__(self):
         return self.string_content
 
+    class Meta:
+        verbose_name = _('Синоним вида')
+        verbose_name_plural = _('Синонимы видов')
+
+
 
 @python_2_unicode_compatible
 class HerbAcronym(models.Model):
