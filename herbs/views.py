@@ -36,19 +36,20 @@ def _get_rows_for_csv(queryset):
     header = []
     for field in HerbItem._meta.fields:
         header.append(field.name)
+    header.remove('coordinates')
+    header.append('latitude')
+    header.append('longitude')
+    header.append('family')
     yield header
     for qs_obj in queryset.iterator():
         row = []
         for field in header:
-            cur_property = getattr(qs_obj, field)
+            cur_property = getattr(qs_obj, field, None)
             if cur_property is not None:
                 if callable(cur_property):
                     val = cur_property()
                 else:
                     val = cur_property
-
-                if (field == 'family') or (field == 'species'):
-                    val = capfirst(cur_property.get_full_name())
 
                 if (field == 'acronym') or (field == 'subdivision'):
                     val = cur_property.name
@@ -58,13 +59,17 @@ def _get_rows_for_csv(queryset):
 
                 if field == 'devstage':
                     val = qs_obj.get_devstage_display()
-
-                if field == 'coordinates':
-                    val = '(%s, %s)' % (cur_property.latitude,
-                                        cur_property.longitude)
+                row.append(val)
             else:
-                 val = ''
-            row.append(val)
+                if (field == 'latitude'):
+                    val = qs_obj.coordinates.latitude
+                elif (field == 'longitude'):
+                    val = qs_obj.coordinates.longitude
+                elif (field =='family'):
+                    val = capfirst(qs_obj.species.genus.family.name) if qs_obj.species else ''
+                else:
+                    val = ''
+                row.append(val)
         yield row
 
 
@@ -174,7 +179,7 @@ def show_herbs(request):
 
 
             if request.GET.get('getcsv', None) and request.user.is_authenticated():
-                writer = csv.writer(EchoCSV())
+                writer = csv.writer(EchoCSV(), delimiter=';')
                 csv_response = StreamingHttpResponse((writer.writerow([unicode(s).encode("utf-8") for s in row]) for row in _get_rows_for_csv(object_filtered)), content_type="text/csv")
                 csv_response['Content-Disposition'] = 'attachment; filename=herb_data_%s.csv' % timezone.now().strftime('%Y-%B-%d-%M-%s')
                 return csv_response
