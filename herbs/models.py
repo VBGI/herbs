@@ -173,6 +173,17 @@ class Country(models.Model):
         verbose_name_plural = _('страны')
 
 
+
+@python_2_unicode_compatible
+class SpeciesSynonym(models.Model):
+    json_content = models.TextField(default='', editable=False)
+    string_content = models.TextField(default='', editable=False)
+    rebuild_scheduled = models.BooleanField(default=True, editable=False)
+
+    def __str__(self):
+        return self.string_content
+
+
 @python_2_unicode_compatible
 class HerbAcronym(models.Model):
     name = models.CharField(max_length=10, default='', blank=True,
@@ -306,6 +317,8 @@ class Species(TaxonMixin):
                               related_name='species')
     status = models.CharField(max_length=1, default=SP_STATUSES[2][0], choices=SP_STATUSES,
                               blank=False)
+    synonym = models.ForeignKey('self', null=True, blank=True, verbose_name=_('Синоним'), related_name='synrel')
+    updated = models.DateField(auto_now=True, verbose_name=_('изменен'))
 
     def get_full_name(self):
         res = super(Species, self).get_full_name()
