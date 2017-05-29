@@ -12,7 +12,8 @@ from django.utils.translation import gettext as _
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm, HerbItemFormSimple, AdditionalsForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
-                     HerbAcronym, DetHistory, Additionals, Subdivision)
+                     HerbAcronym, DetHistory, Additionals, Subdivision,
+                     SpeciesSynonym)
 from django.forms import model_to_dict
 from django.utils.text import capfirst
 import random
@@ -433,3 +434,4 @@ admin.site.register(Species, SpeciesAdmin)
 admin.site.register(HerbAcronym)
 admin.site.register(Country)
 admin.site.register(Subdivision)
+admin.site.register(SpeciesSynonym)

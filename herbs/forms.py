@@ -191,6 +191,7 @@ class SpeciesForm(forms.ModelForm):
 
     genus = AutoCompleteSelectField('genus', required=True, help_text=None,
                                     label=_("Род"))
+    species = AutoCompleteSelectField('species', label=_("Синоним вида"))
 
     def clean(self):
         form_data = self.cleaned_data
