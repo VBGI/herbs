@@ -581,20 +581,25 @@ function herbitemFind(csvFlag){
 };
 
 var markers=[];
+var infoWindows=[];
 var map=null;
                                          
 function clearMarkers() {
   for (var i = 0; i < markers.length; i++ ) {
-    markers[i].setMap(null);
+  markers[i].setMap(null);
+  infoWindows[i].close();
+
 }
-markers.length = 0};
+markers.length = 0;
+infoWindows.length = 0;
+};
 
 
 function initHerbitemMap(){
 el = document.getElementById('herbitem-map-placeholder');
 if (map == null && google){ 
     map = new google.maps.Map(el, {
-            zoom: 4,
+            zoom: 2,
             center: new google.maps.LatLng(43.0,132.0),
             mapTypeId: 'hybrid'});
             }
@@ -612,20 +617,39 @@ clearMarkers();
 }
 else{return;}
 
+var indw=0;
 for(var i=0; i<data.herbitems.length; i++){
-  var pos={'lat': parseFloat(data.herbitems[i].lat), 'lng': parseFloat(data.herbitems[i].lon)}
+var pos={'lat': parseFloat(data.herbitems[i].lat), 'lng': parseFloat(data.herbitems[i].lon)}
 if ((!pos['lat']==0)&&(!pos['lng']==0)){                                          
 var marker=new google.maps.Marker({
               position: pos,
               map: map,
-              herbitemid: data.herbitems[i].id
-              });
-
- marker.addListener('click', function() {
+              herbitemid: data.herbitems[i].id,
+              wix: indw
+                                           });
+            var infoString='<strong> <b>{%trans "Вид"%}: </strong>' + data.herbitems[i].species + '</br>'
+                 + '<strong> {%trans "Дата сбора"%}: </strong>'+ data.herbitems[i].collected_s + '</br>'
+                 + '<strong> {%trans "Собрал(и)"%}: </strong>' + data.herbitems[i].collectedby + '</br>'
+                       + '<strong> {%trans "Широта"%}: </strong>' + data.herbitems[i].lat + '</br>'                                             + '<strong> {%trans "Долгота"%}: </strong>' + data.herbitems[i].lon + '</p>'                   
+var infowindow = new google.maps.InfoWindow({
+   content: infoString,
+   disableAutoPan: true});
+infoWindows.push(infowindow);
+                                           
+marker.addListener('click', function() {
       showHerbitem(this.herbitemid);
-        });
+                                           });
 
-  markers.push(marker);
+marker.addListener('mouseover', function() {
+    infoWindows[this.wix].open(map, this);
+
+               });
+marker.addListener('mouseout', function() {
+  for(var i =0;i<infoWindows.length; i++){ infoWindows[i].close();}
+               });
+
+markers.push(marker);
+indw+=1;
    }}
 
 var a,b, cnt=0;
@@ -648,7 +672,7 @@ else {
   avLon = avLon/cnt;
   }
 
-map.setCenter({'lat': avLat, 'lng': avLon}); 
+map.setZoom(2); 
 for (var i =0; i<markers.length; i++){markers[i].setMap(map)};
 };
 
