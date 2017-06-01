@@ -346,8 +346,10 @@ class HerbItem(HerbItemMixin):
         verbose_name = _('гербарный образeц')
         verbose_name_plural = _('гербарные образцы')
         ordering = ['-created']
-        permissions = (('can_set_code', _('может публиковать и назначать код')),
-                       ('can_see_additionals', _('видит дополнительные виды')))
+        permissions = (('can_set_publish', _('может публиковать и назначать код')),
+                       ('can_see_additionals', _('видит дополнительные виды')),
+                       ('can_set_code', _('может назначать гербарный код')),
+                       )
 
     def get_absolute_url(self):
         return  getattr(settings, 'HERBS_HERBITEM_PAGE') + '%s' % self.id

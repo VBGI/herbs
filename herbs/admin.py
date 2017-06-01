@@ -26,7 +26,7 @@ import json
 
 def publish_herbitem(modeladmin, request, queryset):
     total = queryset.count()
-    if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+    if request.user.is_superuser or request.user.has_perm('herbs.can_set_publish'):
         approved_sp = queryset.exclude(species__status='N').exclude(species__status='D').count()
         queryset.exclude(species__status='N').exclude(species__status='D').update(public=True)
         messages.success(request, _(u'Опубликовано %s записей') % (approved_sp,))
@@ -38,7 +38,7 @@ def publish_herbitem(modeladmin, request, queryset):
 
 def unpublish_herbitem(modeladmin, request, queryset):
     total = queryset.count()
-    if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+    if request.user.is_superuser or request.user.has_perm('herbs.can_set_publish'):
         queryset.update(public=False)
         messages.success(request, _(u'Снято с публикации %s записей') % (total,))
     else:
@@ -124,7 +124,7 @@ class PermissionMixin:
         if request.user.is_superuser:
             return self.model.objects.all()
         query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
-        if  request.user.has_perm('herbs.can_set_code'):
+        if  request.user.has_perm('herbs.can_set_publish'):
             subquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
             if query.exists() and subquery.exists():
                 if hasattr(self.model, 'acronym'):
@@ -142,7 +142,7 @@ class PermissionMixin:
         if obj is None: return True
         if obj.user is not None:
             if request.user == obj.user: return True
-        if request.user.has_perm('herbs.can_set_code'):
+        if request.user.has_perm('herbs.can_set_publish'):
             if query.exists() and subquery.exists():
                 if obj.subdivision.pk == subquery[0].pk and obj.acronym.pk == query[0].pk:
                     return True
@@ -240,7 +240,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         else:
             list_display = ('id', 'get_full_name', 'itemcode', 'fieldid', 'public',
                         'collectedby', 'updated', 'collected_s')
-        if request.user.has_perm('herbs.can_set_code') or request.user.is_superuser:
+        if request.user.has_perm('herbs.can_set_publish') or request.user.is_superuser:
            list_display += ('user', 'edit_related_species')
         return list_display
 
@@ -279,12 +279,15 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
                 readonly_fields.remove('ecodescr')
-                if request.user.has_perm('herbs.can_set_code'):
+                if request.user.has_perm('herbs.can_set_publish'):
                     readonly_fields.remove('public')
                 return readonly_fields
-        if request.user.has_perm('herbs.can_set_code'):
+        if request.user.has_perm('herbs.can_set_publish'):
             if 'public' in readonly_fields:
                 readonly_fields.remove('public')
+            if 'itemcode' in readonly_fields:
+                readonly_fields.remove('itemcode')
+        elif request.user.has_perm('herbs.can_set_code'):
             if 'itemcode' in readonly_fields:
                 readonly_fields.remove('itemcode')
         else:
@@ -328,7 +331,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
     def get_list_filter(self, request):
         list_filter = ('public',)
-        if request.user.has_perm('herbs.can_set_code'):
+        if request.user.has_perm('herbs.can_set_publish'):
             list_filter += (HerbItemCustomListFilter,)
             list_filter += ('acronym',)
         if request.user.is_superuser:
@@ -414,7 +417,7 @@ class SpeciesAdmin(AjaxSelectAdmin):
         readonly_fields = super(SpeciesAdmin, self).get_readonly_fields(request, obj)
         readonly_fields = list(readonly_fields)
 
-        if request.user.is_superuser or request.user.has_perm('herbs.can_set_code'):
+        if request.user.is_superuser or request.user.has_perm('herbs.can_set_publish'):
             readonly_fields = list()
         else:
             readonly_fields += ['status',]
