@@ -22,7 +22,6 @@ _fields_to_copy = ('family', 'genus',  'species',
                    'coordinates', 'ecodescr',
                    'detailed', 'altitude', 'note')
 
-
 class HerbItemMixin(models.Model):
     '''
     Common item properties
@@ -176,7 +175,7 @@ class SpeciesSynonym(models.Model):
     rebuild_scheduled = models.BooleanField(default=True, editable=False)
 
     def __str__(self):
-        return self.string_content
+        return self.string_content or self.json_content
 
     class Meta:
         verbose_name = _('Синоним вида')
@@ -322,7 +321,7 @@ class Species(TaxonMixin):
 
     def get_full_name(self):
         res = super(Species, self).get_full_name()
-        return self.genus.name +' ' + res
+        return capfirst(self.genus.name) +' ' + res
     get_full_name.short_description = _('полное имя вида')
 
     class Meta:

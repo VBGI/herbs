@@ -12,7 +12,10 @@ Created: 30 Aug, 2016
   <ul>
 	<li><label for="family-input">{%trans "Семейство"%}:</label><div><select id="family-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
 	<li><label for="genus-input">{%trans "Род"%}:</label><div><select id="genus-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-  <li><label for="species-input">{%trans "Вид"%}:</label><div><input type="search" id="species-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+  <li><label for="species-input">{%trans "Вид"%}:</label><div><input type="search" id="species-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div>
+      <div><input type="checkbox" name="synonyms" value="False" id="syns-input">{%trans "Учитывать синонимы"%}</div>
+        <div id="syns-error-message">{%trans "Поля род и вид должны быть заполнены, иначе условие поиска будет проигнорировано"%}</div>
+  </li>
   <li><label for="itemcode-input">{%trans "Код"%}:</label><div><input type="search" id="itemcode-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
 
   <li><label for="collectedby-input">{%trans "Собрал(и)"%}:</label><div><input type="search" id="collectedby-input" value="" placeholder="{%trans "Текстовое поле"%}"><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
@@ -359,6 +362,13 @@ height: 400px;
 float:right;
 font-size: 12pt;
 }
+#syns-error-message{
+  display: none;
+  font-size:8pt;
+  color: red;
+  width: 220px;
+}
+
 </style>
 {%endaddtoblock%}
 
@@ -528,10 +538,9 @@ function herbitemFind(csvFlag){
   var acronym = $("#herbitem-acronym").val();
   var pagcount = $("#herbitem-pagination").val();
   var subdivision = $("#herbitem-subdivision").val();
-
+  var syns = $("#syns-input").is(':checked') ? true : false
 
   // TODO: orderby field, increasing decreasing ordering
-  
   var orderby = null;
   var order = null;
   
@@ -553,7 +562,7 @@ function herbitemFind(csvFlag){
 			{family:family, genus:genus, species:species, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
 			colend:colend, page:cpage, pagcount: pagcount,acronym:acronym, subdivision:subdivision,
-      latl:latl, lonl: lonl, latu:latu, lonu:lonu,
+      latl:latl, lonl: lonl, latu:latu, lonu:lonu, syns: syns,
       orderby:orderby, order:order      
       }).done(function(data) {
 			if (data.error.length > 0) {
@@ -580,7 +589,7 @@ function herbitemFind(csvFlag){
 			{family:family, genus:genus, species:species, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
 			colend:colend, page:cpage, pagcount: pagcount,acronym:acronym, subdivision:subdivision,
-      latl:latl, lonl: lonl, latu:latu, lonu:lonu, getcsv:csvFlag,
+      latl:latl, lonl: lonl, latu:latu, lonu:lonu, getcsv:csvFlag,syns: syns,
       orderby:orderby, order:order      
       }, csvDownloader);
     }
@@ -727,6 +736,7 @@ $("#colstart-input").datepicker({dateFormat: "dd.mm.yy"});
 $("#colend-input").datepicker({dateFormat: "dd.mm.yy"});
 $("#searchform-clear").click(function (event){
 	event.preventDefault();
+$("#syns-input").prop('checked', false);
 $('#family-input').select2('val',''); 
 $('#genus-input').select2('val', '');
 $('#country-input').select2('val', '');
@@ -740,6 +750,27 @@ $( "div#herb-search-form ul li input:text" ).each(function() {
 cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
 herbitemFind(false);
 });
+
+$("#species-input, #genus-input").change(function(){
+  var genus = getornone('#genus-input');
+  var species = $('#species-input').val();
+  if ((genus!=null)&&(species.length>0))
+  {$("#syns-error-message").hide();}
+});
+
+$("#syns-input").change(function(){
+  var genus = getornone('#genus-input');
+	var species = $('#species-input').val();
+  if (this.checked){
+    if ((genus==null)||(species.length==0)){
+    $("#syns-error-message").show();
+    
+    }}
+  else {
+    $("#syns-error-message").hide();
+  }});
+
+
 $("#herbitem-search-filtering select").change(applyFilter);
 $("#herbitem-tabs").tabs({active: 0, 
   activate: function(el,ui){

@@ -6,7 +6,8 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext as _
-from .models import Family, Genus, HerbItem, Country, DetHistory
+from .models import (Family, Genus, HerbItem, Country,
+                     DetHistory, Species, SpeciesSynonym)
 from .forms import SearchForm
 from .conf import settings
 from .utils import _smartify_altitude, _smartify_dates
@@ -113,6 +114,13 @@ def show_herbs(request):
 
     if request.is_ajax():
         dataform = SearchForm(request.GET)
+        search_by_syns = request.GET.get('syns', False)
+        if search_by_syns == 'true':
+            search_by_syns = True
+        elif search_by_syns == 'false':
+            search_by_syns = False
+        else:
+            search_by_syns = False
         if dataform.is_valid():
             data = {}
             for key in dataform.fields:
@@ -121,9 +129,39 @@ def show_herbs(request):
                 else:
                     data.update({key: dataform.cleaned_data[key]})
             bigquery = [Q(public=True)]
-            bigquery += [Q(species__genus__family__name__iexact=data['family'])] if data['family'] else []
-            bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
-            bigquery += [Q(species__name__icontains=data['species'])] if data['species'] else []
+            bigquery += [Q(species__genus__family__name__iexact=data['family'])] if data['family'] and not search_by_syns else []
+            bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] and not search_by_syns else []
+            bigquery += [Q(species__name__icontains=data['species'])] if data['species'] and not search_by_syns else []
+
+            # -------- synonyms searching --------------
+            if search_by_syns:
+                try:
+                    species_queryset = Species.objects.filter(genus__name__iexact=data['genus'], name__iexact=data['species']).exclude(status='D')
+                    if species_queryset.exists():
+                        syn_aux = map(lambda x: Q(json_content__contains=',' + '%s' % x + ','),
+                                        species_queryset.values_list('id', flat=True))
+                        intermediate = filter(bool,
+                                              sum([item.json_content.split(',') for item in SpeciesSynonym.objects.filter(reduce(operator.or_, syn_aux))], []))
+                        try:
+                            intermediate =  map(int, intermediate)
+                        except ValueError:
+                            intermediate = []
+                        if intermediate:
+                            bigquery += [reduce(operator.or_, [Q(species__pk=val) for val in intermediate])]
+                        else:
+                            search_by_syns=False
+                    else:
+                        search_by_syns = False
+                except Species.DoesNotExist:
+                    search_by_syns = False
+
+            if not search_by_syns:
+                bigquery += [Q(species__genus__family__name__iexact=data['family'])] if data['family'] else []
+                bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
+                bigquery += [Q(species__name__icontains=data['species'])] if data['species'] else []
+
+            # -------------------------------------------
+
             if data['itemcode']:
                 try:
                     intitemcode = int(data['itemcode'])
