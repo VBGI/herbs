@@ -143,10 +143,10 @@ def show_herbs(request):
                 bigquery += [Q(country__name_ru__icontains=data['country'])|
                              Q(country__name_en__icontains=data['country'])]
 
-            # place handle #TODO: Probably note should be added to search fields
             bigquery += [Q(region__icontains=data['place'])|
                          Q(detailed__icontains=data['place'])|
-                         Q(district__icontains=data['place'])] if data['place'] else []
+                         Q(district__icontains=data['place'])|
+                         Q(note__icontains=data['place'])] if data['place'] else []
 
             # dates
             if data['colend'] and data['colstart']:
