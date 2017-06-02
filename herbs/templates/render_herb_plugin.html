@@ -737,6 +737,7 @@ $("#colend-input").datepicker({dateFormat: "dd.mm.yy"});
 $("#searchform-clear").click(function (event){
 	event.preventDefault();
 $("#syns-input").prop('checked', false);
+$("#syns-error-message").hide(); 
 $('#family-input').select2('val',''); 
 $('#genus-input').select2('val', '');
 $('#country-input').select2('val', '');
