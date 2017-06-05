@@ -8,7 +8,7 @@ class HerbsAppConf(AppConf):
     AUTOSUGGEST_NUM_TO_SHOW = 50
     AUTOSUGGEST_NUM_ADMIN = 30
     AUTOSUGGEST_CHAR = 3
-    HERBITEM_PAGE = 'http://botsad.ru/hitem/'
+    HERBITEM_PAGE = '//botsad.ru/hitem/'
 
     class Meta:
         prefix = 'herbs'
