@@ -346,7 +346,7 @@ class HerbItem(HerbItemMixin):
                        )
 
     def get_absolute_url(self):
-        return  getattr(settings, 'HERBS_HERBITEM_PAGE') + '%s' % self.id
+        return  'http:' + getattr(settings, 'HERBS_HERBITEM_PAGE') + '%s' % self.id
 
     def delete(self, *args, **kwargs):
         if self.public:
