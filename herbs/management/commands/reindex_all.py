@@ -21,14 +21,27 @@ class Command(BaseCommand):
             syn = sp.synonym.pk
             cur_ind = [ind for ind, el in enumerate(arrays) if cur in el] or None
             syn_ind = [ind for ind, el in enumerate(arrays) if syn in el] or None
-            if cur_ind and syn_ind:
+            
+            if cur_ind:
+                cur_ind = cur_ind[0]
+            if syn_ind:
+                syn_ind = syn_ind[0]
+            
+            if (cur_ind == syn_ind) and (cur_ind is not None):
                 pass
+            elif cur_ind and syn_ind:
+                arrays[cur_ind] += arrays[syn_ind]
+                array_names[cur_ind] += array_names[syn_ind]
+                del arrays[syn_ind], array_names[syn_ind]
+                continue
             elif cur_ind and not syn_ind:
-                arrays[cur_ind[0]].append(syn)
-                array_names[cur_ind[0]].append(sp.get_full_name())
+                if syn not in arrays[cur_ind]:
+                    arrays[cur_ind].append(syn)
+                    array_names[cur_ind].append(sp.synonym.get_full_name())
             elif not cur_ind and syn_ind:
-                arrays[syn_ind[0]].append(cur)
-                array_names[syn_ind[0]].append(sp.synonym.get_full_name())
+                if cur not in arrays[syn_ind]:
+                    arrays[syn_ind].append(cur)
+                    array_names[syn_ind].append(sp.get_full_name())
             else:
                 arrays.append([cur, syn])
                 array_names.append([sp.synonym.get_full_name(),
