@@ -37,15 +37,15 @@ class Command(BaseCommand):
             elif cur_ind and not syn_ind:
                 if syn not in arrays[cur_ind]:
                     arrays[cur_ind].append(syn)
-                    array_names[cur_ind].append(sp.synonym.get_full_name())
+                    array_names[cur_ind].append(sp.synonym.get_full_name() + ' (%s)' % syn)
             elif not cur_ind and syn_ind:
                 if cur not in arrays[syn_ind]:
                     arrays[syn_ind].append(cur)
-                    array_names[syn_ind].append(sp.get_full_name())
+                    array_names[syn_ind].append(sp.get_full_name() + ' (%s)' % cur)
             else:
                 arrays.append([cur, syn])
-                array_names.append([sp.synonym.get_full_name(),
-                                    sp.get_full_name()])
+                array_names.append([sp.synonym.get_full_name() + ' (%s)' % syn,
+                                    sp.get_full_name() + ' (%s)' % cur])
         count = 0
         for arr, arrn in zip(arrays, array_names):
             SpeciesSynonym.objects.get_or_create(rebuild_scheduled=False,

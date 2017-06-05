@@ -147,7 +147,7 @@ def show_herbs(request):
                         except ValueError:
                             intermediate = []
                         if intermediate:
-                            bigquery += [reduce(operator.or_, [Q(species__pk=val) for val in intermediate])]
+                            bigquery += [Q(species__pk__in=intermediate)]
                         else:
                             search_by_syns=False
                     else:
