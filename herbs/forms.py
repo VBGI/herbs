@@ -196,15 +196,16 @@ class SpeciesForm(forms.ModelForm):
 
     def clean(self):
         form_data = self.cleaned_data
-        name = form_data.get('name', None)
+        name = form_data.get('name', '')
         genus = form_data.get('genus', None)
-        authorship = form_data.get('authorship', None)
+        authorship = form_data.get('authorship', '')
+        status = form_data.get('status', 'N')
         if name:
             name = name.strip().lower()
         if authorship:
             authorship = authorship.strip().lower()
-        if name and genus and self.instance:
-            if Species.objects.filter(name__exact=name, genus=genus, authorship__iexact=authorship).exclude(id=self.instance.id).exists():
+        if name and genus and self.instance and status!='D':
+            if Species.objects.filter(name=name, genus=genus, authorship=authorship).exclude(id=self.instance.id).exclude(status='D').exists():
                 raise forms.ValidationError(_('Такой триплет (род, вид, автор) уже существует'))
         if not taxon_name_pat.match(name):
             raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
