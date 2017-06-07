@@ -100,6 +100,9 @@ def parse_date(d):
 
 
 
+
+
+
 # TODO: Fixes needed: DetHistory added
 @csrf_exempt
 def show_herbs(request):
@@ -167,7 +170,7 @@ def show_herbs(request):
                     intitemcode = int(data['itemcode'])
                     bigquery += [Q(itemcode__icontains=data['itemcode'])|
                              Q(fieldid__icontains=data['itemcode'])|
-                             Q(id__exact=intitemcode)
+                             Q(id=intitemcode)
                              ]
 
                 except ValueError:
