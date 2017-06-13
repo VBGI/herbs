@@ -28,7 +28,7 @@ from .hlabel import PDF_DOC
 digit_pat = re.compile(r'\d+')
 
 
-class EchoCSV(object):
+class EchoData(object):
     def write(self, value):
         return value
 
@@ -203,7 +203,7 @@ def get_data(request):
                             Q(id=intitemcode)
                             ]
 
-            except ValueError:
+            except ValueError: #TODO: Here and everywhere: TypeError+, warnings.append!!!
                     bigquery += [Q(itemcode__icontains=data['itemcode'])|
                             Q(fieldid__icontains=data['itemcode'])
                             ]
@@ -277,7 +277,18 @@ def get_data(request):
 
 @csrf_exempt
 def json_api(request):
-    pass
+    output = {
+        'errors': [],
+        'warnings': [],
+        'data' : [],
+    }
+    if request.method == 'POST':
+        output['errors'].append(_('Допустимы только GET-запросы'))
+    if not request.is_ajax():
+        output['errors'].append(_('XMLHttp-request allowed only'))
+    no, no, no, objects_filtered, errors, warnings = get_data(request)
+    datahandler = EchoData()
+
 
 
 @csrf_exempt
@@ -286,7 +297,7 @@ def show_herbs(request):
     Get herbitems view
     '''
 
-
+    # TODO: Move this to get_data view
     if request.method == 'POST':
         return HttpResponse(_('Допустимы только GET-запросы'))
 
@@ -296,7 +307,7 @@ def show_herbs(request):
     paginated_data, page, num_pages, objects_filtered, errors, warnings = get_data(request)
 
     if request.GET.get('getcsv', None) and request.user.is_authenticated():
-        writer = csv.writer(EchoCSV(), delimiter=';')
+        writer = csv.writer(EchoData(), delimiter=';')
         csv_response = StreamingHttpResponse((writer.writerow([unicode(s).encode("utf-8") for s in row]) for row in _get_rows_for_csv(objects_filtered)), content_type="text/csv")
         csv_response['Content-Disposition'] = 'attachment; filename=herb_data_%s.csv' % timezone.now().strftime('%Y-%B-%d-%M-%s')
         return csv_response
