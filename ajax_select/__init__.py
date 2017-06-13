@@ -1,6 +1,7 @@
 """JQuery-Ajax Autocomplete fields for Django Forms."""
 
-# This version is slightly modified by Dmitry E. Kislov
+# This version is modified by Dmitry E. Kislov
+
 __version__ = "1.4.3"
 __author__ = "crucialfelix"
 __contact__ = "crucialfelix@gmail.com"
