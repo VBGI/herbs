@@ -335,6 +335,9 @@ class HerbItem(HerbItemMixin):
                              blank=True, null=True, related_name='+',
                              editable=False)
 
+    latitude = models.FloatField(blank=True, null=True, editable=False)
+    longitude = models.FloatField(blank=True, null=True, editable=False)
+
     class Meta:
         abstract = False
         verbose_name = _('гербарный образeц')

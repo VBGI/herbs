@@ -9,12 +9,15 @@ Created: 30 Aug, 2016
 <!--  ============Herbitem main searchform ================== --> 
 
 <div id="herb-search-form">
-  <ul>
+  <ul>  
+    <li><input type="submit" id="herbitemform-button" value="{% trans "Найти" %}"></li> 
+    <li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}" title="{%trans "Очистить все условия поиска"%}" ></li>
 	<li><label for="family-input">{%trans "Семейство"%}:</label><div><select id="family-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
 	<li><label for="genus-input">{%trans "Род"%}:</label><div><select id="genus-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
   <li><label for="species-input">{%trans "Видовой эпитет"%}:</label><div><input type="search" id="species-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div>
       <div><input type="checkbox" name="synonyms" value="False" id="syns-input">{%trans "Учитывать синонимы"%}</div>
         <div id="syns-error-message">{%trans "Поля род и видовой эпитет должны быть заполнены, иначе условие поиска будет проигнорировано"%}</div>
+        <div title="{%trans "Некоторые гербарные сборы могут содержать более одного вида" %}"><input type="checkbox" name="additionals" value="False" id="adds-input">{%trans "Искать в дополнительных видах"%}</div>
   </li>
   <li><label for="itemcode-input">{%trans "Код"%}:</label><div><input type="search" id="itemcode-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
 
@@ -33,8 +36,6 @@ Created: 30 Aug, 2016
  <li><label for="colend-input">{%trans "Дата сбора (окончание)"%}:</label><div>
   <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}"> <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
      
-  <li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}"></li>
-  <li><input type="submit" id="herbitemform-button" value="{% trans "Найти" %}"></li> 
   </ul>
 </div> 
 
@@ -90,15 +91,33 @@ Created: 30 Aug, 2016
   
     <div id="herbitem-map">
       <div id="herbitem-map-pagelister"></div>
-        <h2>Under construction...</h2>
-
+    <div id="latlon-container">
+        <div id="lat-bottom">
+            <label for="latl-input">Lat, min</label>
+            <input id="latl-input" title="Широта, град.">
+        </div>
+        <div id="lat-top">
+            <label for="latu-input">Lat, max</label>
+            <input id="latu-input" title="Широта, град.">
+        </div>
+        <div id="lon-right">
+            <label for="lonu-input">Lon, max</label>
+            <input id="lonu-input" title="Долгота, град.">
+        </div>
+        <div id="lon-left">
+            <label for="lonl-input">Lon, min</label>
+            <input id="lonl-input" title="Долгота, град.">
+        </div>
+        <div id="latlon-rect" title="{%trans "Искать в заданной области"%}">
+            <input type="submit" id="herbitem-rectangle" value="">
+        </div>
+        <div class="clear-rect-bounds" title="{%trans "Очистить условия поиска по области"%}"><span class="ui-icon ui-icon-trash"></span></div>
+    </div> 
         <div id="herbitem-markers-available"></div>
         <div id="herbitem-map-placeholder"></div>
         <div>*{%trans "Отображены только те записи, у которых заданы координаты сбора" %} </div>
   </div>
 </div>
-
-
 <!--  ======================================================== -->
 
 
@@ -201,13 +220,24 @@ Created: 30 Aug, 2016
 .clear-button{
 	display: none;
 	cursor:pointer;
+}
+
+.clear-rect-bounds{
+	display: none;
+	cursor:pointer;
 	}
+
 #herb-search-form>ul{
 list-style-type: none;
 }	
 #herb-search-form>ul li{
 padding-bottom:10px;
 }
+
+#herb-search-form>ul li:nth-child(1){
+float:left;
+}
+
 label {font-weight: bold; display:block;}
 label + * {margin-left: 2em; margin-top: 5px;}
 
@@ -229,10 +259,18 @@ background: #EEFFAA !important;
 padding: 10px;
 font-size: medium;
 }
+#searchform-clear:hover{
+  cursor:pointer;
+}
+
 #herbitemform-button{
 padding:10px;
 font-size:medium;
 }
+
+#herbitemform-button:hover{
+cursor:pointer}
+
 .herbitem-odd{
   background: #FFFFFF;
   height: 2em;
@@ -367,6 +405,113 @@ font-size: 12pt;
   font-size:8pt;
   color: red;
   width: 220px;
+}
+
+div#latlon-container{
+  width: 160px; 
+  height: 100px;
+  border-radius: 4px;
+  padding: 3px; 
+  position:relative;
+  margin: 0 auto;
+  }
+  
+div#lon-left{
+  top: 30px;
+  left: 0px;
+  position:absolute;
+  float: left;
+  }
+  
+div#lon-right{
+  right: 0px;
+  top: 30px;
+  position:absolute;
+  }
+  
+div#lat-top{
+  left: 60px;
+  top: 0px;
+  position:absolute;
+  }
+  
+div#lat-bottom
+  {
+ bottom: 0px;
+ left: 60px;
+ position:absolute;
+  }
+
+div#latlon-rect {
+  top: 40px;
+  left: 60px;
+  position:absolute;
+  }
+  
+div#latlon-rect input#herbitem-rectangle{
+  width: 40px;
+  height: 2em;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfhBggFLCvIfu/NAAAAv0lEQVQoz4XRMUvDQBgG4Cc5MVXBpY0W0dUg6Or/H51cpY4WlBJRxEGbNolDkzRgSm+6+3h4Ob6XPSfqbiOpoJT7HQKZK3UzmZttwQG4MfXh2VIicyH21IKAkVtfHhUqhTdjZ16tNyBGquqHmqml7SNGEPnpgWWT3IESRz2QNLMO5CLXPZAh739yLTEx9q127M6p0otq1x428ZUHxf9NHirkgnt1S6LBAk62JAyCldylyLl52FHiyruJhc99bfsDV8E4JPJOw2AAAAAASUVORK5CYII=');
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  }
+  
+ 
+  
+#latlon-container input{
+  width: 40px;
+  border-radius: 3px;
+  height: 1em;
+  margin: 0;
+  }
+  
+#latlon-container label{
+font-size: 8pt;
+display: block;
+}
+
+
+
+ul.herbitem-warnings{
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+
+}
+
+ul.herbitem-warnings li {
+margin : 0px;
+padding: 3px;
+color: black;
+background-color: #CEF;
+border-radius: 8px;
+}
+
+ul.herbitem-warnings li::before {
+  content: "Warning: ";
+  font-weight: bold;
+}
+
+ul.herbitem-errors{
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+
+}
+
+ul.herbitem-errors li {
+margin : 0px;
+padding: 3px;
+color: red;
+background-color: #FEA;
+border-radius: 8px;
+
+}
+
+ul.herbitem-errors li::before {
+  content: "Error: ";
+  font-weight: bold;
 }
 
 </style>
@@ -538,18 +683,21 @@ function herbitemFind(csvFlag){
   var acronym = $("#herbitem-acronym").val();
   var pagcount = $("#herbitem-pagination").val();
   var subdivision = $("#herbitem-subdivision").val();
-  var syns = $("#syns-input").is(':checked') ? true : false
+  var syns = $("#syns-input").is(":checked");
+  var adds = $("#adds-input").is(":checked"); 
 
   // TODO: orderby field, increasing decreasing ordering
   var orderby = null;
   var order = null;
   
   // TODO: latl lonu etc... positioning needed
-  var latl = null;
-  var latu = null;
-  var lonl = null;
-  var lonu = null
+  var latl = $('#latl-input').val();
+  var latu = $('#latu-input').val();
+  var lonl = $('#lonl-input').val();
+  var lonu = $('#lonu-input').val();
   var outputHTML = '';
+  var errorString = '';
+  var warningString = '';
   var outputData = null;
   var commonError = "{%trans "Возникла ошибка при получении ответа за поисковый запрос" %}";
   if (csvFlag){
@@ -562,34 +710,44 @@ function herbitemFind(csvFlag){
 			{family:family, genus:genus, species:species, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
 			colend:colend, page:cpage, pagcount: pagcount,acronym:acronym, subdivision:subdivision,
-      latl:latl, lonl: lonl, latu:latu, lonu:lonu, syns: syns,
+      latl:latl, lonl: lonl, latu:latu, lonu:lonu, syns: syns, adds: adds,
       orderby:orderby, order:order      
       }).done(function(data) {
-			if (data.error.length > 0) {
-				outputHTML = data.error
-			}
-			else {
-        outputHTML = createSearchResult(data);
-        outputData = data;
-      }
-			}
+      if (data.warnings.length>0){
+        warningString += '<ul class="herbitem-warnings">'
+      for(var i=0;i<data.warnings.length; i++){
+               warningString += '<li>' +  data.warnings[i] + '</li>'
+              }
+               warningString += '</ul>'}
+
+			if (data.errors.length > 0) {
+        errorString += '<ul class="herbitem-errors">'
+        for (var i=0; i<data.errors.length; i++){
+              errorString +=   '<li>' +  data.errors[i] + '</li>'
+                           }
+        errorString += '</ul>'
+           } else {
+      outputHTML = createSearchResult(data);
+      outputData = data;
+      }}
 			).fail(function() {
         $("#herbitem-content-found").html("<h2>" + commonError + "</h2>")
         $("#herbitem-map").html("<h2>" + commonError + "</h2>")
       }).always(function () {
-				$("#herbitem-content-found").html( outputHTML.hasOwnProperty('table') ? outputHTML.table : outputHTML);
-        $("#herbitem-map-pagelister").html(outputHTML.hasOwnProperty('map') ? outputHTML.map : outputHTML);
-        if (outputData&&google) { //render map if data is provided
+                            $("#herbitem-content-found").html( outputHTML.hasOwnProperty('table') ? warningString + errorString + outputHTML.table : "<h2>" + commonError + "</h2>");
+        $("#herbitem-map-pagelister").html(outputHTML.hasOwnProperty('map') ? warningString + errorString + outputHTML.map : "<h2>" + commonError + "</h2>");
+        if (outputData&&google) { 
             renderMap(outputData);      
           };      
       })	
+                            
   }
   else{
     $.get("{% url 'herbs.views.show_herbs' %}",
 			{family:family, genus:genus, species:species, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
 			colend:colend, page:cpage, pagcount: pagcount,acronym:acronym, subdivision:subdivision,
-      latl:latl, lonl: lonl, latu:latu, lonu:lonu, getcsv:csvFlag,syns: syns,
+      latl:latl, lonl: lonl, latu:latu, lonu:lonu, getcsv:csvFlag, syns: syns, adds: adds,
       orderby:orderby, order:order      
       }, csvDownloader);
     }
@@ -599,6 +757,7 @@ function herbitemFind(csvFlag){
 var markers=[];
 var infoWindows=[];
 var map=null;
+var rectSelector=null;
                                          
 function clearMarkers() {
   for (var i = 0; i < markers.length; i++ ) {
@@ -616,10 +775,64 @@ el = document.getElementById('herbitem-map-placeholder');
 if (map == null && google){ 
     map = new google.maps.Map(el, {
             zoom: 2,
-            center: new google.maps.LatLng(43.0,132.0),
-            mapTypeId: 'hybrid'});
-            }
-};
+            center: {'lat': 43.0,'lng': 132.0},
+                            mapTypeId: 'hybrid'});
+
+    map.addListener('dblclick', function (event) {
+              if (rectSelector == null){ 
+             var thepoint = event.latLng;
+             bounds = {
+                  north: thepoint.lat() + 3,
+                  south: thepoint.lat() - 3,
+                  east:  thepoint.lng() + 3,
+                  west:  thepoint.lng() - 3}
+                  initRectSelection(bounds);
+                  $("#latl-input").val(bounds.south);
+                  $("#latu-input").val(bounds.north);
+                  $("#lonu-input").val(bounds.east);
+                  $("#lonl-input").val(bounds.west);                  
+                            }})}};
+
+
+function updateLatLng(){
+   if (map != null && rectSelector != null) {
+        var ne = rectSelector.getBounds().getNorthEast();
+        var sw = rectSelector.getBounds().getSouthWest();
+        $('#lonl-input').val(sw.lng());
+        $('#lonu-input').val(ne.lng());
+        $('#latu-input').val(ne.lat());
+        $('#latl-input').val(sw.lat());
+        }}; 
+
+
+function initRectSelection(bounds){
+  if (map != null){
+      var mapCenter = map.getCenter();
+      if (!bounds) {      
+      var bounds;
+      bounds = {
+                north: mapCenter.lat() + 3,
+                south: mapCenter.lat() - 3,
+                east:  mapCenter.lng() + 3,
+                west:  mapCenter.lng() - 3
+                                           };
+                                           }
+      rectSelector = new google.maps.Rectangle({
+                        bounds: bounds,
+                        editable: true,
+                        draggable: true,
+                        fillOpacity: 0.4,
+                        fillColor: '#11AA33'
+                                  });
+      rectSelector.setMap(map);
+      rectSelector.addListener('bounds_changed', updateLatLng);
+      if (!($('div.clear-rect-bounds').is(":visible"))){ 
+        $('div.clear-rect-bounds').show();};
+  }
+  else{
+    alert("{% trans "Карты google еще не инициализированы"%}");
+  }
+}
 
 function renderMap(data){
   var avLat=0.0, avLon=0.0;
@@ -666,7 +879,7 @@ marker.addListener('mouseout', function() {
 
 markers.push(marker);
 indw+=1;
-   }}
+  }}
 
 var a,b, cnt=0;
 for(var i = 0; i < markers.length; i++){
@@ -688,10 +901,16 @@ else {
   avLon = avLon/cnt;
   }
 
+
 map.setZoom(2); 
+if (markers){
 for (var i =0; i<markers.length; i++){markers[i].setMap(map)};
-                                           $("#herbitem-markers-available").html('{% trans "На карте отображено" %} ' + markers.length + ' {% trans "маркеров" %}*');
-                                           };
+ $("#herbitem-markers-available").html('{% trans "На карте отображено" %} ' + markers.length + ' {% trans "запись(ей)" %}*');
+                              } 
+else{
+  $("#herbitem-markers-available").html('');
+   }                           
+};
 
 function applyFilter(){
   cpage = 1
@@ -721,7 +940,10 @@ $('select').on("select2:selecting", function(e) {
   $(this).siblings('div.clear-button').css('display', 'inline-block')
 });
 
-
+$("#latlon-rect").click(function(){
+  cpage=1;
+  herbitemFind(false);
+});
 
 $('div.clear-button').click(function (event){
 $(this).css('display', 'none')
@@ -730,13 +952,25 @@ if (el.length !== 0 ) { //Clearing select element
 el.select2('val', '');
 } else{
 $(this).siblings('input[type=search]').val(''); //cleaning regular input field
-}
-})
+}a
+});
+
+$('div.clear-rect-bounds').click(function(){
+$(this).css('display', 'none');
+$('#latl-input').val('');
+$('#latu-input').val('');
+$('#lonl-input').val('');
+$('#lonu-input').val('');
+if (rectSelector!=null){rectSelector.setMap(null);};
+rectSelector=null;
+});
+
 $("#colstart-input").datepicker({dateFormat: "dd.mm.yy"});
 $("#colend-input").datepicker({dateFormat: "dd.mm.yy"});
 $("#searchform-clear").click(function (event){
 	event.preventDefault();
 $("#syns-input").prop('checked', false);
+clearMarkers();
 $("#syns-error-message").hide(); 
 $('#family-input').select2('val',''); 
 $('#genus-input').select2('val', '');
@@ -744,12 +978,51 @@ $('#country-input').select2('val', '');
 $('div>input[type=search]').val('');
 $("#herbitem-search-filtering select").val('');
 $('div.clear-button').hide();
+$("div.clear-rect-bounds").hide();
+// Clear map rectangular filtering
+$('#latl-input').val('');
+$('#latu-input').val('');
+$('#lonl-input').val('');
+$('#lonu-input').val('');
+if (rectSelector!=null){rectSelector.setMap(null);};
+rectSelector=null;
 $( "div#herb-search-form ul li input:text" ).each(function() {  
 	$(this).val('');
 });
 
 cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
 herbitemFind(false);
+});
+
+$("#latl-input, #latu-input, #lonl-input, #lonu-input").change(function(){
+  var latl, latu, lonl, lonu;
+  latl = $("#latl-input").val();
+  lonl = $("#lonl-input").val();
+  latu = $("#latu-input").val();
+  lonu = $("#lonu-input").val();
+  if (latl&&lonl&&latu&&lonu){
+      if (rectSelector != null){
+      rectSelector.setMap(null);
+      rectSelector = null
+      };
+       var bounds;
+       bounds = {
+                north: parseFloat(latu),
+                south: parseFloat(latl),
+                east:  parseFloat(lonu),
+                west:  parseFloat(lonl)}
+        try {      
+             initRectSelection(bounds);
+             }
+        catch (err){
+         return;}
+  }
+  if (!latl&&!lonl&&!latu&&!lonu){
+    if (rectSelector != null){
+      rectSelector.setMap(null);
+      rectSelector = null;
+    }
+  }
 });
 
 $("#species-input, #genus-input").change(function(){

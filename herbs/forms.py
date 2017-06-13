@@ -136,6 +136,13 @@ class AdditionalsForm(forms.ModelForm):
                                      attrs={'size': CS})
 
 
+class RectSelectorForm(forms.Form):
+    latl = forms.FloatField(required=False)
+    latu = forms.FloatField(required=False)
+    lonl = forms.FloatField(required=False)
+    lonu = forms.FloatField(required=False)
+
+
 class SearchForm(forms.Form):
     '''Common search form for ajax requests
     '''
@@ -158,12 +165,6 @@ class SearchForm(forms.Form):
     sortfield.widget.attrs['id'] = 'sortfield-choices'
     sortorder = forms.BooleanField(required=False)
     sortorder.widget.attrs['id'] = 'sortorder-field'
-
-    # Coordinates filtering
-    latl = forms.FloatField(required=False)
-    latu = forms.FloatField(required=False)
-    lonl = forms.FloatField(required=False)
-    lonu = forms.FloatField(required=False)
 
 
 class GenusForm(TaxonCleanerMixin):
