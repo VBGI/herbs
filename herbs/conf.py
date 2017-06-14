@@ -10,5 +10,8 @@ class HerbsAppConf(AppConf):
     AUTOSUGGEST_CHAR = 3
     HERBITEM_PAGE = '//botsad.ru/hitem/'
 
+    ALLOWED_FIELDID_SYMB_IN_GET = 30
+    ALLOWED_AUTHORSHIP_SYMB_IN_GET = 100
+    ALLOWED_ITEMCODE_SYMB_IN_GET = 30
     class Meta:
         prefix = 'herbs'

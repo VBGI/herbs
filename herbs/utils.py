@@ -196,3 +196,101 @@ def _smartify_altitude(alt):
     alt = alt[:30]  # Altitude couldn't be very long?!
     return alt
 
+
+# ------------------ HerbItem to Json ------------------
+def herb_as_dict(hitem):
+    '''Get main herbitem properties as dictionary'''
+    result = dict()
+    if hitem.species:
+        result.update({'family': hitem.species.genus.family.name.upper()})
+        result.update({'family_authorship': hitem.species.genus.family.authorship})
+        result.update({'genus': hitem.species.genus.name.title()})
+        result.update({'genus_authorship': hitem.species.genus.authorship})
+        result.update({'species_epithet': hitem.species.name})
+        result.update({'species_authorship': hitem.species.authorship})
+        result.update({'species_id': hitem.species.pk})
+        result.update({'species_status': hitem.species.get_status_display()})
+        result.update({'species_fullname': hitem.get_full_name()})
+    result.update({'id': hitem.pk})
+    result.update({'gpsbased': hitem.gpsbased})
+    result.update({'latitude': hitem.latitude})
+    result.update({'longitude': hitem.longitude})
+    result.update({'fieldid': hitem.fieldid})
+    result.update({'itemcode': hitem.itemcode})
+    result.update({'acronym': hitem.acronym.name if hitem.acronym else ''})
+    result.update({'branch': hitem.subdivision.name if hitem.subdivision else ''})
+    result.update({'collectors': hitem.collectedby})
+    result.update({'identifiers': hitem.identifiedby})
+    result.update({'biomorphology': hitem.get_devstage_display() if hitem.devstage else ''})
+    result.update({'updated': str(hitem.updated)})
+    result.update({'created': str(hitem.created)})
+    result.update({'identification_started': str(hitem.identified_s)})
+    result.update({'identification_finished': str(hitem.identified_e)})
+    result.update({'collection_started': str(hitem.collected_s)})
+    result.update({'collection_finished': str(hitem.collected_e)})
+    result.update({'country': hitem.country.name_en if hitem.country else ''})
+    result.update({'country_id': hitem.country.pk if hitem.country else None})
+    result.update({'altitude': hitem.altitude})
+    result.update({'region': hitem.region})
+    result.update({'district': hitem.district})
+    result.update({'details': hitem.detailed})
+    dethistory = []
+    for item in hitem.dethistory.all():
+        history = {'identifiers': item.identifiedby,
+                   'valid_from': str(item.identified_s),
+                   'valid_to': str(item.identified_e)}
+        if item.species:
+            history.update({'family': item.species.genus.family.name.upper(),
+                            'family_authorship': item.species.genus.family.authorship,
+                            'genus': item.species.genus.name.title(),
+                            'genus_authorship': item.species.genus.authorship,
+                            'species_epithet': item.species.name,
+                            'species_authorship': item.species.authorship,
+                            'species_id': item.species.pk,
+                            'species_status': item.species.get_status_display(),
+                            'species_fullname': item.get_full_name()
+                            })
+        else:
+            history.update({'family': '',
+                            'family_authorship': '',
+                            'genus': '',
+                            'genus_authorship': '',
+                            'species_epithet': '',
+                            'species_authorship': '',
+                            'species_id': '',
+                            'species_status': '',
+                            'species_fullname': ''
+                            })
+        dethistory.append(history)
+    result.update({'dethistory': dethistory})
+
+    additionals = []
+    for item in hitem.additionals.all():
+        additional = {'identifiers': item.identifiedby,
+                   'valid_from': str(item.identified_s),
+                   'valid_to': str(item.identified_e)}
+        if item.species:
+            additional.update({'family': item.species.genus.family.name.upper(),
+                            'family_authorship': item.species.genus.family.authorship,
+                            'genus': item.species.genus.name.title(),
+                            'genus_authorship': item.species.genus.authorship,
+                            'species_epithet': item.species.name,
+                            'species_authorship': item.species.authorship,
+                            'species_id': item.species.pk,
+                            'species_status': item.species.get_status_display(),
+                            'species_fullname': item.get_full_name()
+                            })
+        else:
+            additional.update({'family': '',
+                            'family_authorship': '',
+                            'genus': '',
+                            'genus_authorship': '',
+                            'species_epithet': '',
+                            'species_authorship': '',
+                            'species_id': '',
+                            'species_status': '',
+                            'species_fullname': ''
+                            })
+        additionals.append(additional)
+    result.update({'additionals': additionals})
+    return result

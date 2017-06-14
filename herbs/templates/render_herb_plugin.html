@@ -721,7 +721,7 @@ function herbitemFind(csvFlag){
               }
                warningString += '</ul>'}
 
-			if (data.errors.length > 0) {
+      if (data.errors.length > 0) {
         errorString += '<ul class="herbitem-errors">'
         for (var i=0; i<data.errors.length; i++){
               errorString +=   '<li>' +  data.errors[i] + '</li>'
@@ -735,8 +735,8 @@ function herbitemFind(csvFlag){
         $("#herbitem-content-found").html("<h2>" + commonError + "</h2>")
         $("#herbitem-map").html("<h2>" + commonError + "</h2>")
       }).always(function () {
-                            $("#herbitem-content-found").html( outputHTML.hasOwnProperty('table') ? warningString + errorString + outputHTML.table : "<h2>" + commonError + "</h2>");
-        $("#herbitem-map-pagelister").html(outputHTML.hasOwnProperty('map') ? warningString + errorString + outputHTML.map : "<h2>" + commonError + "</h2>");
+                            $("#herbitem-content-found").html( outputHTML.hasOwnProperty('table') ? warningString + errorString + outputHTML.table : "<h2>" + commonError + "</h2>" + warningString + errorString);
+        $("#herbitem-map-pagelister").html(outputHTML.hasOwnProperty('map') ? warningString + errorString + outputHTML.map : "<h2>" + commonError + "</h2>" + warningString + errorString);
         if (outputData&&google) { 
             renderMap(outputData);      
           };      

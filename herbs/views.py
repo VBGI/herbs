@@ -10,7 +10,8 @@ from .models import (Family, Genus, HerbItem, Country,
                      DetHistory, Species, SpeciesSynonym)
 from .forms import SearchForm, RectSelectorForm
 from .conf import settings
-from .utils import _smartify_altitude, _smartify_dates
+from .utils import _smartify_altitude, _smartify_dates, herb_as_dict
+from streamingjson import JSONEncoder as JSONStreamer
 from django.utils.text import capfirst
 from django.contrib.auth.decorators import login_required
 from django.utils import translation, timezone
@@ -28,7 +29,7 @@ from .hlabel import PDF_DOC
 digit_pat = re.compile(r'\d+')
 
 
-class EchoCSV(object):
+class EchoData(object):
     def write(self, value):
         return value
 
@@ -203,7 +204,7 @@ def get_data(request):
                             Q(id=intitemcode)
                             ]
 
-            except ValueError:
+            except ValueError: #TODO: Here and everywhere: TypeError+, warnings.append!!!
                     bigquery += [Q(itemcode__icontains=data['itemcode'])|
                             Q(fieldid__icontains=data['itemcode'])
                             ]
@@ -272,12 +273,53 @@ def get_data(request):
                 paginated_data = paginator.page(1)
             return (paginated_data, page, paginator.num_pages, objects_filtered,
                     errors, warnings)
+    else:
+        errors.append(_('Некорректно сформированный поисковый запрос.'))
+        return (None, 0, 0, None, errors, warnings)
 
 
-
-@csrf_exempt
 def json_api(request):
-    pass
+    '''Herbarium json-api view '''
+
+    context = {
+        'errors': [],
+        'warnings': [],
+        'data': [],
+        'retrived': 0
+    }
+
+    if request.method == 'POST':
+        context['errors'].append(_('Допустимы только GET-запросы'))
+
+    hid = request.GET.get('id', None)
+    if hid:
+        try:
+            objects_filtered = HerbItem.objects.filter(id=hid)
+        except HerbItem.DoesNotExist:
+            context['errors'].append(_('Объект с данным ID не найден'))
+            context['warnings'].append(_('При поиске по ID другие поля поиска игнорируются'))
+            objects_filtered = HerbItem.objects.none()
+        context.update({'retrieved': 1.0})
+        if objects_filtered.exists():
+            context.update({'data': herb_as_dict(objects_filtered[0])})
+        return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
+                            content_type="application/json;charset=utf-8")
+
+    no, no, no, objects_filtered, errors, warnings = get_data(request)
+    authorship = request.GET.get('authorship', '')[:settings.HERBS_ALLOWED_AUTHORSHIP_SYMB_IN_GET]
+    fieldid = request.GET.get('fieldid', '')[:settings.HERBS_ALLOWED_FIELDID_SYMB_IN_GET]
+    itemcode = request.GET.get('itemcode', '')[:settings.HERBS_ALLOWED_ITEMCODE_SYMB_IN_GET]
+    if authorship:
+        objects_filtered = objects_filtered.filter(authorship__icontains=authorship)
+    if fieldid:
+        objects_filtered = objects_filtered.filter(fieldid__icontains=fieldid)
+    if itemcode:
+        objects_filtered = objects_filtered.filter(itemcode__icontains=itemcode)
+    json_streamer = JSONStreamer()
+    context.update({'data': (herb_as_dict(obj) for obj in objects_filtered.iterator())})
+    json_response = StreamingHttpResponse(json_streamer.iterencode(context),
+                                          content_type="application/json;charset=utf-8")
+    return json_response
 
 
 @csrf_exempt
@@ -286,7 +328,7 @@ def show_herbs(request):
     Get herbitems view
     '''
 
-
+    # TODO: Move this to get_data view
     if request.method == 'POST':
         return HttpResponse(_('Допустимы только GET-запросы'))
 
@@ -296,7 +338,7 @@ def show_herbs(request):
     paginated_data, page, num_pages, objects_filtered, errors, warnings = get_data(request)
 
     if request.GET.get('getcsv', None) and request.user.is_authenticated():
-        writer = csv.writer(EchoCSV(), delimiter=';')
+        writer = csv.writer(EchoData(), delimiter=';')
         csv_response = StreamingHttpResponse((writer.writerow([unicode(s).encode("utf-8") for s in row]) for row in _get_rows_for_csv(objects_filtered)), content_type="text/csv")
         csv_response['Content-Disposition'] = 'attachment; filename=herb_data_%s.csv' % timezone.now().strftime('%Y-%B-%d-%M-%s')
         return csv_response
