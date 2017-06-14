@@ -10,7 +10,8 @@ from .models import (Family, Genus, HerbItem, Country,
                      DetHistory, Species, SpeciesSynonym)
 from .forms import SearchForm, RectSelectorForm
 from .conf import settings
-from .utils import _smartify_altitude, _smartify_dates
+from .utils import _smartify_altitude, _smartify_dates, herb_as_dict
+from streamingjson import JSONEncoder as JSONStreamer
 from django.utils.text import capfirst
 from django.contrib.auth.decorators import login_required
 from django.utils import translation, timezone
@@ -274,21 +275,48 @@ def get_data(request):
                     errors, warnings)
 
 
-
-@csrf_exempt
 def json_api(request):
-    output = {
+    '''Herbarium json-api view '''
+
+    context = {
         'errors': [],
         'warnings': [],
-        'data' : [],
+        'data': [],
+        'retrived': 0
     }
-    if request.method == 'POST':
-        output['errors'].append(_('Допустимы только GET-запросы'))
-    if not request.is_ajax():
-        output['errors'].append(_('XMLHttp-request allowed only'))
-    no, no, no, objects_filtered, errors, warnings = get_data(request)
-    datahandler = EchoData()
 
+    if request.method == 'POST':
+        context['errors'].append(_('Допустимы только GET-запросы'))
+
+    hid = request.GET.get('id', None)
+    if hid:
+        try:
+            objects_filtered = HerbItem.objects.filter(id=hid)
+        except HerbItem.DoesNotExist:
+            context['errors'].append(_('Объект с данным ID не найден'))
+            context['warnings'].append(_('При поиске по ID другие поля поиска игнорируются'))
+            objects_filtered = HerbItem.objects.none()
+        context.update({'retrieved': 1.0})
+        if objects_filtered.exists():
+            context.update({'data': herb_as_dict(objects_filtered[0])})
+        return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
+                            content_type="application/json;charset=utf-8")
+
+    no, no, no, objects_filtered, errors, warnings = get_data(request)
+    authorship = request.GET.get('authorship', '')[:settings.ALLOWED_AUTHORSHIP_SYMB_IN_GET]
+    fieldid = request.GET.get('fieldid', '')[:settings.ALLOWED_FIELDID_SYMB_IN_GET]
+    itemcode = request.GET.get('itemcode', '')[:settings.ALLOWED_ITEMCODE_SYMB_IN_GET]
+    if authorship:
+        objects_filtered = objects_filtered.filter(authorship__icontains=authorship)
+    if fieldid:
+        objects_filtered = objects_filtered.filter(fieldid__icontains=fieldid)
+    if itemcode:
+        objects_filtered = objects_filtered.filter(itemcode__icontains=itemcode)
+    json_streamer = JSONStreamer()
+    context.update({'data': (herb_as_dict(obj) for obj in objects_filtered.iterator())})
+    json_response = StreamingHttpResponse(json_streamer.iterencode(context),
+                                          content_type="application/json;charset=utf-8")
+    return json_response
 
 
 @csrf_exempt
