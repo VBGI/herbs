@@ -273,6 +273,9 @@ def get_data(request):
                 paginated_data = paginator.page(1)
             return (paginated_data, page, paginator.num_pages, objects_filtered,
                     errors, warnings)
+    else:
+        errors.append(_('Некорректно сформированный поисковый запрос.'))
+        return (None, 0, 0, None, errors, warnings)
 
 
 def json_api(request):
@@ -303,9 +306,9 @@ def json_api(request):
                             content_type="application/json;charset=utf-8")
 
     no, no, no, objects_filtered, errors, warnings = get_data(request)
-    authorship = request.GET.get('authorship', '')[:settings.ALLOWED_AUTHORSHIP_SYMB_IN_GET]
-    fieldid = request.GET.get('fieldid', '')[:settings.ALLOWED_FIELDID_SYMB_IN_GET]
-    itemcode = request.GET.get('itemcode', '')[:settings.ALLOWED_ITEMCODE_SYMB_IN_GET]
+    authorship = request.GET.get('authorship', '')[:settings.HERBS_ALLOWED_AUTHORSHIP_SYMB_IN_GET]
+    fieldid = request.GET.get('fieldid', '')[:settings.HERBS_ALLOWED_FIELDID_SYMB_IN_GET]
+    itemcode = request.GET.get('itemcode', '')[:settings.HERBS_ALLOWED_ITEMCODE_SYMB_IN_GET]
     if authorship:
         objects_filtered = objects_filtered.filter(authorship__icontains=authorship)
     if fieldid:

@@ -27,13 +27,16 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
-from django.utils import simplejson
-from django.utils.simplejson.encoder import (
-    encode_basestring, encode_basestring_ascii, FLOAT_REPR, INFINITY)
+# Modified by Dmitry E. Kislov kislov@easydan.com (14 jun 2017)
+
+import json
+from json.encoder import (encode_basestring,
+                          encode_basestring_ascii,
+                          FLOAT_REPR, INFINITY)
 from types import GeneratorType
 
 
-class JSONEncoder(simplejson.JSONEncoder):
+class JSONEncoder(json.JSONEncoder):
     def iterencode(self, o, _one_shot=False):
         """Encode the given object and yield each string
         representation as available.
