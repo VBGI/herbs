@@ -42,8 +42,6 @@ Created: 30 Aug, 2016
 <!--  ======================================================== -->
 
 <!--  ============Herbitem content found ===================== --> 
- 
-
 <div id="herbitem-filtering-container">
 <div id="herbitem-filtering">
         <ul id="herbitem-search-filtering">
@@ -690,8 +688,6 @@ function herbitemFind(csvFlag){
   // TODO: orderby field, increasing decreasing ordering
   var orderby = null;
   var order = null;
-  
-  // TODO: latl lonu etc... positioning needed
   var latl = $('#latl-input').val();
   var latu = $('#latu-input').val();
   var lonl = $('#lonl-input').val();
@@ -777,7 +773,7 @@ if (map == null && google){
     map = new google.maps.Map(el, {
             zoom: 2,
             center: {'lat': 43.0,'lng': 132.0},
-                            mapTypeId: 'hybrid'});
+            mapTypeId: 'hybrid'});
 
     map.addListener('dblclick', function (event) {
               if (rectSelector == null){ 
@@ -809,13 +805,16 @@ function updateLatLng(){
 function initRectSelection(bounds){
   if (map != null){
       var mapCenter = map.getCenter();
+      var mapBounds = map.getBounds();
+      var scale;
+      scale = (mapBounds.north - mapBounds.south)/5.0
       if (!bounds) {      
       var bounds;
       bounds = {
-                north: mapCenter.lat() + 3,
-                south: mapCenter.lat() - 3,
-                east:  mapCenter.lng() + 3,
-                west:  mapCenter.lng() - 3
+                north: mapCenter.lat() + scale,
+                south: mapCenter.lat() - scale,
+                east:  mapCenter.lng() + scale,
+                west:  mapCenter.lng() - scale
                                            };
                                            }
       rectSelector = new google.maps.Rectangle({
@@ -902,9 +901,7 @@ else {
   avLon = avLon/cnt;
   }
 
-
-map.setZoom(2); 
-if (markers){
+  if (markers){
 for (var i =0; i<markers.length; i++){markers[i].setMap(map)};
  $("#herbitem-markers-available").html('{% trans "На карте отображено" %} ' + markers.length + ' {% trans "запись(ей)" %}*');
                               } 
