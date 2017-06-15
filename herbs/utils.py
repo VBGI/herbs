@@ -277,7 +277,7 @@ def herb_as_dict(hitem):
     result.update({'branch': hitem.subdivision.name if hitem.subdivision else ''})
     result.update({'collectors': hitem.collectedby})
     result.update({'identifiers': hitem.identifiedby})
-    result.update({'biomorphology': hitem.get_devstage_display() if hitem.devstage else ''})
+    result.update({'devstage': hitem.get_devstage_display() if hitem.devstage else ''})
     result.update({'updated': str(hitem.updated)})
     result.update({'created': str(hitem.created)})
     result.update({'identification_started': str(hitem.identified_s)})
