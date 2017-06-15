@@ -20,11 +20,17 @@ from django.views.decorators.cache import never_cache
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
+from django.core.exceptions import ImproperlyConfigured
 import json
 import re
 import gc
 import csv
 from .hlabel import PDF_DOC
+try:
+    from django.core.cache import cache
+except (ImportError,ImproperlyConfigured):
+    cache = None
+
 
 digit_pat = re.compile(r'\d+')
 
@@ -95,7 +101,7 @@ def parse_date(d):
     if not d: return None
     try:
        res = datetime.datetime.strptime(d, '%m/%d/%Y')
-    except ValueError:
+    except (ValueError, TypeError):
         res = None
     return res
 
@@ -145,7 +151,7 @@ def get_data(request):
                                         sum([item.json_content.split(',') for item in SpeciesSynonym.objects.filter(reduce(operator.or_, syn_aux))], []))
                 try:
                     intermediate =  map(int, intermediate)
-                except ValueError:
+                except (ValueError, TypeError):
                     intermediate = []
                 if intermediate:
                     bigquery += [Q(species__pk__in=intermediate)]
@@ -204,7 +210,7 @@ def get_data(request):
                             Q(id=intitemcode)
                             ]
 
-            except ValueError: #TODO: Here and everywhere: TypeError+, warnings.append!!!
+            except (ValueError, TypeError): 
                     bigquery += [Q(itemcode__icontains=data['itemcode'])|
                             Q(fieldid__icontains=data['itemcode'])
                             ]
@@ -235,7 +241,7 @@ def get_data(request):
         try:
             acronym = int(acronym)
             bigquery += [Q(acronym__id=acronym)]
-        except ValueError:
+        except (ValueError, TypeError):
             pass
 
         # subdivision filtering
@@ -243,7 +249,7 @@ def get_data(request):
         try:
             subdivision = int(subdivision)
             bigquery += [Q(subdivision__id=subdivision)]
-        except ValueError:
+        except (ValueError, TypeError):
             pass
 
         if dethistory_query:
@@ -278,6 +284,18 @@ def get_data(request):
         return (None, 0, 0, None, errors, warnings)
 
 
+
+
+def json_generator(queryset):
+    for obj in queryset.iterator():
+        yield herb_as_dict(obj)
+    if cache:
+        conn = cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME)
+        if conn is not None:
+            conn -= 1
+            cache.set(settings.HERBS_JSON_API_CONN_KEY_NAME, conn)
+            
+
 def json_api(request):
     '''Herbarium json-api view '''
 
@@ -285,7 +303,6 @@ def json_api(request):
         'errors': [],
         'warnings': [],
         'data': [],
-        'retrived': 0
     }
 
     if request.method == 'POST':
@@ -299,12 +316,23 @@ def json_api(request):
             context['errors'].append(_('Объект с данным ID не найден'))
             context['warnings'].append(_('При поиске по ID другие поля поиска игнорируются'))
             objects_filtered = HerbItem.objects.none()
-        context.update({'retrieved': 1.0})
         if objects_filtered.exists():
             context.update({'data': herb_as_dict(objects_filtered[0])})
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
 
+    # -------- Long running http-response: check the number of connections
+    if cache:
+        conn = cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME)
+        if conn is None:
+            conn = 0
+        if conn >= settings.HERBS_JSON_API_SIMULTANEOUS_CONN:
+            context['errors'].append(_('Сервер занят. Повторите попытку позже.'))
+            return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
+                                content_type="application/json;charset=utf-8")
+        else:
+            conn += 1
+            cache.set(settings.HERBS_JSON_API_CONN_KEY_NAME, conn, settings.HERBS_JSON_API_CONN_MAX_TIME)
     no, no, no, objects_filtered, errors, warnings = get_data(request)
     authorship = request.GET.get('authorship', '')[:settings.HERBS_ALLOWED_AUTHORSHIP_SYMB_IN_GET]
     fieldid = request.GET.get('fieldid', '')[:settings.HERBS_ALLOWED_FIELDID_SYMB_IN_GET]
@@ -316,10 +344,13 @@ def json_api(request):
     if itemcode:
         objects_filtered = objects_filtered.filter(itemcode__icontains=itemcode)
     json_streamer = JSONStreamer()
-    context.update({'data': (herb_as_dict(obj) for obj in objects_filtered.iterator())})
+    context.update({'data': json_generator(objects_filtered)})
     json_response = StreamingHttpResponse(json_streamer.iterencode(context),
                                           content_type="application/json;charset=utf-8")
     return json_response
+
+
+
 
 
 @csrf_exempt
