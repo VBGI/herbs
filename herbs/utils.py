@@ -198,14 +198,70 @@ def _smartify_altitude(alt):
 
 
 # ------------------ HerbItem to Json ------------------
+
+def  get_family_or_genus_name(obj, genus=False, attr='name'):
+    if hasattr(obj,'species'):
+        if obj.species is None:
+            return ''
+        if hasattr(obj.species, 'genus'):
+            if obj.species.genus is None:
+                return ''
+            elif genus:
+                res = getattr(obj.species.genus, attr)
+                return res.title() if attr == 'name' else res
+            else:
+                if hasattr(obj.species.genus, 'family'):
+                    if obj.species.genus.family is None:
+                        return ''
+                    res = getattr(obj.species.genus.family, attr)
+                    return res.upper() if attr=='name' else res
+        else:
+            return ''
+    else:
+        return ''
+
+
+def prefill_related_species(hitem, attr):
+    store = []
+    if hasattr(hitem, attr):
+        for item in getattr(hitem, attr).all():
+            dataitem = {'identifiers': item.identifiedby,
+                        'valid_from': str(item.identified_s),
+                        'valid_to': str(item.identified_e)}
+            if item.species:
+                dataitem.update({'family': get_family_or_genus_name(item),
+                                 'family_authorship': get_family_or_genus_name(item, attr='authorship'),
+                                 'genus': get_family_or_genus_name(item, genus=True),
+                                 'genus_authorship': get_family_or_genus_name(item, genus=True, attr='authorship'),
+                                 'species_epithet': item.species.name,
+                                 'species_authorship': item.species.authorship,
+                                 'species_id': item.species.pk,
+                                 'species_status': item.species.get_status_display(),
+                                 'species_fullname': item.species.get_full_name()
+                                 })
+            else:
+                dataitem.update({'family': '',
+                                 'family_authorship': '',
+                                 'genus': '',
+                                 'genus_authorship': '',
+                                 'species_epithet': '',
+                                 'species_authorship': '',
+                                 'species_id': '',
+                                 'species_status': '',
+                                 'species_fullname': ''
+                                     })
+            store.append(dataitem)
+    return store
+
+
 def herb_as_dict(hitem):
     '''Get main herbitem properties as dictionary'''
     result = dict()
     if hitem.species:
-        result.update({'family': hitem.species.genus.family.name.upper()})
-        result.update({'family_authorship': hitem.species.genus.family.authorship})
-        result.update({'genus': hitem.species.genus.name.title()})
-        result.update({'genus_authorship': hitem.species.genus.authorship})
+        result.update({'family': get_family_or_genus_name(hitem)})
+        result.update({'family_authorship': get_family_or_genus_name(hitem, attr='authorship')})
+        result.update({'genus': get_family_or_genus_name(hitem, genus=True)})
+        result.update({'genus_authorship': get_family_or_genus_name(hitem, genus=True, attr='authorship')})
         result.update({'species_epithet': hitem.species.name})
         result.update({'species_authorship': hitem.species.authorship})
         result.update({'species_id': hitem.species.pk})
@@ -234,63 +290,8 @@ def herb_as_dict(hitem):
     result.update({'region': hitem.region})
     result.update({'district': hitem.district})
     result.update({'details': hitem.detailed})
-    dethistory = []
-    for item in hitem.dethistory.all():
-        history = {'identifiers': item.identifiedby,
-                   'valid_from': str(item.identified_s),
-                   'valid_to': str(item.identified_e)}
-        if item.species:
-            history.update({'family': item.species.genus.family.name.upper(),
-                            'family_authorship': item.species.genus.family.authorship,
-                            'genus': item.species.genus.name.title(),
-                            'genus_authorship': item.species.genus.authorship,
-                            'species_epithet': item.species.name,
-                            'species_authorship': item.species.authorship,
-                            'species_id': item.species.pk,
-                            'species_status': item.species.get_status_display(),
-                            'species_fullname': item.get_full_name()
-                            })
-        else:
-            history.update({'family': '',
-                            'family_authorship': '',
-                            'genus': '',
-                            'genus_authorship': '',
-                            'species_epithet': '',
-                            'species_authorship': '',
-                            'species_id': '',
-                            'species_status': '',
-                            'species_fullname': ''
-                            })
-        dethistory.append(history)
+    dethistory = prefill_related_species(hitem, 'dethistory')
     result.update({'dethistory': dethistory})
-
-    additionals = []
-    for item in hitem.additionals.all():
-        additional = {'identifiers': item.identifiedby,
-                   'valid_from': str(item.identified_s),
-                   'valid_to': str(item.identified_e)}
-        if item.species:
-            additional.update({'family': item.species.genus.family.name.upper(),
-                            'family_authorship': item.species.genus.family.authorship,
-                            'genus': item.species.genus.name.title(),
-                            'genus_authorship': item.species.genus.authorship,
-                            'species_epithet': item.species.name,
-                            'species_authorship': item.species.authorship,
-                            'species_id': item.species.pk,
-                            'species_status': item.species.get_status_display(),
-                            'species_fullname': item.get_full_name()
-                            })
-        else:
-            additional.update({'family': '',
-                            'family_authorship': '',
-                            'genus': '',
-                            'genus_authorship': '',
-                            'species_epithet': '',
-                            'species_authorship': '',
-                            'species_id': '',
-                            'species_status': '',
-                            'species_fullname': ''
-                            })
-        additionals.append(additional)
+    additionals = prefill_related_species(hitem, 'additionals')
     result.update({'additionals': additionals})
     return result
