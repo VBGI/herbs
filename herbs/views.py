@@ -97,14 +97,6 @@ def get_item_data(request):
     return  HttpResponse(json.dumps(context),
                          content_type="application/json; charset=utf-8")
 
-def parse_date(d):
-    if not d: return None
-    try:
-       res = datetime.datetime.strptime(d, '%m/%d/%Y')
-    except (ValueError, TypeError):
-        res = None
-    return res
-
 
 def get_data(request):
     '''Evaluate search query and return data'''
@@ -288,10 +280,14 @@ def get_data(request):
 
 def json_generator(queryset):
     for obj in queryset.iterator():
+        if cache:
+            cache.set(settings.HERBS_JSON_API_CONN_KEY_FALG,
+                      settings.HERBS_JSON_API_CONN_TIMEOUT)
         yield herb_as_dict(obj)
     if cache:
         if cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME) is not None:
             cache.decr(settings.HERBS_JSON_API_CONN_KEY_NAME)
+            cache.delete(settings.HERBS_JSON_API_CONN_KEY_FALG)
 
 @never_cache
 def json_api(request):
@@ -330,8 +326,11 @@ def json_api(request):
     # -------- Long running http-response: check the number of connections
     if cache:
         conn = cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME)
+        flag = cache.get(settings.HERBS_JSON_API_CONN_KEY_FLAG)
         if conn is None:
-            cache.set(settings.HERBS_JSON_API_CONN_KEY_NAME, 0, settings.HERBS_JSON_API_CONN_MAX_TIME)
+            cache.set(settings.HERBS_JSON_API_CONN_KEY_NAME, 0)
+        elif flag is None:
+            cache.incr(settings.HERBS_JSON_API_CONN_KEY_NAME)
         elif conn >= settings.HERBS_JSON_API_SIMULTANEOUS_CONN:
             context['errors'].append(_('Сервер занят. Повторите попытку позже.'))
             return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
