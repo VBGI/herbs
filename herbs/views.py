@@ -281,13 +281,13 @@ def get_data(request):
 def json_generator(queryset):
     for obj in queryset.iterator():
         if cache:
-            cache.set(settings.HERBS_JSON_API_CONN_KEY_FALG,
+            cache.set(settings.HERBS_JSON_API_CONN_KEY_FLAG,
                       settings.HERBS_JSON_API_CONN_TIMEOUT)
         yield herb_as_dict(obj)
     if cache:
         if cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME) is not None:
             cache.decr(settings.HERBS_JSON_API_CONN_KEY_NAME)
-            cache.delete(settings.HERBS_JSON_API_CONN_KEY_FALG)
+            cache.delete(settings.HERBS_JSON_API_CONN_KEY_FLAG)
 
 @never_cache
 def json_api(request):
