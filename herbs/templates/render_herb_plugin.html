@@ -17,7 +17,7 @@ Created: 30 Aug, 2016
   <li><label for="species-input">{%trans "Видовой эпитет"%}:</label><div><input type="search" id="species-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div>
       <div><input type="checkbox" name="synonyms" value="False" id="synonyms-input">{%trans "Учитывать синонимы"%}</div>
         <div id="synonyms-error-message">{%trans "Поля род и видовой эпитет должны быть заполнены, иначе условие поиска будет проигнорировано"%}</div>
-        <div title="{%trans "Некоторые гербарные сборы могут содержать более одного вида" %}"><input type="checkbox" name="additionals" value="False" id="adds-input">{%trans "Искать в дополнительных видах"%}</div>
+        <div title="{%trans "Некоторые гербарные сборы могут содержать более одного вида" %}"><input type="checkbox" name="additionals" value="False" id="additionals-input">{%trans "Искать в дополнительных видах"%}</div>
   </li>
   <li><label for="itemcode-input">{%trans "Код"%}:</label><div><input type="search" id="itemcode-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
 
@@ -683,7 +683,7 @@ function herbitemFind(csvFlag){
   var pagcount = $("#herbitem-pagination").val();
   var subdivision = $("#herbitem-subdivision").val();
   var synonyms = $("#synonyms-input").is(":checked");
-  var adds = $("#adds-input").is(":checked"); 
+  var additionals = $("#additionals-input").is(":checked"); 
 
   // TODO: orderby field, increasing decreasing ordering
   var orderby = null;
@@ -707,7 +707,7 @@ function herbitemFind(csvFlag){
 			{family:family, genus:genus, species_epithet:species, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
 			colend:colend, page:cpage, pagcount: pagcount,acronym:acronym, subdivision:subdivision,
-      latl:latl, lonl: lonl, latu:latu, lonu:lonu, synonyms: synonyms, adds: adds,
+      latl:latl, lonl: lonl, latu:latu, lonu:lonu, synonyms: synonyms, additionals: additionals,
       orderby:orderby, order:order      
       }).done(function(data) {
       if (data.warnings.length>0){
@@ -744,7 +744,7 @@ function herbitemFind(csvFlag){
 			{family:family, genus:genus, species_epithet:species, itemcode:itemcode,
 			identifiedby:identifiedby,place:place,collectedby:collectedby, country:country, colstart:colstart,
 			colend:colend, page:cpage, pagcount: pagcount,acronym:acronym, subdivision:subdivision,
-      latl:latl, lonl: lonl, latu:latu, lonu:lonu, getcsv:csvFlag, synonyms: synonyms, adds: adds,
+      latl:latl, lonl: lonl, latu:latu, lonu:lonu, getcsv:csvFlag, synonyms: synonyms, additionals: additionals,
       orderby:orderby, order:order      
       }, csvDownloader);
     }

@@ -115,13 +115,13 @@ def get_data(request):
     else:
         search_by_synonyms = False
 
-    search_by_adds = request.GET.get('adds', False)
-    if search_by_adds == 'true':
-        search_by_adds = True
-    elif search_by_adds == 'false':
-        search_by_adds =  False
+    search_by_additionals = request.GET.get('additionals', False)
+    if search_by_additionals == 'true':
+        search_by_additionals = True
+    elif search_by_additionals == 'false':
+        search_by_additionals =  False
     else:
-        search_by_adds = False
+        search_by_additionals = False
 
     if dataform.is_valid():
         data = {}
@@ -302,11 +302,28 @@ def json_api(request):
         'data': [],
     }
 
+    allowed_parameters = set(('family', 'genus', 'id', 'species_epithet',
+                              'itemcode', 'identifiedby', 'place', 'collectedby',
+                              'country', 'colstart', 'colend', 'acronym',
+                              'subdivision', 'synonyms', 'additionals', 'latl',
+                              'latu', 'lonl', 'lonu', 'additionals', 'fieldid',
+                              'authorship'))
+
     if request.method == 'POST':
         context['errors'].append(_('Допустимы только GET-запросы'))
 
-    #  TODO: Make a warning if GET has disallowed paramaters...
+    current_parameters = set(request.GET.keys())
+    diff = current_parameters - allowed_parameters
+    if len(diff) > 0:
+        extra_key_warning = _('Следующие параметры были проигнорированы при поиске: ')
+        for item in diff:
+            extra_key_warning += item
+        context['warnings'].append(extra_key_warning)
 
+    if len(current_parameters) == 0:
+        context['errors'].append(_('Поиск без каких-либо условий запрещен'))
+        return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
+                            content_type="application/json;charset=utf-8")
 
     hid = request.GET.get('id', None)
     if hid:
