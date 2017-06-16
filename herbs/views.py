@@ -115,13 +115,13 @@ def get_data(request):
 
     dataform = SearchForm(request.GET)
     rectform = RectSelectorForm(request.GET)
-    search_by_syns = request.GET.get('syns', False)
-    if search_by_syns == 'true':
-        search_by_syns = True
-    elif search_by_syns == 'false':
-        search_by_syns = False
+    search_by_synonyms = request.GET.get('synonyms', False)
+    if search_by_synonyms == 'true':
+        search_by_synonyms = True
+    elif search_by_synonyms == 'false':
+        search_by_synonyms = False
     else:
-        search_by_syns = False
+        search_by_synonyms = False
 
     search_by_adds = request.GET.get('adds', False)
     if search_by_adds == 'true':
@@ -141,8 +141,8 @@ def get_data(request):
         bigquery = [Q(public=True)]
 
         # -------- synonyms searching -----------------------
-        if search_by_syns:
-            species_queryset = Species.objects.filter(genus__name__iexact=data['genus'], name__iexact=data['species']).exclude(status='D')
+        if search_by_synonyms:
+            species_queryset = Species.objects.filter(genus__name__iexact=data['genus'], name__iexact=data['species_epithet']).exclude(status='D')
             # make a warning if species object isn't unique... TODO!
             if species_queryset.exists():
                 syn_aux = map(lambda x: Q(json_content__contains=',' + '%s' % x + ','),
@@ -157,23 +157,23 @@ def get_data(request):
                     bigquery += [Q(species__pk__in=intermediate)]
                 else:
                     warnings.append(_('Неверно сформированы таблицы синонимов. Условие поиска по синонимам прогнорировано.'))
-                    search_by_syns = False
+                    search_by_synonyms = False
             else:
                 warnings.append(_('Не заданы поля род и/или видовой эпитет, либо такой вид отсутствует в базе. Условие поиска по синонимам проигнорировано.'))
-                search_by_syns = False
+                search_by_synonyms = False
 
-        if not search_by_syns:
+        if not search_by_synonyms:
             bigquery += [Q(species__genus__family__name__iexact=data['family'])] if data['family'] else []
             bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
-            bigquery += [Q(species__name__icontains=data['species'])] if data['species'] else []
+            bigquery += [Q(species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
         # -----------------------------------------------------
 
         # ------ Searching in History of determination --------
         dethistory_query = []
-        if search_by_syns:
+        if search_by_synonyms:
             dethistory_query += [Q(dethistory__species__pk__in=intermediate)]
         else:
-            dethistory_query += [Q(dethistory__species__name__icontains=data['species'])] if data['species'] else []
+            dethistory_query += [Q(dethistory__species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
             dethistory_query += [Q(dethistory__species__genus__name__iexact=data['genus'])] if data['genus'] else []
             dethistory_query += [Q(dethistory__species__genus__family__name__iexact=data['family'])] if data['family'] else []
         if dethistory_query:
