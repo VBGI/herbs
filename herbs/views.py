@@ -317,10 +317,10 @@ def json_api(request):
     if len(diff) > 0:
         extra_key_warning = _('Следующие параметры были проигнорированы при поиске: ')
         for item in diff:
-            extra_key_warning += item
+            extra_key_warning += item.encode('utf-8')
         context['warnings'].append(extra_key_warning)
 
-    if len(current_parameters) == 0:
+    if len(current_parameters.intersection(allowed_parameters) == 0:
         context['errors'].append(_('Поиск без каких-либо условий запрещен'))
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
@@ -371,9 +371,6 @@ def json_api(request):
     json_response = StreamingHttpResponse(json_streamer.iterencode(context),
                                           content_type="application/json;charset=utf-8")
     return json_response
-
-
-
 
 
 @csrf_exempt
