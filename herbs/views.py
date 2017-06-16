@@ -210,7 +210,7 @@ def get_data(request):
                             Q(id=intitemcode)
                             ]
 
-            except (ValueError, TypeError): 
+            except (ValueError, TypeError):
                     bigquery += [Q(itemcode__icontains=data['itemcode'])|
                             Q(fieldid__icontains=data['itemcode'])
                             ]
@@ -292,10 +292,11 @@ def json_generator(queryset):
     if cache:
         if cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME) is not None:
             cache.decr(settings.HERBS_JSON_API_CONN_KEY_NAME)
-            
+
 @never_cache
 def json_api(request):
     '''Herbarium json-api view '''
+
     gc.collect()
     context = {
         'errors': [],
@@ -306,6 +307,9 @@ def json_api(request):
     if request.method == 'POST':
         context['errors'].append(_('Допустимы только GET-запросы'))
 
+    #  TODO: Make a warning if GET has disallowed paramaters...
+
+
     hid = request.GET.get('id', None)
     if hid:
         try:
@@ -315,7 +319,11 @@ def json_api(request):
             context['warnings'].append(_('При поиске по ID другие поля поиска игнорируются'))
             objects_filtered = HerbItem.objects.none()
         if objects_filtered.exists():
-            context.update({'data': herb_as_dict(objects_filtered[0])})
+            if objects_filtered[0].public:
+                context.update({'data':[herb_as_dict(objects_filtered[0])]})
+            else:
+                context.update({'data': []})
+                context['errors'].append(_('Объект с данным ID не опубликован'))
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
 
