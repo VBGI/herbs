@@ -1,17 +1,13 @@
 #coding: utf-8
 
 import re
-
 from ajax_select.fields import (AutoCompleteSelectField,
                                 AutoCompleteField)
 from django import forms
 from django.utils.translation import gettext as _
-
 from .models import (Family, Genus, HerbItem, Species,
                      DetHistory, HerbAcronym, Additionals)
-from django.contrib.admin.widgets import AdminDateWidget
 from django.forms.util import ErrorList
-
 from .conf import settings, HerbsAppConf
 
 CS = getattr(settings,
@@ -144,27 +140,26 @@ class RectSelectorForm(forms.Form):
 
 
 class SearchForm(forms.Form):
-    '''Common search form for ajax requests
-    '''
-    family = forms.CharField(required=False, label=_('Семейство'), max_length=30)
-    genus = forms.CharField(required=False, label=_('Род'), max_length=30)
-    species_epithet = forms.CharField(required=False, label=_('Вид'), max_length=30)
-    itemcode = forms.CharField(required=False, label=_('Код1'), max_length=15)
-    collectedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
-    identifiedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
-    country = AutoCompleteField('country', required=False, help_text=None, label=_("Страна"))
-    country.widget.attrs['id'] = 'country-input'
-    place = forms.CharField(required=False, label=_('Место'), max_length=30)
-    colstart = forms.DateField(required=False, label=_('Начало сбора'), widget=AdminDateWidget)
-    colstart.widget.attrs['id'] = 'colstart-input'
-    colend = forms.DateField(required=False, label=_('Конец сбора'), widget=AdminDateWidget)
-    colend.widget.attrs['id'] = 'colend-input'
+    '''Common search form for ajax requests'''
+
+    family = forms.CharField(required=False, max_length=30)
+    genus = forms.CharField(required=False, max_length=30)
+    species_epithet = forms.CharField(required=False, max_length=50)
+    itemcode = forms.CharField(required=False, max_length=15)
+    collectedby = forms.CharField(required=False, max_length=100)
+    identifiedby = forms.CharField(required=False, max_length=100)
+    country = forms.CharField(required=False, max_length=100)
+    place = forms.CharField(required=False, max_length=200)
+    colstart = forms.DateField(required=False)
+    colend = forms.DateField(required=False)
 
     # sorting parameters
     sortfield = forms.CharField(required=False, max_length=100)
-    sortfield.widget.attrs['id'] = 'sortfield-choices'
     sortorder = forms.BooleanField(required=False)
-    sortorder.widget.attrs['id'] = 'sortorder-field'
+
+    # extra parameters for validation
+    acronym = forms.CharField(required=False, max_length=10)
+    subdivision = forms.CharField(required=False, max_length=100)
 
 
 class GenusForm(TaxonCleanerMixin):
@@ -205,7 +200,7 @@ class SpeciesForm(forms.ModelForm):
             name = name.strip().lower()
         if authorship:
             authorship = authorship.strip().lower()
-        if name and genus and self.instance and status!='D':
+        if name and genus and self.instance and status != 'D':
             if Species.objects.filter(name=name, genus=genus, authorship=authorship).exclude(id=self.instance.id).exclude(status='D').exists():
                 raise forms.ValidationError(_('Такой триплет (род, вид, автор) уже существует'))
         if not taxon_name_pat.match(name):
