@@ -329,10 +329,8 @@ def json_api(request):
     if cache:
         conn = cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME)
         flag = cache.get(settings.HERBS_JSON_API_CONN_KEY_FLAG)
-        if conn is None:
+        if conn is None or flag is None:
             cache.set(settings.HERBS_JSON_API_CONN_KEY_NAME, 1)
-        elif flag is None:
-            cache.incr(settings.HERBS_JSON_API_CONN_KEY_NAME)
         elif conn >= settings.HERBS_JSON_API_SIMULTANEOUS_CONN:
             context['errors'].append(_('Сервер занят. Повторите попытку позже.'))
             return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
