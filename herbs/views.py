@@ -234,7 +234,8 @@ def get_data(request):
             acronym = int(acronym)
             bigquery += [Q(acronym__id=acronym)]
         except (ValueError, TypeError):
-            bigquery += [Q(acronym__name__iexact=acronym)]
+            if acronym:
+                bigquery += [Q(acronym__name__iexact=acronym)]
 
         # subdivision filtering
         subdivision = request.GET.get('subdivision', '')
@@ -242,7 +243,8 @@ def get_data(request):
             subdivision = int(subdivision)
             bigquery += [Q(subdivision__id=subdivision)]
         except (ValueError, TypeError):
-            bigquery += [Q(subdivision__name__icontains=subdivision)]
+            if subdivision:
+                bigquery += [Q(subdivision__name__icontains=subdivision)]
 
         if dethistory_query:
             objects_filtered = HerbItem.objects.filter(reduce(operator.and_,
