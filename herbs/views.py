@@ -283,7 +283,7 @@ def get_data(request):
 def json_generator(queryset):
     for obj in queryset.iterator():
         if cache:
-            cache.set(settings.HERBS_JSON_API_CONN_KEY_FLAG,
+            cache.set(settings.HERBS_JSON_API_CONN_KEY_FLAG, 1,
                       settings.HERBS_JSON_API_CONN_TIMEOUT)
         yield herb_as_dict(obj)
     if cache:
@@ -330,7 +330,7 @@ def json_api(request):
         conn = cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME)
         flag = cache.get(settings.HERBS_JSON_API_CONN_KEY_FLAG)
         if conn is None:
-            cache.set(settings.HERBS_JSON_API_CONN_KEY_NAME, 0)
+            cache.set(settings.HERBS_JSON_API_CONN_KEY_NAME, 1)
         elif flag is None:
             cache.incr(settings.HERBS_JSON_API_CONN_KEY_NAME)
         elif conn >= settings.HERBS_JSON_API_SIMULTANEOUS_CONN:
