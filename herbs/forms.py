@@ -148,7 +148,7 @@ class SearchForm(forms.Form):
     '''
     family = forms.CharField(required=False, label=_('Семейство'), max_length=30)
     genus = forms.CharField(required=False, label=_('Род'), max_length=30)
-    species = forms.CharField(required=False, label=_('Вид'), max_length=30)
+    species_epithet = forms.CharField(required=False, label=_('Вид'), max_length=30)
     itemcode = forms.CharField(required=False, label=_('Код1'), max_length=15)
     collectedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
     identifiedby = forms.CharField(required=False, label=_('Кто собрал'), max_length=100)
