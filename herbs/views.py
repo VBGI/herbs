@@ -328,21 +328,24 @@ def json_api(request):
     hid = request.GET.get('id', None)
     if hid:
         try:
-            objects_filtered = HerbItem.objects.filter(id=hid)
-        except HerbItem.DoesNotExist:
-            context['errors'].append(_('Объект с данным ID не найден'))
-            context['warnings'].append(_('При поиске по ID другие поля поиска игнорируются'))
-            objects_filtered = HerbItem.objects.none()
+           hid = int(hid)
+        except (ValueError, TypeError):
+           context['errors'].append(_('Неправильный форма ID записи'))
+           return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder))
+        objects_filtered = HerbItem.objects.filter(id=hid)
+        context['warnings'].append(_('При поиске по ID другие поля поиска игнорируются'))
         if objects_filtered.exists():
             if objects_filtered[0].public:
                 context.update({'data':[herb_as_dict(objects_filtered[0])]})
             else:
                 context.update({'data': []})
                 context['errors'].append(_('Объект с данным ID не опубликован'))
+        else:
+            context['errors'].append(_('Объект с данным ID не найден'))
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
 
-    # -------- Long running http-response: check the number of connections
+    # -------- Long-running http-response: check the number of connections
     if cache:
         conn = cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME)
         flag = cache.get(settings.HERBS_JSON_API_CONN_KEY_FLAG)
