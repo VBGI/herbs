@@ -166,7 +166,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     search_fields = ('id', 'itemcode', 'fieldid', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, 'delete_selected')
-    exclude = ('ecodescr',)
 
     def delete_selected(self, request, obj):
         nquery = obj.filter(public=False)
@@ -246,7 +245,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         if obj:
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
-                readonly_fields.remove('ecodescr')
                 if request.user.has_perm('herbs.can_set_publish'):
                     readonly_fields.remove('public')
                 return readonly_fields

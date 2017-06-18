@@ -55,10 +55,6 @@ class HerbItemMixin(models.Model):
     gpsbased = models.BooleanField(default=False, verbose_name=_('GPS-Based'),
                                    help_text=_('Получены ли измерения при помощи GPS, отметьте, если да'))
 
-    # Ecological factors, this field was excluded
-    ecodescr = models.CharField(max_length=300, default='', blank=True,
-                                verbose_name=_('экоусловия'))
-
     # Collection items
     collectedby = models.CharField(max_length=500, default='', blank=True,
                                    verbose_name=_('коллектор(ы)'))
