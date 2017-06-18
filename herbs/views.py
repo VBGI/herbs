@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import operator
-import datetime
 from django.http import HttpResponse, StreamingHttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
@@ -320,7 +319,7 @@ def json_api(request):
                             ', '.join(map(lambda x: x.encode('utf-8'), diff))
         context['warnings'].append(extra_key_warning)
 
-    if len(current_parameters.intersection(allowed_parameters) == 0:
+    if len(current_parameters.intersection(allowed_parameters)) == 0:
         context['errors'].append(_('Поиск без каких-либо условий запрещен'))
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
@@ -547,21 +546,21 @@ def make_label(request, q):
             ddict = _smartify_species(item)
             ddict.update({'date': _smartify_dates(item)})
             ddict.update({'family': item.species.genus.family.name.upper() if item.species else '',
-                     'country': item.country.name_en if item.country else '',
-                     'region': item.region,
-                     'altitude': _smartify_altitude(item.altitude),
-                     'latitude': '{0:.5f}'.format(item.coordinates.latitude) if item.coordinates else '',
-                     'longitude': '{0:.5f}'.format(item.coordinates.longitude) if item.coordinates else '',
-                     'place': item.detailed,
-                     'collected': item.collectedby,
-                     'identified': identified,
-                     'itemid': '%s' % item.pk,
-                     'number': '%s' % item.itemcode or '*',
-                     'acronym': item.acronym.name if item.acronym else '',
-                     'address': item.acronym.address if item.acronym else '',
-                     'institute': item.acronym.institute if item.acronym else '',
-                     'gform': item.devstage or '',
-                     'fieldid': item.fieldid
+                        'country': item.country.name_en if item.country else '',
+                        'region': item.region,
+                        'altitude': _smartify_altitude(item.altitude),
+                        'latitude': '{0:.5f}'.format(item.coordinates.latitude) if item.coordinates else '',
+                        'longitude': '{0:.5f}'.format(item.coordinates.longitude) if item.coordinates else '',
+                        'place': item.detailed,
+                        'collected': item.collectedby,
+                        'identified': identified,
+                        'itemid': '%s' % item.pk,
+                        'number': '%s' % item.itemcode or '*',
+                        'acronym': item.acronym.name if item.acronym else '',
+                        'address': item.acronym.address if item.acronym else '',
+                        'institute': item.acronym.institute if item.acronym else '',
+                        'gform': item.devstage or '',
+                        'fieldid': item.fieldid
                      })
             llabel_data.append(ddict)
 
