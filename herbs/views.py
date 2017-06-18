@@ -316,9 +316,8 @@ def json_api(request):
     current_parameters = set(request.GET.keys())
     diff = current_parameters - allowed_parameters
     if len(diff) > 0:
-        extra_key_warning = _('Следующие параметры были проигнорированы при поиске: ')
-        for item in diff:
-            extra_key_warning += item.encode('utf-8')
+        extra_key_warning = _('Следующие параметры были проигнорированы при поиске: ') +\
+                            ', '.join(map(lambda x: x.encode('utf-8'), diff))
         context['warnings'].append(extra_key_warning)
 
     if len(current_parameters.intersection(allowed_parameters) == 0:
