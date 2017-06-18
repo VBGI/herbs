@@ -276,8 +276,6 @@ def get_data(request):
         return (None, 0, 0, None, errors, warnings)
 
 
-
-
 def json_generator(queryset):
     for obj in queryset.iterator():
         if cache:
@@ -288,6 +286,7 @@ def json_generator(queryset):
         if cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME) is not None:
             cache.decr(settings.HERBS_JSON_API_CONN_KEY_NAME)
             cache.delete(settings.HERBS_JSON_API_CONN_KEY_FLAG)
+
 
 @never_cache
 def json_api(request):

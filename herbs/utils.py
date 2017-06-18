@@ -144,6 +144,7 @@ def herb_as_dict(hitem):
     result.update({'altitude': hitem.altitude})
     result.update({'region': hitem.region})
     result.update({'district': hitem.district})
+    result.update({'note': hitem.note})
     result.update({'details': hitem.detailed})
     dethistory = prefill_related_species(hitem, 'dethistory')
     result.update({'dethistory': dethistory})
