@@ -26,8 +26,8 @@ def _smartify_dates(item, prefix='collected'):
             fdate_s = DateFormat(date_s)
             fdate_e = DateFormat(date_e)
             if (date_e.month == date_s.month) and\
-                    (date_s.day == 1) and (date_e.day in\
-                                                     [30,31]):
+                    (date_s.day == 1) and (date_e.day in
+                                           [30, 31]):
                 return fdate_s.format('M Y')
             else:
                 if date_s < date_e:
@@ -44,7 +44,8 @@ def _smartify_dates(item, prefix='collected'):
 
 
 def _smartify_altitude(alt):
-    if not alt: return ''
+    if not alt:
+        return ''
     alt = alt.strip()
     alt.replace(u' м.', ' m.')
     alt.replace(u' м ', ' m.')
@@ -54,8 +55,8 @@ def _smartify_altitude(alt):
 
 # ------------------ HerbItem to Json ------------------
 
-def  get_family_or_genus_name(obj, genus=False, attr='name'):
-    if hasattr(obj,'species'):
+def get_family_or_genus_name(obj, genus=False, attr='name'):
+    if hasattr(obj, 'species'):
         if obj.species is None:
             return ''
         if hasattr(obj.species, 'genus'):
@@ -69,7 +70,7 @@ def  get_family_or_genus_name(obj, genus=False, attr='name'):
                     if obj.species.genus.family is None:
                         return ''
                     res = getattr(obj.species.genus.family, attr)
-                    return res.upper() if attr=='name' else res
+                    return res.upper() if attr == 'name' else res
         else:
             return ''
     else:
@@ -81,8 +82,8 @@ def prefill_related_species(hitem, attr):
     if hasattr(hitem, attr):
         for item in getattr(hitem, attr).all():
             dataitem = {'identifiers': item.identifiedby,
-                        'valid_from': str(item.identified_s),
-                        'valid_to': str(item.identified_e)}
+                        'valid_from': str(item.identified_s) if item.identified_s else '',
+                        'valid_to': str(item.identified_e) if item.identified_e else ''}
             if item.species:
                 dataitem.update({'family': get_family_or_genus_name(item),
                                  'family_authorship': get_family_or_genus_name(item, attr='authorship'),
@@ -103,8 +104,7 @@ def prefill_related_species(hitem, attr):
                                  'species_authorship': '',
                                  'species_id': '',
                                  'species_status': '',
-                                 'species_fullname': ''
-                                     })
+                                 'species_fullname': ''})
             store.append(dataitem)
     return store
 
@@ -135,10 +135,10 @@ def herb_as_dict(hitem):
     result.update({'devstage': hitem.get_devstage_display() if hitem.devstage else ''})
     result.update({'updated': str(hitem.updated)})
     result.update({'created': str(hitem.created)})
-    result.update({'identification_started': str(hitem.identified_s)})
-    result.update({'identification_finished': str(hitem.identified_e)})
-    result.update({'collection_started': str(hitem.collected_s)})
-    result.update({'collection_finished': str(hitem.collected_e)})
+    result.update({'identification_started': str(hitem.identified_s) if hitem.identified_s else ''})
+    result.update({'identification_finished': str(hitem.identified_e) if hitem.identified_e else ''})
+    result.update({'collection_started': str(hitem.collected_s) if hitem.collected_s else ''})
+    result.update({'collection_finished': str(hitem.collected_e) if hitem.collected_e else ''})
     result.update({'country': hitem.country.name_en if hitem.country else ''})
     result.update({'country_id': hitem.country.pk if hitem.country else None})
     result.update({'altitude': hitem.altitude})
