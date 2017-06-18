@@ -589,4 +589,3 @@ def _smartify_species(item):
         authorship = ''
     return {'spauth': authorship, 'species': species}
 
-
