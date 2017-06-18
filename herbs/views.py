@@ -34,11 +34,9 @@ except (ImportError,ImproperlyConfigured):
 
 digit_pat = re.compile(r'\d+')
 
-
 class EchoData(object):
     def write(self, value):
         return value
-
 
 def _get_rows_for_csv(queryset):
     header = []

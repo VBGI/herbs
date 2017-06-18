@@ -21,7 +21,6 @@ import string
 import json
 
 
-
 # ------------------- Actions for publishing HerbItems ----------------------
 
 def publish_herbitem(modeladmin, request, queryset):
@@ -64,36 +63,6 @@ create_pdf.short_description = _(u"Создать этикетки")
 
 # ---------------------------------------------------------------------------
 
-
-# Temporarily removed functionality
-# ------------------- Herbitem creation -------------------------------------
-#def move_pending_herbs(modeladmin, request, queryset):
-#    total = queryset.count()
-#    count = 0
-#    for obj in queryset:
-#        if not obj.err_msg and obj.checked:
-#            kwargs = {key: getattr(obj, key) for key in _fields_to_copy}
-#            HerbItem.objects.create(public=False, **kwargs)
-#            obj.delete()
-#            count += 1
-#    messages.success(request, 'Перемещено %s из %s выбранных' % (count, total))
-#
-#move_pending_herbs.short_description = "Переместить в базу гербария"
-#
-#
-#def force_move_pending_herbs(modeladmin, request, queryset):
-#    total = queryset.count()
-#    count = 0
-#    for obj in queryset:
-#        kwargs = {key: getattr(obj, key) for key in _fields_to_copy}
-#        HerbItem.objects.create(public=False, **kwargs)
-#        obj.delete
-#        count += 1
-#    messages.success(request, 'Перемещено %s из %s выбранных' % (count, total))
-#force_move_pending_herbs.short_description = "Переместить в базу игнорируя ошибки"
-## ---------------------------------------------------------------------------
-
-
 class HerbItemCustomListFilter(SimpleListFilter):
     title = _('Пользователь')
     parameter_name = 'user'
@@ -114,7 +83,6 @@ class HerbItemCustomListFilter(SimpleListFilter):
             return queryset.filter(user__id__exact=self.value())
         else:
             return queryset
-
 
 
 # -------------- Common per object permission setter ------------------------
@@ -162,12 +130,6 @@ class PermissionMixin:
          return self._common_permission_manager(request, obj)
 
 # ---------------------------------------------------------------------------
-
-#class HerbImageAdminInline(PermissionMixin, AdminImageMixin,
-#                           admin.TabularInline):
-#    extra = 0
-#    model = HerbImage
-#    exclude=('user',)
 
 class DetHistoryAdminInline(AjaxSelectAdminTabularInline):
     extra = 1
@@ -261,7 +223,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             obj.createdby = request.user
         if not obj.updatedby or change:
             obj.updatedby = request.user
-            
         if obj.coordinates:
             lat = obj.coordinates.latitude
             lon = obj.coordinates.longitude
@@ -389,20 +350,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             return super(HerbItemAdmin, self).add_view(request, form_url, extra_context)
 
 
-# PendingHerbsAdmin(admin.ModelAdmin):
-#    model = PendingHerbs
-#    list_display = ('get_full_name', 'itemcode', 'checked', 'err_msg')
-#    list_filter = ('public', 'family', 'genus', 'species')
-#    list_display_links = ('get_full_name',)
-#    actions = (force_move_pending_herbs, move_pending_herbs)
-#
-#
-#class LoadedFilesAdmin(admin.ModelAdmin):
-#    model = LoadedFiles
-#    list_display = ('datafile', 'status', 'createdby', 'created')
-#    list_filter = ('status', 'createdby')
-#
-
 class SpeciesAdmin(AjaxSelectAdmin):
     form = SpeciesForm
     list_filter = ('status',)
@@ -429,12 +376,6 @@ class SpeciesAdmin(AjaxSelectAdmin):
         else:
             readonly_fields += ['status',]
         return readonly_fields
-
-
-
-#class ErrorLogAdmin(admin.ModelAdmin):
-#    list_display = ('message', 'created', 'who')
-#    readonly_fields = ('message', 'created', 'who')
 
 
 admin.site.register(Family, FamilyAdmin)

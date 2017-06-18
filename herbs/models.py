@@ -11,17 +11,6 @@ from django.core.exceptions import PermissionDenied
 from .utils import  _smartify_dates
 
 
-#TODO: Move to settings...
-UPLOAD_MAX_FILE_SIZE = 5 * 10 ** 6 # 5 MB defualt
-
-_fields_to_copy = ('family', 'genus',  'species',
-                   'itemcode', 'identified_s',
-                   'identified_e', 'identifiedby',
-                   'collected_s', 'collected_e',
-                   'country', 'region', 'district',
-                   'coordinates', 'ecodescr',
-                   'detailed', 'altitude', 'note')
-
 class HerbItemMixin(models.Model):
     '''
     Common item properties
@@ -237,26 +226,6 @@ class Additionals(models.Model):
     class Meta:
         verbose_name = _('Дополнительные виды')
         verbose_name_plural = _('Дополнительные виды')
-
-
-class HerbImage(models.Model):
-    TYPE_CHOICES = (('H', 'Изображение гербария'),
-                    ('P', 'Изображение места сбора'))
-    user = models.ForeignKey(get_user_model(), blank=True, null=True, related_name='+')
-    image = models.ImageField(upload_to="herbimages/%Y/%m/%d/", blank=True,
-                              verbose_name=_('изображение'))
-    type = models.CharField(max_length=1,
-                            blank=False,
-                            default=TYPE_CHOICES[0][0],
-                            choices=TYPE_CHOICES, verbose_name=_('тип'))
-    created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
-    updated = models.DateField(auto_now=True, verbose_name=_('изменен'))
-    herbitem = models.ForeignKey('HerbItem', blank=False, related_name='images')
-
-    class Meta:
-        ordering = ('updated', )
-        verbose_name = _('изображение')
-        verbose_name_plural = _('изображения')
 
 
 class TaxonMixin(models.Model):
