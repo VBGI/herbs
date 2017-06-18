@@ -103,6 +103,10 @@ def get_data(request):
     warnings = []
     objects_filtered = HerbItem.objects.none()
 
+    if request.method == 'POST':
+        errors.append(_('Допустимы только GET-запросы'))
+        return (None, 0, 0, objects_filtered , errors, warnings)
+
     dataform = SearchForm(request.GET)
     rectform = RectSelectorForm(request.GET)
     search_by_synonyms = request.GET.get('synonyms', False)
@@ -273,7 +277,7 @@ def get_data(request):
                     errors, warnings)
     else:
         errors.append(_('Некорректно сформированный поисковый запрос.'))
-        return (None, 0, 0, None, errors, warnings)
+        return (None, 0, 0, objects_filtered, errors, warnings)
 
 
 def json_generator(queryset):
@@ -375,11 +379,6 @@ def show_herbs(request):
     '''
     Get herbitems view
     '''
-
-    # TODO: Move this to get_data view
-    if request.method == 'POST':
-        return HttpResponse(_('Допустимы только GET-запросы'))
-
     if not request.is_ajax():
         return HttpResponse(_('Допустимы только XMLHttp-запросы'))
 
