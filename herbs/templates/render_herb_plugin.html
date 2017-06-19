@@ -968,6 +968,7 @@ $("#colend-input").datepicker({dateFormat: "dd.mm.yy"});
 $("#searchform-clear").click(function (event){
 	event.preventDefault();
 $("#synonyms-input").prop('checked', false);
+$("#additionals-input").prop('checked', false);
 clearMarkers();
 $("#synonyms-error-message").hide(); 
 $('#family-input').select2('val',''); 
