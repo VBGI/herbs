@@ -299,7 +299,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         list_filter = ('public',)
         if request.user.has_perm('herbs.can_set_publish'):
             list_filter += (HerbItemCustomListFilter,)
-            list_filter += ('acronym',)
         if request.user.is_superuser:
             list_filter = ('user','public', 'acronym')
         return list_filter
