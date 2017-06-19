@@ -131,7 +131,7 @@ def get_data(request):
                 data.update({key: dataform.cleaned_data[key].strip()})
             else:
                 data.update({key: dataform.cleaned_data[key]})
-        bigquery = [Q(public=True)]
+        bigquery = []
 
         # -------- synonyms searching -----------------------
         if search_by_synonyms:
@@ -169,7 +169,8 @@ def get_data(request):
             dethistory_query += [Q(dethistory__species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
             dethistory_query += [Q(dethistory__species__genus__name__iexact=data['genus'])] if data['genus'] else []
             dethistory_query += [Q(dethistory__species__genus__family__name__iexact=data['family'])] if data['family'] else []
-        dethistory_query = reduce(operator.and_, dethistory_query)
+        if dethistory_query:
+            dethistory_query = reduce(operator.and_, dethistory_query)
 
         # ---------- searching by additionals -----------------
         additionals_query = []
@@ -180,6 +181,8 @@ def get_data(request):
                 additionals_query += [Q(additionals__species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
                 additionals_query += [Q(additionals__species__genus__name__iexact=data['genus'])] if data['genus'] else []
                 additionals_query += [Q(additionals__species__genus__family__name__iexact=data['family'])] if data['family'] else []
+        
+        if additionals_query:
             additionals_query = reduce(operator.and_, additionals_query)
 
         # ------  Searching by rectangular selection...
@@ -256,11 +259,21 @@ def get_data(request):
             if subdivision:
                 bigquery += [Q(subdivision__name__icontains=subdivision)]
 
-        objects_filtered = HerbItem.objects.filter(reduce(operator.and_,
-                                                          bigquery)|
-                                                   dethistory_query|
-                                                   additionals_query)
+        if dethistory_query and additionals_query:
+            extra_query = dethistory_query | additionals_query
+        else:
+            extra_query = dethistory_query or additionals_query
 
+        if extra_query and bigquery:
+            objects_filtered = HerbItem.objects.filter(reduce(operator.and_,
+                                                          bigquery)|
+                                                   extra_query).exclude(public=False)
+        elif bigquery:
+            objects_filtered = HerbItem.objects.filter(reduce(operator.and_,
+                                                          bigquery)).exclude(public=False)
+        else:
+            objects_filtered = HerbItem.objects.filter(public=True)
+    
         if not objects_filtered.exists():
             warnings.append(_("Ни одного элемента не удовлетворяет условиям поискового запроса"))
             return (None, 1, 0, objects_filtered, errors, warnings)
