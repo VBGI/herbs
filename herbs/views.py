@@ -169,9 +169,18 @@ def get_data(request):
             dethistory_query += [Q(dethistory__species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
             dethistory_query += [Q(dethistory__species__genus__name__iexact=data['genus'])] if data['genus'] else []
             dethistory_query += [Q(dethistory__species__genus__family__name__iexact=data['family'])] if data['family'] else []
-        if dethistory_query:
-            dethistory_query = reduce(operator.and_, dethistory_query)
+        dethistory_query = reduce(operator.and_, dethistory_query)
 
+        # ---------- searching by additionals -----------------
+        additionals_query = []
+        if search_by_additionals:
+            if search_by_synonyms:
+                additionals_query += [Q(additionals__species__pk__in=intermediate)]
+            else:
+                additionals_query += [Q(additionals__species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
+                additionals_query += [Q(additionals__species__genus__name__iexact=data['genus'])] if data['genus'] else []
+                additionals_query += [Q(additionals__species__genus__family__name__iexact=data['family'])] if data['family'] else []
+            additionals_query = reduce(operator.and_, additionals_query)
 
         # ------  Searching by rectangular selection...
         if rectform.is_valid():
@@ -247,11 +256,10 @@ def get_data(request):
             if subdivision:
                 bigquery += [Q(subdivision__name__icontains=subdivision)]
 
-        if dethistory_query:
-            objects_filtered = HerbItem.objects.filter(reduce(operator.and_,
-                                                            bigquery)|dethistory_query)
-        else:
-            objects_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery))
+        objects_filtered = HerbItem.objects.filter(reduce(operator.and_,
+                                                          bigquery)|
+                                                   dethistory_query|
+                                                   additionals_query)
 
         if not objects_filtered.exists():
             warnings.append(_("Ни одного элемента не удовлетворяет условиям поискового запроса"))
