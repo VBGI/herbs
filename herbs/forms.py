@@ -186,9 +186,12 @@ class SpeciesForm(forms.ModelForm):
         model = Species
 
     genus = AutoCompleteSelectField('genus', required=True, help_text=None,
-                                    label=_("Род"))
-    synonym = AutoCompleteSelectField('species', label=_("Синоним вида"),
+                                    label=_("род"))
+    synonym = AutoCompleteSelectField('species', label=_("синоним вида"),
                                       required=False)
+
+    name = forms.CharField(max_length=70, label=_('название'), required=True,
+                           help_text=_('видовой эпитет'))
 
     def clean(self):
         form_data = self.cleaned_data
