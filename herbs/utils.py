@@ -106,7 +106,7 @@ def prefill_related_species(hitem, attr):
                                  'species_status': '',
                                  'species_fullname': ''})
             store.append(dataitem)
-    return tuple(store)
+    return store
 
 
 def herb_as_dict(hitem):
