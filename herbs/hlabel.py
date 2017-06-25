@@ -5,7 +5,7 @@ import fpdf
 import tempfile
 import qrcode
 import os
-from .utils import translit
+from .utils import translit, smartify_language
 
 
 msgs = {'org':   'Herbarium',
@@ -178,6 +178,7 @@ class PDF_DOC:
         # ------------- place of collecting ------------
         if not country:
             country = ''
+        country = smartify_language(country, lang='en')
         self._ln += 1
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
@@ -189,7 +190,7 @@ class PDF_DOC:
         self.pdf.cell(0, 0, country)
 
         if region:
-            region = translit(region, 'ru', reversed=True)
+            region = translit(smartify_language(region, lang='en'), 'ru', reversed=True)
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
             rw = self.pdf.get_string_width(msgs['region'])
             self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
@@ -206,6 +207,7 @@ class PDF_DOC:
         # split long text of the place foundi
         prepare = []
         if place:
+            place = smartify_language(place, lang='en')
             self._ln += 1
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
             tw = self.pdf.get_string_width(msgs['place'])
@@ -246,7 +248,8 @@ class PDF_DOC:
         self.pdf.cell(0, 0, msgs['alt'])
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
-        self.pdf.cell(0, 0, translit(altitude, 'ru', reversed=True))
+        self.pdf.cell(0, 0, translit(smartify_language(altitude, lang='en'),
+                                     'ru', reversed=True))
 
         # ------------- Coordinates found -------------
         self._ln += 1

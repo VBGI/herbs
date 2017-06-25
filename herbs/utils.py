@@ -5,6 +5,14 @@ from django.utils.dateformat import DateFormat
 from transliterate.base import TranslitLanguagePack, registry
 from transliterate import translit
 from transliterate.contrib.languages.ru.translit_language_pack import RussianLanguagePack
+from .models import Country
+from django.utils import translation
+from django.conf import settings
+
+
+DELIMITER = settings.HERBS_BILINGUAL_DELIMITER
+
+CYRILLIC_SYMBOLS = set(u"абвгдезиклмнопрстуфхцЦъыьАБВГДЕЗИКЛМНОПРСТУФХЪЫЬ")
 
 
 
@@ -204,6 +212,47 @@ class NewRussianLanguagePack(TranslitLanguagePack):
     detectable = True
 
 registry.register(NewRussianLanguagePack)
+
 # --------------------------------------------------
 
 
+def smartify_language(value, lang=''):
+    if isinstance(value, Country):
+        if translation.get_language() == 'ru':
+            return value.name_ru
+        else:
+            return value.name_en
+    try:
+        value = str(value)
+    except UnicodeEncodeError:
+        pass
+    if DELIMITER in value:
+        if value.count(DELIMITER) > 1:
+            return value
+        a, b = value.split(DELIMITER)
+        a = a.strip()
+        b = b.strip()
+        if len(a) == 0 or len(b) == 0:
+            return value
+        _cya = len(set(a).intersection(CYRILLIC_SYMBOLS))
+        _cyb = len(set(b).intersection(CYRILLIC_SYMBOLS))
+        if _cya > _cyb:
+            ru_value = a
+            en_value = b
+        elif _cya < _cyb:
+            ru_value = b
+            en_value = a
+        else:
+            return value
+
+        if lang == 'ru':
+            return ru_value
+        elif lang == 'en':
+            return en_value
+
+        if translation.get_language() == 'ru':
+            return ru_value
+        else:
+            return en_value
+    else:
+        return value
