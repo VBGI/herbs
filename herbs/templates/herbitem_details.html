@@ -1,4 +1,4 @@
-{%load  thumbnail i18n staticfiles %}
+{%load  thumbnail i18n staticfiles herbs_tags %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -75,12 +75,11 @@
         <script async defer src="//maps.googleapis.com/maps/api/js?signed_in=true&callback=initMap"></script>
         {%endif%}
 
-      {%if curobj.country %}<p><strong>{%trans "Страна"%}:</strong>&nbsp;{{curobj.country}}</p>{%endif%}
-      {%if curobj.region %}<p><strong>{%trans "Регион"%}:</strong>&nbsp;{{curobj.region}}</p>{%endif%}
-      {%if curobj.district %}<p><strong>{%trans "Район"%}:</strong>&nbsp;{{curobj.district}}</p>{%endif%}
-      {%if curobj.detailed %}<p><strong>{%trans "Дополнительно"%}:</strong>&nbsp;{{curobj.detailed}}</p>{%endif%}
-      {%if curobj.altitude %}<p><strong>{%trans "Высота"%}:</strong>&nbsp;{{curobj.altitude}}</p>{%endif%}
-      {%if curobj.ecodescr %}<p><strong>{%trans "Экология"%}:</strong>&nbsp;{{curobj.ecodescr}}</p>{%endif%}
+      {%if curobj.country %}<p><strong>{%trans "Страна"%}:</strong>&nbsp;{{curobj.country|smart_language}}</p>{%endif%}
+      {%if curobj.region %}<p><strong>{%trans "Регион"%}:</strong>&nbsp;{{curobj.region|smart_language}}</p>{%endif%}
+      {%if curobj.district %}<p><strong>{%trans "Район"%}:</strong>&nbsp;{{curobj.district|smart_language}}</p>{%endif%}
+      {%if curobj.detailed %}<p><strong>{%trans "Дополнительно"%}:</strong>&nbsp;{{curobj.detailed|smart_language}}</p>{%endif%}
+      {%if curobj.altitude %}<p><strong>{%trans "Высота"%}:</strong>&nbsp;{{curobj.altitude|smart_language}}</p>{%endif%}
       {%if curobj.collectedby %}<p><strong>{%trans "Собрал(и)"%}:</strong>&nbsp;{{curobj.collectedby}}</p>{%endif%}
       {%if curobj.colldate %}<p><strong>{%trans "Дата сбора"%}:</strong>&nbsp;{{curobj.collected_s}}{%if curobj.collected_e%} &mdash; {{curobj.collected_e}}{%endif%}</p>{%endif%}
       {%if curobj.identifiedby %}<p><strong>{%trans "Определил(и)"%}:</strong>&nbsp;{{curobj.identifiedby}}</p>{%endif%}
@@ -97,7 +96,7 @@
       {%endif%}
 
 
-      {%if curobj.note %}<p><strong>{%trans "Примечание"%}:</strong>&nbsp;{{curobj.note}}</p>{%endif%}
+      {%if curobj.note %}<p><strong>{%trans "Примечание"%}:</strong>&nbsp;{{curobj.note|smart_language}}</p>{%endif%}
 
       <script type="text/javascript" > //make automatic queries for images
       var baseUrl = "{{base_herbitem_image_url}}"; //TODO: needs to be defined in the main view

@@ -19,5 +19,7 @@ class HerbsAppConf(AppConf):
     JSON_API_CONN_KEY_FLAG = 'herbs_json_conn_flag'
     JSON_API_CONN_TIMEOUT = 3
 
+    BILINGUAL_DELIMITER = "|"
+
     class Meta:
         prefix = 'herbs'
