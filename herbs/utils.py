@@ -5,7 +5,6 @@ from django.utils.dateformat import DateFormat
 from transliterate.base import TranslitLanguagePack, registry
 from transliterate import translit
 from transliterate.contrib.languages.ru.translit_language_pack import RussianLanguagePack
-from .models import Country
 from django.utils import translation
 from django.conf import settings
 
@@ -217,11 +216,6 @@ registry.register(NewRussianLanguagePack)
 
 
 def smartify_language(value, lang=''):
-    if isinstance(value, Country):
-        if translation.get_language() == 'ru':
-            return value.name_ru
-        else:
-            return value.name_en
     try:
         value = str(value)
     except UnicodeEncodeError:
