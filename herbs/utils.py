@@ -6,7 +6,7 @@ from transliterate.base import TranslitLanguagePack, registry
 from transliterate import translit
 from transliterate.contrib.languages.ru.translit_language_pack import RussianLanguagePack
 from django.utils import translation
-from django.conf import settings
+from .conf import settings
 
 
 DELIMITER = settings.HERBS_BILINGUAL_DELIMITER
