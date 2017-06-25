@@ -5,9 +5,7 @@ import fpdf
 import tempfile
 import qrcode
 import os
-from transliterate.base import TranslitLanguagePack, registry
-from transliterate import translit
-from transliterate.contrib.languages.ru.translit_language_pack import RussianLanguagePack
+from .utils import translit
 
 
 msgs = {'org':   'Herbarium',
@@ -24,65 +22,17 @@ msgs = {'org':   'Herbarium',
         }
 
 
-# -------------- Transliterate customization -------
-
-registry.unregister(RussianLanguagePack)
-
-# - new mappings (modified russian language pack)
-
-new_mapping = (
-    u"abvgdeziklmnoprstufhcC'y'ABVGDEZIKLMNOPRSTUFH'Y'",
-    u"абвгдезиклмнопрстуфхцЦъыьАБВГДЕЗИКЛМНОПРСТУФХЪЫЬ",
-)
-
-new_reversed_specific_mapping = (
-    u"йЙэЭъьЪЬ",
-    u"иИeE''''"
-)
-
-new_pre_processor_mapping = {
-    u"zh": u"ж",
-    u"ts": u"ц",
-    u"ch": u"ч",
-    u"sh": u"ш",
-    u"shch": u"щ",
-    u"yu": u"ю",
-    u"ya": u"я",
-    u"yo": u"ё",
-    u"Zh": u"Ж",
-    u"Ts": u"Ц",
-    u"Ch": u"Ч",
-    u"Sh": u"Ш",
-    u"Shch": u"Щ",
-    u"Yu": u"Ю",
-    u"Ya": u"Я",
-    u"Yo": u"Ё"
-}
-
-
-class NewRussianLanguagePack(TranslitLanguagePack):
-    language_code = "ru"
-    language_name = "Russian"
-    character_ranges = ((0x0400, 0x04FF), (0x0500, 0x052F))
-    mapping = new_mapping
-    reversed_specific_mapping = new_reversed_specific_mapping
-    pre_processor_mapping = new_pre_processor_mapping
-    detectable = True
-
-registry.register(NewRussianLanguagePack)
-# --------------------------------------------------
-
-
 FPDF = fpdf.FPDF
 
 BASE_URL = os.path.dirname(os.path.abspath(__file__))
 
 fpdf.set_global('FPDF_FONT_DIR', os.path.join(BASE_URL, './fonts'))
 
-#TODO: refactoring needed:::!!!
-
 BGI_LOGO_IMG = os.path.join(BASE_URL, './imgs', 'bgi_logo.png')
 
+
+# TODO:
+# Settings should be moved to conf-file
 LABEL_WIDTH = 140
 LABEL_HEIGHT = 100
 
