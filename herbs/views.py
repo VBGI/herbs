@@ -181,7 +181,6 @@ def get_data(request):
                 additionals_query += [Q(additionals__species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
                 additionals_query += [Q(additionals__species__genus__name__iexact=data['genus'])] if data['genus'] else []
                 additionals_query += [Q(additionals__species__genus__family__name__iexact=data['family'])] if data['family'] else []
-        
         if additionals_query:
             additionals_query = reduce(operator.and_, additionals_query)
 
@@ -273,7 +272,6 @@ def get_data(request):
                                                           bigquery)).exclude(public=False)
         else:
             objects_filtered = HerbItem.objects.filter(public=True)
-    
         if not objects_filtered.exists():
             warnings.append(_("Ни одного элемента не удовлетворяет условиям поискового запроса"))
             return (None, 1, 0, objects_filtered, errors, warnings)
@@ -322,7 +320,6 @@ def json_api(request):
         'warnings': [],
         'data': [],
     }
-
     allowed_parameters = set(('family', 'genus', 'id', 'species_epithet',
                               'itemcode', 'identifiedby', 'place', 'collectedby',
                               'country', 'colstart', 'colend', 'acronym',
@@ -331,17 +328,17 @@ def json_api(request):
                               'authorship'))
 
     if request.method == 'POST':
-        context['errors'].append(_('Допустимы только GET-запросы'))
+        context['errors'].append('Only GET-requests is allowed')
 
     current_parameters = set(request.GET.keys())
     diff = current_parameters - allowed_parameters
     if len(diff) > 0:
-        extra_key_warning = _('Следующие параметры были проигнорированы при поиске: ') +\
+        extra_key_warning = 'The following GET-parameters was ignored: ' +\
                             ', '.join(map(lambda x: x.encode('utf-8'), diff))
         context['warnings'].append(extra_key_warning)
 
     if len(current_parameters.intersection(allowed_parameters)) == 0:
-        context['errors'].append(_('Поиск без каких-либо условий запрещен'))
+        context['errors'].append("Making empty search requests is permitted")
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
 
@@ -350,18 +347,18 @@ def json_api(request):
         try:
            hid = int(hid)
         except (ValueError, TypeError):
-           context['errors'].append(_('Неправильный форма ID записи'))
+           context['errors'].append("Illegal format of ID")
            return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder))
         objects_filtered = HerbItem.objects.filter(id=hid)
-        context['warnings'].append(_('При поиске по ID другие поля поиска игнорируются'))
+        context['warnings'].append("All search fields will be ignored when do searching by ID")
         if objects_filtered.exists():
             if objects_filtered[0].public:
                 context.update({'data':[herb_as_dict(objects_filtered[0])]})
             else:
                 context.update({'data': []})
-                context['errors'].append(_('Объект с данным ID не опубликован'))
+                context['errors'].append("The record with this ID isn't published")
         else:
-            context['errors'].append(_('Объект с данным ID не найден'))
+            context['errors'].append("The record with the requested ID wasn't found")
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
 
@@ -372,12 +369,16 @@ def json_api(request):
         if conn is None or flag is None:
             cache.set(settings.HERBS_JSON_API_CONN_KEY_NAME, 1)
         elif conn >= settings.HERBS_JSON_API_SIMULTANEOUS_CONN:
-            context['errors'].append(_('Сервер занят. Повторите попытку позже.'))
+            context['errors'].append('Server is busy. Try again later.')
             return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                                 content_type="application/json;charset=utf-8")
         else:
             cache.incr(settings.HERBS_JSON_API_CONN_KEY_NAME)
+
+    current_lang = translation.get_language()
+    translation.activate('en')
     no, no, no, objects_filtered, errors, warnings = get_data(request)
+    translation.activate(current_lang)
     authorship = request.GET.get('authorship', '')[:settings.HERBS_ALLOWED_AUTHORSHIP_SYMB_IN_GET]
     fieldid = request.GET.get('fieldid', '')[:settings.HERBS_ALLOWED_FIELDID_SYMB_IN_GET]
     itemcode = request.GET.get('itemcode', '')[:settings.HERBS_ALLOWED_ITEMCODE_SYMB_IN_GET]
