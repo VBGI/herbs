@@ -65,10 +65,10 @@ List of allowed GET-parameters:
 .. _ISO3166-1-ru: https://ru.wikipedia.org/wiki/ISO_3166-1
 
 
-Description of server's response
---------------------------------
+Description of server response
+------------------------------
 
-The server's response is a `JSON-formatted`_ text transferred via HTTP-protocol and having the following attributes:
+The server response is a `JSON-formatted`_ text transferred via HTTP-protocol and having the following attributes:
 
 .. _JSON-formatted: http://www.json.org
 
@@ -100,7 +100,7 @@ Structured data format
 - **fieldid** |---| field number; an arbitrary string assigned by a collector;
 - **itemcode** |---| storage number, a string assigned by curator of the herbarium; it is used to identify the position of a record in herbarium storage house;
 - **acronym** |---| herbarium acronym (e.g. VBGI);
-- **branch** |---| herbarium's branch (e.g. "Herbarium of Fungi", "Bryophite Herbarium" etc.);
+- **branch** |---| herbarium branch (e.g. "Herbarium of Fungi", "Bryophite Herbarium" etc.);
 - **collectors** |---| collectors;
 - **identifiers** |---| identifiers;
 - **devstage** |---| development stage; available values: Development stage partly, Life form of empty string;
@@ -114,7 +114,7 @@ Structured data format
 - **region** |---|  region of collection;
 - **district** |---| district of collection;
 - **details** |---| environmental conditions of collection, additional info;
-- **note** |---| everything that was'nt yet included in the previous fields (this field could include information on place of collection, environmental conditions etc.);
+- **note** |---| everything that wasn't yet included in the previous fields (this field could include information on place of collection, environmental conditions etc.);
 - **dethistory** |---| an array; history of species identifications for this herbarium record;
 - **additionals** |---| some herbarium records could include more than one species, this array describes all of these;
   
