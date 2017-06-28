@@ -44,7 +44,7 @@ List of allowed GET-parameters:
 - **place** |---|  place of collection (case insensetive, records should have the provided value as a substring in the correspongin field of the database), if the parameter is given, searching is performed over the following fields: **Place**, **region**, **district**, **note**;
 - **collectedby** |---| collectors (case insensetive, records should have the provided value as a substring in the correspongin field of the database);
 - **identifiedby** |---| identifiers; (case insensetive, records should have the provided value as a substring in the correspongin field of the database);
-- **country** |---| country name (case insensetive, records should have the provided value as a substring in the correspongin field of the database); the system knows country names according to standards ISO31661-1-ru_ and ISO3166-1-en_; Russian Federation is replaced with Russia for short;
+- **country** |---| country name (case insensetive, records should have the provided value as a substring in the correspongin field of the database); the system knows country names according to standards ISO3166-1-ru_ and ISO3166-1-en_; Russian Federation is replaced with Russia for short;
 - **colstart** |---| date when collection was started (yyyy-mm-dd);
 - **colend** |---|  date when collection was finished (yyyy-mm-dd);
 - **acronym** |---| name of the herbarium acronym (case insensetive, records should have exactly the same acronym as provided);
