@@ -42,10 +42,8 @@ List of allowed GET-parameters:
 - **genus** |---|  genus name (case insensetive, records should have the same gunus name as provided), note: if its value contradicts with the family name provided in the same request, an error will be returned as a part of json-response;
 - **species_epithet** |---| species epithet (case insensetive, records should have the provided value as a substring in the correspongin field of the database);
 - **place** |---|  place of collection (case insensetive, records should have the provided value as a substring in the correspongin field of the database), if the parameter is given, searching is performed over the following fields: **Place**, **region**, **district**, **note**;
-- **collectedby** |---| collectors (case insensetive, 
- records should have the provided value as a substring in the correspongin field of the database);
-- **identifiedby** |---| identifiers; (case insensetive, 
- records should have the provided value as a substring in the correspongin field of the database);
+- **collectedby** |---| collectors (case insensetive, records should have the provided value as a substring in the correspongin field of the database);
+- **identifiedby** |---| identifiers; (case insensetive, records should have the provided value as a substring in the correspongin field of the database);
 - **country** |---| country name (case insensetive, records should have the provided value as a substring in the correspongin field of the database); the system knows country names according to standards ISO31661-1-ru_ and ISO3166-1-en_; Russian Federation is replaced with Russia for short;
 - **colstart** |---| date when collection was started (yyyy-mm-dd);
 - **colend** |---|  date when collection was finished (yyyy-mm-dd);
