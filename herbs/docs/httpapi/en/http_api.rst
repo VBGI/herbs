@@ -13,7 +13,7 @@ Digital Herbarium HTTP-API Description
 
 .. |--| unicode:: U+2013   .. en dash
 
------
+
 Intro
 -----
 
