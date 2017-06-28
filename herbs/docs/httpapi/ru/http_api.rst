@@ -2,7 +2,7 @@
 Автоматизация поиска гербарных записей в базе данных
 ====================================================
 
-`Switch to English version`_
+`English version`_
 
 .. _English version: https://github.com/VBGI/herbs/blob/master/herbs/docs/httpapi/en/http_api.rst
 
