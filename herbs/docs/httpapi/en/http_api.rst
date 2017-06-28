@@ -41,8 +41,7 @@ List of allowed GET-parameters:
 
 - **genus** |---|  genus name (case insensetive, records should have the same gunus name as provided), note: if its value contradicts with the family name provided in the same request, an error will be returned as a part of json-response;
 - **species_epithet** |---| species epithet (case insensetive, records should have the provided value as a substring in the correspongin field of the database);
-- **place** |---|  place of collection (case insensetive, 
- records should have the provided value as a substring in the correspongin field of the database), if the parameter is given, searching is performed over the following fields: **Place**, **region**, **district**, **note**;
+- **place** |---|  place of collection (case insensetive, records should have the provided value as a substring in the correspongin field of the database), if the parameter is given, searching is performed over the following fields: **Place**, **region**, **district**, **note**;
 - **collectedby** |---| collectors (case insensetive, 
  records should have the provided value as a substring in the correspongin field of the database);
 - **identifiedby** |---| identifiers; (case insensetive, 
@@ -51,8 +50,7 @@ List of allowed GET-parameters:
 - **colstart** |---| date when collection was started (yyyy-mm-dd);
 - **colend** |---|  date when collection was finished (yyyy-mm-dd);
 - **acronym** |---| name of the herbarium acronym (case insensetive, records should have exactly the same acronym as provided);
-- **subdivision** |---| name of the herbarium subdivision/branch (case insensetive, 
- records should have the provided value as a substring in the correspongin field of the database);
+- **subdivision** |---| name of the herbarium subdivision/branch (case insensetive, records should have the provided value as a substring in the correspongin field of the database);
 - **latl** |---| lower bound of latitude, should be in (-90, 90);
 - **latu** |---| upper bound of latitude, should be in (-90, 90);
 - **lonu** |---| upper bound of longitude, should be in (-180, 180);
@@ -60,14 +58,10 @@ List of allowed GET-parameters:
 - **synonyms** |---| boolean parameter, allowed values are `false` or `true`; absence of the parameter in GET-request is treated as its false value; true value (e.g. `synonyms=true`) tells the system to search records taking into account the table of species synonyms; *note:* when performing search including known (known by the system) species synonyms one should provide both **genus** and **species_epithet** values, if only one of these is provided or both are leaved empty, a warning will be shown and this search condition will be ignored;
   
 - **additionals** |---| boolean parameter, allowed values are `false` or `true`; absence of the parameter in GET-request is treated as its false value; true value (e.g. `additionals=true`) tells the system to search within additionals species (if such exist); some herbarium records include more than one species, e.g. bryophyte records;
-- **id** |---| record's **ID** ; if this parameter is provided in GET-request, 
-  all the other search parameters are ignored and the only one record (if it exists and is published) 
- with the requested ID is returned;
-  
+- **id** |---| record's **ID** ; if this parameter is provided in GET-request, all the other search parameters are ignored and the only one record (if it exists and is published)  with the requested ID is returned;
 - **fieldid** |---| field number;
 - **itemcode** |---| storage number (used in the herbarium storage);
-- **authorship** |---| authorship of the main species (case insensetive, 
- records should have the provided value as a substring in the correspongin field of the database);
+- **authorship** |---| authorship of the main species (case insensetive, records should have the provided value as a substring in the correspongin field of the database);
 
 .. _ISO3166-1-en: https://en.wikipedia.org/wiki/ISO_3166-1
 .. _ISO3166-1-ru: https://ru.wikipedia.org/wiki/ISO_3166-1
