@@ -338,7 +338,7 @@ def json_api(request):
         context['warnings'].append(extra_key_warning)
 
     if len(current_parameters.intersection(allowed_parameters)) == 0:
-        context['errors'].append("Making empty search requests is permitted")
+        context['errors'].append("Making empty searching requests aren't permitted")
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
 
@@ -350,7 +350,7 @@ def json_api(request):
            context['errors'].append("Illegal format of ID")
            return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder))
         objects_filtered = HerbItem.objects.filter(id=hid)
-        context['warnings'].append("All search fields will be ignored when do searching by ID")
+        context['warnings'].append("All searching fields will be ignored when do searching by ID")
         if objects_filtered.exists():
             if objects_filtered[0].public:
                 context.update({'data':[herb_as_dict(objects_filtered[0])]})
