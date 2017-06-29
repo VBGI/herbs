@@ -333,7 +333,7 @@ def json_api(request):
     current_parameters = set(request.GET.keys())
     diff = current_parameters - allowed_parameters
     if len(diff) > 0:
-        extra_key_warning = 'The following GET-parameters was ignored: ' +\
+        extra_key_warning = 'Following GET-parameters were ignored: ' +\
                             ', '.join(map(lambda x: x.encode('utf-8'), diff))
         context['warnings'].append(extra_key_warning)
 
