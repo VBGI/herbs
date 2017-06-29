@@ -17,7 +17,7 @@ Digital Herbarium HTTP-API Description
 Intro
 -----
 
-This document describes HTTP-API (Automotive Programming Interface over HTTP protocol) for working with the Herbarium Database.
+This document describes HTTP-API (Application Programming Interface over HTTP protocol) for working with the Herbarium Database.
 
 HTTP-API is working in readonly mode only. There is no way to make changes in the database using this API.
 
