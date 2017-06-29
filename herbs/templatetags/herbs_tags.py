@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django import template
-from ..utils import smartify_language
+from ..utils import smartify_language, translit
 from ..models import Country
 from django.utils import translation
 
@@ -16,3 +16,11 @@ def smart_language(value):
         else:
             return value.name_en
     return smartify_language(value)
+
+
+@register.filter
+def force_translit(value):
+    if translation.get_language() != 'ru':
+        if isinstance(value, basestring):
+            return  translit(value, 'ru', reversed=True)
+    return value
