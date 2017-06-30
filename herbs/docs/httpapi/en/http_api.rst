@@ -28,8 +28,8 @@ Description of request parameters
 Only GET-requests are allowed when talking with the HTTP-API. To establish connection with the service,
 one can use either HTTP or HTTPS protocols.
 
-Requests with multiple parameters, e.g. `colstart=01.01.2016` and `collectedby=Bak`, are treated as `AND`-type queries:
-in this example, all records collected after `01.01.2016` and including `bak` (case insensetive inclusion is checked) as a substring in `Collectors` field of the main table of the database will be returned.
+Requests with multiple parameters, e.g. `colstart=2016-01-01` and `collectedby=Bak`, are treated as `AND`-type queries:
+in this example, all records collected after `2016-01-01` and including `bak` (case insensetive inclusion is checked) as a substring in `Collectors` field of the main table of the database will be returned.
 
 
 `OR`-type query behaviour can be emulated by series of consequent queries to the database and isn't natively implemented
@@ -232,7 +232,7 @@ Follow through the link will lead to json-response that includes all known (and 
 
 Searching by **ID** (`colstart` will be ignored):
 
-http://botsad.ru/hitem/json?id=500&colstart=01.01.2016
+http://botsad.ru/hitem/json?id=500&colstart=2016-01-01
 
 http://botsad.ru/hitem/json?id=44
 
