@@ -1,0 +1,301 @@
+#family-input, #genus-input, #species-input, #country-input, #itemcode-input, #collectedby-input, #identifiedby-input,
+#place-input, #colend-input, #colstart-input
+	{
+	width:200px;
+    height: 2em
+  }
+.clear-button{
+	display: none;
+	cursor:pointer;
+}
+
+.clear-rect-bounds{
+	display: none;
+	cursor:pointer;
+	}
+
+#herb-search-form>ul{
+list-style-type: none;
+}	
+#herb-search-form>ul li{
+padding-bottom:10px;
+}
+
+#herb-search-form>ul li:nth-child(1){
+float:left;
+}
+
+label {font-weight: bold; display:block;}
+label + * {margin-left: 2em; margin-top: 5px;}
+
+.herbitem-even{
+  background: #EEEEEE;
+  height: 2em;
+
+}
+
+.herbitem-selected {
+background: #EEFFAA !important;
+}
+
+.herbitem-page-lister{
+  text-align: center;
+  margin-bottom: 5px;
+  font-size: 15pt; 
+}
+#searchform-clear{
+padding: 10px;
+font-size: medium;
+}
+#searchform-clear:hover{
+  cursor:pointer;
+}
+
+#herbitemform-button{
+padding:10px;
+font-size:medium;
+}
+
+#herbitemform-button:hover{
+cursor:pointer}
+
+.herbitem-odd{
+  background: #FFFFFF;
+  height: 2em;
+}
+.herbitem-even:hover, .herbitem-odd:hover{
+background: #AEF;
+cursor: pointer;
+}
+#herbitem-tabs{
+float: right;
+width: 50%;
+display: none;
+}
+#herbitem-table {
+width:100%;
+padding: 10px;
+}
+#herbitem-table > thead{
+background: #AEF;
+}
+#herbitem-table tr td {
+padding: 4px;
+}
+#herbitem-content-found {
+  display: block;
+  float: left;
+  width: 100%;
+}
+#herb-search-form{
+  display:block;
+  float:left;
+}
+
+.herbitem-found-total{
+font-size: 14pt;
+float: right;
+}
+
+.herbitem-newpage{
+color: blue;
+float: right;
+}
+.herbitem-newpage:hover{
+  cursor: pointer;
+  color: green;
+}
+
+#herbitem-csv-export{
+float: right;
+padding: 5px;
+font-size: 14pt;
+font-weight: bold;
+}
+
+#herbitem-csv-export:hover{
+cursor: pointer;
+background: #EEFFAA;
+
+}
+
+#herbitem-next-page, #herbitem-previous-page {
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+#herbitem-next-page:hover, #herbitem-previous-page:hover {
+  background: #AAFFAA;
+}
+
+#herbitem-filtering{
+   float:left;
+   width:100%;
+   overflow:hidden;
+   position:relative;
+   margin-bottom: 5px;
+   display: none;
+}
+
+
+#herbitem-filtering-container{
+float: right;
+}
+
+
+ul#herbitem-search-filtering{
+   clear:left;
+   float:left;
+   list-style:none;
+   margin:0;
+   padding:0;
+   position:relative;
+   left:50%;
+   text-align:center;
+}
+
+
+
+ul#herbitem-search-filtering li{
+  display:block;
+  float:left;
+  list-style:none;
+  margin:0;
+  padding:0;
+  position:relative;
+  right:50%;
+  margin-right: 5px;
+}
+
+#herbitem-pagination, #herbitem-acronym, #herbitem-subdivision{
+max-width: 150px;
+height: 3em;
+}
+
+#herbitem-map-placeholder{
+min-width: 200px;
+width: 100%;
+min-height: 200px;
+height: 400px;
+}
+
+#herbitem-markers-available{
+float:right;
+font-size: 12pt;
+}
+#synonyms-error-message{
+  display: none;
+  font-size:8pt;
+  color: red;
+  width: 220px;
+}
+
+div#latlon-container{
+  width: 160px; 
+  height: 100px;
+  border-radius: 4px;
+  padding: 3px; 
+  position:relative;
+  margin: 0 auto;
+  }
+  
+div#lon-left{
+  top: 30px;
+  left: 0px;
+  position:absolute;
+  float: left;
+  }
+  
+div#lon-right{
+  right: 0px;
+  top: 30px;
+  position:absolute;
+  }
+  
+div#lat-top{
+  left: 60px;
+  top: 0px;
+  position:absolute;
+  }
+  
+div#lat-bottom
+  {
+ bottom: 0px;
+ left: 60px;
+ position:absolute;
+  }
+
+div#latlon-rect {
+  top: 40px;
+  left: 60px;
+  position:absolute;
+  }
+  
+div#latlon-rect input#herbitem-rectangle{
+  width: 40px;
+  height: 2em;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfhBggFLCvIfu/NAAAAv0lEQVQoz4XRMUvDQBgG4Cc5MVXBpY0W0dUg6Or/H51cpY4WlBJRxEGbNolDkzRgSm+6+3h4Ob6XPSfqbiOpoJT7HQKZK3UzmZttwQG4MfXh2VIicyH21IKAkVtfHhUqhTdjZ16tNyBGquqHmqml7SNGEPnpgWWT3IESRz2QNLMO5CLXPZAh739yLTEx9q127M6p0otq1x428ZUHxf9NHirkgnt1S6LBAk62JAyCldylyLl52FHiyruJhc99bfsDV8E4JPJOw2AAAAAASUVORK5CYII=');
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  }
+  
+ 
+  
+#latlon-container input{
+  width: 40px;
+  border-radius: 3px;
+  height: 1em;
+  margin: 0;
+  }
+  
+#latlon-container label{
+font-size: 8pt;
+display: block;
+}
+
+
+
+ul.herbitem-warnings{
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+
+}
+
+ul.herbitem-warnings li {
+margin : 0px;
+padding: 3px;
+color: black;
+background-color: #CEF;
+border-radius: 8px;
+}
+
+ul.herbitem-warnings li::before {
+  content: "Warning: ";
+  font-weight: bold;
+}
+
+ul.herbitem-errors{
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+
+}
+
+ul.herbitem-errors li {
+margin : 0px;
+padding: 3px;
+color: red;
+background-color: #FEA;
+border-radius: 8px;
+
+}
+
+ul.herbitem-errors li::before {
+  content: "Error: ";
+  font-weight: bold;
+}
+
+
