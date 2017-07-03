@@ -230,7 +230,6 @@ Created: 30 Aug, 2016
 <!-- TODO: Insert if lang_code is eng only -->
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/i18n/ru.js"></script>
 <script src="//code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
-<script src="{{STATIC_URL}}/js/herbarium.js"></script>
 
 <script type="text/javascript">
 var cpage = 1; // Current paginated page 
@@ -479,18 +478,10 @@ if (map == null && google){
     map.addListener('dblclick', function (event) {
               if (rectSelector == null){ 
              var thepoint = event.latLng;
-             bounds = {
-                  north: thepoint.lat() + 3,
-                  south: thepoint.lat() - 3,
-                  east:  thepoint.lng() + 3,
-                  west:  thepoint.lng() - 3}
-                  initRectSelection(bounds);
-                  $("#latl-input").val(bounds.south);
-                  $("#latu-input").val(bounds.north);
-                  $("#lonu-input").val(bounds.east);
-                  $("#lonl-input").val(bounds.west);                  
-                            }})}};
-
+             var bounds
+             initRectSelection();
+             updateLatLng();
+              }})}};
 
 function updateLatLng(){
    if (map != null && rectSelector != null) {
@@ -508,7 +499,7 @@ function initRectSelection(bounds){
       var mapCenter = map.getCenter();
       var mapBounds = map.getBounds();
       var scale;
-      scale = (mapBounds.north - mapBounds.south)/5.0
+      scale = (mapBounds.getNorthEast().lat() - mapBounds.getSouthWest().lat())/5.0
       if (!bounds) {      
       var bounds;
       bounds = {
@@ -640,8 +631,13 @@ $('select').on("select2:selecting", function(e) {
 });
 
 $("#latlon-rect").click(function(){
+   if ((map != null && rectSelector == null)){ 
+             initRectSelection();
+             updateLanLng();}
+  else {
   cpage=1;
   herbitemFind(false);
+   }
 });
 
 $('div.clear-button').click(function (event){
