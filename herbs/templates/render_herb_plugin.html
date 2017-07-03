@@ -138,6 +138,7 @@ Created: 30 Aug, 2016
         <% } %>
     </span>
 </div>
+<div class="herbitem-found-total">{%trans "Всего:"%} <%= total %></div>
 </script>
 
 <script id="searchform-template" type="text/x-underscore-template">
@@ -145,6 +146,7 @@ Created: 30 Aug, 2016
 <div id="herbitem-csv-export" onclick="herbitemFind(true)"> {%trans "Сохранить в csv-файл" %}</div>
 {%endif%}
 <h2> {%trans "Результаты поиска:"%} </h2>
+<div class="herbitem-found-total">{%trans "Всего:"%} <%= total %></div>
 <div class="herbitem-page-lister">
     <span class="step-links">
         <% if (has_previous){ %>
@@ -199,7 +201,6 @@ Created: 30 Aug, 2016
 			<td><%= identifiers %></td>
 		</tr>
 	<%	}}); %>
-<tfoot><tr><td>{%trans "Всего:"%} <%= total %></td></tr></tfoot>
 	</tbody>   
 </table>
 </script>
@@ -303,6 +304,12 @@ padding: 4px;
   display:block;
   float:left;
 }
+
+.herbitem-found-total{
+font-size: 14pt;
+float: right;
+}
+
 .herbitem-newpage{
 color: blue;
 float: right;
@@ -342,7 +349,6 @@ background: #EEFFAA;
   margin: 0 auto;
   width: 32px;
   z-index: 100;
-
 }
 
 #herbitem-filtering{
@@ -549,7 +555,6 @@ if (obj !== undefined){
 }
 return res;
 }
-
 
 
 function createSearchResult(idata){
