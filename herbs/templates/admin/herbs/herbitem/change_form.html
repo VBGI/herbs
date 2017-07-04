@@ -75,6 +75,17 @@
 </div>
 <script type="text/javascript">
 django.jQuery(document).ready(function(){
+  var save_clicked=False;
+  django.jQuery("#id-public").click(function(el){
+    if (!save_clicked) {
+      el.preventDefault();
+      django.jQuery(el.target).parent().append('<div id="herbs-warning-message" style="color:red; font-weight: bold;">Объект следует сохранить перед публикацией. Нажмите Сохранить и продолжить редактирование</div>');}
+  });
+  
+  django.jQuery("input[name=_continue]").click(function(){
+      save_clicked=True;
+      django.jQuery("#herbs-warning-message").hide();
+  });
 
 django.jQuery("#save-for-next-herbitem>input").click(function(){
   var checked_status;
