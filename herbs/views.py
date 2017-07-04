@@ -9,7 +9,7 @@ from .models import (Family, Genus, HerbItem, Country,
                      DetHistory, Species, SpeciesSynonym)
 from .forms import SearchForm, RectSelectorForm
 from .conf import settings
-from .utils import _smartify_altitude, _smartify_dates, herb_as_dict
+from .utils import _smartify_altitude, _smartify_dates, herb_as_dict, translit
 from streamingjson import JSONEncoder as JSONStreamer
 from django.utils.text import capfirst
 from django.contrib.auth.decorators import login_required
@@ -219,8 +219,13 @@ def get_data(request):
                             Q(fieldid__icontains=data['itemcode'])
                             ]
 
-        bigquery += [Q(collectedby__icontains=data['collectedby'])] if data['collectedby'] else []
-        bigquery += [Q(identifiedby__icontains=data['identifiedby'])] if data['identifiedby'] else []
+        bigquery += [Q(collectedby__icontains=data['collectedby'])|
+                     Q(collectedby__icontains=translit(data['collectedby'],
+                                                       'ru',
+                                                       reversed=True))] if data['collectedby'] else []
+        bigquery += [Q(identifiedby__icontains=data['identifiedby'])|
+                     Q(identifiedby__icontains=translit(data['identifiedby'],'ru',
+                                                             reversed=True))] if data['identifiedby'] else []
         if data['country']:
             bigquery += [Q(country__name_ru__icontains=data['country'])|
                             Q(country__name_en__icontains=data['country'])]
