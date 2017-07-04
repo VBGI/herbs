@@ -64,6 +64,9 @@ List of allowed GET-parameters:
 .. _ISO3166-1-en: https://en.wikipedia.org/wiki/ISO_3166-1
 .. _ISO3166-1-ru: https://ru.wikipedia.org/wiki/ISO_3166-1
 
+**Note** The system performs only one-way transliteration of fields **collectedby** and **identifiedby** to Englsh language. So, if you will try to search, e.g. **collectedby=Боб** (that coincide to `Bob` in English), the system will find  records include either `Боб` or `Bob` substrings. On the contrary, If you wil try to send **collectedby=Bob** search query, only
+records include `Bob` will be found (still in case insensetive way). Be careful: transliteration is fully automatic and could be quite silly, e.g. `Джон` will be transliterated into something like `Dzhon`, instead of `John`, as it would expected.
+
 
 Description of server response
 ------------------------------
