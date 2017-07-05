@@ -765,7 +765,7 @@ $("#herbitem-filtering").show();
 herbitemFind(false);
 $("#herbitem-tabs").tabs('option','active',0);
 $("#tab-preloader").remove();
-$("#herbitem-http-api").clone().appendTo("#herbitem-http-api-details");
+$("#herbitem-http-api > div").clone().appendTo("#herbitem-http-api-details");
 $("#herbitem-tabs").show();
 initHerbitemMap();
 });
