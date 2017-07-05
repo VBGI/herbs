@@ -120,7 +120,21 @@ Structured data format
 - **note** |---| everything that wasn't yet included in the previous fields (this field could include information on place of collection, environmental conditions etc.);
 - **dethistory** |---| an array; history of species identifications for this herbarium record;
 - **additionals** |---| some herbarium records could include more than one species, this array describes all of these;
-  
+- **images** |---| list of images related to the herbarium record; the list is formatted as follows: [] |--| an empty list, means that  no images are provided;
+  [
+  ('http://someresource.com/path/to/image1', 'image1 type', 'meta information1'),
+  ('http://someresource.com/path/to/image2', 'image2 type', 'meta information2'),
+  ...
+  ]
+
+        - *http://...* |--| first field of image record; it is a path (link), where the image coulde be downloaded from;
+        - *image type* |--| allowed values are eiter 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of nature from top of the mountain etc.);
+                            's' = 'sheet' |--| snapshot of the herbarium sheet;
+        - *meta information* |--| json-formatted string included auxiliary information about the image; e.g. snapshot authorship, snapshot date, etc.
+          In case of snapshot authorship, sample meta-string would be "{'photographer': 'Pavel Krestov', 'organization': 'Vladivostok Botanical Garden Institute'}"
+          There is no restriction about names of meta-fields, such as 'photographer' or 'organization'; meta-fields could be
+          arbitrary, but ones having intuitive values are preffered. 
+
 
 Note: Attributes **region**, **district**, **details**, **note**, **altitude** could be filled in bilingual mode, that means it could include special symbol "|". For instance, let's consider **region** and its value "Russian Far East|Дальний Восток России". The **region** stringconsist of two parts English and Russian. In current implementation the API-system doesn't care about what part of the string is really needed to the user and returns the entire string. Handling such cases, e.g. removing unnecessary substrings from left or right side of the "|" symbol, should be performed by the end user.
 
