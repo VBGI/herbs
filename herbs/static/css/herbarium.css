@@ -298,4 +298,7 @@ ul.herbitem-errors li::before {
   font-weight: bold;
 }
 
-
+#herbitem-http-api{
+display: none;
+width: 100%;
+}

@@ -77,7 +77,9 @@ Created: 30 Aug, 2016
     <li><a href="#herbitem-content-main">{%trans "Общая информация"%}</a></li>
     <li><a href="#herbitem-details">{%trans "Информация об образце"%}</a></li>
     <li><a href="#herbitem-map">{%trans "Карта" %}</a></li>
-    </ul>
+    <li><a href="#herbitem-http-api-details">{%trans "Автоматизация доступа" %}</a></li>
+  </ul>
+    <div id="herbitem-http-api-details"></div>
     <div id="herbitem-content-main">
      <div id="herbitem-content-found"><div class="herbitem-loader"></div></div>
     </div>
@@ -763,6 +765,7 @@ $("#herbitem-filtering").show();
 herbitemFind(false);
 $("#herbitem-tabs").tabs('option','active',0);
 $("#tab-preloader").remove();
+$("#herbitem-http-api").clone().appendTo("#herbitem-http-api-details");
 $("#herbitem-tabs").show();
 initHerbitemMap();
 });
