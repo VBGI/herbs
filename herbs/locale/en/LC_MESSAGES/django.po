@@ -605,7 +605,7 @@ msgstr "Species epithet"
 
 #: templates/render_herb_plugin.html:18
 msgid "Учитывать синонимы"
-msgstr "Search in synonyms"
+msgstr "Search within synonyms"
 
 #: templates/render_herb_plugin.html:19
 msgid ""
@@ -619,7 +619,7 @@ msgstr "Some herbarium records could include more than one species"
 
 #: templates/render_herb_plugin.html:20
 msgid "Искать в дополнительных видах"
-msgstr "Search in additional species"
+msgstr "Search within additional species"
 
 #: templates/render_herb_plugin.html:22
 msgid "Код"
