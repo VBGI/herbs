@@ -376,7 +376,6 @@ msgid "акронимы гербария"
 msgstr "herbarium acronyms"
 
 #: models.py:205
-#, fuzzy
 msgid "переопределение"
 msgstr "Redetermination: "
 
@@ -771,7 +770,7 @@ msgstr "Table of synonyms is bad formed. Searching by synonyms will be ignored."
 msgid ""
 "Не заданы поля род и/или видовой эпитет, либо такой вид отсутствует в базе. "
 "Условие поиска по синонимам проигнорировано."
-msgstr "Fields 'genus' and/or 'species epithet' wasn't provided, or requested species isn't exists in synonyms table. Searching condition by synonyms will be ignored."
+msgstr "Fields 'genus' and/or 'species epithet' weren't provided, or requested species isn't exists in synonyms table. Searching condition by synonyms will be ignored."
 
 #: views.py:194
 msgid ""
