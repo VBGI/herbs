@@ -670,7 +670,7 @@ msgstr "Map"
 
 #: templates/render_herb_plugin.html:80
 msgid "Автоматизация доступа"
-msgstr "Automation tools"
+msgstr "Automatization tools"
 
 #: templates/render_herb_plugin.html:88
 msgid "Не выбран ни один элемент"
