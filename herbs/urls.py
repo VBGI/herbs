@@ -17,6 +17,6 @@ urlpatterns = patterns('',
    url(r'^sh/', show_herbs),
    url(r'^pdf/([,\d]{1,50})', make_label, name='herbiteminfo'),
    url(r'^bars/([,\d]{1,1500})', make_barcodes, name='herbitembarcodes'),
-   url(r'^(\d{1,15})', show_herbitem),
+   url(r'^[a-zA-Z]*(\d{1,15})', show_herbitem),
    url(r'^json/', json_api)
                        )
