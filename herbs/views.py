@@ -24,7 +24,7 @@ import json
 import re
 import gc
 import csv
-from .hlabel import PDF_DOC
+from .hlabel import PDF_DOC, BARCODE
 try:
     from django.core.cache import cache
 except (ImportError,ImproperlyConfigured):
@@ -602,6 +602,43 @@ def make_label(request, q):
     gc.collect()
     return response
 
+@login_required
+@never_cache
+def make_barcodes(request, q):
+    '''Return pdf-file of barcodes'''
+
+    if len(q) > 2000:
+        return HttpResponse(_('Ваш запрос слишком длинный, выберите меньшее количество элементов'))
+
+    q = q.split(',')
+    q = filter(lambda x: len(x) <= 15, q)
+
+    if len(q) > 100:
+        return HttpResponse(_('Вы не можете создать более 100 этикеток одновременно'))
+
+    q = map(lambda x: int(x), q)
+    try:
+       objs = HerbItem.objects.filter(id__in=q)
+    except HerbItem.DoesNotExist:
+       return HttpResponse(_('Выбранный образцы либо не опубликованы, либо не существуют'))
+    if not objs.exists():
+        return HttpResponse(_('Пустой или неправильно сформированный запрос'))
+    array = []
+    if objs.exists():
+        for item in objs:
+            array.append({'acronym': item.acronym.name if item.acronym else '',
+                          'id': item.pk,
+                          'institute': item.acronym.institute if item.acronym else ''
+                          })
+    # We are ready to generate pdf-output
+    pdf_template = BARCODE()
+    pdf_template.spread_codes(array)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="BCS%s.pdf"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
+    response.write(pdf_template.get_pdf())
+    del pdf_template
+    gc.collect()
+    return response
 
 def _smartify_species(item):
     if item.species:

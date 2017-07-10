@@ -52,6 +52,16 @@ TITLE_FONT_SIZE = 16
 REGULAR_FONT_SIZE = 14
 SMALL_FONT_SIZE = 12
 
+BARCODE_ITEM_HEIGHT = 10
+BARCODE_ITEM_WIDTH = 1
+BARCODE_FONTSIZE = 12
+BARCODE_PAGE_WIDTH = 297.0
+BARCODE_PAGE_HEIGHT = 210.0
+BARCODE_INITX = 10.0
+BARCODE_INITY = 10.0
+BARCODE_VSEP = 7.0
+BARCODE_HSEP = 10.0
+
 HERBURL = 'http://botsad.ru/hitem/%s'
 
 
@@ -399,7 +409,73 @@ class PDF_DOC:
     def create_file(self, fname):
         self.pdf.output(fname, dest='F')
 
+
+class BARCODE:
+    def __init__(self):
+        self.pdf = FPDF(orientation='L')
+        self.pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
+        self.pdf.set_margins(5, 5, 5)
+        self.pdf.set_auto_page_break(0, 0)
+        self.pdf.add_page()
+    def put_barcode(self, acronym, id, institute,  x, y):
+        fs = BARCODE_FONTSIZE
+        code = str(acronym).upper() + str(id)
+        self.pdf.code39(code, x, y, w=BARCODE_ITEM_WIDTH, h=BARCODE_ITEM_HEIGHT)
+        barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(code)
+        self.pdf.set_font('DejaVu', '', fs)
+        cw = self.pdf.get_string_width(code)
+        self.pdf.set_xy(x + barcodesize / 2.0 -  cw / 2.0, y + BARCODE_ITEM_HEIGHT + 3)
+        self.pdf.cell(0, 0, code)
+        fs -= 1
+        self.pdf.set_font('DejaVu', '', fs)
+        cw = self.pdf.get_string_width(institute)
+        while cw > barcodesize:
+            self.pdf.set_font('DejaVu', '', fs)
+            cw = self.pdf.get_string_width(institute)
+            fs -= 1
+        if fs < 10.0:
+           tau = 1
+        else:
+            tau = 2
+        self.pdf.set_font('DejaVu', '', fs)
+        cw = self.pdf.get_string_width(institute)
+        self.pdf.set_xy(x + barcodesize / 2.0 - cw / 2.0 , y - tau)
+        self.pdf.cell(0, 0, institute)
+    def spread_codes(self, codes):
+        vsep = BARCODE_VSEP
+        hsep = BARCODE_HSEP
+        _x, _y = BARCODE_INITX, BARCODE_INITY
+        for code in codes:
+            code_string = str(code['acronym']).upper() + str(code['id'])
+            barwidth = 5.0 * BARCODE_ITEM_WIDTH * len(code_string)
+            barheight = BARCODE_ITEM_HEIGHT + 5
+            if (_x + barwidth + hsep < BARCODE_PAGE_WIDTH):
+                if (_y + barheight + vsep < BARCODE_PAGE_HEIGHT):
+                    self.put_barcode(code['acronym'], code['id'], code['institute'], _x, _y)
+                    _x += barwidth + hsep
+                else:
+                    self.pdf.add_page()
+                    _x, _y = BARCODE_INITX, BARCODE_INITY
+                    self.put_barcode(code['acronym'], code['id'], code['institute'], _x, _y)
+                    _x += barwidth + hsep
+            else:
+                _x = BARCODE_INITX
+                _y += barheight + vsep
+                if  (_y + barheight + vsep < BARCODE_PAGE_HEIGHT):
+                    self.put_barcode(code['acronym'], code['id'], code['institute'], _x, _y)
+                    _x += barwidth + hsep
+                else:
+                    self.pdf.add_page()
+                    _x, _y = BARCODE_INITX, BARCODE_INITY
+                    self.put_barcode(code['acronym'], code['id'], code['institute'], _x, _y)
+                    _x += barwidth + hsep
+    def get_pdf(self):
+        return self.pdf.output(dest='S')
+    def create_file(self, fname):
+        self.pdf.output(fname, dest='F')
+
+
 if __name__ == '__main__':
-    my = PDF_DOC()
-    my._test_page()
-    print my.get_pdf()
+    my = BARCODE()
+    my.put_barcode('VBGI', 1231231, 10, 10)
+    my.create_file('myf.pdf')

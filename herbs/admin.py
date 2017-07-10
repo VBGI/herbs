@@ -49,7 +49,7 @@ unpublish_herbitem.short_description = _(u"Снять с публикации")
 # ---------------------------------------------------------------------------
 
 
-# --------------- Create Pdf-label action -----------------------------------
+# --------------- Create Pdf actions ----------------------------------------
 
 def create_pdf(modeladmin, request, queryset):
     c = queryset.count()
@@ -60,6 +60,18 @@ def create_pdf(modeladmin, request, queryset):
     urlfinal += '?'+''.join([random.choice(string.ascii_letters) for k in range(4)])
     return HttpResponseRedirect(urlfinal)
 create_pdf.short_description = _(u"Создать этикетки")
+
+
+
+def create_barcodes(modeladmin, request, queryset):
+    c = queryset.count()
+    if c == 0 or c > 100:
+        messages.error(request, _(u'Выделите не менее одной и не более 100 гербарных образцов'))
+        return
+    urlfinal = reverse('herbitembarcodes', args=[','.join([str(item.pk) for item in queryset])])
+    urlfinal += '?'+''.join([random.choice(string.ascii_letters) for k in range(4)])
+    return HttpResponseRedirect(urlfinal)
+create_barcodes.short_description = _(u"Создать штрихкоды")
 
 # ---------------------------------------------------------------------------
 
@@ -165,7 +177,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     model = HerbItem
     search_fields = ('id', 'itemcode', 'fieldid', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
-    actions = (publish_herbitem, unpublish_herbitem, create_pdf, 'delete_selected')
+    actions = (publish_herbitem, unpublish_herbitem, create_pdf, create_barcodes,
+               'delete_selected')
 
     def delete_selected(self, request, obj):
         nquery = obj.filter(public=False)
