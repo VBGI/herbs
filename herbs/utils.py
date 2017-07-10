@@ -160,7 +160,7 @@ def herb_as_dict(hitem):
     result.update({'dethistory': dethistory})
     additionals = prefill_related_species(hitem, 'additionals')
     result.update({'additionals': additionals})
-    result.update({'images',[]})   # TODO: Images aren't yet exist!
+    result.update({'images': []})   # TODO: Images aren't yet exist!
     return result
 
 
