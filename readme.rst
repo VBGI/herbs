@@ -22,6 +22,18 @@ Features
   Python/R-based environments for data evaluations;
  
 
+Docs
+----
+
+- Public HTTP API docs:
+  https://github.com/VBGI/herbs/blob/master/herbs/docs/httpapi/en/http_api.rst
+- Making search queries using Python:
+  https://github.com/VBGI/herbs/blob/master/herbs/docs/tutorial/Python/en/Python.ipynb
+- Making search queries using R:
+  [isn't yet completed...]
+  https://github.com/VBGI/herbs/blob/master/herbs/docs/tutorial/R/en/R.ipynb
+
+
 Where is it used?
 -----------------
 
