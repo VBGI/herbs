@@ -81,15 +81,17 @@
       {%if curobj.detailed %}<p><strong>{%trans "Дополнительно"%}:</strong>&nbsp;{{curobj.detailed|smart_language}}</p>{%endif%}
       {%if curobj.altitude %}<p><strong>{%trans "Высота"%}:</strong>&nbsp;{{curobj.altitude|smart_language}}</p>{%endif%}
       {%if curobj.collectedby %}<p><strong>{%trans "Собрал(и)"%}:</strong>&nbsp;{{curobj.collectedby|force_translit}}</p>{%endif%}
-      {%if curobj.colldate %}<p><strong>{%trans "Дата сбора"%}:</strong>&nbsp;{{curobj.collected_s}}{%if curobj.collected_e!=curobj.collected_s%} &mdash; {{curobj.collected_e}}{%endif%}</p>{%endif%}
+      {%if curobj.colldate %}<p><strong>{%trans "Дата сбора"%}:</strong>&nbsp;{{curobj.collected_s}}{%if curobj.collected_e and curobj.collected_e != curobj.collected_s %} &mdash; {{curobj.collected_e}}{%endif%}</p>{%endif%}
       {%if curobj.identifiedby %}<p><strong>{%trans "Определил(и)"%}:</strong>&nbsp;{{curobj.identifiedby|force_translit}}</p>{%endif%}
-      {%if curobj.detdate %}<p><strong>{%trans "Дата определения"%}:</strong>&nbsp; {{curobj.identified_s}}{%if curobj.identified_e!=curobj.identified_s%} &mdash; {{curobj.identified_e}}{%endif%}</p>{%endif%}
+      {%if curobj.detdate %}<p><strong>{%trans "Дата определения"%}:</strong>&nbsp; {{curobj.identified_s}}{%if curobj.identified_e and curobj.identified_e != curobj.identified_s %} &mdash; {{curobj.identified_e}}{%endif%}</p>{%endif%}
 
       {%if curobj.dethistory.all%}
       <p><strong>{%trans "История определений" %}:</strong></p>
       <ul>
         {%for item in curobj.dethistory.all%}
+          {%if item.species %}
         <li>{{item.identifiedby|force_translit}}: {{item.species}} {%if item.identified_s and item.identified_e%} ({{item.identified_s}} &mdash; {{item.identified_e}}) {%elif item.identified_s%} ({{item.identified_s}}) {%elif item.identified_e%} ({{item.identified_e}}){%else%}{%endif%}</li>
+          {%endifa%}
         {%endfor%}
       </ul>
       {%endif%}
