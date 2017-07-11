@@ -1,6 +1,6 @@
-==================================
-Multiuser Herbarium Management App 
-==================================
+===============================================
+Herbarium Management App with Multiuser support
+===============================================
 
 This web application provides multiuser 
 and distributed access for 
