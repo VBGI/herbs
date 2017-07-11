@@ -52,15 +52,23 @@ TITLE_FONT_SIZE = 16
 REGULAR_FONT_SIZE = 14
 SMALL_FONT_SIZE = 12
 
+DEFAULT_PAGE_WIDTH = 210.0
+DEFAULT_PAGE_HEIGHT = 297.0
+
 BARCODE_ITEM_HEIGHT = 10
 BARCODE_ITEM_WIDTH = 1
 BARCODE_FONTSIZE = 12
-BARCODE_PAGE_WIDTH = 297.0
-BARCODE_PAGE_HEIGHT = 210.0
+BARCODE_PAGE_WIDTH = DEFAULT_PAGE_HEIGHT
+BARCODE_PAGE_HEIGHT = DEFAULT_PAGE_WIDTH
 BARCODE_INITX = 10.0
 BARCODE_INITY = 10.0
 BARCODE_VSEP = 7.0
 BARCODE_HSEP = 10.0
+
+
+BRYOPHYTE_TOP_MARGIN = 10.0
+BRYOPHYTE_LEFT_MARGIN = 10.0
+
 
 HERBURL = 'http://botsad.ru/hitem/%s'
 
@@ -93,20 +101,27 @@ def insert_qr(pdf, x, y, code=1234567):
             pass
 
 
-class PDF_DOC:
-    def __init__(self):
-        self.pdf = FPDF(orientation='L')
+class PDF_MIXIN:
+    def __init__(self, orientation='L'):
+        self.pdf = FPDF(orientation=orientation)
         self.pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
         self.pdf.add_font('DejaVui', '', 'DejaVuSans-Oblique.ttf', uni=True)
         self.pdf.add_font('DejaVub', '', 'DejaVuSans-Bold.ttf', uni=True)
+        self.pdf.add_font('Dejavubi', '', 'DejaVuSans-BoldOblique.ttf', uni=True)
         self.pdf.set_margins(5, 5, 5)
         self.pdf.set_auto_page_break(0, 0)
         self.pdf.add_page()
         self._ln = 0
         self.lnhght = LINE_HEIGHT
-
     def goto(self, y, n, inter=0):
         return y + PADDING_Y + (self.lnhght + INTERSPACE) * n + inter
+    def get_pdf(self):
+        return self.pdf.output(dest='S')
+    def create_file(self, fname):
+        self.pdf.output(fname, dest='F')
+
+
+class PDF_DOC(PDF_MIXIN):
 
     def _add_label(self, x, y, family='', species='', spauth='',
                    date='', latitude='', longitude='',
@@ -200,7 +215,8 @@ class PDF_DOC:
         self.pdf.cell(0, 0, country)
 
         if region:
-            region = translit(smartify_language(region, lang='en'), 'ru', reversed=True)
+            region = translit(smartify_language(region, lang='en'), 'ru',
+                              reversed=True)
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
             rw = self.pdf.get_string_width(msgs['region'])
             self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
@@ -403,20 +419,9 @@ class PDF_DOC:
         llabels = [testdict] * 4
         self.tile_labels(llabels)
 
-    def get_pdf(self):
-        return self.pdf.output(dest='S')
 
-    def create_file(self, fname):
-        self.pdf.output(fname, dest='F')
+class BARCODE(PDF_MIXIN):
 
-
-class BARCODE:
-    def __init__(self):
-        self.pdf = FPDF(orientation='L')
-        self.pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
-        self.pdf.set_margins(5, 5, 5)
-        self.pdf.set_auto_page_break(0, 0)
-        self.pdf.add_page()
     def put_barcode(self, acronym, id, institute,  x, y):
         fs = BARCODE_FONTSIZE
         code = str(acronym).upper() + str(id)
@@ -424,7 +429,7 @@ class BARCODE:
         barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(code)
         self.pdf.set_font('DejaVu', '', fs)
         cw = self.pdf.get_string_width(code)
-        self.pdf.set_xy(x + barcodesize / 2.0 -  cw / 2.0, y + BARCODE_ITEM_HEIGHT + 3)
+        self.pdf.set_xy(x + barcodesize / 2.0 - cw / 2.0, y + BARCODE_ITEM_HEIGHT + 3)
         self.pdf.cell(0, 0, code)
         fs -= 1
         self.pdf.set_font('DejaVu', '', fs)
@@ -434,13 +439,14 @@ class BARCODE:
             cw = self.pdf.get_string_width(institute)
             fs -= 1
         if fs < 10.0:
-           tau = 1
+            tau = 1
         else:
             tau = 2
         self.pdf.set_font('DejaVu', '', fs)
         cw = self.pdf.get_string_width(institute)
-        self.pdf.set_xy(x + barcodesize / 2.0 - cw / 2.0 , y - tau)
+        self.pdf.set_xy(x + barcodesize / 2.0 - cw / 2.0, y - tau)
         self.pdf.cell(0, 0, institute)
+
     def spread_codes(self, codes):
         vsep = BARCODE_VSEP
         hsep = BARCODE_HSEP
@@ -461,7 +467,7 @@ class BARCODE:
             else:
                 _x = BARCODE_INITX
                 _y += barheight + vsep
-                if  (_y + barheight + vsep < BARCODE_PAGE_HEIGHT):
+                if (_y + barheight + vsep < BARCODE_PAGE_HEIGHT):
                     self.put_barcode(code['acronym'], code['id'], code['institute'], _x, _y)
                     _x += barwidth + hsep
                 else:
@@ -469,10 +475,39 @@ class BARCODE:
                     _x, _y = BARCODE_INITX, BARCODE_INITY
                     self.put_barcode(code['acronym'], code['id'], code['institute'], _x, _y)
                     _x += barwidth + hsep
-    def get_pdf(self):
-        return self.pdf.output(dest='S')
-    def create_file(self, fname):
-        self.pdf.output(fname, dest='F')
+
+
+class PDF_BRYOPHYTE(PDF_MIXIN):
+    def __init__(self):
+        super(PDF_BRYOPHYTE, self).__init__(orientation='P')
+    def goto(self, y, n, inter=0):
+        return y + BRYOPHYTE_TOP_MARGIN + (self.lnhght + INTERSPACE) * n + inter
+    def generate_label(self, species='', spauth='',
+                       date='', latitude='', longitude='',
+                       place='', country='', region='', collected='',
+                       altitude='', identified='', number='', itemid='',
+                       fieldid='', acronym='', institute='', address=''):
+        # -----  Insert qr-code in the center of the page ------
+
+        # insert helper url
+        self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
+        self.pdf.set_font_size(SMALL_FONT_SIZE - 4)
+        self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0,
+                        DEFAULT_PAGE_HEIGHT / 2.0 + 25.0)
+        self.pdf.cell(0, 0, HERBURL % itemid)
+        lind = 0
+        for sp, auth in species:
+            self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
+                        self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, lind))
+            self.pdf.set_font('DejaVubi', '', REGULAR_FONT_SIZE)
+            spw = self.pdf.get_string_width(sp)
+            self.pdf.cell(0, 0, sp)
+            self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
+                        self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, lind))
+            self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
+            self.pdf.cell(0, 0, auth)
+            lind += 1
+
 
 
 if __name__ == '__main__':

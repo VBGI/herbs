@@ -24,7 +24,7 @@ import json
 import re
 import gc
 import csv
-from .hlabel import PDF_DOC, BARCODE
+from .hlabel import PDF_DOC, BARCODE, PDF_BRYOPHYTE
 try:
     from django.core.cache import cache
 except (ImportError,ImproperlyConfigured):
@@ -533,22 +533,8 @@ def advice_select(request):
     return HttpResponse(json.dumps(context), content_type="application/json;charset=utf-8")
 
 
-@login_required
-@never_cache
-def make_label(request, q):
-    '''Return pdf-doc or error page otherwise.
-    '''
-    if len(q) > 100:
-        return HttpResponse(_('Ваш запрос слишком длинный, выберите меньшее количество элементов'))
-
-    q = q.split(',')
-    q = filter(lambda x: len(x) <= 15, q)
-
-    if len(q) > 4:
-        return HttpResponse(_('Вы не можете создать более 4-х этикеток одновременно'))
-
-
-    # --------  Gathering data for labels ... --------
+def collect_label_data(q):
+    result = []
     q = map(lambda x: int(x), q)
     try:
        objs = HerbItem.objects.filter(public=True, id__in=q)
@@ -557,11 +543,9 @@ def make_label(request, q):
     if not objs.exists():
         return HttpResponse(_('Пустой или неправильно сформированный запрос'))
     lang = translation.get_language()
-    translation.activate('en')  # Labels are constructed in Eng. only
-    llabel_data = []
+    translation.activate('en')
     if objs.exists():
         for item in objs:
-            # -------------- get indentifiedby ---------------
             if not item.identifiedby:
                 try:
                     dhist = DetHistory.objects.filter(herbitem=item).latest('identified_s')
@@ -589,18 +573,63 @@ def make_label(request, q):
                         'gform': item.devstage or '',
                         'fieldid': item.fieldid
                      })
-            llabel_data.append(ddict)
+            result.append(ddict)
+    translation.activate(lang)
+    return result
 
-    # We are ready to generate pdf-output
+
+@login_required
+@never_cache
+def make_label(request, q):
+    '''Return pdf-doc or error page otherwise'''
+    if len(q) > 100:
+        return HttpResponse(_('Ваш запрос слишком длинный, выберите меньшее количество элементов'))
+
+    q = q.split(',')
+    q = filter(lambda x: len(x) <= 15, q)
+
+    if len(q) > 4:
+        return HttpResponse(_('Вы не можете создать более 4-х этикеток одновременно'))
+    label_data = collect_label_data(q)
+
+    # Generate pdf-output
     pdf_template = PDF_DOC()
-    pdf_template.tile_labels(llabel_data)
+    pdf_template.tile_labels(label_data)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
     response.write(pdf_template.get_pdf())
-    translation.activate(lang)
     del pdf_template
     gc.collect()
     return response
+
+
+
+@login_required
+@never_cache
+def make_bryopyte_label(request, q):
+    '''Return pdf-doc or error page otherwise'''
+    if len(q) > 2000:
+        return HttpResponse(_('Ваш запрос слишком длинный, выберите меньшее количество элементов'))
+
+    q = q.split(',')
+    q = filter(lambda x: len(x) <= 15, q)
+
+    if len(q) > 100:
+        return HttpResponse(_('Вы не можете создать более 100 этикеток одновременно'))
+    label_data = collect_label_data(q)
+
+    # Generate pdf-output
+    pdf_template = PDF_BRYOPHYTE()
+    pdf_template.generate_labels(label_data)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
+    response.write(pdf_template.get_pdf())
+    del pdf_template
+    gc.collect()
+    return response
+
+
+
 
 @login_required
 @never_cache
