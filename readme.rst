@@ -25,7 +25,7 @@ Features
 Docs
 ----
 
-- Public HTTP API docs:
+- Public HTTP API:
   https://github.com/VBGI/herbs/blob/master/herbs/docs/httpapi/en/http_api.rst
 - Making search queries using Python:
   https://github.com/VBGI/herbs/blob/master/herbs/docs/tutorial/Python/en/Python.ipynb
