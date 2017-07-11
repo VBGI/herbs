@@ -18,7 +18,7 @@ Features
 * label's barcode generation;
 * per-user permission management;
 * arbitrary number of herbarium groups;
-* HTTP API: well documented service for queries automatization, allowing easy integration with 
+* HTTP API: a service for query automatization, allowing easy integration with 
   Python/R-based environments for data evaluations;
  
 
