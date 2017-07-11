@@ -1,28 +1,34 @@
-=======================
-Multiuser Herbarium App 
-=======================
+==================================
+Multiuser Herbarium Management App 
+==================================
 
-This app provides multiuser and distributed access for manipulating (creating, editing, deleting) electronic herbarium records with flexible permission organization.
+This web application provides multiuser 
+and distributed access for 
+manipulating (creating, editing, deleting) 
+digital herbarium records with 
+flexible permission management tools.
+
 It is built on top of the Django Web Framework.
 
 Features
 --------
 
-* automatic herbarium label generation;
+* automatic label generation (as a pdf-file);
+* QR-code embegging;
+* label's barcode generation;
 * per-user permission management;
-* arbitrary herbarium groups;
-* herbarium groups nesting;
+* arbitrary number of herbarium groups;
+* HTTP API: well documented service for queries automatization, allowing easy integration with 
+  Python/R-based environments for data evaluations;
+ 
 
+Where is it used?
+-----------------
 
-Status
-------
-
-Currently, it is actively used to manage electronic herbarium records at the VBGI (http://botsad.ru).
-
+http://botsad.ru/herbarium/
 
 
 Author
 ------
 Dmitry E. Kislov (kislov@easydan.com)
-
 
