@@ -648,7 +648,7 @@ $('select').on("select2:selecting", function(e) {
 $("#latlon-rect").click(function(){
    if ((map != null && rectSelector == null)){ 
              initRectSelection();
-             updateLanLng();
+             updateLatLng();
              $("#latlon-rect").attr('title', "{%trans "Искать в заданной области"%}");
    }
   else {
