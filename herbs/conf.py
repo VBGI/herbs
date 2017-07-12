@@ -27,7 +27,7 @@ class HerbsAppConf(AppConf):
     SEARCHFORM_ORDERING_FIELDS = [('species', _('Видовой эпитет')),
                                   ('collected_s', _('Дата сбора')),
                                   ('identified_s', _('Дата определения')),
-                                  ('ID', _('Порядковый номер')),
+                                  ('id', _('Порядковый номер')),
                                   ('collectedby', _('Собрали')),
                                   ('identifiedby', _('Определили')),
                                   ('country', _('Страна')),

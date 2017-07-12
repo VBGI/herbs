@@ -290,9 +290,9 @@ def get_data(request):
             else:
                 ordering_direction = True
 
-            ordering_field = request.GET.get('orderby', 'pk')
+            ordering_field = request.GET.get('orderby', 'id')
             if ordering_field not in [x[0] for x in settings.HERBS_SEARCHFORM_ORDERING_FIELDS]:
-                ordering_field = 'pk'
+                ordering_field = 'id'
             ord_string = '' if ordering_direction else '-'
             objects_filtered = objects_filtered.order_by(ord_string\
                                                         + ordering_field)
