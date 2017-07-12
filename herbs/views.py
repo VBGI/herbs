@@ -512,9 +512,9 @@ def advice_select(request):
         if cfield == 'family':
             famquery = Family.objects.annotate(herbitem_count=Count('genus__species__herbitem'))
             if query:
-                objects = famquery.filter(name__istartswith=query, herbitem_count__gt=0)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+                objects = famquery.filter(name__istartswith=query, herbitem_count__gt=0).order_by('name')
             else:
-                objects = famquery.filter(herbitem_count__gt=0)[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]
+                objects = famquery.filter(herbitem_count__gt=0).order_by('name')
             data = [{'id': item.pk, 'text': item.name} for item in objects]
         elif cfield == 'genus':
             genquery = Genus.objects.annotate(herbitem_count=Count('species__herbitem'))
@@ -532,7 +532,7 @@ def advice_select(request):
                     objects = genquery.filter(name__istartswith=query, herbitem_count__gt=0)
                 else:
                     objects = genquery.filter(herbitem_count__gt=0)
-            data = [{'id': item.pk, 'text': item.name} for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
+            data = [{'id': item.pk, 'text': item.name} for item in objects.order_by('name')]
         elif cfield == 'country':
             objects = Country.objects.filter(Q(name_ru__icontains=query)|
                                              Q(name_en__icontains=query))
