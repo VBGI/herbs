@@ -615,9 +615,16 @@ else{
 };
 
 function applyFilter(){
+  switchTabs();
   cpage = 1
   herbitemFind(false)
 }
+
+function switchTabs(){var currentTab = $("#herbitem-tabs").tabs('option', 'active');
+  if ((currentTab == 1)||(currentTab == 3)){
+     $("#herbitem-tabs").tabs({active: 0})
+  }}
+
 
 //<!-- ============ When DOM is ready ============  -->
 $(document).ready(function() { 
@@ -625,15 +632,10 @@ $(document).ready(function() {
 bindSearch('family', "{% trans 'Семейство'%}");
 bindSearch('genus', "{% trans 'Род'%}");
 bindSearch('country', "{% trans 'Страну'%}");
-
 $('#herbitemform-button').click(function (event){
-  var currentTab = $("#TabList").tabs('option', 'active');
-  if ((currentTab == 1) or (currentTab == 3)){
-     $("#herbitem-tabs").tabs({active: 0})
-  }
-	event.preventDefault();
+  event.preventDefault();
+  switchTabs();
   cpage = 1;
-
 	herbitemFind(false);
 	})
 $("#colstart-input, #colend-input").click(function (event){
