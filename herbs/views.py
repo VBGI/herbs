@@ -281,8 +281,22 @@ def get_data(request):
             warnings.append(_("Ни одного элемента не удовлетворяет условиям поискового запроса"))
             return (None, 1, 0, objects_filtered, errors, warnings)
         else:
-            # ------- Sorting items --------------
-            # sorting isn't implemented yet
+            # --------- Applying ordering to results retrieved ----------------
+            ordering_direction = request.GET.get('order', False)
+            if ordering_direction == 'true':
+                ordering_direction = True
+            elif ordering_direction == 'false':
+                ordering_direction =  False
+            else:
+                ordering_direction = True
+
+            ordering_field = request.GET.get('orderby', 'pk')
+            if ordering_field not in [x[0] for x in settings.HERBS_SEARCHFORM_ORDERING_FIELDS]:
+                ordering_field = 'pk'
+            ord_string = '' if ordering_direction else '-'
+            objects_filtered = objects_filtered.orderby(ord_string\
+                                                        + ordering_field)
+
             # ---------  pagination-----------------
             pagcount = request.GET.get('pagcount', '')
             page = request.GET.get('page', '1')

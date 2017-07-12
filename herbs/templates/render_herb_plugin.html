@@ -67,6 +67,16 @@ Created: 30 Aug, 2016
                {%endfor%}
               </select>   
            </li>
+           <li><select id="herbitem-ordering">
+               <option value="">{%trans "Упорядочить по"%}</option>
+               {%for ordering in orderings%} 
+                 <option value="{{ordering.0}}">{{ordering.1}}</option>
+               {%endfor%}
+              </select>   
+           </li>
+           <li>
+          <input type="checkbox" name="order" value="False" id="herbitem-order-flag">{%trans "Изменить порядок"%}
+           </li>
          <ul>
 </div>
 </div> 
@@ -388,8 +398,8 @@ function herbitemFind(csvFlag){
   var additionals = $("#additionals-input").is(":checked"); 
 
   // TODO: orderby field, increasing decreasing ordering
-  var orderby = null;
-  var order = null;
+  var orderby = $("#herbitem-ordering").val();
+  var order = $("#herbitem-order-flag").is(":checked");
   var latl = $('#latl-input').val();
   var latu = $('#latu-input').val();
   var lonl = $('#lonl-input').val();
@@ -668,6 +678,7 @@ $("#searchform-clear").click(function (event){
 	event.preventDefault();
 $("#synonyms-input").prop('checked', false);
 $("#additionals-input").prop('checked', false);
+$("#herbitem-order-flag").prop('checked', false);
 clearMarkers();
 $("#synonyms-error-message").hide(); 
 $('#family-input').select2('val',''); 
@@ -743,7 +754,7 @@ $("#synonyms-input").change(function(){
   }});
 
 
-$("#herbitem-search-filtering select").change(applyFilter);
+$("#herbitem-search-filtering select, #herbitem-search-filtering input").change(applyFilter);
 $("#herbitem-tabs").tabs({active: 0, 
   activate: function(el,ui){
    if (ui.newPanel.selector == "#herbitem-content-main"){

@@ -168,7 +168,7 @@ ul#herbitem-search-filtering li{
   margin-right: 5px;
 }
 
-#herbitem-pagination, #herbitem-acronym, #herbitem-subdivision{
+#herbitem-pagination, #herbitem-acronym, #herbitem-subdivision, #herbitem-ordering{
 max-width: 150px;
 height: 3em;
 }

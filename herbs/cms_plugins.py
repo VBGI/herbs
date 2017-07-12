@@ -16,7 +16,8 @@ class PrintHerbitemObjects(CMSPluginBase):
         context.update({'searchform': SearchForm(),
                         'herbitem_personal_url': settings.HERBS_HERBITEM_PAGE,
                         'acronyms': HerbAcronym.objects.all(),
-                        'subdivisions': Subdivision.objects.all()
+                        'subdivisions': Subdivision.objects.all(),
+                        'orderings': settings.HERBS_SEARCHFORM_ORDERING_FIELDS
                         })
         return context
 
