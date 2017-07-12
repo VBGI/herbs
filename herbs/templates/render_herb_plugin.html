@@ -104,26 +104,25 @@ Created: 30 Aug, 2016
     <div id="latlon-container">
         <div id="lat-bottom">
             <label for="latl-input">Lat, min</label>
-            <input id="latl-input" title="Широта, град.">
+            <input id="latl-input" title="{%trans "Широта, град." %}">
         </div>
         <div id="lat-top">
             <label for="latu-input">Lat, max</label>
-            <input id="latu-input" title="Широта, град.">
+            <input id="latu-input" title="{%trans "Широта, град." %}">
         </div>
         <div id="lon-right">
             <label for="lonu-input">Lon, max</label>
-            <input id="lonu-input" title="Долгота, град.">
+            <input id="lonu-input" title="{%trans "Долгота, град." %}">
         </div>
         <div id="lon-left">
             <label for="lonl-input">Lon, min</label>
-            <input id="lonl-input" title="Долгота, град.">
+            <input id="lonl-input" title="{%trans "Долгота, град." %}">
         </div>
-        <div id="latlon-rect" title="{%trans "Искать в заданной области"%}">
+        <div id="latlon-rect" title="{%trans "Задать область поиска"%}">
             <input type="submit" id="herbitem-rectangle" value="">
         </div>
         <div class="clear-rect-bounds" title="{%trans "Очистить условия поиска по области"%}"><span class="ui-icon ui-icon-trash"></span></div>
     </div>
-    <p>{%trans "Чтобы инициализировать область поиска дважды кликните мышкой" %}</p> 
         <div id="herbitem-markers-available"></div>
         <div id="herbitem-map-placeholder"></div>
         <div>*{%trans "Отображены только те записи, у которых заданы координаты сбора" %} </div>
@@ -624,7 +623,6 @@ function switchTabs(){var currentTab = $("#herbitem-tabs").tabs('option', 'activ
   }}
 
 
-//<!-- ============ When DOM is ready ============  -->
 $(document).ready(function() { 
 
 bindSearch('family', "{% trans 'Семейство'%}");
@@ -650,7 +648,9 @@ $('select').on("select2:selecting", function(e) {
 $("#latlon-rect").click(function(){
    if ((map != null && rectSelector == null)){ 
              initRectSelection();
-             updateLanLng();}
+             updateLanLng();
+             $(this).title="{%trans "Искать в заданной области"%}";
+   }
   else {
   cpage=1;
   herbitemFind(false);
