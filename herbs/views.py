@@ -294,7 +294,7 @@ def get_data(request):
             if ordering_field not in [x[0] for x in settings.HERBS_SEARCHFORM_ORDERING_FIELDS]:
                 ordering_field = 'pk'
             ord_string = '' if ordering_direction else '-'
-            objects_filtered = objects_filtered.orderby(ord_string\
+            objects_filtered = objects_filtered.order_by(ord_string\
                                                         + ordering_field)
 
             # ---------  pagination-----------------
