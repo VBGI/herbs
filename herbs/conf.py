@@ -24,7 +24,7 @@ class HerbsAppConf(AppConf):
 
     BILINGUAL_DELIMITER = "|"
 
-    SEARCHFORM_ORDERING_FIELDS = [('species', _('Видовой эпитет')),
+    SEARCHFORM_ORDERING_FIELDS = [('species__name', _('Видовой эпитет')),
                                   ('collected_s', _('Дата сбора')),
                                   ('identified_s', _('Дата определения')),
                                   ('id', _('Порядковый номер')),
