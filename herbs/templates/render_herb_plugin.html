@@ -627,8 +627,13 @@ bindSearch('genus', "{% trans 'Род'%}");
 bindSearch('country', "{% trans 'Страну'%}");
 
 $('#herbitemform-button').click(function (event){
+  var currentTab = $("#TabList").tabs('option', 'active');
+  if ((currentTab == 1) or (currentTab == 3)){
+     $("#herbitem-tabs").tabs({active: 0})
+  }
 	event.preventDefault();
   cpage = 1;
+
 	herbitemFind(false);
 	})
 $("#colstart-input, #colend-input").click(function (event){
