@@ -309,13 +309,12 @@ class PDF_DOC(PDF_MIXIN):
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         ss = 0
         fline = []
-        fflag = True
         collected = translit(collected, 'ru', reversed=True)
         for k in collected.split():
             ss += self.pdf.get_string_width(k + ' ')
-            if (ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)) and fflag:
+            if (ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)):
                 fline.append(k)
-            if (ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)) and fflag:
+            if (ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)):
                 break
         if fline:
             fline = ' '.join(fline).strip()
@@ -332,13 +331,20 @@ class PDF_DOC(PDF_MIXIN):
         self.pdf.cell(0, 0, msgs['det'])
         tw = self.pdf.get_string_width(msgs['det'])
         self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
-        iw = self.pdf.get_string_width(identified)
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
-        if ((tw + iw) > (LABEL_WIDTH-PADDING_X-QR_SIZE)):
-            self.pdf.cell(0, 0, '____________________')
-        else:
-            self.pdf.cell(0, 0, identified)
-
+        ss = 0
+        fline = []
+        for k in identified.split():
+            ss += self.pdf.get_string_width(k + ' ')
+            if (ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)):
+                fline.append(k)
+            if (ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)):
+                break
+        if fline:
+            fline = ' '.join(fline).strip()
+            if fline[-1] == ',':
+                fline = fline[:-1]
+            self.pdf.cell(0, 0, fline)
         # ----------------------------------------------
 
         # -----------------------------------------------
