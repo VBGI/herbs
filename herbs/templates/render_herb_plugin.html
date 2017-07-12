@@ -649,7 +649,7 @@ $("#latlon-rect").click(function(){
    if ((map != null && rectSelector == null)){ 
              initRectSelection();
              updateLanLng();
-             $(this).title="{%trans "Искать в заданной области"%}";
+             $("#latlon-rect").attr('title', "{%trans "Искать в заданной области"%}");
    }
   else {
   cpage=1;
