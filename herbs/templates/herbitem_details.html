@@ -54,9 +54,9 @@
       {%endif%}
       {%if curobj.coordinates.latitude and curobj.coordinates.longitude %}
       <p><strong>{%trans "Координаты сбора"%}:</strong></p>
-      <p><strong>{%trans "Широта"%}:</strong> {{curobj.coordinates.latitude}}&deg;, &nbsp; 
-      <strong>{%trans "Долгота"%}:</strong> {{curobj.coordinates.longitude}}&deg;</p>
-       <div id="herbitem-map" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"f" }}"></div>
+      <p><strong>{%trans "Широта"%}:</strong> {{curobj.coordinates.latitude|stringformat:"2.5f"}}&deg;, &nbsp; 
+      <strong>{%trans "Долгота"%}:</strong> {{curobj.coordinates.longitude|stringformat:"2.5f"}}&deg;</p>
+       <div id="herbitem-map" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"2.5f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"2.5f" }}"></div>
        <script type="text/javascript">
           function initMap() {
             var markerpos = document.querySelector('#herbitem-map')
