@@ -9,3 +9,4 @@ project.db
 testprj/media
 *.db
 *.pkl
+.idea
