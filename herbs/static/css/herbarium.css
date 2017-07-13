@@ -54,6 +54,7 @@ font-size: medium;
 #herbitemform-button{
 padding:10px;
 font-size:medium;
+margin-right: 5px;
 }
 
 #herbitemform-button:hover{
