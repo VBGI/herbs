@@ -106,7 +106,7 @@ def insert_qr(pdf, x, y, code='1234567', lw=LABEL_WIDTH, lh=LABEL_HEIGHT):
             pass
 
 
-class PDF_MIXIN:
+class PDF_MIXIN(object):
     def __init__(self, orientation='L'):
         self.pdf = FPDF(orientation=orientation)
         self.pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
@@ -492,7 +492,8 @@ class BARCODE(PDF_MIXIN):
                     _x += barwidth + hsep
 
 
-class PDF_BRYOPHYTE(PDF_MIXIN):
+class PDF_BRYOPHYTE(BARCODE):
+
     def __init__(self):
         super(PDF_BRYOPHYTE, self).__init__(orientation='P')
 
@@ -574,14 +575,14 @@ class PDF_BRYOPHYTE(PDF_MIXIN):
 
         # Barcode insertion
         barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() + str(itemid))
-        BARCODE.put_barcode(self, acronym, itemid, institute,
+        self.put_barcode(acronym, itemid, institute,
                             DEFAULT_PAGE_WIDTH - barcodesize - BRYOPHYTE_LEFT_MARGIN,
                             DEFAULT_PAGE_HEIGHT - 20)
 
 
     def generate_labels(self, labels):
         for label in labels:
-            self.generate_labe(**label)
+            self.generate_label(**label)
             self.pdf.add_page()
 
 

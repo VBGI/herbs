@@ -645,11 +645,14 @@ def make_bryopyte_label(request, q):
         label.pop('address', None)
         label.pop('number', None)
         label.pop('family', None)
-        allspecies = [[label.pop('species', ''),
-                       label.pop('spauth', '')]] + label.pop('addspeces', [])
+        allspecies = [[label['species'],
+                       label['spauth']]] + label['addspecies']
+        label.pop('addspecies', None)
+        label.pop('spauth', None)
+        label.pop('species', None)
         label.update({'allspecies': allspecies})
         preprocessed_labels.append(label)
-    # Generate pdf-output
+    # Generate pdf-outputmake_bryophyte_label
     pdf_template = PDF_BRYOPHYTE()
     pdf_template.generate_labels(preprocessed_labels)
     response = HttpResponse(content_type='application/pdf')

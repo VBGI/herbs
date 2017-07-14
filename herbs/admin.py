@@ -62,6 +62,16 @@ def create_pdf(modeladmin, request, queryset):
 create_pdf.short_description = _(u"Создать этикетки")
 
 
+def create_pdf_envelope(modeladmin, request, queryset):
+    c = queryset.count()
+    if c == 0 or c > 4:
+        messages.error(request, _(u'Выделите не менее одной и не более 4-х гербарных образцов'))
+        return
+    urlfinal = reverse('herbitembryo', args=[','.join([str(item.pk) for item in queryset])])
+    urlfinal += '?'+''.join([random.choice(string.ascii_letters) for k in range(4)])
+    return HttpResponseRedirect(urlfinal)
+create_pdf_envelope.short_description = _(u"Создать этикетки-конверты")
+
 
 def create_barcodes(modeladmin, request, queryset):
     c = queryset.count()
@@ -178,7 +188,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     search_fields = ('id', 'itemcode', 'fieldid', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, create_barcodes,
-               'delete_selected')
+               create_pdf_envelope, 'delete_selected')
 
     def delete_selected(self, request, obj):
         nquery = obj.filter(public=False)
