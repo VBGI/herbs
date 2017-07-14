@@ -587,7 +587,8 @@ class PDF_BRYOPHYTE(BARCODE):
     def generate_labels(self, labels):
         for label in labels:
             self.generate_label(**label)
-            self.pdf.add_page()
+            if label != labels[-1]:
+                self.pdf.add_page()
 
 
 if __name__ == '__main__':
