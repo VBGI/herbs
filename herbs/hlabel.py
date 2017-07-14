@@ -543,7 +543,7 @@ class PDF_BRYOPHYTE(BARCODE):
                         self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, self._ln))
 
         if collected:
-            leg_info = 'Leg. ' + collected
+            leg_info = 'Leg. ' + translit(collected, 'ru', reversed=True)
         else:
             leg_info = ''
 
@@ -554,10 +554,10 @@ class PDF_BRYOPHYTE(BARCODE):
         if longitude:
             leg_info += ' Lon.: %s;' % longitude
         if altitude:
-            leg_info += ' Alt.: %s;' % altitude
+            leg_info += ' Alt.: %s;' % translit(altitude, 'ru', reversed=True)
 
         if identified:
-            det_info = 'Det. ' + identified
+            det_info = 'Det. ' + translit(identified, 'ru', reversed=True)
         else:
             det_info = ''
         if leg_info:
@@ -565,7 +565,11 @@ class PDF_BRYOPHYTE(BARCODE):
                                 5, leg_info)
 
         self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
-        main_info = '; '.join([x for x in [country, place, region, district, note] if x])
+        main_info = '; '.join([x for x in [smartify_language(country, lang='en'),
+                                           smartify_language(region, lang='en'),
+                                           smartify_language(district, lang='en'),
+                                           smartify_language(place, lang='en'),
+                                           smartify_language(note, lang='en')] if x])
         self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN,
                             5, main_info)
         self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
