@@ -24,13 +24,14 @@ msgs = {'org':   'Herbarium',
 
 FPDF = fpdf.FPDF
 
-BASE_URL = os.path.dirname(os.path.abspath(__file__))
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
-fpdf.set_global('FPDF_FONT_DIR', os.path.join(BASE_URL, './fonts'))
+fpdf.set_global('FPDF_FONT_DIR', os.path.join(BASE_PATH, './fonts'))
 
-BGI_LOGO_IMG = os.path.join(BASE_URL, './imgs', 'bgi_logo.png')
+BGI_LOGO_IMG = os.path.join(BASE_PATH, './imgs', 'bgi_logo.png')
 
 
+# ----------- Common settings -----------------------
 # TODO:
 # Settings should be moved to conf-file
 LABEL_WIDTH = 140
@@ -55,6 +56,10 @@ SMALL_FONT_SIZE = 12
 DEFAULT_PAGE_WIDTH = 210.0
 DEFAULT_PAGE_HEIGHT = 297.0
 
+HERB_URL = 'http://botsad.ru/hitem/%s'
+# ---------------------------------------------------
+
+# ------------- Barcode settings --------------------
 BARCODE_ITEM_HEIGHT = 10
 BARCODE_ITEM_WIDTH = 1
 BARCODE_FONTSIZE = 12
@@ -64,16 +69,16 @@ BARCODE_INITX = 10.0
 BARCODE_INITY = 10.0
 BARCODE_VSEP = 7.0
 BARCODE_HSEP = 10.0
+# ---------------------------------------------------
 
 
+# ------------ Bryophyte label settings -------------
 BRYOPHYTE_TOP_MARGIN = 10.0
-BRYOPHYTE_LEFT_MARGIN = 10.0
+BRYOPHYTE_LEFT_MARGIN = 45.0
+# ---------------------------------------------------
 
 
-HERBURL = 'http://botsad.ru/hitem/%s'
-
-
-def insert_qr(pdf, x, y, code=1234567):
+def insert_qr(pdf, x, y, code='1234567', lw=LABEL_WIDTH, lh=LABEL_HEIGHT):
     if len(code) > 8:
         return
     qr = qrcode.QRCode(
@@ -82,17 +87,17 @@ def insert_qr(pdf, x, y, code=1234567):
         box_size=10,
         border=2,
     )
-    qr.add_data(HERBURL % code)
+    qr.add_data(HERB_URL % code)
     qr.make(fit=True)
     img = qr.make_image()
-    temp_name = os.path.join(BASE_URL, './tmp',
+    temp_name = os.path.join(BASE_PATH, './tmp',
                              next(tempfile._get_candidate_names()))
     temp_name += '.png'
     try:
         with open(temp_name, 'w') as tmpfile:
             img.save(tmpfile)
             tmpfile.flush()
-            pdf.set_xy(x + LABEL_WIDTH - QR_SIZE - 2, y + LABEL_HEIGHT - QR_SIZE - 4)
+            pdf.set_xy(x + lw - QR_SIZE - 2, y + lh - QR_SIZE - 4)
             pdf.image(temp_name, w=QR_SIZE, h=QR_SIZE)
     finally:
         try:
@@ -113,10 +118,13 @@ class PDF_MIXIN:
         self.pdf.add_page()
         self._ln = 0
         self.lnhght = LINE_HEIGHT
+
     def goto(self, y, n, inter=0):
         return y + PADDING_Y + (self.lnhght + INTERSPACE) * n + inter
+
     def get_pdf(self):
         return self.pdf.output(dest='S')
+
     def create_file(self, fname):
         self.pdf.output(fname, dest='F')
 
@@ -124,10 +132,11 @@ class PDF_MIXIN:
 class PDF_DOC(PDF_MIXIN):
 
     def _add_label(self, x, y, family='', species='', spauth='',
-                   date='', latitude='', longitude='',
+                   coldate='', latitude='', longitude='',
                    place='', country='', region='', collected='',
                    altitude='', identified='', number='', itemid='', fieldid='',
-                   acronym='', institute='', address='', gform=''):
+                   acronym='', institute='', address='', gform='', addspecies='',
+                   district=''):
         self.pdf.rect(x, y, LABEL_WIDTH, LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
         self.pdf.image(BGI_LOGO_IMG, w=LOGO_WIDTH, h=LOGO_HEIGHT)
@@ -221,7 +230,7 @@ class PDF_DOC(PDF_MIXIN):
             rw = self.pdf.get_string_width(msgs['region'])
             self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
             rtw = self.pdf.get_string_width(region)
-            if (PADDING_X + 4 + tw + cw + rw + rtw < LABEL_WIDTH):
+            if PADDING_X + 4 + tw + cw + rw + rtw < LABEL_WIDTH:
                 self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
                 self.pdf.set_xy(x + PADDING_X + 4 + tw + cw,
                                 self.goto(y, self._ln))
@@ -298,7 +307,7 @@ class PDF_DOC(PDF_MIXIN):
         tw = self.pdf.get_string_width(msgs['date'])
         self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
-        self.pdf.cell(0, 0, date)
+        self.pdf.cell(0, 0, coldate)
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
         # -------------- Collectors --------------------
         self._ln += 1
@@ -312,9 +321,9 @@ class PDF_DOC(PDF_MIXIN):
         collected = translit(collected, 'ru', reversed=True)
         for k in collected.split():
             ss += self.pdf.get_string_width(k + ' ')
-            if (ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)):
+            if ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE):
                 fline.append(k)
-            if (ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)):
+            if ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE):
                 break
         if fline:
             fline = ' '.join(fline).strip()
@@ -336,9 +345,9 @@ class PDF_DOC(PDF_MIXIN):
         fline = []
         for k in identified.split():
             ss += self.pdf.get_string_width(k + ' ')
-            if (ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)):
+            if ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE):
                 fline.append(k)
-            if (ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE)):
+            if ss >= (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE):
                 break
         if fline:
             fline = ' '.join(fline).strip()
@@ -351,9 +360,9 @@ class PDF_DOC(PDF_MIXIN):
 
         # Extra info (to get without qr reader ----------
         self.pdf.set_font_size(SMALL_FONT_SIZE-4)
-        tw = self.pdf.get_string_width(HERBURL % itemid)
+        tw = self.pdf.get_string_width(HERB_URL % itemid)
         self.pdf.set_xy(x + LABEL_WIDTH - PADDING_X - tw, y + LABEL_HEIGHT - 2)
-        self.pdf.cell(0, 0, HERBURL % itemid)
+        self.pdf.cell(0, 0, HERB_URL % itemid)
 
         # ----------------------------------------------
 
@@ -421,7 +430,7 @@ class PDF_DOC(PDF_MIXIN):
                     'acronym': 'VBGI',
                     'institute': 'Botanical Garden-Institute FEB RAS',
                     'address': '690018, Russia, Vladivosotk, Makovskogo st. 142',
-                    'gform': 'G'}
+                    'gform': 'G', 'addspecies':''}
         llabels = [testdict] * 4
         self.tile_labels(llabels)
 
@@ -486,34 +495,94 @@ class BARCODE(PDF_MIXIN):
 class PDF_BRYOPHYTE(PDF_MIXIN):
     def __init__(self):
         super(PDF_BRYOPHYTE, self).__init__(orientation='P')
-    def goto(self, y, n, inter=0):
-        return y + BRYOPHYTE_TOP_MARGIN + (self.lnhght + INTERSPACE) * n + inter
-    def generate_label(self, species='', spauth='',
-                       date='', latitude='', longitude='',
+
+    def goto(self, y, n, inter=0, line_height=5):
+        return y + BRYOPHYTE_TOP_MARGIN + line_height * n + inter
+
+    def generate_label(self, allspecies='',
+                       coldate='', latitude='', longitude='',
                        place='', country='', region='', collected='',
                        altitude='', identified='', number='', itemid='',
-                       fieldid='', acronym='', institute='', address=''):
+                       fieldid='', acronym='', institute='', note='',
+                       district=''):
         # -----  Insert qr-code in the center of the page ------
-
+        insert_qr(self.pdf, DEFAULT_PAGE_WIDTH / 2.0 + QR_SIZE / 2.0,
+                  DEFAULT_PAGE_HEIGHT / 2.0, code=itemid, lh=0, lw=0)
         # insert helper url
         self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
         self.pdf.set_font_size(SMALL_FONT_SIZE - 4)
-        self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0,
-                        DEFAULT_PAGE_HEIGHT / 2.0 + 25.0)
-        self.pdf.cell(0, 0, HERBURL % itemid)
-        lind = 0
-        for sp, auth in species:
+        urlw = self.pdf.get_string_width(HERB_URL % itemid)
+        self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - urlw / 2 - 2,
+                        DEFAULT_PAGE_HEIGHT / 2.0)
+        self.pdf.cell(0, 0, HERB_URL % itemid)
+        self._ln = 0
+
+        if fieldid:
+            field_string = 'Field id: %s' % fieldid
+            self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE - 2)
+            fsw = self.pdf.get_string_width(field_string)
+            self.pdf.set_xy(DEFAULT_PAGE_WIDTH - BRYOPHYTE_LEFT_MARGIN - fsw,
+                            self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0,
+                                      self._ln - 1))
+            self.pdf.cell(0, 0, field_string)
+
+        for sp, auth in allspecies:
             self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
-                        self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, lind))
-            self.pdf.set_font('DejaVubi', '', REGULAR_FONT_SIZE)
+                        self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, self._ln))
+            self.pdf.set_font('DejaVubi', '', SMALL_FONT_SIZE)
             spw = self.pdf.get_string_width(sp)
             self.pdf.cell(0, 0, sp)
             self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
-                        self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, lind))
-            self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
+                        self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, self._ln))
+            self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
             self.pdf.cell(0, 0, auth)
-            lind += 1
+            self._ln += 1
+        self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
+        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
+                        self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, self._ln))
 
+        if collected:
+            leg_info = 'Leg. ' + collected
+        else:
+            leg_info = ''
+
+        if coldate:
+            leg_info += ' (%s);' % coldate
+        if latitude:
+            leg_info += ' Lat.: %s;' % latitude
+        if longitude:
+            leg_info += ' Lon.: %s;' % longitude
+        if altitude:
+            leg_info += ' Alt.: %s;' % altitude
+
+        if identified:
+            det_info = 'Det. ' + identified
+        else:
+            det_info = ''
+        if leg_info:
+            self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN,
+                                5, leg_info)
+
+        self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
+        main_info = '; '.join([x for x in [country, place, region, district, note] if x])
+        self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN,
+                            5, main_info)
+        self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
+        if det_info:
+            self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN,
+                                5, det_info)
+
+        # Barcode insertion
+        barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() + str(itemid))
+        BARCODE.put_barcode(self, acronym, itemid, institute,
+                            DEFAULT_PAGE_WIDTH - barcodesize - BRYOPHYTE_LEFT_MARGIN,
+                            DEFAULT_PAGE_HEIGHT - 20)
+
+
+    def generate_labels(self, labels):
+        for label in labels:
+            self.generate_labe(**label)
+            self.pdf.add_page()
 
 
 if __name__ == '__main__':

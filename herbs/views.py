@@ -6,7 +6,7 @@ from django.db.models import Q, Count
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext as _
 from .models import (Family, Genus, HerbItem, Country,
-                     DetHistory, Species, SpeciesSynonym)
+                     DetHistory, Species, SpeciesSynonym, Additionals)
 from .forms import SearchForm, RectSelectorForm
 from .conf import settings
 from .utils import _smartify_altitude, _smartify_dates, herb_as_dict, translit
@@ -568,8 +568,14 @@ def collect_label_data(q):
                     identified = ''
             else:
                 identified = item.identifiedby
+            addspecies = []
+            addsps_obj = Additionals.objects.filter(herbitem=item)
+            if addsps_obj.exists():
+                for addsp in addsps_obj:
+                    addspecies.append([addsp.species.get_full_name().replace(addsp.authorship, '').strip(),
+                                       addsp.authorship])
             ddict = _smartify_species(item)
-            ddict.update({'date': _smartify_dates(item)})
+            ddict.update({'coldate': _smartify_dates(item)})
             ddict.update({'family': item.species.genus.family.name.upper() if item.species else '',
                         'country': item.country.name_en if item.country else '',
                         'region': item.region,
@@ -585,8 +591,9 @@ def collect_label_data(q):
                         'address': item.acronym.address if item.acronym else '',
                         'institute': item.acronym.institute if item.acronym else '',
                         'gform': item.devstage or '',
-                        'fieldid': item.fieldid
-                     })
+                        'fieldid': item.fieldid or '',
+                        'addspecies': addspecies,
+                        'district': item.district or ''})
             result.append(ddict)
     translation.activate(lang)
     return result
@@ -617,32 +624,40 @@ def make_label(request, q):
     return response
 
 
-
 @login_required
 @never_cache
 def make_bryopyte_label(request, q):
     '''Return pdf-doc or error page otherwise'''
-    if len(q) > 2000:
+
+    if len(q) > 100:
         return HttpResponse(_('Ваш запрос слишком длинный, выберите меньшее количество элементов'))
 
     q = q.split(',')
     q = filter(lambda x: len(x) <= 15, q)
 
-    if len(q) > 100:
-        return HttpResponse(_('Вы не можете создать более 100 этикеток одновременно'))
+    if len(q) > 4:
+        return HttpResponse(_('Вы не можете создать более 4-x этикеток одновременно'))
     label_data = collect_label_data(q)
 
+    preprocessed_labels = []
+    for label in label_data:
+        label.pop('gform', None)
+        label.pop('address', None)
+        label.pop('number', None)
+        label.pop('family', None)
+        allspecies = [[label.pop('species', ''),
+                       label.pop('spauth', '')]] + label.pop('addspeces', [])
+        label.update({'allspecies': allspecies})
+        preprocessed_labels.append(label)
     # Generate pdf-output
     pdf_template = PDF_BRYOPHYTE()
-    pdf_template.generate_labels(label_data)
+    pdf_template.generate_labels(preprocessed_labels)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % timezone.now().strftime('%Y-%B-%d-%M-%s')
     response.write(pdf_template.get_pdf())
     del pdf_template
     gc.collect()
     return response
-
-
 
 
 @login_required
