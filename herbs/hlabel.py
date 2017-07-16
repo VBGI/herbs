@@ -536,8 +536,24 @@ class PDF_BRYOPHYTE(BARCODE):
             self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
                         self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, self._ln))
             self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
-            self.pdf.cell(0, 0, auth)
+            spa = self.pdf.get_string_width(auth)
+            fline = []
+            sline = []
+            if spa + spw + 2 > DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN:
+                for word in auth.split():
+                    if self.pdf.get_string_width(' '.join(fline + [word])) + spw + 2 <= DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN:
+                        fline.append(word)
+                    else:
+                        sline.append(word)
+            self.pdf.cell(0, 0, ' '.join(fline))
+            if sline:
+                self._ln += 1
+                self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
+                                self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0,
+                                          self._ln))
+                self.pdf.cell(0, 0, ' '.join(sline))
             self._ln += 1
+
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
                         self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, self._ln))
