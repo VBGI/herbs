@@ -593,7 +593,8 @@ def collect_label_data(q):
                         'gform': item.devstage or '',
                         'fieldid': item.fieldid or '',
                         'addspecies': addspecies,
-                        'district': item.district or ''})
+                        'district': item.district or '',
+                        'note': item.note or ''})
             result.append(ddict)
     translation.activate(lang)
     return result
