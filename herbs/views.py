@@ -550,12 +550,9 @@ def advice_select(request):
 def collect_label_data(q):
     result = []
     q = map(lambda x: int(x), q)
-    try:
-       objs = HerbItem.objects.filter(public=True, id__in=q)
-    except HerbItem.DoesNotExist:
-       return HttpResponse(_('Выбранный образцы либо не опубликованы, либо не существуют'))
+    objs = HerbItem.objects.filter(public=True, id__in=q)
     if not objs.exists():
-        return HttpResponse(_('Пустой или неправильно сформированный запрос'))
+        return result
     lang = translation.get_language()
     translation.activate('en')
     if objs.exists():
@@ -614,6 +611,9 @@ def make_label(request, q):
         return HttpResponse(_('Вы не можете создать более 4-х этикеток одновременно'))
     label_data = collect_label_data(q)
 
+    if not label_data:
+        return HttpResponse(_('Необходимо выбирать только опубликованные образцы при создании этикеток'))
+
     # Generate pdf-output
     pdf_template = PDF_DOC()
     pdf_template.tile_labels(label_data)
@@ -639,6 +639,9 @@ def make_bryopyte_label(request, q):
     if len(q) > 4:
         return HttpResponse(_('Вы не можете создать более 4-x этикеток одновременно'))
     label_data = collect_label_data(q)
+
+    if not label_data:
+        return HttpResponse(_('Необходимо выбирать только опубликованные образцы при создании этикеток'))
 
     preprocessed_labels = []
     for label in label_data:
@@ -679,10 +682,8 @@ def make_barcodes(request, q):
         return HttpResponse(_('Вы не можете создать более 100 этикеток одновременно'))
 
     q = map(lambda x: int(x), q)
-    try:
-       objs = HerbItem.objects.filter(id__in=q)
-    except HerbItem.DoesNotExist:
-       return HttpResponse(_('Выбранный образцы либо не опубликованы, либо не существуют'))
+
+    objs = HerbItem.objects.filter(id__in=q)
     if not objs.exists():
         return HttpResponse(_('Пустой или неправильно сформированный запрос'))
     array = []
