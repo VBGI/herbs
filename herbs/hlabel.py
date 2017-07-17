@@ -545,6 +545,8 @@ class PDF_BRYOPHYTE(BARCODE):
                         fline.append(word)
                     else:
                         sline.append(word)
+            else:
+                fline = auth.split()
             self.pdf.cell(0, 0, ' '.join(fline))
             if sline:
                 self._ln += 1
