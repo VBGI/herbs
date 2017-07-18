@@ -43,7 +43,7 @@ class HerbItemMixin(models.Model):
                               verbose_name=_('регион'))
     district = models.CharField(default='', blank=True, max_length=150,
                                 verbose_name=_('район'))
-    detailed = models.CharField(default='', max_length=300, blank=True,
+    detailed = models.CharField(default='', max_length=600, blank=True,
                                 verbose_name=_('место сбора'),
                                 help_text=_('локализация, экоусловия'))
 
