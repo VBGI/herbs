@@ -580,11 +580,11 @@ msgstr "Last updated"
 
 #: templates/herbitem_details.html:115
 msgid "Образец с номером "
-msgstr "Items with the number"
+msgstr "Items with the number "
 
 #: templates/herbitem_details.html:115
 msgid "не опубликован."
-msgstr "was'nt published"
+msgstr "wasn't published"
 
 #: templates/render_herb_plugin.html:13
 msgid "Найти"
