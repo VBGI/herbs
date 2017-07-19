@@ -31,6 +31,7 @@ class HerbsAppConf(AppConf):
                                   ('collectedby', _('Собрали')),
                                   ('identifiedby', _('Определили')),
                                   ('country', _('Страна')),
+                                  ('herbcounter__count', _('Число просмотров'))
                                   ]
 
     class Meta:
