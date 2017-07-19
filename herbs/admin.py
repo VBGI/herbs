@@ -203,14 +203,16 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
     def get_list_display_links(self, request, list_display):
         return ('id', 'get_full_name')
 
-
     def edit_related_species(self, obj):
-        url = reverse('admin:%s_%s_change' %('herbs', 'species'),
-                      args=[obj.species.pk])
-        return '<a href="%s" title="%s">Edit sp.</a>'  % (url, capfirst(obj.species.get_full_name()))
+        if obj.species:
+            url = reverse('admin:%s_%s_change' %('herbs', 'species'),
+                          args=[obj.species.pk])
+            resurl = '<a href="%s" title="%s">Edit sp.</a>'  % (url, capfirst(obj.species.get_full_name()))
+        else:
+            resurl = '--'
+        return resurl
     edit_related_species.allow_tags = True
     edit_related_species.short_description = _('Вид')
-
 
     def get_list_display(self, request):
         if not request.user.has_perm('herbs.can_see_additionals'):
