@@ -6,7 +6,8 @@ from django.db.models import Q, Count
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext as _
 from .models import (Family, Genus, HerbItem, Country,
-                     DetHistory, Species, SpeciesSynonym, Additionals)
+                     DetHistory, Species, SpeciesSynonym, Additionals,
+                     HerbCounter)
 from .forms import SearchForm, RectSelectorForm
 from .conf import settings
 from .utils import _smartify_altitude, _smartify_dates, herb_as_dict, translit
@@ -486,6 +487,13 @@ def show_herbitem(request, inum):
         translation.activate(clang)
     try:
         hobj = HerbItem.objects.get(id=inum)
+        if hobj.public:
+            if hobj.herbcounter.exists():
+                hc = hobj.herbcounter.all()[0]
+                hc.count += 1
+                hc.save()
+            else:
+                HerbCounter.objects.create(herbitem=hobj, count=1)
         context.update({'curobj': hobj})
     except HerbItem.DoesNotExist:
         context.update({'error': _(u'Гербарного образца с id=%s не было найдено') % inum})

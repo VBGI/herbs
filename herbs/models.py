@@ -295,6 +295,7 @@ class Species(TaxonMixin):
         permissions = (('can_change_status', 'Can change taxon status'),)
 
 
+
 class HerbItem(HerbItemMixin):
     user = models.ForeignKey(get_user_model(),
                              blank=True, null=True, related_name='+',
@@ -322,3 +323,8 @@ class HerbItem(HerbItemMixin):
         else:
             super(HerbItem, self).delete(*args, **kwargs)
 
+
+class HerbCounter(models.Model):
+    herbitem = models.ForeignKey(HerbItem, null=True, blank=True,
+                                 related_name='herbcounter')
+    count = models.PositiveIntegerField(default=0)

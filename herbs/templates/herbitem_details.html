@@ -111,6 +111,9 @@
       </script>
       <noscript>{%trans "Для корректного отображения изображений гербарных образцов должен быть включен JavaScript."%}</noscript>
       <p><i>{% trans "Последнее изменение"%}:</i>&nbsp;{{curobj.updated}}</p>
+      {%if curobj.herbcounter %}
+      <p><i>{% trans "Число обращений"%}:</i>&nbsp;{{curobj.herbcounter.all.0.count}}</p>
+      {%endif%}
       </div>  
          {%else%}  
             <div id="herbitem-text-container" style="text-align: center">
