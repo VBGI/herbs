@@ -104,7 +104,7 @@ class HerbItemMixin(models.Model):
         if self.species:
             return capfirst(self.species.get_full_name())
         else:
-            return 'Object #%s (Sp. not defined)' % self.pk
+            return "Object #%s (Species isn't defined)" % self.pk
     get_full_name.short_description = _('полное имя вида')
 
     @property
