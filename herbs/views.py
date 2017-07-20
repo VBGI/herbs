@@ -104,7 +104,7 @@ def get_data(request):
     objects_filtered = HerbItem.objects.none()
 
     if request.method == 'POST':
-        errors.append(_('Допустимы только GET-запросы'))
+        errors.append(_(u'Допустимы только GET-запросы'))
         return (None, 0, 0, objects_filtered , errors, warnings)
 
     dataform = SearchForm(request.GET)
@@ -150,10 +150,10 @@ def get_data(request):
                 if intermediate:
                     bigquery += [Q(species__pk__in=intermediate)]
                 else:
-                    warnings.append(_('Неверно сформированы таблицы синонимов. Условие поиска по синонимам прогнорировано.'))
+                    warnings.append(_(u'Неверно сформированы таблицы синонимов. Условие поиска по синонимам прогнорировано.'))
                     search_by_synonyms = False
             else:
-                warnings.append(_('Не заданы поля род и/или видовой эпитет, либо такой вид отсутствует в базе. Условие поиска по синонимам проигнорировано.'))
+                warnings.append(_(u'Не заданы поля род и/или видовой эпитет, либо такой вид отсутствует в базе. Условие поиска по синонимам проигнорировано.'))
                 search_by_synonyms = False
 
         if not search_by_synonyms:
@@ -192,11 +192,11 @@ def get_data(request):
             lonl = rectform.cleaned_data['lonl']
             lonu = rectform.cleaned_data['lonu']
             if None in [latl, lonl, latu, lonu] and any([latl, lonl, latu, lonu]):
-                warnings.append(_('Заданы не все границы области поиска. Условия поиска по области будут проигнорированы.'))
+                warnings.append(_(u'Заданы не все границы области поиска. Условия поиска по области будут проигнорированы.'))
             elif (not (-90.0 <= latl <= 90) or not (-90.0 <= latu <= 90.0) or
                   not (-180.0 <= lonl <= 180.0) or not(-180.0 <= lonu <= 180.0))\
                   and all([latl, lonl, latu, lonu]):
-                warnings.append(_('Границы области поиска неправдоподобны для географических координат. Условя поиска по области будут проигнорированы.'))
+                warnings.append(_(u'Границы области поиска неправдоподобны для географических координат. Условя поиска по области будут проигнорированы.'))
             elif all([latl, lonl, latu, lonu]):
                 bigquery += [Q(latitude__gte=latl) & Q(latitude__lte=latu)]
                 if lonu < lonl:
@@ -205,7 +205,7 @@ def get_data(request):
                 else:
                     bigquery += [Q(longitude__gte=lonl) & Q(longitude__lte=lonu)]
         else:
-            warnings.append(_('Область на карте задана нeкорректно. Условия поиска по области будут проигнорированы.'))
+            warnings.append(_(u'Область на карте задана нeкорректно. Условия поиска по области будут проигнорированы.'))
 
         if data['itemcode']:
             try:
@@ -279,7 +279,7 @@ def get_data(request):
         else:
             objects_filtered = HerbItem.objects.filter(public=True)
         if not objects_filtered.exists():
-            msg = _("Ни одного элемента не удовлетворяет условиям поискового запроса")
+            msg = _(u"Ни одного элемента не удовлетворяет условиям поискового запроса")
             warnings.append(msg)
             return (None, 1, 0, objects_filtered, errors, warnings)
         else:
@@ -306,7 +306,7 @@ def get_data(request):
             page = int(page) if page.isdigit() else 1
             if pagcount <= 0 or pagcount > 1000:
                 pagcount = settings.HERBS_PAGINATION_COUNT
-                warnings.append(_('Задано недопустимое количество объектов для оторажения на одной странице: ') + str(pagcount))
+                warnings.append(_(u'Задано недопустимое количество объектов для оторажения на одной странице: ') + str(pagcount))
             paginator = Paginator(objects_filtered, pagcount)
             try:
                 paginated_data = paginator.page(page)
@@ -315,7 +315,7 @@ def get_data(request):
             return (paginated_data, page, paginator.num_pages, objects_filtered,
                     errors, warnings)
     else:
-        errors.append(_('Некорректно сформированный поисковый запрос.'))
+        errors.append(_(u'Некорректно сформированный поисковый запрос.'))
         return (None, 0, 0, objects_filtered, errors, warnings)
 
 
@@ -424,7 +424,7 @@ def show_herbs(request):
     Get herbitems view
     '''
     if not request.is_ajax():
-        return HttpResponse(_('Допустимы только XMLHttp-запросы'))
+        return HttpResponse(_(u'Допустимы только XMLHttp-запросы'))
 
     paginated_data, page, num_pages, objects_filtered, errors, warnings = get_data(request)
 
@@ -506,9 +506,9 @@ def show_herbitem(request, inum):
 @never_cache
 def advice_select(request):
     if not request.is_ajax():
-        return HttpResponse(_('Допустимы только XMLHttp запросы'))
+        return HttpResponse(_(u'Допустимы только XMLHttp запросы'))
     if request.method == 'POST':
-        return HttpResponse(_('Допустимы только GET-методы'))
+        return HttpResponse(_(u'Допустимы только GET-методы'))
 
     dataform = SearchForm(request.GET)
     context = {'error': ''}
@@ -548,7 +548,7 @@ def advice_select(request):
             data = [{'id': item.pk, 'text': item.name_ru if RU else item.name_en}
                     for item in objects[:settings.HERBS_AUTOSUGGEST_NUM_TO_SHOW]]
     else:
-        context.update({'error': _('Странный запрос')})
+        context.update({'error': _(u'Странный запрос')})
         data = []
     if data:
         for item in data: item['text'] = capfirst(item['text'])
@@ -611,17 +611,17 @@ def collect_label_data(q):
 def make_label(request, q):
     '''Return pdf-doc or error page otherwise'''
     if len(q) > 100:
-        return HttpResponse(_('Ваш запрос слишком длинный, выберите меньшее количество элементов'))
+        return HttpResponse(_(u'Ваш запрос слишком длинный, выберите меньшее количество элементов'))
 
     q = q.split(',')
     q = filter(lambda x: len(x) <= 15, q)
 
     if len(q) > 4:
-        return HttpResponse(_('Вы не можете создать более 4-х этикеток одновременно'))
+        return HttpResponse(_(u'Вы не можете создать более 4-х этикеток одновременно'))
     label_data = collect_label_data(q)
 
     if not label_data:
-        return HttpResponse(_('Необходимо выбирать только опубликованные образцы при создании этикеток'))
+        return HttpResponse(_(u'Необходимо выбирать только опубликованные образцы при создании этикеток'))
 
     # Generate pdf-output
     pdf_template = PDF_DOC()
@@ -640,17 +640,17 @@ def make_bryopyte_label(request, q):
     '''Return pdf-doc or error page otherwise'''
 
     if len(q) > 100:
-        return HttpResponse(_('Ваш запрос слишком длинный, выберите меньшее количество элементов'))
+        return HttpResponse(_(u'Ваш запрос слишком длинный, выберите меньшее количество элементов'))
 
     q = q.split(',')
     q = filter(lambda x: len(x) <= 15, q)
 
     if len(q) > 4:
-        return HttpResponse(_('Вы не можете создать более 4-x этикеток одновременно'))
+        return HttpResponse(_(u'Вы не можете создать более 4-x этикеток одновременно'))
     label_data = collect_label_data(q)
 
     if not label_data:
-        return HttpResponse(_('Необходимо выбирать только опубликованные образцы при создании этикеток'))
+        return HttpResponse(_(u'Необходимо выбирать только опубликованные образцы при создании этикеток'))
 
     preprocessed_labels = []
     for label in label_data:
@@ -682,19 +682,19 @@ def make_barcodes(request, q):
     '''Return pdf-file of barcodes'''
 
     if len(q) > 2000:
-        return HttpResponse(_('Ваш запрос слишком длинный, выберите меньшее количество элементов'))
+        return HttpResponse(_(u'Ваш запрос слишком длинный, выберите меньшее количество элементов'))
 
     q = q.split(',')
     q = filter(lambda x: len(x) <= 15, q)
 
     if len(q) > 100:
-        return HttpResponse(_('Вы не можете создать более 100 этикеток одновременно'))
+        return HttpResponse(_(u'Вы не можете создать более 100 этикеток одновременно'))
 
     q = map(lambda x: int(x), q)
 
     objs = HerbItem.objects.filter(id__in=q)
     if not objs.exists():
-        return HttpResponse(_('Пустой или неправильно сформированный запрос'))
+        return HttpResponse(_(u'Пустой или неправильно сформированный запрос'))
     array = []
     if objs.exists():
         for item in objs:
