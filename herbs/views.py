@@ -279,7 +279,8 @@ def get_data(request):
         else:
             objects_filtered = HerbItem.objects.filter(public=True)
         if not objects_filtered.exists():
-            warnings.append(_("Ни одного элемента не удовлетворяет условиям поискового запроса"))
+            msg = _("Ни одного элемента не удовлетворяет условиям поискового запроса")
+            warnings.append(msg)
             return (None, 1, 0, objects_filtered, errors, warnings)
         else:
             # --------- Applying ordering to results retrieved ----------------

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-20 10:44+1000\n"
+"POT-Creation-Date: 2017-07-20 11:58+1000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -846,58 +846,56 @@ msgstr ""
 msgid "Ни одного элемента не удовлетворяет условиям поискового запроса"
 msgstr "There are no items found for your request"
 
-#: views.py:308
+#: views.py:309
 msgid ""
 "Задано недопустимое количество объектов для оторажения на одной странице: "
 msgstr "Provided not allowable number of objects to be listed on the page:"
 
-#: views.py:317
+#: views.py:318
 msgid "Некорректно сформированный поисковый запрос."
 msgstr "Empty or malformed query"
 
-#: views.py:426
+#: views.py:427
 msgid "Допустимы только XMLHttp-запросы"
 msgstr "Only XMLHttp-requests are allowed"
 
-#: views.py:499
+#: views.py:500
 #, python-format
 msgid "Гербарного образца с id=%s не было найдено"
 msgstr "Herbarium item with id=%s wasn't found"
 
-#: views.py:508
+#: views.py:509
 msgid "Допустимы только XMLHttp запросы"
 msgstr "Only XMLHttp-requests are allowed"
 
-#: views.py:510
+#: views.py:511
 msgid "Допустимы только GET-методы"
 msgstr "Only GET-method are allowed"
 
-#: views.py:550
+#: views.py:551
 msgid "Странный запрос"
 msgstr "Strange request"
 
-#: views.py:613 views.py:642 views.py:684
+#: views.py:614 views.py:643 views.py:685
 msgid "Ваш запрос слишком длинный, выберите меньшее количество элементов"
 msgstr "Your request is quite long, try to select lesser number of items"
 
-#: views.py:619
+#: views.py:620
 msgid "Вы не можете создать более 4-х этикеток одновременно"
 msgstr "You cann't create more than 4 herbarium labels simultaneously"
 
-#: views.py:623 views.py:652
+#: views.py:624 views.py:653
 msgid "Необходимо выбирать только опубликованные образцы при создании этикеток"
 msgstr ""
 
-#: views.py:648
+#: views.py:649
 msgid "Вы не можете создать более 4-x этикеток одновременно"
 msgstr "You cann't create more than 4 herbarium labels simultaneously"
 
-#: views.py:690
+#: views.py:691
 msgid "Вы не можете создать более 100 этикеток одновременно"
 msgstr "You cann't create more than 4 herbarium labels simultaneously"
 
-#: views.py:696
+#: views.py:697
 msgid "Пустой или неправильно сформированный запрос"
 msgstr "Empty or malformed query"
-
-
