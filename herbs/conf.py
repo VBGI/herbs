@@ -1,7 +1,7 @@
 #coding: utf-8
 
 from django.conf import settings
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 from appconf import AppConf
 
@@ -24,14 +24,14 @@ class HerbsAppConf(AppConf):
 
     BILINGUAL_DELIMITER = "|"
 
-    SEARCHFORM_ORDERING_FIELDS = [('species__name', _('Видовой эпитет')),
-                                  ('collected_s', _('Дата сбора')),
-                                  ('identified_s', _('Дата определения')),
-                                  ('id', _('Порядковый номер')),
-                                  ('collectedby', _('Собрали')),
-                                  ('identifiedby', _('Определили')),
-                                  ('country', _('Страна')),
-                                  ('herbcounter__count', _('Число просмотров'))
+    SEARCHFORM_ORDERING_FIELDS = [('species__name', _(u'Видовой эпитет')),
+                                  ('collected_s', _(u'Дата сбора')),
+                                  ('identified_s', _(u'Дата определения')),
+                                  ('id', _(u'Порядковый номер')),
+                                  ('collectedby', _(u'Собрали')),
+                                  ('identifiedby', _(u'Определили')),
+                                  ('country', _(u'Страна')),
+                                  ('herbcounter__count', _(u'Число просмотров'))
                                   ]
 
     class Meta:

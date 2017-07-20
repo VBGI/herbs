@@ -685,7 +685,7 @@ msgstr "herbarium subdivision"
 
 #: templates/render_herb_plugin.html:72
 msgid "Упорядочить по"
-msgstr ""
+msgstr "Order by"
 
 #: templates/render_herb_plugin.html:79
 msgid "Изменить порядок"
