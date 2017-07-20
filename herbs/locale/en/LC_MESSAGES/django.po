@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-20 11:58+1000\n"
+"POT-Creation-Date: 2017-07-20 13:39+1000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -136,7 +136,7 @@ msgstr "Identification date"
 
 #: conf.py:30
 msgid "Порядковый номер"
-msgstr ""
+msgstr "Ordering number"
 
 #: conf.py:31 forms.py:113
 msgid "Собрали"
@@ -689,7 +689,7 @@ msgstr ""
 
 #: templates/render_herb_plugin.html:79
 msgid "Изменить порядок"
-msgstr ""
+msgstr "Change order"
 
 #: templates/render_herb_plugin.html:88
 msgid "Общая информация"

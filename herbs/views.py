@@ -4,7 +4,7 @@ from django.http import HttpResponse, StreamingHttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.forms.models import model_to_dict
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from .models import (Family, Genus, HerbItem, Country,
                      DetHistory, Species, SpeciesSynonym, Additionals,
                      HerbCounter)
