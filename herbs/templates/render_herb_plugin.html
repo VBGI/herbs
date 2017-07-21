@@ -93,6 +93,9 @@ Created: 30 Aug, 2016
     <div id="herbitem-http-api-details"></div>
     <div id="herbitem-content-main">
      <h2> {%trans "Результаты поиска:"%} </h2>
+        {% if user.is_authenticated %}
+        <div id="herbitem-csv-export" onclick="herbitemFind(true)"> {%trans "Сохранить в csv-файл" %}</div>
+        {%endif%}
      <div id="herbitem-content-found"><div class="herbitem-loader"></div></div>
     </div>
 
@@ -157,9 +160,6 @@ Created: 30 Aug, 2016
 </script>
 
 <script id="searchform-template" type="text/x-underscore-template">
-{% if user.is_authenticated %}
-<div id="herbitem-csv-export" onclick="herbitemFind(true)"> {%trans "Сохранить в csv-файл" %}</div>
-{%endif%}
 <div class="herbitem-found-total">{%trans "Всего:"%} <%= total %></div>
 <div class="herbitem-page-lister">
     <span class="step-links">
