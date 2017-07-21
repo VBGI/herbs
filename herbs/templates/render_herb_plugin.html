@@ -97,7 +97,7 @@ Created: 30 Aug, 2016
     </div>
 
     <div id="herbitem-details">
-     <div class="herbitem-newpage"><h2>{%trans "Не выбран ни один элемент"%}<h2></div>
+     <div class="herbitem-newpage"></div>
       <iframe id="herbitem-iframe" src="" width=100% height=1000px style="border:0"></iframe>
     </div>
   
@@ -326,6 +326,7 @@ function showHerbitem(herbid){
   var el = $("div.herbitem-newpage");
   el.html("<h3>{%trans "Открыть в отдельном окне"%}</h3>");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
+  $("#herbitem-tabs").tabs({disabled: false});
   $("#herbitem-tabs").tabs('option','active',1);
   el.unbind("click");
   el.click(function(){
@@ -783,6 +784,7 @@ $("#herbitem-filtering-container").width(colwidth-swidth-40+'px');
 $("#herbitem-filtering").show();
 herbitemFind(false);
 $("#herbitem-tabs").tabs('option','active',0);
+$("#herbitem-tabs").tabs({disabled: [1]});
 $("#tab-preloader").remove();
 $("#herbitem-http-api > div").clone().appendTo("#herbitem-http-api-details");
 $("#herbitem-tabs").show();
