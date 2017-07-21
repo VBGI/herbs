@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-20 13:39+1000\n"
+"POT-Creation-Date: 2017-07-21 17:19+1000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,7 +93,7 @@ msgstr "Delete herbarium items"
 
 #: admin.py:215 forms.py:106 forms.py:120 forms.py:129
 #: templates/herbitem_details.html:42 templates/render_herb_plugin.html:183
-#: templates/render_herb_plugin.html:563
+#: templates/render_herb_plugin.html:565
 msgid "Вид"
 msgstr "Species"
 
@@ -126,7 +126,7 @@ msgid "Видовой эпитет"
 msgstr "Species epithet"
 
 #: conf.py:28 templates/herbitem_details.html:84
-#: templates/render_herb_plugin.html:184 templates/render_herb_plugin.html:564
+#: templates/render_herb_plugin.html:184 templates/render_herb_plugin.html:566
 msgid "Дата сбора"
 msgstr "Collection date"
 
@@ -227,12 +227,12 @@ msgid "Определелил(и)"
 msgstr "Identifier(s)"
 
 #: forms.py:168 templates/herbitem_details.html:40
-#: templates/render_herb_plugin.html:15 templates/render_herb_plugin.html:631
+#: templates/render_herb_plugin.html:15 templates/render_herb_plugin.html:633
 msgid "Семейство"
 msgstr "Family"
 
 #: forms.py:189 templates/herbitem_details.html:41
-#: templates/render_herb_plugin.html:16 templates/render_herb_plugin.html:632
+#: templates/render_herb_plugin.html:16 templates/render_herb_plugin.html:634
 msgid "Род"
 msgstr "Genus"
 
@@ -558,11 +558,11 @@ msgstr "not provided"
 msgid "Координаты сбора"
 msgstr "Coordinates"
 
-#: templates/herbitem_details.html:57 templates/render_herb_plugin.html:566
+#: templates/herbitem_details.html:57 templates/render_herb_plugin.html:568
 msgid "Широта"
 msgstr "Latitude"
 
-#: templates/herbitem_details.html:58 templates/render_herb_plugin.html:566
+#: templates/herbitem_details.html:58 templates/render_herb_plugin.html:568
 msgid "Долгота"
 msgstr "Longitude"
 
@@ -575,7 +575,7 @@ msgid "Высота"
 msgstr "Altitude"
 
 #: templates/herbitem_details.html:83 templates/render_herb_plugin.html:24
-#: templates/render_herb_plugin.html:565
+#: templates/render_herb_plugin.html:567
 msgid "Собрал(и)"
 msgstr "Collector(s)"
 
@@ -707,57 +707,53 @@ msgstr "Map"
 msgid "Автоматизация доступа"
 msgstr "Automatization tools"
 
-#: templates/render_herb_plugin.html:99
-msgid "Не выбран ни один элемент"
-msgstr "No items were selected"
-
-#: templates/render_herb_plugin.html:108 templates/render_herb_plugin.html:112
-msgid "Широта, град."
-msgstr "Latitude"
-
-#: templates/render_herb_plugin.html:116 templates/render_herb_plugin.html:120
-msgid "Долгота, град."
-msgstr "Longitude"
-
-#: templates/render_herb_plugin.html:122
-msgid "Задать область поиска"
+#: templates/render_herb_plugin.html:95
+msgid "Результаты поиска:"
 msgstr "Search results:"
 
-#: templates/render_herb_plugin.html:125
-msgid "Очистить условия поиска по области"
-msgstr "Clear all search settings"
-
-#: templates/render_herb_plugin.html:129
-msgid "Отображены только те записи, у которых заданы координаты сбора"
-msgstr "Only records with coordinates are listed"
-
-#: templates/render_herb_plugin.html:144 templates/render_herb_plugin.html:167
-msgid "Предыдущая"
-msgstr "Previous"
-
-#: templates/render_herb_plugin.html:148 templates/render_herb_plugin.html:171
-msgid "Страница"
-msgstr "Page"
-
-#: templates/render_herb_plugin.html:148 templates/render_herb_plugin.html:171
-msgid "из"
-msgstr "of"
-
-#: templates/render_herb_plugin.html:151 templates/render_herb_plugin.html:174
-msgid "Следующая"
-msgstr "Next"
-
-#: templates/render_herb_plugin.html:155 templates/render_herb_plugin.html:163
-msgid "Всего:"
-msgstr "Total:"
-
-#: templates/render_herb_plugin.html:160
+#: templates/render_herb_plugin.html:97
 msgid "Сохранить в csv-файл"
 msgstr "Export to csv-file"
 
-#: templates/render_herb_plugin.html:162
-msgid "Результаты поиска:"
+#: templates/render_herb_plugin.html:112 templates/render_herb_plugin.html:116
+msgid "Широта, град."
+msgstr "Latitude"
+
+#: templates/render_herb_plugin.html:120 templates/render_herb_plugin.html:124
+msgid "Долгота, град."
+msgstr "Longitude"
+
+#: templates/render_herb_plugin.html:126
+msgid "Задать область поиска"
 msgstr "Search results:"
+
+#: templates/render_herb_plugin.html:129
+msgid "Очистить условия поиска по области"
+msgstr "Clear all search settings"
+
+#: templates/render_herb_plugin.html:133
+msgid "Отображены только те записи, у которых заданы координаты сбора"
+msgstr "Only records with coordinates are listed"
+
+#: templates/render_herb_plugin.html:148 templates/render_herb_plugin.html:167
+msgid "Предыдущая"
+msgstr "Previous"
+
+#: templates/render_herb_plugin.html:152 templates/render_herb_plugin.html:171
+msgid "Страница"
+msgstr "Page"
+
+#: templates/render_herb_plugin.html:152 templates/render_herb_plugin.html:171
+msgid "из"
+msgstr "of"
+
+#: templates/render_herb_plugin.html:155 templates/render_herb_plugin.html:174
+msgid "Следующая"
+msgstr "Next"
+
+#: templates/render_herb_plugin.html:159 templates/render_herb_plugin.html:163
+msgid "Всего:"
+msgstr "Total:"
 
 #: templates/render_herb_plugin.html:182
 msgid "Код объекта"
@@ -767,35 +763,39 @@ msgstr "Item code"
 msgid "Коллектор(ы)"
 msgstr "Collector(s)"
 
-#: templates/render_herb_plugin.html:295
+#: templates/render_herb_plugin.html:203 templates/render_herb_plugin.html:211
+msgid "Количество просмотров:"
+msgstr "Number of hits"
+
+#: templates/render_herb_plugin.html:296
 msgid "Выберите "
 msgstr "Select "
 
-#: templates/render_herb_plugin.html:327
+#: templates/render_herb_plugin.html:328
 msgid "Открыть в отдельном окне"
 msgstr "Open in a new window"
 
-#: templates/render_herb_plugin.html:411
+#: templates/render_herb_plugin.html:413
 msgid "Возникла ошибка при получении ответа за поисковый запрос"
 msgstr "An error occurred when trying to get response on your search query"
 
-#: templates/render_herb_plugin.html:537
+#: templates/render_herb_plugin.html:539
 msgid "Карты google еще не инициализированы"
 msgstr "Google-maps isn't yet initialized"
 
-#: templates/render_herb_plugin.html:610
+#: templates/render_herb_plugin.html:612
 msgid "На карте отображено"
 msgstr "On the map"
 
-#: templates/render_herb_plugin.html:610
+#: templates/render_herb_plugin.html:612
 msgid "запись(ей)"
 msgstr "record(s) showed"
 
-#: templates/render_herb_plugin.html:633
+#: templates/render_herb_plugin.html:635
 msgid "Страну"
 msgstr "Country"
 
-#: templates/render_herb_plugin.html:655
+#: templates/render_herb_plugin.html:657
 msgid "Искать в заданной области"
 msgstr "Search in selected region"
 
@@ -859,43 +859,46 @@ msgstr "Empty or malformed query"
 msgid "Допустимы только XMLHttp-запросы"
 msgstr "Only XMLHttp-requests are allowed"
 
-#: views.py:500
+#: views.py:502
 #, python-format
 msgid "Гербарного образца с id=%s не было найдено"
 msgstr "Herbarium item with id=%s wasn't found"
 
-#: views.py:509
+#: views.py:511
 msgid "Допустимы только XMLHttp запросы"
 msgstr "Only XMLHttp-requests are allowed"
 
-#: views.py:511
+#: views.py:513
 msgid "Допустимы только GET-методы"
 msgstr "Only GET-method are allowed"
 
-#: views.py:551
+#: views.py:553
 msgid "Странный запрос"
 msgstr "Strange request"
 
-#: views.py:614 views.py:643 views.py:685
+#: views.py:616 views.py:645 views.py:687
 msgid "Ваш запрос слишком длинный, выберите меньшее количество элементов"
 msgstr "Your request is quite long, try to select lesser number of items"
 
-#: views.py:620
+#: views.py:622
 msgid "Вы не можете создать более 4-х этикеток одновременно"
 msgstr "You cann't create more than 4 herbarium labels simultaneously"
 
-#: views.py:624 views.py:653
+#: views.py:626 views.py:655
 msgid "Необходимо выбирать только опубликованные образцы при создании этикеток"
 msgstr ""
 
-#: views.py:649
+#: views.py:651
 msgid "Вы не можете создать более 4-x этикеток одновременно"
 msgstr "You cann't create more than 4 herbarium labels simultaneously"
 
-#: views.py:691
+#: views.py:693
 msgid "Вы не можете создать более 100 этикеток одновременно"
 msgstr "You cann't create more than 4 herbarium labels simultaneously"
 
-#: views.py:697
+#: views.py:699
 msgid "Пустой или неправильно сформированный запрос"
 msgstr "Empty or malformed query"
+
+#~ msgid "Не выбран ни один элемент"
+#~ msgstr "No items were selected"
