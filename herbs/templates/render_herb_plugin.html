@@ -192,6 +192,7 @@ Created: 30 Aug, 2016
        var itemcode = (item.itemcode == '') ? '*': item.itemcode;
 			 var fieldid  = (item.fieldid == '') ? '': ('/' + String(item.fieldid));
        var herbid = item.id;
+       var herbhits = item.herbhits;
        var coldate = item.collected_s;
        var collectors  = item.collectedby;
 			 var species = item.species;
@@ -199,7 +200,7 @@ Created: 30 Aug, 2016
        var idstr = itemcode + '/' + herbid + fieldid;
 
 		if (index % 2 == 0) { %>
-    <tr class="herbitem-even" id="herbitem-<%= herbid %>"  onclick="showHerbitem(<%= herbid %>)">
+    <tr class="herbitem-even" id="herbitem-<%= herbid %>"  onclick="showHerbitem(<%= herbid %>)" title="{%trans 'Количество просмотров:' %} <%= herbhits %>">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>
@@ -207,7 +208,7 @@ Created: 30 Aug, 2016
 			<td><%= identifiers %></td>
 		</tr>
    <%	} else { %>
-    <tr class="herbitem-odd" id="herbitem-<%= herbid %>" onclick="showHerbitem(<%= herbid %>);">
+    <tr class="herbitem-odd" id="herbitem-<%= herbid %>" onclick="showHerbitem(<%= herbid %>);" title="{%trans 'Количество просмотров:' %} <%= herbhits %>">
 			<td><%= idstr %></td>
 			<td><%= species %></td>
 			<td><%= coldate %></td>

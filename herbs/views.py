@@ -437,11 +437,13 @@ def show_herbs(request):
     if paginated_data:
         data_tojson = []
         for item in paginated_data.object_list:
+            hc = item.herbcounter.all()
             data_tojson.append(
                 {
                     'species': item.get_full_name(),
                     'itemcode': item.itemcode,
                     'id': item.pk,
+                    'herbhits': hc[0].count if hc.exists() else 0,
                     'fieldid': item.fieldid,
                     'lat': item.coordinates.latitude if item.coordinates else 0.0,
                     'lon': item.coordinates.longitude if item.coordinates else 0.0,
