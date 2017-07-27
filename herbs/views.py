@@ -613,14 +613,14 @@ def collect_label_data(q):
 @never_cache
 def make_label(request, q):
     '''Return pdf-doc or error page otherwise'''
-    if len(q) > 100:
+    if len(q) > 1000:
         return HttpResponse(_(u'Ваш запрос слишком длинный, выберите меньшее количество элементов'))
 
     q = q.split(',')
     q = filter(lambda x: len(x) <= 15, q)
 
-    if len(q) > 4:
-        return HttpResponse(_(u'Вы не можете создать более 4-х этикеток одновременно'))
+    if len(q) > 100:
+        return HttpResponse(_(u'Вы не можете создать более 100 этикеток одновременно'))
     label_data = collect_label_data(q)
 
     if not label_data:

@@ -393,7 +393,7 @@ class PDF_DOC(PDF_MIXIN):
         self.lnhght = LINE_HEIGHT
         self._add_label(x, y, **kwargs)
 
-    def tile_labels(self, l_labels):
+    def tile_less4_labels(self, l_labels):
         x = self.pdf.get_x()
         y = self.pdf.get_y()
         if len(l_labels) == 1:
@@ -411,8 +411,14 @@ class PDF_DOC(PDF_MIXIN):
             self.make_label(x, y + LABEL_HEIGHT + 1, **l_labels[2])
             self.make_label(x + LABEL_WIDTH + 2, y + LABEL_HEIGHT + 1,
                             **l_labels[3])
-        else:
-            pass
+
+    def tile_labels(self, l_labels):
+        def chunks(l, n=4):
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
+        for labels in chunks(l_labels):
+            self.tile_less4_labels(labels)
+            self.pdf.add_page()
 
     def _test_page(self):
         testdict = {'family': 'AWESOMEFAMILY', 'species': 'Some species',

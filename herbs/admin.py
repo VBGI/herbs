@@ -53,8 +53,8 @@ unpublish_herbitem.short_description = _(u"Снять с публикации")
 
 def create_pdf(modeladmin, request, queryset):
     c = queryset.count()
-    if c == 0 or c > 4:
-        messages.error(request, _(u'Выделите не менее одной и не более 4-х гербарных образцов'))
+    if c == 0 or c > 100:
+        messages.error(request, _(u'Выделите не менее одной и не более 100 гербарных образцов'))
         return
     urlfinal = reverse('herbiteminfo', args=[','.join([str(item.pk) for item in queryset])])
     urlfinal += '?'+''.join([random.choice(string.ascii_letters) for k in range(4)])
