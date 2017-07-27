@@ -434,6 +434,7 @@ def show_herbs(request):
         csv_response['Content-Disposition'] = 'attachment; filename=herb_data_%s.csv' % timezone.now().strftime('%Y-%B-%d-%M-%s')
         return csv_response
 
+    lang = translation.get_language()
     if paginated_data:
         data_tojson = []
         for item in paginated_data.object_list:
@@ -447,9 +448,9 @@ def show_herbs(request):
                     'fieldid': item.fieldid,
                     'lat': item.coordinates.latitude if item.coordinates else 0.0,
                     'lon': item.coordinates.longitude if item.coordinates else 0.0,
-                    'collectedby': item.collectedby,
+                    'collectedby': item.collectedby if lang == 'ru' else translit(item.collectedby, 'ru', reversed=True),
                     'collected_s': item.collected_s,
-                    'identifiedby': item.identifiedby,
+                    'identifiedby': item.identifiedby if lang == 'ru' else translit(item.identifiedby, 'ru', reversed=True),
                     'created': str(item.created),
                     'updated': str(item.updated)
                     })
