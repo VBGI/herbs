@@ -416,9 +416,12 @@ class PDF_DOC(PDF_MIXIN):
         def chunks(l, n=4):
             for i in range(0, len(l), n):
                 yield l[i:i + n]
-        for labels in chunks(l_labels):
+        lset = list(chunks(l_labels))
+        for labels in lset:
             self.tile_less4_labels(labels)
-            self.pdf.add_page()
+            if labels != lset[-1]:
+                self.pdf.add_page()
+
 
     def _test_page(self):
         testdict = {'family': 'AWESOMEFAMILY', 'species': 'Some species',
