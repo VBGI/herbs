@@ -11,6 +11,11 @@ from django.core.exceptions import PermissionDenied
 from .utils import  _smartify_dates
 
 
+SIGNIFICANCE = (('aff.', 'affinis'),
+                ('cf.', 'confertum')
+                )
+
+
 class HerbItemMixin(models.Model):
     '''
     Common item properties
@@ -21,6 +26,10 @@ class HerbItemMixin(models.Model):
 
     species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
                                 verbose_name=_('вид'), related_name='herbitem')
+
+    significance = models.CharField(max_length=5, default='', null=True,
+                                    blank=True, choices=SIGNIFICANCE,
+                                    verbose_name=_('сходство'), help_text=_('степень сходства: aff. или cf.'))
 
     # item specific codes (used in the herbarium store)
     itemcode = models.CharField(max_length=15, default='', null=True,
@@ -201,6 +210,9 @@ class DetHistory(models.Model):
                                     null=True)
     species = models.ForeignKey('Species', blank=True, null=True,
                                 verbose_name=_('вид'))
+    significance = models.CharField(max_length=5, default='', null=True,
+                                    blank=True, choices=SIGNIFICANCE,
+                                    verbose_name=_('сходство'), help_text=_('степень сходства: aff. или cf.'))
     class Meta:
         verbose_name = _('переопределение')
         verbose_name_plural = _('переопределения')
@@ -219,6 +231,9 @@ class Additionals(models.Model):
                                     null=True)
     species = models.ForeignKey('Species', blank=True, null=True,
                                 verbose_name=_('вид'))
+    significance = models.CharField(max_length=5, default='', null=True,
+                                    blank=True, choices=SIGNIFICANCE,
+                                    verbose_name=_('сходство'), help_text=_('степень сходства: aff. или cf.'))
     class Meta:
         verbose_name = _('Дополнительные виды')
         verbose_name_plural = _('Дополнительные виды')
