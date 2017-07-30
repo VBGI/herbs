@@ -108,13 +108,15 @@ class HerbItemMixin(models.Model):
     def __unicode__(self):
         return capfirst(self.get_full_name())
 
-
     def get_full_name(self):
         if self.species:
-            return capfirst(self.species.get_full_name())
+            genus_name = self.species.genus.name
+            species_name = self.species.get_full_name()
+            return capfirst(genus_name) + ' ' + item.significance + ' ' \
+                   + species_name
         else:
             return "Object #%s (Species isn't defined)" % self.pk
-    get_full_name.short_description = _('полное имя вида')
+    get_full_name.short_description = _('название вида')
 
     @property
     def colldate(self):
@@ -302,7 +304,7 @@ class Species(TaxonMixin):
     def get_full_name(self):
         res = super(Species, self).get_full_name()
         return capfirst(self.genus.name) +' ' + res
-    get_full_name.short_description = _('полное имя вида')
+    get_full_name.short_description = _('название вида')
 
     class Meta:
         verbose_name = _('вид')

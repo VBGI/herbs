@@ -718,7 +718,8 @@ def make_barcodes(request, q):
 def _smartify_species(item):
     if item.species:
         if item.species.genus:
-            species = capfirst(item.species.genus.name) + ' ' + item.species.name
+            species = capfirst(item.species.genus.name) + ' '  + \
+                      item.significance + ' ' + item.species.name
         else:
             species = 'No genus ' + item.species.name
         authorship = item.species.authorship or ''

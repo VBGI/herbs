@@ -39,12 +39,12 @@
       <div id="herbitem-text-container"> 
       <p><strong>{%trans "Семейство"%}:</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
       <p><strong>{%trans "Род"%}:</strong>&nbsp;<i>{{curobj.species.genus.get_full_name|capfirst}}</i></p>
-        {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.genus.name|capfirst}} {{curobj.species.name}}</i> {{curobj.species.authorship}} </p>{%endif%}
+        {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.species.genus.name|capfirst}} {{curobj.significance}} {{curobj.species.name}}</i> {{curobj.species.authorship}} </p>{%endif%}
       {%if curobj.additionals.all%}
       <p><strong>{%trans "Дополнительные виды" %}:</strong></p>
       <ul>
         {%for item in curobj.additionals.all%}
-          <li>{{item.identifiedby|force_translit}}: {{item.species}} {%trans "Валидность"%}: 
+          <li>{{item.identifiedby|force_translit}}: <i>{{item.species.genus.name|capfirst}} {{item.significance}} {{item.species.name}}</i> {{curobj.species.authorship}} {%trans "Валидность"%}:
               {%if item.identified_s and item.identified_e%}{{item.identified_s}} &mdash; {{item.identified_e}}
               {%elif item.identified_s%} {%trans "с"%} {{item.identified_s}}
               {%elif item.identified_e%} {%trans "по"%} {{item.identified_e}}
@@ -90,7 +90,7 @@
       <ul>
         {%for item in curobj.dethistory.all%}
           {%if item.species %}
-        <li>{{item.identifiedby|force_translit}}: {{item.species}} {%if item.identified_s and item.identified_e%} ({{item.identified_s}} &mdash; {{item.identified_e}}) {%elif item.identified_s%} ({{item.identified_s}}) {%elif item.identified_e%} ({{item.identified_e}}){%else%}{%endif%}</li>
+        <li>{{item.identifiedby|force_translit}}: <i>{{item.species.genus.name|capfirst}} {{item.significance}} {{item.species.name}}</i> {{curobj.species.authorship}} {%if item.identified_s and item.identified_e%} ({{item.identified_s}} &mdash; {{item.identified_e}}) {%elif item.identified_s%} ({{item.identified_s}}) {%elif item.identified_e%} ({{item.identified_e}}){%else%}{%endif%}</li>
           {%endif%}
         {%endfor%}
       </ul>
