@@ -42,7 +42,7 @@ class HerbItemMixin(models.Model):
                                blank=True)
 
     acronym = models.ForeignKey('HerbAcronym', on_delete=models.SET_NULL,
-                                verbose_name='Acronym',
+                                verbose_name=_('Акроним'),
                                 blank=True, null=True)
 
     # -------- position -------------
