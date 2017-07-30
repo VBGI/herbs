@@ -10,3 +10,5 @@ testprj/media
 *.db
 *.pkl
 .idea
+herbs/docs/sphinx/ru/build
+herbs/docs/sphinx/en/build
