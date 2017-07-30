@@ -251,3 +251,11 @@ http://botsad.ru/hitem/json?id=500
 http://botsad.ru/hitem/json?id=44
 
 http://botsad.ru/hitem/json?id=5
+
+
+Дополнительно
+-------------
+
+`Работа с электронным гербарием из Python <https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/Python/ru/Python.ipynb>`_
+
+`Работа с электронным гербарием из R <https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/R/ru/R.ipynb>`_
