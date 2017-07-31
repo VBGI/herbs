@@ -39,8 +39,14 @@
       <div id="herbitem-text-container"> 
       <p><strong>{%trans "Семейство"%}:</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
       <p><strong>{%trans "Род"%}:</strong>&nbsp;<i>{{curobj.species.genus.get_full_name|capfirst}}</i></p>
-        {%if curobj.species %}<p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.get_basic_name|capfirst}}</i> {{curobj.species.authorship}} </p>{%endif%}
-      {%if curobj.additionals.all%}
+        {%if curobj.species %}
+        <p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.get_basic_name|capfirst}}</i> {{curobj.species.authorship}} </p>
+          {%if curobj.short_note%}
+        <p>[{%trans "Примечание:" %} {{curobj.short_note}}]</p>
+          {%endif%}
+        {%endif%}
+
+        {%if curobj.additionals.all%}
       <p><strong>{%trans "Дополнительные виды" %}:</strong></p>
       <ul>
         {%for item in curobj.additionals.all%}
