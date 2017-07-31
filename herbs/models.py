@@ -16,7 +16,18 @@ SIGNIFICANCE = (('aff.', 'affinis'),
                 )
 
 
-class HerbItemMixin(models.Model):
+class BasicNameMixin(object):
+
+    def get_basic_name(self):
+        if self.species:
+            genus_name = self.species.genus.name
+            species_name = self.species.name
+            siglevel = self.significance + ' ' if self.significance else ''
+            return capfirst(genus_name) + ' ' + siglevel + species_name
+        else:
+            return 'No species name'
+
+class HerbItemMixin(models.Model, BasicNameMixin):
     '''
     Common item properties
     '''
@@ -27,7 +38,7 @@ class HerbItemMixin(models.Model):
     species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
                                 verbose_name=_('вид'), related_name='herbitem')
 
-    significance = models.CharField(max_length=5, default='', null=True,
+    significance = models.CharField(max_length=5, default='',
                                     blank=True, choices=SIGNIFICANCE,
                                     verbose_name=_('сходство'), help_text=_('степень сходства: aff. или cf.'))
 
@@ -110,10 +121,7 @@ class HerbItemMixin(models.Model):
 
     def get_full_name(self):
         if self.species:
-            genus_name = self.species.genus.name
-            species_name = self.species.get_full_name()
-            return capfirst(genus_name) + ' ' + item.significance + ' ' \
-                   + species_name
+            return self.get_basic_name() + ' ' + self.species.authorship
         else:
             return "Object #%s (Species isn't defined)" % self.pk
     get_full_name.short_description = _('название вида')
@@ -199,7 +207,7 @@ class HerbAcronym(models.Model):
         return u'{}:{}'.format(self.name, self.institute)
 
 
-class DetHistory(models.Model):
+class DetHistory(models.Model, BasicNameMixin):
     herbitem = models.ForeignKey('HerbItem', blank=False,
                                  related_name='dethistory')
     identifiedby = models.CharField(max_length=500, default='', blank=True,
@@ -220,7 +228,7 @@ class DetHistory(models.Model):
         verbose_name_plural = _('переопределения')
 
 
-class Additionals(models.Model):
+class Additionals(models.Model, BasicNameMixin):
     herbitem = models.ForeignKey('HerbItem', blank=False,
                                  related_name='additionals')
     identifiedby = models.CharField(max_length=500, default='', blank=True,
@@ -267,7 +275,7 @@ class Family(TaxonMixin):
 
     def get_full_name(self):
         return super(Family, self).get_full_name()
-    get_full_name.short_description = _('полное имя семейства')
+    get_full_name.short_description = _('название семейства')
 
 
 @python_2_unicode_compatible
@@ -279,7 +287,7 @@ class Genus(TaxonMixin):
                              blank=True)
     def get_full_name(self):
         return super(Genus, self).get_full_name()
-    get_full_name.short_description = _('полное имя рода')
+    get_full_name.short_description = _('название рода')
 
     class Meta:
         verbose_name = _('род')

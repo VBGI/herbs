@@ -581,7 +581,7 @@ def collect_label_data(q):
             addsps_obj = Additionals.objects.filter(herbitem=item)
             if addsps_obj.exists():
                 for addsp in addsps_obj:
-                    addspecies.append([addsp.species.get_full_name().replace(addsp.species.authorship, '').strip(),
+                    addspecies.append([addsp.get_basic_name(),
                                        addsp.species.authorship])
             ddict = _smartify_species(item)
             ddict.update({'coldate': _smartify_dates(item)})
@@ -718,8 +718,9 @@ def make_barcodes(request, q):
 def _smartify_species(item):
     if item.species:
         if item.species.genus:
-            species = capfirst(item.species.genus.name) + ' '  + \
-                      item.significance + ' ' + item.species.name
+            siglevel = item.significance + ' ' if item.significance else ''
+            species = capfirst(item.species.genus.name) + ' ' + \
+                      siglevel + item.species.name
         else:
             species = 'No genus ' + item.species.name
         authorship = item.species.authorship or ''
