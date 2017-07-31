@@ -48,7 +48,9 @@
               {%if item.identified_s and item.identified_e%}{{item.identified_s}} &mdash; {{item.identified_e}}
               {%elif item.identified_s%} {%trans "с"%} {{item.identified_s}}
               {%elif item.identified_e%} {%trans "по"%} {{item.identified_e}}
-              {%else%} {%trans "не задана"%}{%endif%}</li>
+              {%else%} {%trans "не задана"%}{%endif%}
+          {%if item.note%}[{%trans "Примечание" %}: {{item.note}}]{%endif%}
+          </li>
         {%endfor%}
       </ul>
       {%endif%}
