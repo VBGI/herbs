@@ -42,7 +42,7 @@
         {%if curobj.species %}
         <p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.get_basic_name|capfirst}}</i> {{curobj.species.authorship}} </p>
           {%if curobj.short_note%}
-        <p>[{%trans "Примечание:" %} {{curobj.short_note}}]</p>
+        <p>[{%trans "Примечание:" %} {{curobj.short_note|smart_language}}]</p>
           {%endif%}
         {%endif%}
 
@@ -55,7 +55,7 @@
               {%elif item.identified_s%} {%trans "с"%} {{item.identified_s}}
               {%elif item.identified_e%} {%trans "по"%} {{item.identified_e}}
               {%else%} {%trans "не задана"%}{%endif%}
-          {%if item.note%}[{%trans "Примечание" %}: {{item.note}}]{%endif%}
+          {%if item.note%}[{%trans "Примечание" %}: {{item.note|smart_language}}]{%endif%}
           </li>
         {%endfor%}
       </ul>
