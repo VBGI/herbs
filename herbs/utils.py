@@ -103,8 +103,12 @@ def prefill_related_species(hitem, attr):
                                  'species_authorship': item.species.authorship,
                                  'species_id': item.species.pk,
                                  'species_status': item.species.get_status_display(),
-                                 'species_fullname': item.species.get_full_name()
+                                 'species_fullname': item.species.get_full_name(),
+                                 'significance': item.significance if item.significance else ''
                                  })
+
+                if attr == 'additionals':
+                    dataitem.update({'note': item.note})
             else:
                 dataitem.update({'family': '',
                                  'family_authorship': '',
@@ -132,6 +136,7 @@ def herb_as_dict(hitem):
         result.update({'species_id': hitem.species.pk})
         result.update({'species_status': hitem.species.get_status_display()})
         result.update({'species_fullname': hitem.get_full_name()})
+    result.update({'significance': hitem.significance if hitem.significance else ''})
     result.update({'id': hitem.pk})
     result.update({'gpsbased': hitem.gpsbased})
     result.update({'latitude': hitem.latitude})
