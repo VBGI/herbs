@@ -666,6 +666,7 @@ def make_bryopyte_label(request, q):
         allspecies = [[label['species'],
                        label['spauth'],
                        label['short_note'] or '']] + label['addspecies']
+        label.pop('short_note', None)
         label.pop('addspecies', None)
         label.pop('spauth', None)
         label.pop('species', None)
