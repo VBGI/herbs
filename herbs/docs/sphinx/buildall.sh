@@ -14,8 +14,8 @@ make clean
 make latexpdf
 cp -f build/latex/herbarium.pdf source/files/herbarium.pdf
 make html
-echo "Russian docs compiled successfully... Copying it to server..."
 
+echo "Everything compiled successfully... Copying it to server..."
 
 ssh myremote "mkdir -p $REMOTE_FOLDER/en"
 scp -r ./build/html/* myremote:$REMOTE_FOLDER/en
