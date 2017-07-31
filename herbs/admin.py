@@ -189,6 +189,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                      'species__genus__name', 'species__name')
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, create_barcodes,
                create_pdf_envelope, 'delete_selected')
+    exclude = tuple()
 
     def delete_selected(self, request, obj):
         nquery = obj.filter(public=False)
@@ -313,6 +314,12 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 return  super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
 
         kwargs['form'] = HerbItemForm
+        if not request.user.has_perm('herbs.can_see_additionals'):
+            if 'short_note' not in self.exclude:
+                self.exclude += ('short_note', )
+        else:
+            if 'short_note' in self.exclude:
+                self.exclude = tuple()
         ExtendedForm = super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
         class NewModelForm(ExtendedForm):
             def __new__(self, *args, **kwargs):
