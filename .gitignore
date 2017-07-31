@@ -12,3 +12,4 @@ testprj/media
 .idea
 herbs/docs/sphinx/ru/build
 herbs/docs/sphinx/en/build
+.ipynb_checkpoints
