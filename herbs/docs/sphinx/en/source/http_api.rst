@@ -91,6 +91,7 @@ Structured data format
 - **species_authorship** |---| species authorship;
 - **species_status** |---| current species status; the term species status is related to species instance not herbarium record; it describes a degree of acceptance the species by scientific community (current state); Possible values of **species_status** are 'Recently added' |---| the species was recently included to the database and wasn't checked by an expert, 'Approved' |---| the species was approved by an expert (a user having some prevelegies), 'Deleted' |---| the species name is probably obsolete and should be avoided, 'From plantlist' |---| the species was imported from the http://theplantlist.org;
 - **species_fullname** |---| full species name, e.g. Genus + species epithet + species authorship;
+- **significance** |---| measure of ambiguity regard the main species (possible values: "", aff., cf.);
 - **id** |---| integer identifier of a herbarium record, it is unique;
 - **gpsbased** |---| boolean parameter, its true value means that a herbarium record position is obtained via the GNSS (GPS/GLONASS); note (for VBGI Herbarium): unfortunately, its false value doesn't meant anything: there are lots of records with geographic coordinates obtained via GNSS, but having unchecked **gpsbased** flag; 
 - **latitude** |---|  latitude, degrees (WGS84);
@@ -131,7 +132,16 @@ Structured data format
           arbitrary, but ones having intuitive values are preffered. 
 
 
-Note: Attributes **region**, **district**, **details**, **note**, **altitude** could be filled in bilingual mode, that means it could include special symbol "|". For instance, let's consider **region** and its value "Russian Far East|Дальний Восток России". The **region** stringconsist of two parts English and Russian. In current implementation the API-system doesn't care about what part of the string is really needed to the user and returns the entire string. Handling such cases, e.g. removing unnecessary substrings from left or right side of the "|" symbol, should be performed by the end user.
+.. _field_reference_label:
+
+Note: Attributes **region**, **district**, **details**, **note**, **altitude** could be filled
+in bilingual mode, that means it could include special symbol "|".
+For instance, let's consider **region** and its value "Russian Far East|Дальний Восток России".
+The **region** string consist of two parts English and Russian.
+In current implementation the API-system doesn't care about what part of
+the string is really needed to the user and returns the entire string.
+Handling such cases, e.g. removing unnecessary substrings from left or right side of the "|" symbol,
+should be performed by the end user.
 
 
 Structure of **dethistory** and **additionals** arrays are described below.
@@ -181,6 +191,11 @@ and have the following fields (fields have almost the same meaning as for **deth
 - **species_authorship** |---| species authorship;
 - **species_status** |---|  species instance status;
 - **species_fullname** |---| full species name;
+- **significance** |---| measure of ambiguity regard the current species (possible values: "", aff., cf.);
+- **note** |---| additional information about the current species;
+
+**Note** The **note** field could be filled out with bilingual mode support (e.g. using the "|" symbol);
+So, it behaves like described :ref:`above <field_reference_label>`.
 
 *Example*
 
