@@ -38,6 +38,9 @@ class HerbItemMixin(models.Model, BasicNameMixin):
     species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
                                 verbose_name=_('вид'), related_name='herbitem')
 
+    short_note = models.CharField(max_length=300, default='', blank=True,
+                                  verbose_name=_('Примечание к виду'))
+
     significance = models.CharField(max_length=5, default='',
                                     blank=True, choices=SIGNIFICANCE,
                                     verbose_name=_('сходство'), help_text=_('степень сходства: aff. или cf.'))

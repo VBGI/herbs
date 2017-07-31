@@ -75,6 +75,10 @@ BARCODE_HSEP = 10.0
 # ------------ Bryophyte label settings -------------
 BRYOPHYTE_TOP_MARGIN = 10.0
 BRYOPHYTE_LEFT_MARGIN = 45.0
+BRYOPHYTE_MARGIN_EXTRA = 3.0
+BRYOPHYTE_NOTE_FSIZE = 10
+BRYOPHYTE_NOTENUM_FSIZE = 9
+BRYOPHYTE_LINE_LENGTH = 10
 # ---------------------------------------------------
 
 
@@ -136,7 +140,7 @@ class PDF_DOC(PDF_MIXIN):
                    place='', country='', region='', collected='',
                    altitude='', identified='', number='', itemid='', fieldid='',
                    acronym='', institute='', address='', gform='', addspecies='',
-                   district='', note=''):
+                   district='', note='', short_note=''):
         self.pdf.rect(x, y, LABEL_WIDTH, LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
         self.pdf.image(BGI_LOGO_IMG, w=LOGO_WIDTH, h=LOGO_HEIGHT)
@@ -439,7 +443,7 @@ class PDF_DOC(PDF_MIXIN):
                     'acronym': 'VBGI',
                     'institute': 'Botanical Garden-Institute FEB RAS',
                     'address': '690018, Russia, Vladivosotk, Makovskogo st. 142',
-                    'gform': 'G', 'addspecies':''}
+                    'gform': 'G', 'addspecies':'', 'short_note': ''}
         llabels = [testdict] * 4
         self.tile_labels(llabels)
 
@@ -509,7 +513,7 @@ class PDF_BRYOPHYTE(BARCODE):
     def goto(self, y, n, inter=0, line_height=5):
         return y + BRYOPHYTE_TOP_MARGIN + line_height * n + inter
 
-    def generate_label(self, allspecies='',
+    def generate_label(self, allspecies=[],
                        coldate='', latitude='', longitude='',
                        place='', country='', region='', collected='',
                        altitude='', identified='', number='', itemid='',
@@ -536,7 +540,9 @@ class PDF_BRYOPHYTE(BARCODE):
                                       self._ln - 1))
             self.pdf.cell(0, 0, field_string)
 
-        for sp, auth in allspecies:
+        addinfo = []
+        addind = 1
+        for sp, auth, _note in allspecies:
             self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
                         self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, self._ln))
             self.pdf.set_font('DejaVubi', '', SMALL_FONT_SIZE)
@@ -557,12 +563,23 @@ class PDF_BRYOPHYTE(BARCODE):
             else:
                 fline = auth.split()
             self.pdf.cell(0, 0, ' '.join(fline))
+            cur_cell_width = spw + 2 + self.pdf.get_string_width(' '.join(fline))
             if sline:
                 self._ln += 1
                 self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
                                 self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0,
                                           self._ln))
                 self.pdf.cell(0, 0, ' '.join(sline))
+                cur_cell_width = spw + 2 + self.pdf.get_string_width(' '.join(fline))
+            if _note:
+                self.pdf.set_font('DejaVu', '', BRYOPHYTE_NOTENUM_FSIZE)
+                _y = self.pdf.get_y()
+                _x = self.pdf.get_x()
+                self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + cur_cell_width + 1, _y - 1)
+                self.pdf.cell(0, 0, '(' + str(addind) + ')')
+                addinfo.append([addind, _note])
+                addind += 1
+                self.pdf.set_xy(_x, _y)
             self._ln += 1
 
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
@@ -576,33 +593,70 @@ class PDF_BRYOPHYTE(BARCODE):
 
         if coldate:
             leg_info += ' (%s);' % coldate
+
+        latlon_info = ''
         if latitude:
-            leg_info += ' Lat.: %s;' % latitude
+            latlon_info += 'Lat.: %s;' % latitude
         if longitude:
-            leg_info += ' Lon.: %s;' % longitude
+            latlon_info += ' Lon.: %s;' % longitude
         if altitude:
-            leg_info += ' Alt.: %s;' % translit(altitude, 'ru', reversed=True)
+            latlon_info += ' Alt.: %s' % translit(altitude, 'ru', reversed=True)
 
         if identified:
             det_info = 'Det. ' + translit(identified, 'ru', reversed=True)
         else:
             det_info = ''
-        if leg_info:
-            self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN,
-                                5, leg_info)
 
         self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
-        main_info = '; '.join([x for x in [smartify_language(country, lang='en'),
-                                           smartify_language(region, lang='en'),
-                                           smartify_language(district, lang='en'),
-                                           smartify_language(place, lang='en'),
-                                           smartify_language(note, lang='en')] if x])
+        self.pdf.set_font('DejaVubi', '', SMALL_FONT_SIZE)
         self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN,
-                            5, main_info)
+                            5, smartify_language(country, lang='en'))
+        self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
+
+
+
+        pos_info = '; '.join([x.strip() for x in [smartify_language(region, lang='en'),
+                                           smartify_language(district, lang='en'),
+                                           latlon_info] if x])
+
+        self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
+        self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -
+                            BRYOPHYTE_MARGIN_EXTRA, 5, pos_info)
+
+        self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
+        self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -
+                            BRYOPHYTE_MARGIN_EXTRA, 5, leg_info)
+
+        main_info = '; '.join([x.strip() for x in [smartify_language(place, lang='en'),
+                                           smartify_language(note, lang='en')] if x])
+
+        self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
+        self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -
+                            BRYOPHYTE_MARGIN_EXTRA, 5, main_info)
+
         self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
         if det_info:
             self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN,
                                 5, det_info)
+
+        if addinfo:
+            self.pdf.set_font('DejaVu', '', BRYOPHYTE_NOTENUM_FSIZE)
+            self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
+            _y = self.pdf.get_y()
+            self.pdf.line(BRYOPHYTE_LEFT_MARGIN, _y,
+                          BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_LINE_LENGTH, _y)
+            _y += 5
+            for ind, _note in addinfo:
+                self.pdf.set_font('DejaVu', '', BRYOPHYTE_NOTENUM_FSIZE)
+                self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN, _y - 1)
+                self.pdf.cell(0, 0, '(' + str(ind) + ')')
+                self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + 5, _y - 2)
+                self.pdf.set_font('DejaVu', '', BRYOPHYTE_NOTE_FSIZE)
+                self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN - 4,
+                    3, _note)
+                _y = self.pdf.get_y()
+                _y += 3
+
 
         # Barcode insertion
         barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() + str(itemid))

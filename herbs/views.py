@@ -582,7 +582,8 @@ def collect_label_data(q):
             if addsps_obj.exists():
                 for addsp in addsps_obj:
                     addspecies.append([addsp.get_basic_name(),
-                                       addsp.species.authorship])
+                                       addsp.species.authorship,
+                                       addsp.note])
             ddict = _smartify_species(item)
             ddict.update({'coldate': _smartify_dates(item)})
             ddict.update({'family': item.species.genus.family.name.upper() if item.species else '',
@@ -603,7 +604,8 @@ def collect_label_data(q):
                         'fieldid': item.fieldid or '',
                         'addspecies': addspecies,
                         'district': item.district or '',
-                        'note': item.note or ''})
+                        'note': item.note or '',
+                        'short_note': item.short_note or ''})
             result.append(ddict)
     translation.activate(lang)
     return result
@@ -662,7 +664,8 @@ def make_bryopyte_label(request, q):
         label.pop('number', None)
         label.pop('family', None)
         allspecies = [[label['species'],
-                       label['spauth']]] + label['addspecies']
+                       label['spauth'],
+                       label['short_note'] or '']] + label['addspecies']
         label.pop('addspecies', None)
         label.pop('spauth', None)
         label.pop('species', None)

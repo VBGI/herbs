@@ -85,9 +85,9 @@ Structured data format
 - **genus** |---| genus name;
 - **genus_authorship** |---| genus authorship;
 - **species_epithet** |---| species epithet;
-- **species_id** |---| **ID** of species instance (unique integer value); 
-  don't mix with **ID** of the herbarium record. **ID**  of the herbarium record is unique for all herbarium records, **ID** of the related to the herbarium record species instance is unique among all species instances;
-  
+- **species_id** |---| **ID** of species instance (unique integer value); don't mix with **ID** of the
+herbarium record. **ID**  of the herbarium record is unique for all herbarium records, **ID** of the related to the herbarium record species instance is unique among all species instances;
+- **short_note** |---| used in multispecies herbarium records; the field provides important information about the main species of the herbarium record, otherwise it is an empty string;
 - **species_authorship** |---| species authorship;
 - **species_status** |---| current species status; the term species status is related to species instance not herbarium record; it describes a degree of acceptance the species by scientific community (current state); Possible values of **species_status** are 'Recently added' |---| the species was recently included to the database and wasn't checked by an expert, 'Approved' |---| the species was approved by an expert (a user having some prevelegies), 'Deleted' |---| the species name is probably obsolete and should be avoided, 'From plantlist' |---| the species was imported from the http://theplantlist.org;
 - **species_fullname** |---| full species name, e.g. Genus + species epithet + species authorship;
