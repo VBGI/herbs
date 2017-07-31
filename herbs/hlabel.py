@@ -596,9 +596,9 @@ class PDF_BRYOPHYTE(BARCODE):
 
         latlon_info = ''
         if latitude:
-            latlon_info += 'Lat.: %s;' % latitude
+            latlon_info += 'Lat.: %s' % latitude + u'\N{DEGREE SIGN};'
         if longitude:
-            latlon_info += ' Lon.: %s;' % longitude
+            latlon_info += ' Lon.: %s' % longitude + u'\N{DEGREE SIGN};'
         if altitude:
             latlon_info += ' Alt.: %s' % translit(altitude, 'ru', reversed=True)
 
@@ -645,7 +645,7 @@ class PDF_BRYOPHYTE(BARCODE):
             _y = self.pdf.get_y()
             self.pdf.line(BRYOPHYTE_LEFT_MARGIN, _y,
                           BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_LINE_LENGTH, _y)
-            _y += 5
+            _y += 4
             for ind, _note in addinfo:
                 self.pdf.set_font('DejaVu', '', BRYOPHYTE_NOTENUM_FSIZE)
                 self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN, _y - 1)
