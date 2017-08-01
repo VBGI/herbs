@@ -64,7 +64,7 @@
       <p><strong>{%trans "Координаты сбора"%}:</strong></p>
       <p><strong>{%trans "Широта"%}:</strong> {{curobj.coordinates.latitude|stringformat:"2.5f"}}&deg;, &nbsp; 
       <strong>{%trans "Долгота"%}:</strong> {{curobj.coordinates.longitude|stringformat:"2.5f"}}&deg;</p>
-      {%if curobj.gpsbased%}<h6>{%trans "Примeчание: координаты получены при помощи GNSS"%}</h6>{%endif%}
+      {%if curobj.gpsbased%}<h6>{%trans "Примeчание: координаты получены при помощи GPS"%}</h6>{%endif%}
        <div id="herbitem-map" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"2.5f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"2.5f" }}"></div>
        <script type="text/javascript">
           function initMap() {

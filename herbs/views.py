@@ -569,8 +569,8 @@ def collect_label_data(q):
     translation.activate('en')
     if objs.exists():
         for item in objs:
+            history = DetHistory.objects.filter(herbitem=item)
             if not item.identifiedby:
-                history = DetHistory.objects.filter(herbitem=item)
                 try:
                     dhist = history.latest('identified_s')
                     identified = dhist.identifiedby
@@ -579,11 +579,11 @@ def collect_label_data(q):
             else:
                 identified = item.identifiedby
 
+            reshistory = []
             if history.exists():
-                reshistory= []
                 for hist_obj in history:
                     if hist_obj.species:
-                        _sp_hist = _smartify_species(hist_obj.species)
+                        _sp_hist = _smartify_species(hist_obj)
                         reshistory.append(
                             {
             'identifiedby': hist_obj.identifiedby,
