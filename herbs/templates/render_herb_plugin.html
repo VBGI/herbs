@@ -258,9 +258,9 @@ function getornone(el){
 var res = null;
 var obj = $(el).select2('data');
 if (obj !== undefined){
-	if (obj[0] !== undefined){
-		res = obj[0].text;	
-	}
+    if (obj[0] !== undefined){
+        res = obj[0].text;
+    }
 }
 return res;
 }
@@ -628,6 +628,32 @@ function switchTabs(){var currentTab = $("#herbitem-tabs").tabs('option', 'activ
   }}
 
 
+function clearSearchForm(){
+$("#synonyms-input").prop('checked', false);
+$("#additionals-input").prop('checked', false);
+$("#herbitem-order-flag").prop('checked', false);
+clearMarkers();
+$("#synonyms-error-message").hide();
+$('#family-input').select2('val','');
+$('#genus-input').select2('val', '');
+$('#country-input').select2('val', '');
+$('div>input[type=search]').val('');
+$("#herbitem-search-filtering select").val('');
+$('div.clear-button').hide();
+$("div.clear-rect-bounds").hide();
+// Clear map rectangular filtering
+$('#latl-input').val('');
+$('#latu-input').val('');
+$('#lonl-input').val('');
+$('#lonu-input').val('');
+if (rectSelector!=null){rectSelector.setMap(null);};
+rectSelector=null;
+$( "div#herb-search-form ul li input:text" ).each(function() {
+	$(this).val('');});
+}
+
+
+
 $(document).ready(function() { 
 
 bindSearch('family', "{% trans 'Семейство'%}");
@@ -684,32 +710,11 @@ rectSelector=null;
 
 $("#colstart-input").datepicker({dateFormat: "dd.mm.yy"});
 $("#colend-input").datepicker({dateFormat: "dd.mm.yy"});
+
 $("#searchform-clear").click(function (event){
 	event.preventDefault();
-$("#synonyms-input").prop('checked', false);
-$("#additionals-input").prop('checked', false);
-$("#herbitem-order-flag").prop('checked', false);
-clearMarkers();
-$("#synonyms-error-message").hide(); 
-$('#family-input').select2('val',''); 
-$('#genus-input').select2('val', '');
-$('#country-input').select2('val', '');
-$('div>input[type=search]').val('');
-$("#herbitem-search-filtering select").val('');
-$('div.clear-button').hide();
-$("div.clear-rect-bounds").hide();
-// Clear map rectangular filtering
-$('#latl-input').val('');
-$('#latu-input').val('');
-$('#lonl-input').val('');
-$('#lonu-input').val('');
-if (rectSelector!=null){rectSelector.setMap(null);};
-rectSelector=null;
-$( "div#herb-search-form ul li input:text" ).each(function() {  
-	$(this).val('');
-});
-
-cpage = 1;// <!-- Find cpage in the outer scope and change it; i.e. pagination counter -->
+clearSearchForm();
+cpage = 1;
 herbitemFind(false);
 });
 
@@ -791,7 +796,20 @@ $("#herbitem-http-api > div").clone().appendTo("#herbitem-http-api-details");
 $("#herbitem-tabs").show();
 initHerbitemMap();
 });
-
+$(document).keypress(function(e) {
+    if(e.which == 13) {
+         switchTabs();
+         cpage = 1;
+	     herbitemFind(false);
+    }
+});
+$(document).keypress(function(e) {
+    if(e.which == 32) {
+        clearSearchForm();
+        cpage = 1;
+        herbitemFind(false);
+    }
+});
 </script>
 {%endaddtoblock%}
 
