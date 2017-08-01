@@ -798,6 +798,7 @@ initHerbitemMap();
 });
 $(document).keypress(function(e) {
     if(e.which == 13) {
+         e.preventDefault();
          switchTabs();
          cpage = 1;
 	     herbitemFind(false);
@@ -805,6 +806,7 @@ $(document).keypress(function(e) {
 });
 $(document).keypress(function(e) {
     if(e.which == 32) {
+        e.preventDefault();
         clearSearchForm();
         cpage = 1;
         herbitemFind(false);
