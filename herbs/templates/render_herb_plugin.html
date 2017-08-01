@@ -11,32 +11,47 @@ Created: 30 Aug, 2016
 <div id="herb-search-form">
   <ul>  
     <li><input type="submit" id="herbitemform-button" value="{% trans "Найти" %}"></li> 
-    <li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}" title="{%trans "Очистить все условия поиска"%}" ></li>
-	<li><label for="family-input">{%trans "Семейство"%}:</label><div><select id="family-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-	<li><label for="genus-input">{%trans "Род"%}:</label><div><select id="genus-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-  <li><label for="species-input">{%trans "Видовой эпитет"%}:</label><div><input type="search" id="species-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div>
-      <div><input type="checkbox" name="synonyms" value="False" id="synonyms-input">{%trans "Учитывать синонимы"%}</div>
+    <li><input type="submit" id="searchform-clear" value="{%trans "Очистить"%}"
+        title="{%trans "Очистить все условия поиска"%}" ></li>
+	<li><label for="family-input">{%trans "Семейство"%}:</label>
+        <div><select id="family-input"></select><div class="clear-button">
+            <span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="genus-input">{%trans "Род"%}:</label>
+        <div><select id="genus-input"></select><div class="clear-button">
+            <span class="ui-icon ui-icon-trash"></span></div></div></li>
+    <li><label for="species-input">{%trans "Видовой эпитет"%}:</label>
+        <div><input type="search" id="species-input">
+        <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div>
+        <div><input type="checkbox" name="synonyms" value="False" id="synonyms-input">{%trans "Учитывать синонимы"%}</div>
         <div id="synonyms-error-message">{%trans "Поля род и видовой эпитет должны быть заполнены, иначе условие поиска будет проигнорировано"%}</div>
-        <div title="{%trans "Некоторые гербарные сборы могут содержать более одного вида" %}"><input type="checkbox" name="additionals" value="False" id="additionals-input">{%trans "Искать в дополнительных видах"%}</div>
-  </li>
-  <li><label for="itemcode-input">{%trans "Код"%}:</label><div><input type="search" id="itemcode-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-
-  <li><label for="collectedby-input">{%trans "Собрал(и)"%}:</label><div><input type="search" id="collectedby-input" value="" placeholder="{%trans "Текстовое поле"%}"><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-	<li><label for="identifiedby-input">{%trans "Определил(и)"%}:</label><div><input type="search" id="identifiedby-input" value="" placeholder="{%trans "Текстовое поле"%}"><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-
-  <li><label for="country-input">{%trans "Страна"%}:</label><div><select id="country-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></li>
-
-  <li><label for="place-input">{%trans "Место сбора"%}:</label><div><input type="search" id="place-input" value="" placeholder="{%trans "Место сбора"%}"><div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-
-  <li><label for="colstart-input">{%trans "Дата сбора (начало)"%}:</label>
+        <div title="{%trans 'Некоторые гербарные сборы могут содержать более одного вида' %}">
+        <input type="checkbox" name="additionals" value="False" id="additionals-input">
+        {%trans "Искать в дополнительных видах"%}</div>
+    </li>
+    <li><label for="itemcode-input">{%trans "Код"%}:</label><div><input type="search" id="itemcode-input">
+        <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+    <li><label for="collectedby-input">{%trans "Собрал(и)"%}:</label>
+        <div><input type="search" id="collectedby-input" value="" placeholder="{%trans "Текстовое поле"%}">
+            <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+	<li><label for="identifiedby-input">{%trans "Определил(и)"%}:</label>
+        <div><input type="search" id="identifiedby-input" value="" placeholder="{%trans "Текстовое поле"%}">
+            <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+    <li><label for="country-input">{%trans "Страна"%}:</label>
+        <div><select id="country-input"></select><div class="clear-button"><span class="ui-icon ui-icon-trash"></span>
+        </div></li>
+    <li><label for="place-input">{%trans "Место сбора"%}:</label><div>
+        <input type="search" id="place-input" value="" placeholder="{%trans 'Место сбора' %}">
+        <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
+    <li><label for="colstart-input">{%trans "Дата сбора (начало)"%}:</label>
     <div><input type="search" id="colstart-input" value="" placeholder="{%trans "Начало сбора"%}">
     <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div>
     </div>
-  </li>
- <li><label for="colend-input">{%trans "Дата сбора (окончание)"%}:</label><div>
-  <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}"> <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
-     
+    </li>
+    <li><label for="colend-input">{%trans "Дата сбора (окончание)"%}:</label><div>
+    <input type="search" id="colend-input" value="" placeholder="{%trans "Конец сбора"%}">
+        <div class="clear-button"><span class="ui-icon ui-icon-trash"></span></div></div></li>
   </ul>
+
 </div> 
 
 <!--  ======================================================== -->
@@ -145,14 +160,14 @@ Created: 30 Aug, 2016
 <div class="herbitem-page-lister">
     <span class="step-links">
         <% if (has_previous){ %>
-            <span id="herbitem-previous-page"  onclick="incrPage(this,-1)">{% trans "Предыдущая" %}</span>
+            <span id="herbitem-previous-page"  onclick="incrementPage(this,-1)">{% trans "Предыдущая" %}</span>
         <% } %>
         
         <span class="current">
             {% trans "Страница" %} <%= pagenumber %> {%trans "из"%} <%= pagecount %>
         </span>
         <% if (has_next) {%>
-        	<span id="herbitem-next-page"  onclick="incrPage(this,1)">{% trans "Следующая" %} </span>
+        	<span id="herbitem-next-page"  onclick="incrementPage(this,1)">{% trans "Следующая" %} </span>
         <% } %>
     </span>
 </div>
@@ -164,14 +179,14 @@ Created: 30 Aug, 2016
 <div class="herbitem-page-lister">
     <span class="step-links">
         <% if (has_previous){ %>
-            <span id="herbitem-previous-page"  onclick="incrPage(this,-1)">{% trans "Предыдущая" %}</span>
+            <span id="herbitem-previous-page"  onclick="incrementPage(this,-1)">{% trans "Предыдущая" %}</span>
         <% } %>
         
         <span class="current">
             {% trans "Страница" %} <%= pagenumber %> {%trans "из"%} <%= pagecount %>
         </span>
         <% if (has_next) {%>
-        	<span id="herbitem-next-page"  onclick="incrPage(this,1)">{% trans "Следующая" %} </span>
+        	<span id="herbitem-next-page"  onclick="incrementPage(this,1)">{% trans "Следующая" %} </span>
         <% } %>
     </span>
 </div>
@@ -249,7 +264,7 @@ Created: 30 Aug, 2016
 <script type="text/javascript">
 var cpage = 1; // Current paginated page 
 
-function incrPage(el, inc){  // Just increment the page number 
+function incrementPage(el, inc){  // Just increment the page number 
 cpage = cpage + inc
 herbitemFind(false);
 }
