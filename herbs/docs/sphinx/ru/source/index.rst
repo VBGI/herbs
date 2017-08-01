@@ -10,7 +10,7 @@
 
 .. toctree::
     :maxdepth: 2
-    :caption: Contents:
+    :caption: Содержание:
 
     search_basics.rst
     main.rst
