@@ -140,7 +140,8 @@ class PDF_DOC(PDF_MIXIN):
                    place='', country='', region='', collected='',
                    altitude='', identified='', number='', itemid='', fieldid='',
                    acronym='', institute='', address='', gform='', addspecies='',
-                   district='', note='', short_note=''):
+                   district='', note='', short_note='', gpsbased='',
+                   dethistory=''):
         self.pdf.rect(x, y, LABEL_WIDTH, LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
         self.pdf.image(BGI_LOGO_IMG, w=LOGO_WIDTH, h=LOGO_HEIGHT)
@@ -443,7 +444,8 @@ class PDF_DOC(PDF_MIXIN):
                     'acronym': 'VBGI',
                     'institute': 'Botanical Garden-Institute FEB RAS',
                     'address': '690018, Russia, Vladivosotk, Makovskogo st. 142',
-                    'gform': 'G', 'addspecies':'', 'short_note': ''}
+                    'gform': 'G', 'addspecies':'', 'short_note': '', 'gpsbased': '',
+                    'dethistory': ''}
         llabels = [testdict] * 4
         self.tile_labels(llabels)
 
@@ -518,7 +520,7 @@ class PDF_BRYOPHYTE(BARCODE):
                        place='', country='', region='', collected='',
                        altitude='', identified='', number='', itemid='',
                        fieldid='', acronym='', institute='', note='',
-                       district=''):
+                       district='', gpsbased='', dethistory=[]):
         # -----  Insert qr-code in the center of the page ------
         insert_qr(self.pdf, DEFAULT_PAGE_WIDTH / 2.0 + QR_SIZE / 2.0,
                   DEFAULT_PAGE_HEIGHT / 2.0, code=itemid, lh=0, lw=0)
@@ -542,7 +544,9 @@ class PDF_BRYOPHYTE(BARCODE):
 
         addinfo = []
         addind = 1
+        mainind = 0
         for sp, auth, _note in allspecies:
+            mainind += 1
             self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
                         self.goto(DEFAULT_PAGE_HEIGHT * 2.0 / 3.0, self._ln))
             self.pdf.set_font('DejaVubi', '', SMALL_FONT_SIZE)
@@ -571,13 +575,27 @@ class PDF_BRYOPHYTE(BARCODE):
                                           self._ln))
                 self.pdf.cell(0, 0, ' '.join(sline))
                 cur_cell_width = spw + 2 + self.pdf.get_string_width(' '.join(fline))
-            if _note:
+            if _note or (dethistory and mainind == 1):
                 self.pdf.set_font('DejaVu', '', BRYOPHYTE_NOTENUM_FSIZE)
                 _y = self.pdf.get_y()
                 _x = self.pdf.get_x()
                 self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + cur_cell_width + 1, _y - 1)
                 self.pdf.cell(0, 0, '(' + str(addind) + ')')
-                addinfo.append([addind, _note])
+                if dethistory and mainind == 1:
+                    _note = _note.strip()
+                    if _note[-1] in [';', '.', ',',]:
+                        _note = _note[:-1]
+                    _note += ';'
+                    histlines = []
+                    for hist_item in dethistory:
+                        histline = hist_item['identifiedby'] + ': '
+                        if hist_item['identified']:
+                            histline += '(' + hist_item['itemtified'] + ')'
+                        histline += hist_item['species']['species'] +\
+                                    hist_item['species']['spauth']
+                        histlines.append(histline)
+                    _note += ';'.join(histlines)
+                addinfo.append([addind, _note.strip()])
                 addind += 1
                 self.pdf.set_xy(_x, _y)
             self._ln += 1
@@ -601,6 +619,11 @@ class PDF_BRYOPHYTE(BARCODE):
             latlon_info += ' Lon.: %s' % longitude + u'\N{DEGREE SIGN};'
         if altitude:
             latlon_info += ' Alt.: %s' % translit(altitude, 'ru', reversed=True)
+
+        if (latitude or longitude or altitude) and gpsbased:
+            latlon_info += ';[GPS-based];'
+        else:
+            latlon_info += ';'
 
         if identified:
             det_info = 'Det. ' + translit(identified, 'ru', reversed=True)
@@ -627,8 +650,9 @@ class PDF_BRYOPHYTE(BARCODE):
         self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -
                             BRYOPHYTE_MARGIN_EXTRA, 5, leg_info)
 
-        main_info = '; '.join([x.strip() for x in [smartify_language(place, lang='en'),
-                                           smartify_language(note, lang='en')] if x])
+        main_info = '; '.join([x.strip() for x in [smartify_language(note, lang='en'),
+                                                   smartify_language(place, lang='en')
+                                                   ] if x])
 
         self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
         self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -

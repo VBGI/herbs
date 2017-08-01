@@ -570,13 +570,28 @@ def collect_label_data(q):
     if objs.exists():
         for item in objs:
             if not item.identifiedby:
+                history = DetHistory.objects.filter(herbitem=item)
                 try:
-                    dhist = DetHistory.objects.filter(herbitem=item).latest('identified_s')
+                    dhist = history.latest('identified_s')
                     identified = dhist.identifiedby
                 except DetHistory.DoesNotExist:
                     identified = ''
             else:
                 identified = item.identifiedby
+
+            if history.exists():
+                reshistory= []
+                for hist_obj in history:
+                    if hist_obj.species:
+                        _sp_hist = _smartify_species(hist_obj.species)
+                        reshistory.append(
+                            {
+            'identifiedby': hist_obj.identifiedby,
+            'identified': _smartify_dates(hist_obj, prefix='identified'),
+            'species': _sp_hist
+                            }
+                                           )
+
             addspecies = []
             addsps_obj = Additionals.objects.filter(herbitem=item)
             if addsps_obj.exists():
@@ -605,7 +620,10 @@ def collect_label_data(q):
                         'addspecies': addspecies,
                         'district': item.district or '',
                         'note': item.note or '',
-                        'short_note': item.short_note or ''})
+                        'short_note': item.short_note or '',
+                        'gpsbased': item.gpsbased,
+                        'dethistory':  reshistory
+                          })
             result.append(ddict)
     translation.activate(lang)
     return result
