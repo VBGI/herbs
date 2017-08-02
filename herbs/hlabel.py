@@ -583,9 +583,10 @@ class PDF_BRYOPHYTE(BARCODE):
                 self.pdf.cell(0, 0, '(' + str(addind) + ')')
                 if dethistory and mainind == 1:
                     _note = _note.strip()
-                    if _note[-1] in [';', '.', ',']:
-                        _note = _note[:-1]
-                    _note += '; '
+                    if _note:
+                        if _note[-1] in [';', '.', ',']:
+                            _note = _note[:-1]
+                        _note += '; '
                     histlines = []
                     for hist_item in dethistory:
                         histline = hist_item['identifiedby'] + ': '
