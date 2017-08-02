@@ -13,5 +13,7 @@ Welcome to Digital Herbarium's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   search_basics.rst
    http_api.rst
+
 
