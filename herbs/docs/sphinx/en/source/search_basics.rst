@@ -43,7 +43,7 @@ General search possibilities is available via the search menu from the Herbarium
 
 
 When search conditions are given simultaneously, the service trying to perform an **AND**-type
-quiery; it retrieves the records satisfying all the search conditions. Therefore,  only **AND**-type
+quiery; it retrieves records satisfying all the search conditions. Therefore,  only **AND**-type
 search queries are available (at least, currently). To perform **OR**-type quieries  it is recommended
 to look toward the :doc:`HTTP API <http_api>` service.
 
@@ -54,18 +54,22 @@ Start date of collection and end date of collection
 are filled out by means pop-up calendar when the mouse is overed
 these fields.
 
-В случае задания только даты начала сбора |---| условие поиска считается выполненным для тех записей,
-у которых дата начала сбора больше указанной даты начала сбора.
+If only start date of collection is given,  the service retrieves records having greater dates in the
+corresponding field.
 
-В случае задания только даты окончания сбора |---| условие поиска считается выполненным для 
-тех записей, у которых дата окончания сбора меньше указанной даты окончания сбора.
+If only end date of collection is given,  the service retrieves records having lesser dates in the
+corresponding field.
 
-В случае задания дат начала и окончания сбора одновременно |---| условие поиска считается
-выполненным для тех записей, у которых интервал соответствующих дат пересекается
-с указанным временным интервалом сбора.
+If start date of collection and end date of collection are given,
+the service retrieves records if its correspoinding date interval
+intersect the given.
 
-В отношении остальных текстовых полей |---|
-**видовой эпитет**, **код**, **собрали**, **определили**, **место сбора** |---|
+
+Regarding the following text fields  |---|
+**species epithet**, **code**, **collectors**, **identifiers**, **place of collection** |---|
+condition satisfaction assumes including the given value as a substring in a corresponding field
+(case insensitive comparison is performed).
+
 выполнение поискового условия предполагает включение  введенной подстроки
 (без учёта регистра) в соответствующее поле записей таблицы опубликованных гербарных записей.
 
