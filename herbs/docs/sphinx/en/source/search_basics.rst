@@ -8,10 +8,10 @@ Digital Herbarium: Basic Usage
 Features
 --------
 
-Accessing to the Digital Herbarium's data is provided via either the :ref:`web-page<http://botsad.ru/herbarium>`_
+Accessing to the Digital Herbarium's data is provided via either the `web-page <http://botsad.ru/herbarium>`_
 at the official website of the Botanical Garden Institute, or :doc:`HTTP API service <http_api>` exploiting
-when performing search queries automatically (from :ref:`R<http://r-project.org>`_,
-:ref:`Python<http://python.org>`_ or other computational environment).
+when performing search queries automatically (from `R <http://r-project.org>`_,
+`Python <http://python.org>`_ or other computational environment).
 
 Only published herbarium records are shown when do search of any kind.
 
@@ -117,15 +117,16 @@ codes of these three types.
 
 .. note::
 
-    Inventory number (if provided) or * symbol/ID code/Field code (if provided)
+    Inventory number (if provided) or \* symbol/ID code/Field code (if provided)
 
 
 So, the **Complex code** values can look as follows:
 
-* */27031/M.I.38 |---| denotes that the inventary number isn't provided, ID = 27031, and field code is M.I.38;
+* \*/27031/M.I.38 |---| denotes that the inventary number isn't provided, ID = 27031, and field code is M.I.38;
 * 42/27029 |---| denotes that the inventary number is 47,  ID = 27029,  field code isn't provided;
 * the following form of the code can take place as well: 132123/32032/F-3829-3k, where inventary number is 132123, ID is 32032 and
-field code is F-3829-3k (this is fake example, I didn't find a real herbarium record with all three setted codes)
+  field code is F-3829-3k (this is fake example, I didn't find a real herbarium record with all three setted codes)
+
 
 When do searching by **Code** one should provide either an inventary number, ID or field code. For examle, if
 the search field's value is "231" the search engine will

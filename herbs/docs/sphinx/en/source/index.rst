@@ -20,5 +20,6 @@ pecularities of user search activity using web-interface and programming languag
 
    search_basics.rst
    http_api.rst
+   citing.rst
 
 

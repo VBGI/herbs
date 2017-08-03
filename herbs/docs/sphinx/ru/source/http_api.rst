@@ -122,11 +122,13 @@
                    [] |--| пустой список |--| означает отсутствие изображений;
 
 .. note::
-                  [
+                 [
                   ('http://someresource.com/path/to/image1', 'image1 type', 'meta information1'),
                   ('http://someresource.com/path/to/image2', 'image2 type', 'meta information2'),
                   ...
                   ]
+
+
         - *http://...* |--| первое поле записи об изображении, указывает на путь, по которому можно загрузить изображение через Интернет;
         - *image type* |--| тип изображения, символ, 'p' или 's', что означает 'p' = 'place' |--| изображение является фотографией места сбора (относится к месту сбора);
                             's' = 'sheet' |--| изображение является фотографией (сканом) гербарного листа;
@@ -286,6 +288,6 @@ http://botsad.ru/hitem/json?id=5
 
 .. seealso::
 
-`Работа с электронным гербарием из Python <https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/Python/ru/Python.ipynb>`_
+    `Работа с электронным гербарием из Python <https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/Python/ru/Python.ipynb>`_
 
-`Работа с электронным гербарием из R <https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/R/ru/R.ipynb>`_
+    `Работа с электронным гербарием из R <https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/R/ru/R.ipynb>`_
