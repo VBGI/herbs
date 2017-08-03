@@ -43,14 +43,14 @@ List of allowed GET-parameters:
    note: if the value contradicts with the family name provided in the same request,
    an error will be returned;
 - **species_epithet** |---| species epithet (matching condition:
-  case insensitive, a substring of record's corresponding field);
+  case insensitive, a substring of the record corresponding field);
 - **place** |---|  place of collection (matching condition: case insensitive,
   a substring occurring in the one of listed fields: **Place**, **Region**, **District**, **Note**;);
-- **collectedby** |---| collectors (matching condition: case insensitive, a substring of record's corresponding field);
+- **collectedby** |---| collectors (matching condition: case insensitive, a substring of the record corresponding field);
   if the field's value is given in cyrillic, search will be performed (additionally) on its transliterated copy;
-- **identifiedby** |---| identifiers; (matching condition: case insensitive, a substring of record's corresponding field);
+- **identifiedby** |---| identifiers; (matching condition: case insensitive, a substring of the record corresponding field);
   if the field's value is given in cyrillic, search will be performed (additionally) on its transliterated copy;
-- **country** |---| country's name (matching condition: case insensitive, a substring of record's corresponding field);
+- **country** |---| country's name (matching condition: case insensitive, a substring of the record corresponding field);
 - **colstart** |---| date when herbarium object's collection was started (yyyy-mm-dd);
 - **colend** |---|  date when herbarium object's collection was finished (yyyy-mm-dd);
 - **acronym** |---| name of the herbarium's acronym (matching condition:
@@ -78,9 +78,9 @@ List of allowed GET-parameters:
   if this parameter is provided in GET-request,
   all the other search parameters are ignored and the only one record
   with the requested ID is returned (if it exists and is published);
-- **fieldid** |---| field code/number; (matching condition: case insensitive, a substring of record's corresponding field);
-- **itemcode** |---| storage number (matching condition: case insensitive, a substring of record's corresponding field);
-- **authorship** |---| authorship of the main species (matching condition: case insensitive, a substring of record's corresponding field);
+- **fieldid** |---| field code/number; (matching condition: case insensitive, a substring of the record corresponding field);
+- **itemcode** |---| storage number (matching condition: case insensitive, a substring of the record corresponding field);
+- **authorship** |---| authorship of the main species (matching condition: case insensitive, a substring of the record corresponding field);
 
 .. _ISO3166-1-en: https://en.wikipedia.org/wiki/ISO_3166-1
 .. _ISO3166-1-ru: https://ru.wikipedia.org/wiki/ISO_3166-1
@@ -162,7 +162,7 @@ has the following attributes:
 - **id** |---| integer identifier of a herbarium record, it is unique;
 - **gpsbased** |---| boolean parameter, its true value means that a herbarium record
   position is obtained via the GNSS (GPS/GLONASS); `true` value |---|
-   guaranties that coordinates were obtained via GNSS.
+  guaranties that coordinates were obtained via GNSS.
 - **latitude** |---|  latitude, degrees (WGS84);
 - **longitude** |---| longitude, degrees (WGS84);
 - **fieldid** |---| field number; an arbitrary string assigned by a collector;
@@ -190,8 +190,19 @@ has the following attributes:
   details on environmental conditions etc.);
 - **dethistory** |---| an array; history of species identifications for this herbarium record;
 - **additionals** |---| some herbarium records could include more than one species, this array describes all of these;
-- **images** |---| a list of images related to the herbarium record; the list is formatted as follows:
-             [] |--| an empty list, means that  no images are provided;
+- **images** |---| a list of images related to the herbarium record ([] |--| an empty list, means that no images
+  attached to the herbarium record were found); the list is formatted as follows:
+
+        - *http://...* |--| first field of image record; it is a path (link), where the image coulde be downloaded from;
+        - *image type* |--| allowed values are eiter 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of nature from top of the mountain etc.);
+                            's' = 'sheet' |--| snapshot of the herbarium sheet;
+        - *meta information* |--| json-formatted string including auxiliary information about the image; e.g. snapshot authorship, snapshot date, etc.
+          In case of snapshot authorship, sample meta-string would be "{'photographer': 'Pavel Krestov', 'organization': 'Vladivostok Botanical Garden Institute'}"
+          There is no restriction about names of meta-fields, such as 'photographer' or 'organization'; meta-fields could be
+          arbitrary, but ones having intuitive values are preffered.
+
+
+List of images attached to the herbarium record (example):
 
 .. code:: python
 
@@ -200,15 +211,6 @@ has the following attributes:
               ('http://someresource.com/path/to/image2', 'image2 type', 'meta information2'),
               ...
               ]
-
-
-        - *http://...* |--| first field of image record; it is a path (link), where the image coulde be downloaded from;
-        - *image type* |--| allowed values are eiter 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of nature from top of the mountain etc.);
-                            's' = 'sheet' |--| snapshot of the herbarium sheet;
-        - *meta information* |--| json-formatted string included auxiliary information about the image; e.g. snapshot authorship, snapshot date, etc.
-          In case of snapshot authorship, sample meta-string would be "{'photographer': 'Pavel Krestov', 'organization': 'Vladivostok Botanical Garden Institute'}"
-          There is no restriction about names of meta-fields, such as 'photographer' or 'organization'; meta-fields could be
-          arbitrary, but ones having intuitive values are preffered. 
 
 
 .. _field_reference_label:
