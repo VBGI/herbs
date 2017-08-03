@@ -21,7 +21,7 @@ Main features of the search service:
 * accounting species synonyms when searching;
 * search in a given rectangular region;
 * search within additional species (only for multispecies herbarium records);
-* search by record's codes (e.g. field number, inventory number etc.);
+* search by record's codes (e.g. field number, inventary number etc.);
 * search by the country of origin;
 * search by taxonomic name, e.g. via family, genus or species epithet;
 
@@ -66,163 +66,161 @@ intersect the given.
 
 
 Regarding the following text fields  |---|
-**species epithet**, **code**, **collectors**, **identifiers**, **place of collection** |---|
-condition satisfaction assumes including the given value as a substring in a corresponding field
+**Species epithet**, **Code**, **Collectors**, **Identifiers**, **Place of collection** the
+condition satisfaction assumes including the given value as a substring into the corresponding field
 (case insensitive comparison is performed).
 
-выполнение поискового условия предполагает включение  введенной подстроки
-(без учёта регистра) в соответствующее поле записей таблицы опубликованных гербарных записей.
-
-В случае поиска по полям **собрали** и/или **определили**, если значения
-полей записаны кириллическими символами, поисковый запрос также
-выполняется по транслителированным  значениям, обратная транслитерация при этом не выполняется.
-Таким образом, если, например, выполнить поиск с полем **собрали** равным "бакалин",
-то будут найдены все образцы, у которых в поле собрали значится подстрока "bakalin" либо "бакалин"; однако,
-если поиск изначально выполнить по строке "bakalin", то образцы, у которых в данном поле
-использованы кириллические символы ("бакалин"), не будут найдены.
-
-Булевы поля **Учитывать синонимы** и **Искать в дополнительных видах**
-указывают, что: в первом случае |---| дополнительно будет использоваться
-таблица синонимов видов при поиске образцов, а во втором случае |---| что поиск
-также будет распространяться на присоединённые к данному гербарному сбору
-другие виды (для мультивидовых сборов).
-В случае, когда отмечены оба поля поиск по известным системе синонимам видов будет
-проводится также и во всех присоединённых видах гербарных сборов.
-
-Отдельно следует отметить особенности поиска по  полю **Код**.
-
-Электронные гербарные записи БСИ ДВО РАН
-имеют тройную систему кодирования |---| инвентарный номер образца (используемый в хранилище), уникальный числовой ID
-гербарной записи, назначаемый системой, а также полевой код, назначаемый сборщиком гербария.
-
-В связи с этим, таблица результатов поиска имеет колонку **Код сбора (комбинированный)**, в
-которой отражены все три кода, если таковые заданы.
-
-Комбинированный код имеет следующую структуру:
-
-.. code-block:: python
-
-    Инвентарный номер или символ */ID образца/Полевой код обарзца, если задан
-
-Таким образом, возможны следующие варинаты:
-
-* */27031/M.I.38 |---| означает, что инвентарный номер образца не задан,
-  автоматически присваеваемый уникальный номер (ID записи) образца |---| 27031, а полевой код, присвоенный
-  сборщиком гербария |---| M.I.38;
-* 42/27029 |---| инвентарный номер |---| 47, уникальный ID записи |---| 27029, полевой код |---| не задан;
-* возможны также ситуации, когда заданы все три кода, в этом случае комбинированный код имеет, например, вид:
-  132123/32032/F-3829-3k (*это, однако, гипотетический пример, так как действительный образец со всеми тремя заданными кодами я не нашел*)
-
-Выполняя поиск по полю **Код** необходимо задавать какой-либо один из кодов; система автоматически выполнит
-поиск с учетом соответствия значения любому из трех кодовых полей записи. Например, если в поле **Код** задано "231"
-будут найдены все образцы у которых в каком-либо кодовом поле (либо инвентарном коде, либо ID, либо полевом коде)
-встречается подстрока "231".
-
-**Примечание.** Функция учитывать синонимы работает только в случае точного
-указания пары (род, видовой эпитет), в противном случае |---| условие поиска по
-синонимам игнорируется и в результатах поиска выводится соответствующее предупреждение,
-что условие было проигнорировано.
+If one performs search in the either  **Collectors** or **Identifiers** fields
+and fills these fields with cyrillic letters, the service will automatically
+transliterate the given value into English (latin letters)
+and returns records satisfying both cyrillic and transliterated values.
+If you provide the value only in latin letters, no transliteration will be performed.
+Therefore, If you will try, for example,  to find records including "bakalin" as a substring in field **Collectors**,
+the search engine will return the records which field **Collectors** (internally **Collectedby** field)
+includes the string "bakalin" (reverse transliteration (to cyrillic letters) in this case willn't be performed);
+If you will try to search "бакалин" (cyrillic equivalent of 'bakalin') combined
+search results for both "bakalin" and "бакалин" queries will be returned.
 
 
-Фильтрация результатов поиска
------------------------------
+Boolean fields **Search within synonyms** and **Search within additional species**
+indicate that, in the first case |---| the search engine will take into account known (to the system)
+table of species synonyms, and in the second |---| the search engine do searching with additional species
+if those are provided.
+
+.. warning::
+
+    When do searching within species synonyms, the search engine uses the table of species synonyms that,
+    in turn, is dynamically rebuilt each time records in the *Table of known species* are updated. The *Table
+    of known species* can include errors, especially regarding species synonym relationships. This could lead
+    to getting surprising search results. These type of drawbacks (caused by incorrectness of species synonym
+    relationships) will be neglected in the future, as the *Table of known species* will become more errorless.
 
 
-Стандартный поисковый интерфейс предоставляет возможность фильтрации результатов поиска
-по подразделам гербария, а также по гербарным акронимам. 
-Панель фильтрации результатов поиска дана на  :ref:`Рис. 2<fig2>`.
+.. note::
 
-.. index:: фильтр поиска
+    Search within synonyms works in cases when exact names of the pair (genus, species epithet) are given.
+    In other cases this search condition is ignored and the note is rised.
+
+
+Search by **Code** field
+````````````````````````
+Herbarium records stored in Digital Herbarium of the BGI use triple coding system.
+Each record is provided with 1) inventary number (optional), used in the Herbarium's storage;
+2) mandatory **ID** field (unique, digits only), assigned by the system automatically;
+3) field number (code), assigned by the collector (it is optional and quite arbitrary);
+
+Therefore, the table of search results includes the column **Complex code** accumulates
+codes of these three types.
+
+
+**Complex code** has the following structure:
+
+.. note::
+
+    Inventory number (if provided) or * symbol/ID code/Field code (if provided)
+
+
+So, the **Complex code** values can look as follows:
+
+* */27031/M.I.38 |---| denotes that the inventary number isn't provided, ID = 27031, and field code is M.I.38;
+* 42/27029 |---| denotes that the inventary number is 47,  ID = 27029,  field code isn't provided;
+* the following form of the code can take place as well: 132123/32032/F-3829-3k, where inventary number is 132123, ID is 32032 and
+field code is F-3829-3k (this is fake example, I didn't find a real herbarium record with all three setted codes)
+
+When do searching by **Code** one should provide either an inventary number, ID or field code. For examle, if
+the search field's value is "231" the search engine will
+return records including "231" as a substiring
+in either the inventary code, ID or field code.
+
+
+Filtering search results
+------------------------
+
+
+Standard filtering interface allows to restrict
+results of searching by herbarium's acronym, herbariums subdivision or select desired number of items showed per
+page :ref:`Fig. 2<fig2>`.
+
+.. index:: search results filtering
 
 .. _fig2:
 
 .. figure:: files/search/2.png
-   :alt: Панель фильтрации результатов поиска
+   :alt: Search filtering panel
    :align: center
 
-   Рис. 2. Панель фильтрации результатов поиска
+   Fig. 2. Search filtering menu
 
-Панель фильтрации результатов поиска имеет следующие поля:
+It has the following fields:
 
-* **Количество** |---|  количество найденных образцов, отображаемых на одной странице;
-* **Название гербария** |---|  ограничение результатов поиска акрониму;
-* **Подраздел гербария** |---|  ограничение результатов поиска по подразделу гербария;
-* **Упорядочить** |---|  упорядочивание результатов по какому-либо из полей; справа |---| булево поле для
-                         смены порядка отображаемых результатов.
+* **Amount** |---|  the number of records showed per page;
+* **Herbarium acronym** |---|  filtering by Herbarium's acronym;
+* **Herbarium subdivision** |---|  filtering by Herbarium's subdivision;
+* **Order by** |---|  ordering rule (choose field you want to perform ordering the results);
 
-Вид панели результатов выполнения поискового запроса дан на :ref:`Рис. 3<fig3>`.
-
-Во вкладке **Общая информация** выводится перечень удовлетворяющих текущему поисковому условию
-(в случае, если никаких поисковых условий не было задано |---| выводятся все опубликованные записи,
-внесённые в базу на текущий момент).
-
-Вкладка **Информация об образце** активируется, при попытке посмотреть
-информацию о конкретной гербарной записи в таблице результатов.
-В этой вкладке отображается уменьшенная копия персональной страницы образца.
-
-Вкладка **Карта** представляет собой результаты поиска с их отображением на карте.
-Как и в случае со вкладкой **Общая информация** на карте отображается
-только одна страница результатов поиска.Страницы результатов поиска можно листать,
-нажимая ссылки **Предыдущая** и **Следующая**, что приведет
-к синхронному изменению отображаемых записей как на **Карте**,
-так и во вкладке **Общая информация**.
-
-Вкладка **Автоматизация доступа** содержит общую информацию об организации автоматизированного
-доступа посредством предоставляемого :doc:`сервиса HTTP API <http_api>`.
-
-
-Во вкладке **Карта** также имеется возможность фильтрации результатов поиска
-по прямоугольной области, определённой пользователем на карте.
-Если область географической фильтрации задана, то в поиске участвуют только
-те записи, у которых определены географические координаты сбора.
+Results of search request and filter applying is presented on the :ref:`Fig. 3<fig3>`.
 
 .. _fig3:
 
 .. figure:: files/search/3.png
-   :alt: Панель результатов поиска
+   :alt: Search results
    :align: center
 
-   Рис. 3. Панель результатов поиска
+   Fig. 3. Search results tab
 
 
-Для активации поиска по географической области необходимо нажать
-(или дважды кликнуть по окну карты) на кнопку поиска.
-При этом на карте появится редактируемая прямоугольная область поиска (:ref:`Рис. 4<fig4>`, :ref:`Рис. 5<fig5>`).
+In the tab **Common Info** showed a table with the records satisfying
+current search and filtering conditions (if no coditions were provided all published records are shown,
+with default its the number-per-page equal to 20)
 
-.. index::  карта
+The **Details** tab is activated when a specific Herbarium's record is clicked. It shows
+minified version of the Personal web-page of a record.
+
+The **Map** tab is a copy of **Common Info** tab
+exclude records with no coordinates (records with coordinates are rendered on the Google
+map as clickable markers).
+
+One can click **Previous** or **Next** to get another portion (switch page) of search results.
+
+The **Automatizatin tools** tab include general information on query
+:doc:`automatization possibilies <http_api>` provided by the web-application.
+
+Working with the map, one can filter search results by user-defined rectangular area.
+To do that, just initialize a rectangular area by pressing |SB|, edit the rectangular region rised,
+and press |SB| again to activate the search engine  (See :ref:`Fig. 4<fig4>`, :ref:`Fig. 5<fig5>`).
+
+.. |SB| image:: /files/search/map_search_button.png
+
+.. index::  map, rectangular area, search by region
 
 .. _fig4:
 
 .. figure:: files/search/4.png
-   :alt: Поиск гербарных записей по области
+   :alt: Search Herbarium's records by region
    :align: center
 
-   Рис. 4. Выделение области
+   Fig. 4. Initialize filtering region
 
 
 .. _fig5:
 
 .. figure:: files/search/5.png
-   :alt: Поиск гербарных записей по области
+   :alt: Search Herbarium's records by region
    :align: center
 
-   Рис. 5. Результаты поиска по области
+   Fig. 5. Getting results of geographical filtering/searching
 
-Для выполнения поиска, после завершения процедуры редактирования
-поисковой области, необходимо повторно нажать на кнопку поиска.
-Это приведёт к ограничению результатов поиска только образцами, принадлежащей
-выделенной области. Для отмены поискового условия по области необходимо
-нажать на значок **урны** слева от отображаемых координат |---| границ заданной поисковой области.
 
-.. index::  поиск по области
+To clear any specific search condition
+click small-trash icon near the corresponding search field.
 
-Выполнение поиска по более сложным |---| полигональным
-поисковым областям в текущей реализации |---| на  базе MySQL |---|
-не поддерживаются системой, однако,
-такой вид поисковых запросов может быть эмулирован программно,
-в частности, на базе использования предоставляемого сервиса автоматизации поисковых запросов
-(см. :ref:`раздел Дополнительно<search_httpapi_examples>`).
+To clear all search conditions press the |CB| button.
 
-При просмотре информации об образце
-(клик по маркеру на карте, либо по строке в таблице из вкладки **Общая информация**)
-происходит автоматический переход во вкладку **Информация об образце**.
+
+.. |CB| image:: /files/search/clear_button.png
+
+.. index::  search in a region
+
+Search in polygonal regions doesn't allowed in the current version of the backend database,
+but such behaviour could be emulated programmatically with help of the
+:ref:`HTTP API Service <search_httpapi_examples>`.

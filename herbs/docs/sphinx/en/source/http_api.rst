@@ -1,5 +1,5 @@
 ======================================
-Digital Herbarium HTTP-API Description
+Digital Herbarium's HTTP-API Description
 ======================================
 
 .. contents:: :local:
@@ -116,12 +116,16 @@ herbarium record. **ID**  of the herbarium record is unique for all herbarium re
 - **note** |---| everything that wasn't yet included in the previous fields (this field could include information on place of collection, environmental conditions etc.);
 - **dethistory** |---| an array; history of species identifications for this herbarium record;
 - **additionals** |---| some herbarium records could include more than one species, this array describes all of these;
-- **images** |---| list of images related to the herbarium record; the list is formatted as follows: [] |--| an empty list, means that  no images are provided;
-  [
-  ('http://someresource.com/path/to/image1', 'image1 type', 'meta information1'),
-  ('http://someresource.com/path/to/image2', 'image2 type', 'meta information2'),
-  ...
-  ]
+- **images** |---| list of images related to the herbarium record; the list is formatted as follows:
+             [] |--| an empty list, means that  no images are provided;
+
+.. note::
+
+              [
+              ('http://someresource.com/path/to/image1', 'image1 type', 'meta information1'),
+              ('http://someresource.com/path/to/image2', 'image2 type', 'meta information2'),
+              ...
+              ]
 
         - *http://...* |--| first field of image record; it is a path (link), where the image coulde be downloaded from;
         - *image type* |--| allowed values are eiter 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of nature from top of the mountain etc.);
@@ -134,14 +138,16 @@ herbarium record. **ID**  of the herbarium record is unique for all herbarium re
 
 .. _field_reference_label:
 
-Note: Attributes **region**, **district**, **details**, **note**, **altitude** could be filled
-in bilingual mode, that means it could include special symbol "|".
-For instance, let's consider **region** and its value "Russian Far East|Дальний Восток России".
-The **region** string consist of two parts English and Russian.
-In current implementation the API-system doesn't care about what part of
-the string is really needed to the user and returns the entire string.
-Handling such cases, e.g. removing unnecessary substrings from left or right side of the "|" symbol,
-should be performed by the end user.
+.. note::
+
+    Attributes **region**, **district**, **details**, **note**, **altitude** could be filled
+    in bilingual mode, that means it could include special symbol "|".
+    For instance, let's consider **region** and its value "Russian Far East|Дальний Восток России".
+    The **region** string consist of two parts English and Russian.
+    In current implementation the API-system doesn't care about what part of
+    the string is really needed to the user and returns the entire string.
+    Handling such cases, e.g. removing unnecessary substrings from left or right side of the "|" symbol,
+    should be performed by the end user.
 
 
 Structure of **dethistory** and **additionals** arrays are described below.
@@ -171,7 +177,11 @@ and have the following fields:
 Dates of validity **valid_from** and **valid_to** allow to descirbe species reidentificationsin the future, storing in the database species identification history.
 
 
-**Note**  If herbarium record/sheet include more than one species, than "history of species identifications" is related to main species of the record only.
+.. note::
+
+    If herbarium record/sheet include more than one species,
+    than "history of species identifications" is related to the main
+    species of the record only.
 
 
 **Additional species**
@@ -221,11 +231,8 @@ and, therefore, actual set of species includes
 *Quercus dentata*, *Betula manshurica* и *Betula davurica*.
 
 
-**Note:** The array  "Additional species" should include complimentary (additional) species to the main species of the herbarium sheet/record only; the main species should never be duplicated in the additional species array.
-
-
-Service restrictions
---------------------
+Service limitations
+-------------------
 
 Due to each HTTP-request to the service could lead to transferring big amount of data,
 there are some restrictions on creating such long running keep-alive HTTP-connections.
@@ -254,7 +261,8 @@ To get tested with the service, just build an search request using your web-brow
 
 http://botsad.ru/hitem/json/?genus=riccardia&collectedby=bakalin
 
-Follow through the link will lead to json-response that includes all known (and published) herbarium records with genus *Riccardia* and collected by `bakalin`.
+Follow through the link will lead to json-response that includes all known
+(and published) herbarium records with genus *Riccardia* and collected by `bakalin`.
 
 
 Searching by **ID** (`colstart` will be ignored):
@@ -266,9 +274,8 @@ http://botsad.ru/hitem/json?id=44
 http://botsad.ru/hitem/json?id=5
 
 
-See also
---------
 
+.. seealso::
 
 `Accessing Digital Herbarium using Python <https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/Python/en/Python.ipynb>`_
 

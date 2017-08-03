@@ -6,6 +6,11 @@
 Welcome to Digital Herbarium's documentation!
 =============================================
 
+Sections :doc:`"Digital Herbarium: Basic Usage"<search_basics>` and
+:doc:`"Digital Herbarium's HTTP-API Description"<http_api>` are devoted
+pecularities of user search activity using web-interface and programming languages respectively.
+
+
 :download:`Printable version <files/herbarium.pdf>`
 
 
