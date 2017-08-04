@@ -105,18 +105,36 @@
       </ul>
       {%endif%}
       {%if curobj.note %}<p><strong>{%trans "Примечание"%}:</strong>&nbsp;{{curobj.note|smart_language}}</p>{%endif%}
+
       <script type="text/javascript" > //make automatic queries for images
       var baseUrl = "{{base_herbitem_image_url}}"; //TODO: needs to be defined in the main view
       var acronym = "{{curobj.acronym.name}}";
-      var theIDs = ["ID", "CODE"];
+      var id = {{curobj.pk}};
+      var max_images = {{max_herbitem_images}};
+      var allowed_subinds = {{allowed_subinds}}; //allowed_subinds=["", "p"]
       var allowed_inds = [];
-      var allowed_subinds = ["", "p"];
-      var image=[]
-      for (var i=1; i<{{max_herbitem_images}} + 1; i++){
-      allowed_inds.push(i.toString());
-      }
-      // TODO: Get all valid urls of the current object.
+      var images = [];
+      var xhr = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest() : XDomainRequest();
 
+      var theurl = '';
+
+      xhr.onerror = function() {
+        alert( 'Ошибка ' + this.status );
+      }
+
+      xhr.onload = function() {
+        alert( this.status );
+      }
+
+      for (var i=1; i<{{max_herbitem_images}} + 1; i++){
+        for (var j=1; j<allowed_inds.length; j++){
+          for (var k=1; k< allowed_subinds.length; k++){
+            var subind =  (allowed_subinds[k].indexOf("p") !== -1) ? "p" : ""
+            var imgid = (allowed_inds[j] === "") ? "" : ("_" + parseInt(allowed_inds[j]));
+            theurl = baseUrl + acronym + '/' + id + imgid + subind;
+            xhr.open('GET', theurl, true);
+            xhr.send();
+          }}}
       </script>
       <noscript>{%trans "Для корректного отображения изображений гербарных образцов должен быть включен JavaScript."%}</noscript>
       <p><i>{% trans "Последнее изменение"%}:</i>&nbsp;{{curobj.updated}}</p>
