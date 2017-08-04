@@ -16,7 +16,7 @@
 
 .. |PI| image:: /files/printer.png
    :width: 25px
-    :target: files/herbarium.pdf
+   :target: files/herbarium.pdf
 
 .. toctree::
     :maxdepth: 2
