@@ -11,7 +11,12 @@
 программных средств соответственно.
 
 
-:download:`Версия для печати <files/herbarium.pdf>`
+|PI| :download:`Версия для печати <files/herbarium.pdf>`
+
+
+.. |PI| image:: /files/printer.png
+   :width: 25px
+    :target: files/herbarium.pdf
 
 .. toctree::
     :maxdepth: 2

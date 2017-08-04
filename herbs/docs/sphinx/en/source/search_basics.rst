@@ -191,6 +191,7 @@ To do that, just initialize a rectangular area by pressing |SB|, edit the rectan
 and press |SB| again to activate the search engine  (See :ref:`Fig. 4<fig4>`, :ref:`Fig. 5<fig5>`).
 
 .. |SB| image:: /files/search/map_search_button.png
+   :width: 15px
 
 .. index::  map, rectangular area, search by region
 
@@ -219,6 +220,7 @@ To clear all search conditions press the |CB| button.
 
 
 .. |CB| image:: /files/search/clear_button.png
+   :height: 20px
 
 .. index::  search in a region
 

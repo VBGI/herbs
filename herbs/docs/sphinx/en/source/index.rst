@@ -11,7 +11,11 @@ Sections :doc:`"Digital Herbarium: Basic Usage"<search_basics>` and
 pecularities of user search activity using web-interface and programming languages respectively.
 
 
-:download:`Printable version <files/herbarium.pdf>`
+|PI| :download:`Printable version <files/herbarium.pdf>`
+
+.. |PI| image:: /files/printer.png
+   :width: 25px
+   :target: files/herbarium.pdf
 
 
 .. toctree::
