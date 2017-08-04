@@ -782,7 +782,7 @@ msgstr "Total:"
 
 #: templates/render_herb_plugin.html:197
 msgid "Код сбора"
-msgstr "Record code"
+msgstr "Sheet's code"
 
 #: templates/render_herb_plugin.html:197
 msgid "(комбинированный)"
