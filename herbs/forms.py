@@ -6,7 +6,7 @@ from ajax_select.fields import (AutoCompleteSelectField,
 from django import forms
 from django.utils.translation import gettext as _
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, date
 from .models import (Family, Genus, HerbItem, Species,
                      DetHistory, HerbAcronym, Additionals)
 from django.forms.util import ErrorList
@@ -68,8 +68,11 @@ class HerbItemForm(forms.ModelForm):
 
     def _verify_dates(self, data):
         if data:
-            if data > (timezone.now() + timedelta(days=2)):
-                raise forms.ValidaionError(_("Дата не может быть больше текущей календарной даты"))
+            if data > (timezone.now() + timedelta(days=2)).date():
+                raise forms.ValidationError(_("Дата не может быть больше текущей календарной даты"))
+
+            if data < date(year=1700, month=1, day=1):
+                raise forms.ValidationError(_("Не ошибка ли это? Слишком древний образец."))
 
     def clean_identified_s(self):
         data = self.cleaned_data['identified_s']
