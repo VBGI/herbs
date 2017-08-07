@@ -26,6 +26,8 @@ Features
 Docs
 ----
 
+- Basic search features
+  http://botsad.ru/herbarium/docs/en/search_basics.html
 - Public HTTP API:
   http://botsad.ru/herbarium/docs/en/http_api.html
 - Making search queries using Python:
