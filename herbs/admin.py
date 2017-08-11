@@ -246,8 +246,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
             obj.user = request.user
         if not obj.createdby:
             obj.createdby = request.user
-        if not obj.updatedby or change:
-            obj.updatedby = request.user
+        obj.updatedby = request.user
         if obj.coordinates:
             lat = obj.coordinates.latitude
             lon = obj.coordinates.longitude
