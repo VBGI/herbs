@@ -14,6 +14,10 @@
 |PI| :download:`Версия для печати <files/herbarium.pdf>`
 
 
+`English version <http://botsad.ru/herbarium/docs/en/index.html>`_
+
+
+
 .. |PI| image:: /files/printer.png
    :width: 25px
    :target: _downloads/herbarium.pdf

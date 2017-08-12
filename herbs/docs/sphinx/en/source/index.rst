@@ -13,6 +13,9 @@ pecularities of user search activity using web-interface and programming languag
 
 |PI| :download:`Printable version <files/herbarium.pdf>`
 
+`Русскоязычная версия <http://botsad.ru/herbarium/docs/ru/>`_
+
+
 .. |PI| image:: /files/printer.png
    :width: 25px
    :target: _downloads/herbarium.pdf
