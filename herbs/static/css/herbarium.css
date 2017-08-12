@@ -303,3 +303,12 @@ ul.herbitem-errors li::before {
 display: none;
 width: 100%;
 }
+
+
+#additionals-input {
+margin: 5px;
+}
+
+#synonyms-input{
+margin: 5px;
+}
