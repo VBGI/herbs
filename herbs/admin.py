@@ -27,7 +27,7 @@ def publish_herbitem(modeladmin, request, queryset):
     total = queryset.count()
     if request.user.has_perm('herbs.can_set_publish'):
         approved_sp = queryset.exclude(species__status='N').exclude(species__status='D').count()
-        queryset.exclude(species__status='N').exclude(species__status='D').update(public=True)
+        queryset.exclude(species__status='N').exclude(species__status='D').update(public=True, updatedby=request.user)
         messages.success(request, _(u'Опубликовано %s записей') % (approved_sp,))
         if approved_sp != total:
             messages.error(request, _(u'У %s записей виды не одобрены куратором') % (total - approved_sp))
@@ -38,7 +38,7 @@ def publish_herbitem(modeladmin, request, queryset):
 def unpublish_herbitem(modeladmin, request, queryset):
     total = queryset.count()
     if request.user.has_perm('herbs.can_set_publish'):
-        queryset.update(public=False)
+        queryset.update(public=False, updatedby=request.user)
         messages.success(request, _(u'Снято с публикации %s записей') % (total,))
     else:
         messages.error(request, _(u'Вы должны быть куратором гербария, чтобы снять  записи с публикации'))
