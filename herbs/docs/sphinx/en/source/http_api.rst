@@ -15,7 +15,7 @@ Intro
 This document describes HTTP-API (Application Programming Interface over HTTP protocol) used
 to get access Digital Herbarium Database of the BGI.
 
-HTTP-API works in readonly mode.
+HTTP-API works in read-only mode.
 There is no way to make changes in the database using the API.
 
 
@@ -29,10 +29,10 @@ Requests with multiple parameters, e.g. `colstart=2016-01-01` and `collectedby=b
 are treated as components of `AND`-type queries:
 in this example, all records collected
 after `2016-01-01` and including `bak`
-(case insensetive matching is performed)
-as a substring of `Collectors` field of Herbarium's record will be returned.
+(case insensitive matching is performed)
+as a sub-string of `Collectors` field of the herbarium record will be returned.
 
-`OR`-type querying behaviour can be emulated by a series of
+`OR`-type querying behavior can be emulated by a series of
 consequent queries to the database and isn't natively implemented
 in the current version of the HTTP API.
 
@@ -43,25 +43,25 @@ List of allowed GET-parameters:
    note: if the value contradicts with the family name provided in the same request,
    an error will be returned;
 - **species_epithet** |---| species epithet (matching condition:
-  case insensitive, a substring of the record corresponding field);
+  case insensitive, a sub-string of the record corresponding field);
 - **place** |---|  place of collection (matching condition: case insensitive,
-  a substring occurring in the one of listed fields: **Place**, **Region**, **District**, **Note**;);
-- **collectedby** |---| collectors (matching condition: case insensitive, a substring of the record corresponding field);
-  if the field's value is given in cyrillic, search will be performed (additionally) on its transliterated copy;
-- **identifiedby** |---| identifiers; (matching condition: case insensitive, a substring of the record corresponding field);
-  if the field's value is given in cyrillic, search will be performed (additionally) on its transliterated copy;
-- **country** |---| country's name (matching condition: case insensitive, a substring of the record corresponding field);
-- **colstart** |---| date when herbarium object's collection was started (yyyy-mm-dd);
-- **colend** |---|  date when herbarium object's collection was finished (yyyy-mm-dd);
-- **acronym** |---| name of the herbarium's acronym (matching condition:
+  a sub-string occurring in the one of listed fields: **Place**, **Region**, **District**, **Note**;);
+- **collectedby** |---| collectors (matching condition: case insensitive, a sub-string of the record corresponding field);
+  if the field's value is given in Cyrillic, search will be performed (additionally) on its transliterated copy;
+- **identifiedby** |---| identifiers; (matching condition: case insensitive, a sub-string of the record corresponding field);
+  if the field's value is given in Cyrillic, search will be performed (additionally) on its transliterated copy;
+- **country** |---| country's name (matching condition: case insensitive, a sub-string of the record corresponding field);
+- **colstart** |---| date when collection process of the herbarium object was started (yyyy-mm-dd);
+- **colend** |---|  date when collection process of the herbarium object was finished (yyyy-mm-dd);
+- **acronym** |---| acronym of the herbarium (matching condition:
   case insensitive, the same name as provided);
-- **subdivision** |---| name of the herbarium's subdivision/branch (matching condition:
+- **subdivision** |---| subdivision of the herbarium (matching condition:
   case insensitive, the same name as provided);
-- **latl** |---| latitude's lower bound, should be in (-90, 90);
-- **latu** |---| latitude's upper bound, should be in (-90, 90);
-- **lonu** |---| longitude's upper bound, should be in (-180, 180);
-- **lonl** |---| longitude's lower bound, should be in (-180, 180);
-- **synonyms** |---| boolean parameter, allowed values are `false` or `true`; absence of the parameter
+- **latl** |---| latitude lower bound, should be in (-90, 90);
+- **latu** |---| latitude upper bound, should be in (-90, 90);
+- **lonu** |---| longitude upper bound, should be in (-180, 180);
+- **lonl** |---| longitude lower bound, should be in (-180, 180);
+- **synonyms** |---| Boolean parameter, allowed values are `false` or `true`; absence of the parameter
   in GET-request is treated as its `false` value; `true` value (e.g. `synonyms=true`)
   tells the system to search records taking into account the table of species synonyms;
   *Note:* when performing search including known
@@ -69,7 +69,7 @@ List of allowed GET-parameters:
   both **genus** and **species_epithet** values,
   if only one of these is provided or both are leaved empty,
   a warning will be shown and the search condition will be ignored;
-- **additionals** |---| boolean field, allowed values are `false` or `true`;
+- **additionals** |---| Boolean parameter, allowed values are `false` or `true`;
   absence of the parameter in GET-request is treated as its `false` value;
   `true` value (e.g. `additionals=true`) tells the system to
   search within additional species (if such is provided);
@@ -78,9 +78,9 @@ List of allowed GET-parameters:
   if this parameter is provided in GET-request,
   all the other search parameters are ignored and the only one record
   with the requested ID is returned (if it exists and is published);
-- **fieldid** |---| field code/number; (matching condition: case insensitive, a substring of the record corresponding field);
-- **itemcode** |---| storage number (matching condition: case insensitive, a substring of the record corresponding field);
-- **authorship** |---| authorship of the main species (matching condition: case insensitive, a substring of the record corresponding field);
+- **fieldid** |---| field code/number; (matching condition: case insensitive, a sub-string of the record corresponding field);
+- **itemcode** |---| storage number (matching condition: case insensitive, a sub-string of the record corresponding field);
+- **authorship** |---| authorship of the main species (matching condition: case insensitive, a sub-string of the record corresponding field);
 
 .. _ISO3166-1-en: https://en.wikipedia.org/wiki/ISO_3166-1
 .. _ISO3166-1-ru: https://ru.wikipedia.org/wiki/ISO_3166-1
@@ -91,14 +91,14 @@ List of allowed GET-parameters:
     **collectedby** and **identifiedby** to Englsh language.
     So, if you will try to search, e.g. **collectedby=боб** (that corresponds to `bob` in English),
     the system will find  records including (in the collectedby field)
-    either `боб` or `bob` substrings.
+    either `боб` or `bob` sub-strings.
     On the contrary, If you will try to send **collectedby=bob** search query, only
     records include `bob` will be found
     (regardless the text case).
 
 .. warning::
 
-    Transliteration from cyrillic (Russian) to latin (English)
+    Transliteration from Cyrillic (Russian) to Latin (English)
     is fully automatic
     and could be quite straightforward,
     e.g. `Джон` will be transliterated into something like `Dzhon`,
@@ -120,10 +120,11 @@ The server response is a `JSON-formatted`_ text transferred via HTTP-protocol an
 .. note::
 
     Warnings are informative messages used to tell
-    the user whats happened during the database intraction
+    the user whats happened during interaction with the database
     in an unexpected way:
     e.g. which search parameters contradict each other,
-    which parameters were ignored, which parameters weren't recognized by the system etc.
+    which parameters were ignored, which parameters weren't
+    recognized by the system etc.
 
 
 
@@ -134,7 +135,7 @@ The **data** attribute is a JSON-formatted array.
 Each item of this array describes a herbarium record and
 has the following attributes:
 
-- **family** |---| family name (latin uppercase letters); 
+- **family** |---| family name (Latin uppercase letters);
 - **family_authorship** |---| family authorship; 
 - **genus** |---| genus name;
 - **genus_authorship** |---| genus authorship;
@@ -154,29 +155,29 @@ has the following attributes:
   Possible values of **species_status** are 'Recently added' |---|
   the species was recently included to the database and wasn't
   checked by an expert, 'Approved' |---| the species was approved by
-  an expert (a user having some prevelegies),
+  an expert (a user having some privileges),
   'Deleted' |---| the species name is probably obsolete and should be avoided,
   'From plantlist' |---| the species was imported from the http://theplantlist.org;
 - **species_fullname** |---| full species name, e.g. Genus + species epithet + species authorship;
 - **significance** |---| measure of ambiguity regard the main species (possible values: "", aff., cf.);
 - **id** |---| integer identifier of a herbarium record, it is unique;
-- **gpsbased** |---| boolean parameter, its true value means that a herbarium record
+- **gpsbased** |---| Boolean parameter, its true value means that a herbarium record
   position is obtained via the GNSS (GPS/GLONASS); `true` value |---|
   guaranties that coordinates were obtained via GNSS.
 - **latitude** |---|  latitude, degrees (WGS84);
 - **longitude** |---| longitude, degrees (WGS84);
 - **fieldid** |---| field number; an arbitrary string assigned by a collector;
-- **itemcode** |---| inventary (storage) number, a string assigned by the herbarium's curator;
+- **itemcode** |---| inventory (storage) number, a string assigned by the herbarium's curator;
   it is used to identify the place of the record in the herbarium storage;
 - **acronym** |---| herbarium acronym (e.g. VBGI);
-- **branch** |---| herbarium branch (e.g. "Herbarium of Fungi", "Bryophyte Herbarium" etc.);
+- **branch** |---| herbarium branch/subdivision (e.g. "Herbarium of Fungi", "Bryophyte Herbarium" etc.);
 - **collectors** |---| collectors;
 - **identifiers** |---| identifiers;
 - **devstage** |---| development stage; available values: Development stage partly, Life form or empty string;
 - **updated** |---| the date the record was saved/updated;
 - **created** |---|  the date the record was created;
-- **identification_started** |---| the date a species identification was stаrted;
-- **identification_finished** |---| the date a species identification was finished; 
+- **identification_started** |---| the date the species identification was stаrted;
+- **identification_finished** |---| the date the species identification was finished;
 - **country** |---|  country;
 - **country_id** |---| unique id of the country;
 - **altitude** |---| altitude (sea level is treated as zero),
@@ -194,12 +195,12 @@ has the following attributes:
   attached to the herbarium record were found); the list is formatted as follows:
 
         - *http://...* |--| first field of image record; it is a path (link), where the image coulde be downloaded from;
-        - *image type* |--| allowed values are eiter 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of nature from top of the mountain etc.);
+        - *image type* |--| allowed values are either 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of nature from top of the mountain etc.);
                             's' = 'sheet' |--| snapshot of the herbarium sheet;
         - *meta information* |--| json-formatted string including auxiliary information about the image; e.g. snapshot authorship, snapshot date, etc.
           In case of snapshot authorship, sample meta-string would be "{'photographer': 'Pavel Krestov', 'organization': 'Vladivostok Botanical Garden Institute'}"
           There is no restriction about names of meta-fields, such as 'photographer' or 'organization'; meta-fields could be
-          arbitrary, but ones having intuitive values are preffered.
+          arbitrary, but ones having intuitive values are preferred.
 
 
 List of images attached to the herbarium record (example):
@@ -223,7 +224,7 @@ List of images attached to the herbarium record (example):
     The **region** string consist of two parts English and Russian separated by "|".
     In current implementation the API service doesn't care about what part of
     the string is really needed to the user and returns the entire string.
-    Handling such cases, e.g. removing unnecessary substrings from left or right side of the "|" symbol,
+    Handling such cases, e.g. removing unnecessary sub-strings from left or right side of the "|" symbol,
     should be performed by the user.
 
 
@@ -306,7 +307,7 @@ Let us consider an example of **additionals** array of the following form (not a
     {'genus': 'Betula', 'species_epithet': 'davurica', ... ,'valid_from': '2015-05-05', 'valid_to': ''},
     ]
 
-Inetpretation:
+Interpretation:
 
 So, if today is 2015, 1 Sept, than the array includes 
 *Quercus mongolica*, *Betula manshurica* and *Betula davurica*, but *Quercus dentata* should be treated
@@ -332,7 +333,7 @@ JSON_API_SIMULTANEOUS_CONN_ value.
 When the number of simultaneous connections is exceeded, the server doesn't evaluate
 search requests, but an error message  is returned.
 
-This behaviour isn't related to search-by-id queries.
+This behavior isn't related to search-by-id queries.
 Search-by-id queries are evaluated quickly and have no special limitations.
 
 Attempt to get data for unpublished record by its **ID** leads to an error message.
