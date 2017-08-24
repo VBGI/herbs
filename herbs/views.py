@@ -601,7 +601,11 @@ def collect_label_data(q):
                                        addsp.note])
             ddict = _smartify_species(item)
             ddict.update({'coldate': _smartify_dates(item)})
-            ddict.update({'family': item.species.genus.family.name.upper() if item.species else '',
+            current_family = ''
+            if item.species:
+                if item.species.genus.family:
+                    current_family = item.species.genus.family.name.upper()
+            ddict.update({'family': current_family,
                         'country': item.country.name_en if item.country else '',
                         'region': item.region,
                         'altitude': _smartify_altitude(item.altitude),
