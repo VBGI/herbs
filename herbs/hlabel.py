@@ -244,7 +244,7 @@ class PDF_DOC(PDF_MIXIN):
                 self.pdf.set_xy(x + PADDING_X + 5 + tw + cw + rw,
                                 self.goto(y, self._ln))
                 self.pdf.cell(0, 0, region)
-        # split long text of the place foundi
+
         prepare = []
         if place:
             place = smartify_language(place, lang='en')
@@ -614,17 +614,24 @@ class PDF_BRYOPHYTE(BARCODE):
             leg_info += ' (%s);' % coldate
 
         latlon_info = ''
+
         if latitude:
-            latlon_info += 'Lat.: %s' % latitude + u'\N{DEGREE SIGN};'
+            if float(latitude) >= 0.0:
+                latlon_info += 'Lat.: %s' % latitude + u'\N{DEGREE SIGN}N;'
+            else:
+                latlon_info += 'Lat.: {0: .5f}'.format(abs(float(latitude))) + u'\N{DEGREE SIGN}S;'
+
         if longitude:
-            latlon_info += ' Lon.: %s' % longitude + u'\N{DEGREE SIGN};'
+            if float(longitude) >= 0.0:
+                latlon_info += ' Lon.: %s' % longitude + u'\N{DEGREE SIGN}E;'
+            else:
+                latlon_info += ' Lon.: {0: .5f}'.format(abs(float(longitude))) + u'\N{DEGREE SIGN}W;'
+
         if altitude:
-            latlon_info += ' Alt.: %s' % translit(altitude, 'ru', reversed=True)
+            latlon_info += ' Alt.: %s m a.s.l.;' % translit(altitude, 'ru', reversed=True)
 
         if (latitude or longitude or altitude) and gpsbased:
-            latlon_info += ';[GPS-based];'
-        else:
-            latlon_info += ';'
+            latlon_info += ' [GPS-based];'
 
         if identified:
             det_info = 'Det. ' + translit(identified, 'ru', reversed=True)
