@@ -73,10 +73,11 @@ class HerbItemMixin(models.Model, BasicNameMixin):
     # -------- Geolocation, precision ------------
     coordinates = GeopositionField(verbose_name=_('координаты'), blank=True)
     altitude = models.CharField(default='', blank=True, max_length=50,
-                                verbose_name=_('высота'))
+                                verbose_name=_('высота'),
+                                help_text=_('высота над уровнем моря в метрах'))
 
     gpsbased = models.BooleanField(default=False, verbose_name=_('GPS-Based'),
-                                   help_text=_('Получены ли измерения при помощи GPS, отметьте, если да'))
+                                   help_text=_('получены ли измерения при помощи GPS, отметьте, если да'))
 
     # Collection items
     collectedby = models.CharField(max_length=500, default='', blank=True,
