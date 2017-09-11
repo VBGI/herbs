@@ -178,6 +178,8 @@ has the following attributes:
 - **created** |---|  the date the record was created;
 - **identification_started** |---| the date the species identification was stаrted;
 - **identification_finished** |---| the date the species identification was finished;
+- **collection_started** |---| the date the herbarium item was collected (first day or null if no information provided);
+- **collection_finished** |---| the date the herbarium item was collected (last day or null);
 - **country** |---|  country;
 - **country_id** |---| unique id of the country;
 - **altitude** |---| altitude (sea level is treated as zero),
