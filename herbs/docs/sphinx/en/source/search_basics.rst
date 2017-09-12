@@ -240,5 +240,4 @@ To clear all search conditions press the |CB| button.
 Search in polygonal regions doesn't allowed in
 the current version of the backend database,
 but such behavior could be emulated programmatically
- with help of the
-:ref:`HTTP API Service <search_httpapi_examples>`.
+with help of the :ref:`HTTP API Service <search_httpapi_examples>`.
