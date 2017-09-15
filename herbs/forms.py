@@ -231,14 +231,34 @@ class SpeciesForm(forms.ModelForm):
         genus = form_data.get('genus', None)
         authorship = form_data.get('authorship', '')
         status = form_data.get('status', 'N')
+        infra_rank = form_data.get('infra_rank', '')
+        infra_epithet = form_data.get('infra_epithet', '')
+
+        if infra_epithet and not infra_rank:
+            raise forms.ValidationError(_("нужно определить подвидовой ранг или оставить поле подвидовой эпитет пустым"))
+
+        if infra_epithet:
+            infra_epithet = infra_epithet.strip().lower()
+
         if name:
             name = name.strip().lower()
         if authorship:
             authorship = authorship.strip().lower()
         if name and genus and self.instance and status != 'D':
-            if Species.objects.filter(name=name, genus=genus, authorship=authorship).exclude(id=self.instance.id).exclude(status='D').exists():
-                raise forms.ValidationError(_('Такой триплет (род, вид, автор) уже существует'))
+            if Species.objects.filter(name=name,
+                                      genus=genus,
+                                      authorship=authorship,
+                                      infra_rank=infra_rank,
+                                      infra_epithet=infra_epithet).exclude(id=self.instance.id).exclude(status='D').exists():
+                raise forms.ValidationError(_('Такой набор (род, вид, автор, подвидовой ранг и эптитет) уже существует'))
         if not taxon_name_pat.match(name):
             raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
+
+        if infra_epithet:
+            if not taxon_name_pat.match(infra_epithet):
+                raise forms.ValidationError(
+                    _("название подвидового эпитета должно состоять только из латинских букв"))
+
         form_data['name'] = name
+        form_data['infra_epithet'] = infra_epithet
         return form_data

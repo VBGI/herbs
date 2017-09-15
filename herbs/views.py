@@ -159,7 +159,8 @@ def get_data(request):
         if not search_by_synonyms:
             bigquery += [Q(species__genus__family__name__iexact=data['family'])] if data['family'] else []
             bigquery += [Q(species__genus__name__iexact=data['genus'])] if data['genus'] else []
-            bigquery += [Q(species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
+            bigquery += [Q(species__name__icontains=data['species_epithet'])|
+                         Q(species__infra_epithet__icontains=data['species_epithet'])] if data['species_epithet'] else []
         # -----------------------------------------------------
 
         # ------ Searching in History of determination --------
@@ -167,7 +168,8 @@ def get_data(request):
         if search_by_synonyms:
             dethistory_query += [Q(dethistory__species__pk__in=intermediate)]
         else:
-            dethistory_query += [Q(dethistory__species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
+            dethistory_query += [Q(dethistory__species__name__icontains=data['species_epithet'])|
+                                 Q(dethistory__species__infra_epithet__icontains=data['species_epithet'])] if data['species_epithet'] else []
             dethistory_query += [Q(dethistory__species__genus__name__iexact=data['genus'])] if data['genus'] else []
             dethistory_query += [Q(dethistory__species__genus__family__name__iexact=data['family'])] if data['family'] else []
         if dethistory_query:
@@ -179,7 +181,9 @@ def get_data(request):
             if search_by_synonyms:
                 additionals_query += [Q(additionals__species__pk__in=intermediate)]
             else:
-                additionals_query += [Q(additionals__species__name__icontains=data['species_epithet'])] if data['species_epithet'] else []
+                additionals_query += [Q(additionals__species__name__icontains=data['species_epithet'])|
+                                      Q(additionals__species__infra_epithet__icontains=data['species_epithet'])
+                                      ] if data['species_epithet'] else []
                 additionals_query += [Q(additionals__species__genus__name__iexact=data['genus'])] if data['genus'] else []
                 additionals_query += [Q(additionals__species__genus__family__name__iexact=data['family'])] if data['family'] else []
         if additionals_query:
@@ -579,12 +583,12 @@ def collect_label_data(q):
             else:
                 identified = item.identifiedby
 
-            reshistory = []
+            _dethistory = []
             if history.exists():
                 for hist_obj in history:
                     if hist_obj.species:
                         _sp_hist = _smartify_species(hist_obj)
-                        reshistory.append(
+                        _dethistory.append(
                             {
             'identifiedby': hist_obj.identifiedby,
             'identified': _smartify_dates(hist_obj, prefix='identified'),
@@ -598,6 +602,8 @@ def collect_label_data(q):
                 for addsp in addsps_obj:
                     addspecies.append([addsp.get_basic_name(),
                                        addsp.species.authorship,
+                                       addsp.species.get_infra_rank_display(),
+                                       addsp.species.infra_epithet,
                                        addsp.note])
             ddict = _smartify_species(item)
             ddict.update({'coldate': _smartify_dates(item)})
@@ -626,7 +632,7 @@ def collect_label_data(q):
                         'note': item.note or '',
                         'short_note': item.short_note or '',
                         'gpsbased': item.gpsbased,
-                        'dethistory':  reshistory
+                        'dethistory':  _dethistory
                           })
             result.append(ddict)
     translation.activate(lang)
@@ -687,10 +693,14 @@ def make_bryopyte_label(request, q):
         label.pop('family', None)
         allspecies = [[label['species'],
                        label['spauth'],
+                       label['infra_rank'],
+                       label['infra_epithet'],
                        label['short_note'] or '']] + label['addspecies']
         label.pop('short_note', None)
         label.pop('addspecies', None)
         label.pop('spauth', None)
+        label.pop('infra_rank', None)
+        label.pop('infra_epithet', None)
         label.pop('species', None)
         label.update({'allspecies': allspecies})
         preprocessed_labels.append(label)
@@ -722,6 +732,7 @@ def make_barcodes(request, q):
     q = map(lambda x: int(x), q)
 
     objs = HerbItem.objects.filter(id__in=q)
+
     if not objs.exists():
         return HttpResponse(_(u'Пустой или неправильно сформированный запрос'))
     array = []
@@ -731,7 +742,7 @@ def make_barcodes(request, q):
                           'id': item.pk,
                           'institute': item.acronym.institute if item.acronym else ''
                           })
-    # We are ready to generate pdf-output
+    # NOw, we are ready to produce pdf-output
     pdf_template = BARCODE()
     pdf_template.spread_codes(array)
     response = HttpResponse(content_type='application/pdf')
@@ -753,5 +764,7 @@ def _smartify_species(item):
     else:
         species = ''
         authorship = ''
-    return {'spauth': authorship, 'species': species}
+    return {'spauth': authorship, 'species': species,
+            'infra_rank': item.species.get_infra_rank_display(),
+            'infra_epithet': item.species.infra_epithet}
 

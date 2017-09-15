@@ -128,8 +128,8 @@ The server response is a `JSON-formatted`_ text transferred via HTTP-protocol an
 
 
 
-Format of the **data** attribute
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Format of the **data** attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The **data** attribute is a JSON-formatted array.
 Each item of this array describes a herbarium record and
@@ -144,6 +144,8 @@ has the following attributes:
   herbarium record. **ID**  of the herbarium record is unique among
   all herbarium records, **ID** of the species instance is unique
   among all species instances;
+- **infraspecific_rank** |---| allowed values:  subsp., subvar., f., subf., var. or null (i.e. left blank);
+- **infraspecific_epithet** |---| no additional description needed;
 - **short_note** |---| used in multispecies herbarium records;
   the field provides important information about the main species
   of the herbarium record (it could be empty);
@@ -261,7 +263,9 @@ History of species identifications (**dethistory**) is an array having the follo
 - **species_authorship** |---| species authorship;
 - **species_status** |---|  species instance status;
 - **species_fullname** |---| full species name (Genus name + species epithet + species authorship);
-
+- **infraspecific_rank** |---| allowed values:  subsp., subvar., f., subf., var. or null (i.e. left blank);
+- **infraspecific_epithet** |---| no additional description needed;
+- **significance** |---| measure of ambiguity regard the current species (possible values: "", aff., cf.);
 
 .. note::
 
@@ -289,6 +293,8 @@ and have the following fields
 - **species_status** |---|  species instance status;
 - **species_fullname** |---| full species name;
 - **significance** |---| measure of ambiguity regard the current species (possible values: "", aff., cf.);
+- **infraspecific_rank** |---| allowed values:  subsp., subvar., f., subf., var. or null (i.e. left blank);
+- **infraspecific_epithet** |---| no additional description needed;
 - **note** |---| additional information about the current species;
 
 .. note::

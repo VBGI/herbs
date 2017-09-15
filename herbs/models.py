@@ -23,7 +23,8 @@ class BasicNameMixin(object):
             genus_name = self.species.genus.name
             species_name = self.species.name
             siglevel = self.significance + ' ' if self.significance else ''
-            return capfirst(genus_name) + ' ' + siglevel + species_name
+            name = capfirst(genus_name) + ' ' + siglevel + species_name
+            return name
         else:
             return 'No species name'
 
@@ -125,9 +126,12 @@ class HerbItemMixin(models.Model, BasicNameMixin):
 
     def get_full_name(self):
         if self.species:
-            return self.get_basic_name() + ' ' + self.species.authorship
+            return ' '.join([self.get_basic_name(),
+                             self.species.get_infra_rank_display(),
+                             self.species.infra_epithet,
+                             self.species.authorship])
         else:
-            return "Object #%s (Species isn't defined)" % self.pk
+            return "Object #%s (The species isn't defined)" % self.pk
     get_full_name.short_description = _('название вида')
 
     @property
@@ -308,24 +312,42 @@ class Species(TaxonMixin):
                    ('N', 'Recently added'),
                    ('D', 'Deleted')
                    )
+    INFRA_RANKS = (('V', 'var.'),
+                   ('S', 'subsp.'),
+                   ('F',  'f.'),
+                   ('P', 'subf.'),
+                   ('W', 'subvar.')
+                   )
     genus = models.ForeignKey(Genus, null=True, blank=False,
                               verbose_name=_('род'),
                               related_name='species')
+
+    infra_rank  = models.CharField(choices=INFRA_RANKS, blank=True, default='',
+                                   verbose_name=_("подвидовой ранг"),
+                                   max_length=1)
+    infra_epithet = models.CharField(max_length=100, default='', blank=True,
+                                     verbose_name=_('подвидовой эпитет'))
+
     status = models.CharField(max_length=1, default=SP_STATUSES[2][0], choices=SP_STATUSES,
                               blank=False, verbose_name=_('cтатус'))
     synonym = models.ForeignKey('self', null=True, blank=True, verbose_name=_('cиноним'), related_name='synrel')
     updated = models.DateField(auto_now=True, verbose_name=_('изменен'), blank=True)
 
     def get_full_name(self):
-        res = super(Species, self).get_full_name()
-        return capfirst(self.genus.name) +' ' + res
+        if not self.infra_rank:
+            return ' '.join([capfirst(self.genus.name),
+                              super(Species, self).get_full_name()])
+        else:
+            return  ' '.join([capfirst(self.genus.name), self.name ,
+                              self.get_infra_rank_display(),
+                              self.infra_epithet, self.authorship])
+
     get_full_name.short_description = _('название вида')
 
     class Meta:
         verbose_name = _('вид')
         verbose_name_plural = _('виды')
         permissions = (('can_change_status', 'Can change taxon status'),)
-
 
 
 class HerbItem(HerbItemMixin):

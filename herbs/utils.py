@@ -102,6 +102,8 @@ def prefill_related_species(hitem, attr):
                                  'species_epithet': item.species.name,
                                  'species_authorship': item.species.authorship,
                                  'species_id': item.species.pk,
+                                 'infraspecific_rank': item.species.get_infra_rank_display(),
+                                 'infraspecific_epithet': item.species.infra_epithet,
                                  'species_status': item.species.get_status_display(),
                                  'species_fullname': item.species.get_full_name(),
                                  'significance': item.significance if item.significance else ''
@@ -118,7 +120,11 @@ def prefill_related_species(hitem, attr):
                                  'species_authorship': '',
                                  'species_id': '',
                                  'species_status': '',
-                                 'species_fullname': ''})
+                                 'species_fullname': '',
+                                 'significance': '',
+                                 'infraspecific_rank': '',
+                                 'infraspecific_epithet': ''
+                                 })
             store.append(dataitem)
     return store
 
@@ -133,6 +139,8 @@ def herb_as_dict(hitem):
         result.update({'genus_authorship': get_family_or_genus_name(hitem, genus=True, attr='authorship')})
         result.update({'species_epithet': hitem.species.name})
         result.update({'species_authorship': hitem.species.authorship})
+        result.update({'infraspecific_epithet': hitem.species.infra_epithet})
+        result.update({'infraspecific_rank': hitem.species.get_infra_rank_display()})
         result.update({'species_id': hitem.species.pk})
         result.update({'species_status': hitem.species.get_status_display()})
         result.update({'species_fullname': hitem.get_full_name()})
@@ -168,8 +176,6 @@ def herb_as_dict(hitem):
     result.update({'additionals': additionals})
     result.update({'images': []})   # TODO: Images aren't yet exist!
     return result
-
-
 
 # -------------- Transliterate customization -------
 
