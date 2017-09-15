@@ -40,7 +40,9 @@
       <p><strong>{%trans "Семейство"%}:</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
       <p><strong>{%trans "Род"%}:</strong>&nbsp;<i>{{curobj.species.genus.get_full_name|capfirst}}</i></p>
         {%if curobj.species %}
-        <p><strong>{%trans "Вид"%}:</strong>&nbsp;<i>{{curobj.get_basic_name|capfirst}}</i> {{curobj.species.authorship}} </p>
+        <p><strong>{%trans "Вид"%}:</strong>&nbsp;
+          <i>{{curobj.get_basic_name|capfirst}} </i>
+          {%if  curobj.species.infra_rank %}{{curobj.species.get_infra_rank_display}} <i>{{curobj.species.infra_epithet}}</i>{%endif%} {{curobj.species.authorship}} </p>
           {%if curobj.short_note%}
         <p>[{%trans "Примечание:" %} {{curobj.short_note|smart_language}}]</p>
           {%endif%}
@@ -50,7 +52,7 @@
       <p><strong>{%trans "Дополнительные виды" %}:</strong></p>
       <ul>
         {%for item in curobj.additionals.all%}
-          <li>{{item.identifiedby|force_translit}}: <i>{{item.get_basic_name|capfirst}}</i> {{item.species.authorship}}  {%trans "Валидность"%}:
+        <li>{{item.identifiedby|force_translit}}: <i>{{item.get_basic_name|capfirst}}</i> {%if  item.species.infra_rank %}{{item.species.get_infra_rank_display}} <i>{{item.species.infra_epithet}}</i>{%endif%} {{item.species.authorship}}  {%trans "Валидность"%}:
               {%if item.identified_s and item.identified_e%}{{item.identified_s}} &mdash; {{item.identified_e}}
               {%elif item.identified_s%} {%trans "с"%} {{item.identified_s}}
               {%elif item.identified_e%} {%trans "по"%} {{item.identified_e}}
@@ -99,7 +101,8 @@
       <ul>
         {%for item in curobj.dethistory.all%}
           {%if item.species %}
-        <li>{{item.identifiedby|force_translit}}: <i>{{item.get_basic_name|capfirst}}</i> {{item.species.authorship}} {%if item.identified_s and item.identified_e%} ({{item.identified_s}} &mdash; {{item.identified_e}}) {%elif item.identified_s%} ({{item.identified_s}}) {%elif item.identified_e%} ({{item.identified_e}}){%else%}{%endif%}</li>
+        <li>{{item.identifiedby|force_translit}}:
+          <i>{{item.get_basic_name|capfirst}}</i> {%if  item.species.infra_rank %}{{item.species.get_infra_rank_display}} <i>{{item.species.infra_epithet}}</i> {%endif%}  {{item.species.authorship}} {%if item.identified_s and item.identified_e%} ({{item.identified_s}} &mdash; {{item.identified_e}}) {%elif item.identified_s%} ({{item.identified_s}}) {%elif item.identified_e%} ({{item.identified_e}}){%else%}{%endif%}</li>
           {%endif%}
         {%endfor%}
       </ul>
