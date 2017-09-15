@@ -721,7 +721,7 @@ class PDF_BRYOPHYTE(BARCODE):
                         _note += '; '
                     histlines = []
                     for hist_item in dethistory:
-                        histline = hist_item['identifiedby'] + ': '
+                        histline = translit(hist_item['identifiedby'], 'ru', reversed=True) + ': '
                         if hist_item['identified']:
                             histline += '(' + hist_item['identified'] + ') '
                         histline += hist_item['species']['species'] +\

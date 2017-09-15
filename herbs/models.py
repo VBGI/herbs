@@ -327,7 +327,8 @@ class Species(TaxonMixin):
                                    max_length=1)
     infra_epithet = models.CharField(max_length=100, default='', blank=True,
                                      verbose_name=_('подвидовой эпитет'))
-
+    # infra_authorship = models.CharField(max_length=100, default='', blank=True,
+    #                                     verbose_name=_('автор подвидового ранга'))
     status = models.CharField(max_length=1, default=SP_STATUSES[2][0], choices=SP_STATUSES,
                               blank=False, verbose_name=_('cтатус'))
     synonym = models.ForeignKey('self', null=True, blank=True, verbose_name=_('cиноним'), related_name='synrel')
