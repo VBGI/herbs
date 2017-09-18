@@ -2,6 +2,9 @@ from ajax_select import register, LookupChannel
 from .models import Family, Genus, Species, Country, HerbItem
 from .conf import settings, HerbsAppConf
 from django.db.models import Count
+from django.utils.encoding import force_text
+from django.utils.html import escape
+from django.core.urlresolvers import reverse
 import re
 
 
@@ -41,7 +44,10 @@ class SpeciesLookup(LookupChannel):
             else:
                 res = self.model.objects.filter(genus__name__istartswith=splitted[0]).exclude(status='D')
         return res[:NS]
-
+    
+    def format_item_display(self, obj):
+        url = reverse('admin:%s_%s_change' % (obj._meta.app_label,  obj._meta.module_name),  args=[obj.id])
+        return escape(force_text(obj)) + u'<a href="%s"> (Edit sp.) </a>' % (url, )
 
 @register('country')
 class CountryLookup(LookupChannel):
