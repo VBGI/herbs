@@ -47,7 +47,7 @@ class SpeciesLookup(LookupChannel):
     
     def format_item_display(self, obj):
         url = reverse('admin:%s_%s_change' % (obj._meta.app_label,  obj._meta.module_name),  args=[obj.id])
-        return escape(force_text(obj)) + u'<a href="%s"> (Edit sp.) </a>' % (url, )
+        return escape(force_text(obj)) + u'<a href="%s" target="_blank"> (Edit sp.) </a>' % (url, )
 
 @register('country')
 class CountryLookup(LookupChannel):
