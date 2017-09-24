@@ -143,7 +143,7 @@ def herb_as_dict(hitem):
         result.update({'species_authorship': hitem.species.authorship})
         result.update({'infraspecific_epithet': hitem.species.infra_epithet})
         result.update({'infraspecific_rank': hitem.species.get_infra_rank_display()})
-        result.update({'infraspecific_authorship': hitem.species.infraspecific_authorship})
+        result.update({'infraspecific_authorship': hitem.species.infra_authorship})
         result.update({'species_id': hitem.species.pk})
         result.update({'species_status': hitem.species.get_status_display()})
         result.update({'species_fullname': hitem.get_full_name()})
