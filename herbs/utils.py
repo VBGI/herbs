@@ -104,6 +104,7 @@ def prefill_related_species(hitem, attr):
                                  'species_id': item.species.pk,
                                  'infraspecific_rank': item.species.get_infra_rank_display(),
                                  'infraspecific_epithet': item.species.infra_epithet,
+                                 'infraspecific_authorship': item.species.infra_authorship,
                                  'species_status': item.species.get_status_display(),
                                  'species_fullname': item.species.get_full_name(),
                                  'significance': item.significance if item.significance else ''
@@ -123,7 +124,8 @@ def prefill_related_species(hitem, attr):
                                  'species_fullname': '',
                                  'significance': '',
                                  'infraspecific_rank': '',
-                                 'infraspecific_epithet': ''
+                                 'infraspecific_epithet': '',
+                                 'infraspecific_authorship': ''
                                  })
             store.append(dataitem)
     return store
@@ -141,6 +143,7 @@ def herb_as_dict(hitem):
         result.update({'species_authorship': hitem.species.authorship})
         result.update({'infraspecific_epithet': hitem.species.infra_epithet})
         result.update({'infraspecific_rank': hitem.species.get_infra_rank_display()})
+        result.update({'infraspecific_authorship': hitem.species.infraspecific_authorship})
         result.update({'species_id': hitem.species.pk})
         result.update({'species_status': hitem.species.get_status_display()})
         result.update({'species_fullname': hitem.get_full_name()})

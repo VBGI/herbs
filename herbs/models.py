@@ -126,10 +126,10 @@ class HerbItemMixin(models.Model, BasicNameMixin):
 
     def get_full_name(self):
         if self.species:
-            return ' '.join([self.get_basic_name(),
+            return ' '.join([self.get_basic_name(), self.species.authorship,
                              self.species.get_infra_rank_display(),
                              self.species.infra_epithet,
-                             self.species.authorship])
+                             self.species.infra_authorship]).strip()
         else:
             return "Object #%s (The species isn't defined)" % self.pk
     get_full_name.short_description = _('название вида')
@@ -327,8 +327,8 @@ class Species(TaxonMixin):
                                    max_length=1)
     infra_epithet = models.CharField(max_length=100, default='', blank=True,
                                      verbose_name=_('подвидовой эпитет'))
-    # infra_authorship = models.CharField(max_length=100, default='', blank=True,
-    #                                     verbose_name=_('автор подвидового ранга'))
+    infra_authorship = models.CharField(max_length=100, default='', blank=True,
+                                        verbose_name=_('автор подвидового ранга'))
     status = models.CharField(max_length=1, default=SP_STATUSES[2][0], choices=SP_STATUSES,
                               blank=False, verbose_name=_('cтатус'))
     synonym = models.ForeignKey('self', null=True, blank=True, verbose_name=_('cиноним'), related_name='synrel')
@@ -339,9 +339,11 @@ class Species(TaxonMixin):
             return ' '.join([capfirst(self.genus.name),
                               super(Species, self).get_full_name()])
         else:
-            return  ' '.join([capfirst(self.genus.name), self.name ,
+            return  ' '.join([capfirst(self.genus.name), self.name,
+                              self.authorship,
                               self.get_infra_rank_display(),
-                              self.infra_epithet, self.authorship])
+                              self.infra_epithet,
+                              self.infra_authorship]).strip()
 
     get_full_name.short_description = _('название вида')
 
