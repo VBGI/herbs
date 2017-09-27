@@ -408,10 +408,13 @@ class SpeciesAdmin(AjaxSelectAdmin):
             readonly_fields += ['status',]
 
         if obj:
-            if not request.user.is_superuser:
-                if obj.updated and obj.status == 'A':
-                    if obj.updated < (timezone.now() - timedelta(days=settings.APPROVED_SPECIES_FREEZE)).date():
-                        readonly_fields = obj._meta.get_all_field_names()
+            if not request.user.is_superuser and obj.status == 'A':
+                if obj.updated:
+                    if obj.updated < (timezone.now() - timedelta(days=settings.HERBS_APPROVED_SPECIES_FREEZE)).date():
+                        readonly_fields = ['status', 'name', 'genus',
+                                           'authorship', 'infra_rank',
+                                           'infra_epithet', 'infra_authorship',
+                                           'synonym']
         return readonly_fields
 
 
