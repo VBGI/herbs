@@ -16,6 +16,9 @@ from .models import (Family, Genus, HerbItem, Species, Country,
                      SpeciesSynonym)
 from django.forms import model_to_dict
 from django.utils.text import capfirst
+from django.utils import timezone
+from django.conf import settings
+from datetime import timedelta
 import random
 import string
 import json
@@ -403,6 +406,12 @@ class SpeciesAdmin(AjaxSelectAdmin):
             readonly_fields = list()
         else:
             readonly_fields += ['status',]
+
+        if obj:
+            if not request.user.is_superuser:
+                if obj.updated and obj.status == 'A':
+                    if obj.updated < (timezone.now() - timedelta(days=settings.APPROVED_SPECIES_FREEZE)).date():
+                        readonly_fields = obj._meta.get_all_field_names()
         return readonly_fields
 
 

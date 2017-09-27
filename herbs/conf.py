@@ -24,6 +24,8 @@ class HerbsAppConf(AppConf):
 
     BILINGUAL_DELIMITER = "|"
 
+    APPROVED_SPECIES_FREEZE = 30 #in days
+
     SEARCHFORM_ORDERING_FIELDS = [('species__name', _(u'Видовой эпитет')),
                                   ('collected_s', _(u'Дата сбора')),
                                   ('identified_s', _(u'Дата определения')),
