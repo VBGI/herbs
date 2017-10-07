@@ -141,10 +141,10 @@ class PDF_DOC(PDF_MIXIN):
                    altitude='', identified='', number='', itemid='', fieldid='',
                    acronym='', institute='', address='', gform='', addspecies='',
                    district='', note='', short_note='', gpsbased='',
-                   dethistory='', infra_rank='', infra_epithet=''):
+                   dethistory='', infra_rank='', infra_epithet='', logo_path=''):
         self.pdf.rect(x, y, LABEL_WIDTH, LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
-        self.pdf.image(BGI_LOGO_IMG, w=LOGO_WIDTH, h=LOGO_HEIGHT)
+        self.pdf.image(logo_path or BGI_LOGO_IMG, w=LOGO_WIDTH, h=LOGO_HEIGHT)
 
         self.pdf.set_font('DejaVu', '', TITLE_FONT_SIZE + 2)
         self.pdf.set_xy(x + PADDING_X + LOGO_WIDTH, self.goto(y, self._ln))

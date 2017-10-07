@@ -21,10 +21,13 @@ from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings as main_settings
+
 import json
 import re
 import gc
 import csv
+import os
 from .hlabel import PDF_DOC, BARCODE, PDF_BRYOPHYTE
 try:
     from django.core.cache import cache
@@ -632,7 +635,10 @@ def collect_label_data(q):
                         'note': item.note or '',
                         'short_note': item.short_note or '',
                         'gpsbased': item.gpsbased,
-                        'dethistory':  _dethistory
+                        'dethistory':  _dethistory,
+                        'logo_path': os.path.join(getattr(main_settings,
+                                                          'MEDIA_ROOT', ''),
+                                                  item.acronym.logo) if item.acronym else ''
                           })
             result.append(ddict)
     translation.activate(lang)
@@ -687,6 +693,7 @@ def make_bryopyte_label(request, q):
 
     preprocessed_labels = []
     for label in label_data:
+        label.pop('logo_path', None)
         label.pop('gform', None)
         label.pop('address', None)
         label.pop('number', None)

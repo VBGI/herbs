@@ -205,6 +205,9 @@ class HerbAcronym(models.Model):
                                verbose_name=_('адрес'))
     allowed_users = models.CharField(max_length=1000, default='', blank=True,
                                      verbose_name=_('пользователи'))
+    logo = models.FileField(blank=True, null=True, verbose_name=_('эмблема'),
+                            upload_to='herbs/logos')
+    url = models.URLField(blank=True, default='http://botsad.ru', verbose_name=_('вебсайт организации'))
 
     class Meta:
         ordering = ('name',)
