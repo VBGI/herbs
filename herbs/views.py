@@ -638,7 +638,7 @@ def collect_label_data(q):
                         'dethistory':  _dethistory,
                         'logo_path': os.path.join(getattr(main_settings,
                                                           'MEDIA_ROOT', ''),
-                                                  item.acronym.logo) if item.acronym else ''
+                                                  str(item.acronym.logo)) if item.acronym else ''
                           })
             result.append(ddict)
     translation.activate(lang)
