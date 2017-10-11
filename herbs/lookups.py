@@ -63,7 +63,7 @@ class CountryLookup(LookupChannel):
 class DifferentValuesMixin(LookupChannel):
     '''Abstract class'''
     def get_query(self, q, request):
-        kwargs = {'%s__icontains' % self.fieldname: q}
+        kwargs = {'%s__icontains' % self.fieldname: q.lstrip()}
         return HerbItem.objects.filter(**kwargs).values(self.fieldname).annotate(Count(self.fieldname)).values_list(self.fieldname, flat=True)[:NS]
 
 @register('region')
