@@ -12,8 +12,8 @@ Digital Herbarium's HTTP-API Description
 Intro
 -----
 
-This document describes HTTP-API (Application Programming Interface over HTTP protocol) used
-to get access Digital Herbarium Database of the BGI.
+This document describes HTTP-API (Application Programming Interface over HTTP protocol)
+which can be used to get access to Digital Herbarium Database of the BGI.
 
 HTTP-API works in read-only mode.
 There is no way to make changes in the database using the API.
@@ -22,15 +22,15 @@ There is no way to make changes in the database using the API.
 Description of HTTP request parameters
 --------------------------------------
 
-Only GET-requests are allowed when talking with the HTTP API service.
-To establish connection with the service, one can use either HTTP or HTTPS protocols.
+Only GET-requests are allowed when reffering to the HTTP API service.
+To establish connection with the service, one can use HTTP or HTTPS protocols.
 
 Requests with multiple parameters, e.g. `colstart=2016-01-01` and `collectedby=bak`,
 are treated as components of `AND`-type queries:
 in this example, all records collected
 after `2016-01-01` and including `bak`
 (case insensitive matching is performed)
-as a sub-string of `Collectors` field of the herbarium record will be returned.
+as a sub-string of `Collectors` field will be returned.
 
 `OR`-type querying behavior can be emulated by a series of
 consequent queries to the database and isn't natively implemented
@@ -45,38 +45,39 @@ List of allowed GET-parameters:
 - **species_epithet** |---| species epithet (matching condition:
   case insensitive, a sub-string of the record corresponding field);
 - **place** |---|  place of collection (matching condition: case insensitive,
-  a sub-string occurring in the one of listed fields: **Place**, **Region**, **District**, **Note**;);
+  a sub-string occurring in one of the listed fields: **Place**, **Region**, **District**, **Note**;);
 - **collectedby** |---| collectors (matching condition: case insensitive, a sub-string of the record corresponding field);
-  if the field's value is given in Cyrillic, search will be performed (additionally) on its transliterated copy;
+  if the field's value is given in Cyrillic, search will be performed (additionally) using its transliterated copy;
 - **identifiedby** |---| identifiers; (matching condition: case insensitive, a sub-string of the record corresponding field);
-  if the field's value is given in Cyrillic, search will be performed (additionally) on its transliterated copy;
+  if the field's value is given in Cyrillic, search will be performed (additionally) using its transliterated copy;
 - **country** |---| country's name (matching condition: case insensitive, a sub-string of the record corresponding field);
-- **colstart** |---| date when collection process of the herbarium object was started (yyyy-mm-dd);
-- **colend** |---|  date when collection process of the herbarium object was finished (yyyy-mm-dd);
+- **colstart** |---| date when herbarium sample collection was started (yyyy-mm-dd);
+- **colend** |---|  date when herbarium sample collection was finished (yyyy-mm-dd);
 - **acronym** |---| acronym of the herbarium (matching condition:
   case insensitive, the same name as provided);
 - **subdivision** |---| subdivision of the herbarium (matching condition:
   case insensitive, the same name as provided);
 - **latl** |---| latitude lower bound, should be in (-90, 90);
 - **latu** |---| latitude upper bound, should be in (-90, 90);
-- **lonu** |---| longitude upper bound, should be in (-180, 180);
 - **lonl** |---| longitude lower bound, should be in (-180, 180);
+- **lonu** |---| longitude upper bound, should be in (-180, 180);
 - **synonyms** |---| Boolean parameter, allowed values are `false` or `true`; absence of the parameter
   in GET-request is treated as its `false` value; `true` value (e.g. `synonyms=true`)
   tells the system to search records taking into account the table of species synonyms;
   *Note:* when performing search including known
   (known by the system) species synonyms one should provide
   both **genus** and **species_epithet** values,
-  if only one of these is provided or both are leaved empty,
+  if only one of them is provided or both are leaved empty,
   a warning will be shown and the search condition will be ignored;
 - **additionals** |---| Boolean parameter, allowed values are `false` or `true`;
   absence of the parameter in GET-request is treated as its `false` value;
   `true` value (e.g. `additionals=true`) tells the system to
   search within additional species (if such is provided);
-  some herbarium records could include more than one species (such records referred as multispecies records);
+  some herbarium records could include more than one species (such records are
+  referred as multispecies records);
 - **id** |---| record's **ID** (matching condition: the same value as provided);
   if this parameter is provided in GET-request,
-  all the other search parameters are ignored and the only one record
+  all other search parameters are ignored and the only one record
   with the requested ID is returned (if it exists and is published);
 - **fieldid** |---| field code/number; (matching condition: case insensitive, a sub-string of the record corresponding field);
 - **itemcode** |---| storage number (matching condition: case insensitive, a sub-string of the record corresponding field);
@@ -87,14 +88,13 @@ List of allowed GET-parameters:
 
 .. note::
 
-    The search engine performs only one-way transliteration of fields
-    **collectedby** and **identifiedby** to Englsh language.
-    So, if you will try to search, e.g. **collectedby=боб** (that corresponds to `bob` in English),
+    The search engine performs only one-way transliteration of
+    **collectedby** and **identifiedby** fields into English language.
+    So, if you try to search, e.g. **collectedby=боб** (that corresponds to `bob` in English),
     the system will find  records including (in the collectedby field)
-    either `боб` or `bob` sub-strings.
-    On the contrary, If you will try to send **collectedby=bob** search query, only
-    records include `bob` will be found
-    (regardless the text case).
+    both `боб` and `bob` sub-strings.
+    On the contrary, If you try to send **collectedby=bob** search query, only
+    records that include `bob` will be found  (regardless the text case).
 
 .. warning::
 
@@ -108,20 +108,20 @@ List of allowed GET-parameters:
 Description of server response
 ------------------------------
 
-The server response is a `JSON-formatted`_ text transferred via HTTP-protocol and having the following attributes:
+The server response is a `JSON-formatted`_ text transferred via HTTP-protocol
+and having the following attributes:
 
 .. _JSON-formatted: http://www.json.org
 
-- **errors** |---| array of errors (each error is a string) occurred during search request evaluation;
-- **warnings** |---| array of warnings (each warning is a string) occurred during search request evaluation;
+- **errors** |---| array of errors (each error is a string) occurred during search request processing;
+- **warnings** |---| array of warnings (each warning is a string) occurred during search request processing;
 - **data** |---| array of structured data, i.e. result of the search query.
 
 
 .. note::
 
-    Warnings are informative messages used to tell
-    the user whats happened during interaction with the database
-    in an unexpected way:
+    Warnings are informative messages that are intended to tell
+    the user what went in an unexpected way during interaction with the database:
     e.g. which search parameters contradict each other,
     which parameters were ignored, which parameters weren't
     recognized by the system etc.
@@ -136,33 +136,33 @@ Each item of this array describes a herbarium record and
 has the following attributes:
 
 - **family** |---| family name (Latin uppercase letters);
-- **family_authorship** |---| family authorship; 
+- **family_authorship** |---| self explanatory parameter;
 - **genus** |---| genus name;
-- **genus_authorship** |---| genus authorship;
-- **species_epithet** |---| species epithet;
-- **species_id** |---| **ID** of species instance (unique integer value); don't mix with **ID** of the
+- **genus_authorship** |---| self explanatory parameter;
+- **species_epithet** |---| self explanatory parameter;
+- **species_id** |---| **ID** of the species-level taxon (unique integer value); don't mix with **ID** of the
   herbarium record. **ID**  of the herbarium record is unique among
-  all herbarium records, **ID** of the species instance is unique
-  among all species instances;
+  all herbarium records, **ID** of the species-level taxon is unique
+  among all species-level taxa;
 - **infraspecific_rank** |---| allowed values:  subsp., subvar., f., subf., var. or null (i.e. left blank);
 - **infraspecific_epithet** |---| self explanatory parameter;
 - **infraspecific_authorship** |---| self explanatory parameter;
 - **short_note** |---| used in multispecies herbarium records;
   the field provides important information about the main species
   of the herbarium record (it could be empty);
-- **species_authorship** |---| species authorship;
+- **species_authorship** |---| self explanatory parameter;
 - **species_status** |---| current species status;
-  the term species status is related to species instance not
-  herbarium record; it describes a degree of acceptance the
+  the term "species status" is related to species-level taxon not
+  herbarium record; it describes a degree of acceptance of
   species by scientific community (current state);
-  Possible values of **species_status** are 'Recently added' |---|
+  possible values of **species_status** are 'Recently added' |---|
   the species was recently included to the database and wasn't
   checked by an expert, 'Approved' |---| the species was approved by
   an expert (a user having some privileges),
   'Deleted' |---| the species name is probably obsolete and should be avoided,
   'From plantlist' |---| the species was imported from the http://theplantlist.org;
 - **species_fullname** |---| full species name, e.g. Genus + species epithet + species authorship;
-- **significance** |---| measure of ambiguity regard the main species (possible values: "", aff., cf.);
+- **significance** |---| measure of ambiguity regarding the main species (possible values: "", aff., cf.);
 - **id** |---| integer identifier of a herbarium record, it is unique;
 - **gpsbased** |---| Boolean parameter, its true value means that a herbarium record
   position is obtained via the GNSS (GPS/GLONASS); `true` value |---|
