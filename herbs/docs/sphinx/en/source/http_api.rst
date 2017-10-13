@@ -165,8 +165,7 @@ has the following attributes:
 - **significance** |---| measure of ambiguity regarding the main species (possible values: "", aff., cf.);
 - **id** |---| integer identifier of a herbarium record, it is unique;
 - **gpsbased** |---| Boolean parameter, its true value means that a herbarium record
-  position is obtained via the GNSS (GPS/GLONASS); `true` value |---|
-  guaranties that coordinates were obtained via GNSS.
+  position is obtained via the GNSS (GPS/GLONASS);
 - **latitude** |---|  latitude, degrees (WGS84);
 - **longitude** |---| longitude, degrees (WGS84);
 - **fieldid** |---| field number; an arbitrary string assigned by a collector;
@@ -183,29 +182,29 @@ has the following attributes:
 - **identification_finished** |---| the date the species identification was finished;
 - **collection_started** |---| the date the herbarium item was collected (first day or null if no information provided);
 - **collection_finished** |---| the date the herbarium item was collected (last day or null);
-- **country** |---|  country;
-- **country_id** |---| unique id of the country;
+- **country** |---|  country name;
+- **country_id** |---| unique (integer) id of the country internally assigned by the system;
 - **altitude** |---| altitude (sea level is treated as zero),
   this parameter is a string, therefore its form of altitude's
-  representation might be quite fuzzy: '100-300', '100-300 m', '100', '100 m' etc.
-- **region** |---|  region of collection;
-- **district** |---| district of collection;
+  representation might be quite fuzzy: '100-300', '100-300 m', '100', '100 m' etc.; it is assumed that altitude value is given in meters;
+- **region** |---|  administrative region of collection;
+- **district** |---| administrative district of collection;
 - **details** |---| environmental conditions of collection, additional info;
 - **note** |---| everything that wasn't yet included
   in the previous fields (this field could include information about the place of collection,
   details on environmental conditions etc.);
 - **dethistory** |---| an array; history of species identifications for this herbarium record;
-- **additionals** |---| some herbarium records could include more than one species, this array describes all of these;
+- **additionals** |---| some herbarium records could include more than one species, this array describes them;
 - **images** |---| a list of images related to the herbarium record ([] |--| an empty list, means that no images
   attached to the herbarium record were found); the list is formatted as follows:
 
-        - *http://...* |--| first field of image record; it is a path (link), where the image coulde be downloaded from;
-        - *image type* |--| allowed values are either 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of nature from top of the mountain etc.);
+        - *http://...* |--| first field of image record; it is a path (link), where the image could be downloaded;
+        - *image type* |--| allowed values are either 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of the surrounding ecosystem etc.);
                             's' = 'sheet' |--| snapshot of the herbarium sheet;
         - *meta information* |--| json-formatted string including auxiliary information about the image; e.g. snapshot authorship, snapshot date, etc.
           In case of snapshot authorship, sample meta-string would be "{'photographer': 'Pavel Krestov', 'organization': 'Vladivostok Botanical Garden Institute'}"
           There is no restriction about names of meta-fields, such as 'photographer' or 'organization'; meta-fields could be
-          arbitrary, but ones having intuitive values are preferred.
+          arbitrary, but ones having intuitive names are preferred.
 
 
 List of images attached to the herbarium record (example):
@@ -223,19 +222,21 @@ List of images attached to the herbarium record (example):
 
 .. note::
 
-    Attributes **region**, **district**, **details**, **note**, **altitude** could be filled
-    in bilingual mode, that means it could include special symbol "|".
-    For instance, let's consider **region** and its value "Russian Far East|Дальний Восток России".
-    The **region** string consist of two parts English and Russian separated by "|".
-    In current implementation the API service doesn't care about what part of
-    the string is really needed to the user and returns the entire string.
-    Handling such cases, e.g. removing unnecessary sub-strings from left or right side of the "|" symbol,
-    should be performed by the user.
+    Attributes **region**, **district**, **details**, **note**, **altitude**
+    could be filled in bilingual mode:
+    English first, than – Russian (or vice versa),
+    with special symbol "|"
+    separating two spellings
+    (for instance, region’s value"Russian Far East|Дальний Восток России").
+    Removing unnecessary sub-strings from the left or
+    the right side of the "|"  symbol couldn’t be done
+    in the current implementation of the API service,
+    it should be performed by the user.
 
 
 .. note::
 
-    Unpublished records are excluded from search results.
+    Unpublished records are excluded from the search results.
 
 
 Structure of **dethistory** and **additionals** arrays are described below.
@@ -252,22 +253,22 @@ of the main species related to the herbarium record.
 
 History of species identifications (**dethistory**) is an array having the following fields:
 
-- **valid_from** |---| start date of species assignment validity;
-- **valid_to** |---| start date of species assignment validity; empty field means that species assignment
-  is actual since the **valid_from** date;
+- **valid_from** |---| start date of assignment validity to particular species name;
+- **valid_to** |---| end date of assignment validity to particular species name; empty field means that species' name
+                     assignment is actual since the **valid_from** date;
 - **family** |---| family name;
-- **family_authorship** |---| family authorship;
+- **family_authorship** |---| self explanatory parameter;
 - **genus** |---| genus name;
-- **genus_authorship** |---| genus authorship;
-- **species_epithet** |---| species epithet;
-- **species_id** |---| **ID** of species instance; 
-- **species_authorship** |---| species authorship;
-- **species_status** |---|  species instance status;
+- **genus_authorship** |---| self explanatory parameter;
+- **species_epithet** |---| self explanatory parameter;
+- **species_id** |---| **ID** of the species-level taxon;
+- **species_authorship** |---| self explanatory parameter;
+- **species_status** |---|  status of the species-level taxon;
 - **species_fullname** |---| full species name (Genus name + species epithet + species authorship);
 - **infraspecific_rank** |---| allowed values:  subsp., subvar., f., subf., var. or null (i.e. left blank);
 - **infraspecific_epithet** |---| self explanatory parameter;
 - **infraspecific_authorship** |---| self explanatory parameter;
-- **significance** |---| measure of ambiguity regard the current species (possible values: "", aff., cf.);
+- **significance** |---| measure of ambiguity regarding the current species (possible values: "", aff., cf.);
 
 .. note::
 
@@ -278,21 +279,24 @@ History of species identifications (**dethistory**) is an array having the follo
 
 **Additional species**
 
-Items of the array "Additional species" (**additionals**)
-describe all species attached to the current herbarium record/sheet
-and have the following fields
+
+"Additional species" (**additionals**) is an array describing all the species
+(except the main species) attached to the current herbarium record/sheet.
+It is non-empty only for multispecies herbarium records.
+Each element of the **additionals** array has the following fields
 (fields have almost the same meaning as for **dethistory** array):
 
 - **valid_from** |---| beginning date of validity of identification;
-- **valid_to** |---| ending date of validity of identification; empty field means that species assignment to the herbarium record is actual since **valid_from** date;
+- **valid_to** |---| ending date of validity of identification;
+      empty field means that species' name assignment to the herbarium record is actual since **valid_from** date;
 - **family** |---| family name;
-- **family_authorship** |---| family authorship;
+- **family_authorship** |---| self explanatory parameter;
 - **genus** |---| genus name;
-- **genus_authorship** |---| genus authorship;
-- **species_epithet** |---| species epithet;
-- **species_id** |---| **ID** of species instance; 
-- **species_authorship** |---| species authorship;
-- **species_status** |---|  species instance status;
+- **genus_authorship** |---| self explanatory parameter;
+- **species_epithet** |---| self explanatory parameter;
+- **species_id** |---| **ID** of the species-level taxon;
+- **species_authorship** |---| self explanatory parameter;
+- **species_status** |---|  status of the species-level taxon;
 - **species_fullname** |---| full species name;
 - **significance** |---| measure of ambiguity regard the current species (possible values: "", aff., cf.);
 - **infraspecific_rank** |---| allowed values:  subsp., subvar., f., subf., var. or null (i.e. left blank);
@@ -301,13 +305,13 @@ and have the following fields
 - **note** |---| additional information about the current species;
 
 .. note::
-    The **note** field could be filled out with bilingual mode support (e.g. using the "|" symbol);
+    The **note** field could be filled out bilingually (e.g. using the "|" symbol);
     So, it behaves like described :ref:`early <field_reference_label>`.
 
 
 *Example*
 
-Let us consider an example of **additionals** array of the following form (not all fields are shown for short):
+Let us consider an example of **additionals** array (not all fields are shown for short):
 
 .. code:: Python
 
@@ -324,7 +328,7 @@ So, if today is 2015, 1 Sept, than the array includes
 *Quercus mongolica*, *Betula manshurica* and *Betula davurica*, but *Quercus dentata* should be treated
 as out-of-date for this date.
 
-If today is 2017, e.g. 1 Jan 2017, than out-of-date status should be assigned to *Quercus mongolica*, 
+If today is 2017,  1 Jan, than out-of-date status should be assigned to *Quercus mongolica*,
 and, therefore, actual set of species includes 
 *Quercus dentata*, *Betula manshurica* и *Betula davurica*.
 
@@ -332,16 +336,16 @@ and, therefore, actual set of species includes
 Service usage limitations
 -------------------------
 
-Due to long evaluation time needed to handle each HTTP-request,
+Due to the long processing time needed to handle each HTTP-request,
 there are some restrictions on creating
-such long running keep-alive HTTP-connections (when using the HTTP API Service).
+such (long running) keep-alive HTTP-connections (when using the HTTP API Service).
 
 The number of allowed simultaneous connections to the service is determined by
 JSON_API_SIMULTANEOUS_CONN_ value.
 
 .. _JSON_API_SIMULTANEOUS_CONN:  https://github.com/VBGI/herbs/blob/master/herbs/conf.py
 
-When the number of simultaneous connections is exceeded, the server doesn't evaluate
+When the number of simultaneous connections is exceeded, the server doesn't process
 search requests, but an error message  is returned.
 
 This behavior isn't related to search-by-id queries.
@@ -354,13 +358,13 @@ Attempt to get data for unpublished record by its **ID** leads to an error messa
 Examples
 --------
 
-To get tested with the service, one can build a search request
+To test the service, one can build a search request
 using web-browser (just follow the links below):
 
 http://botsad.ru/hitem/json/?genus=riccardia&collectedby=bakalin
 
-Follow through the link will lead to json-response that includes all known
-(and published) herbarium records with genus *Riccardia* and collected by `bakalin`.
+Following the link will lead to json-response that includes all known
+(and published) herbarium records of genus *Riccardia* collected by `bakalin`.
 
 
 Searching by **ID** (`colstart` will be ignored):
