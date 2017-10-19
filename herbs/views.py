@@ -416,7 +416,7 @@ def json_api(request):
         objects_filtered = objects_filtered.filter(fieldid__icontains=fieldid)
     if itemcode:
         objects_filtered = objects_filtered.filter(itemcode__icontains=itemcode)
-    json_streamer = JSONStreamer()
+    json_streamer = JSONStreamer(ensure_ascii=False)
     context['errors'].extend(errors)
     context['warnings'].extend(warnings)
     context.update({'data': json_generator(objects_filtered)})
