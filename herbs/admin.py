@@ -44,7 +44,7 @@ def unpublish_herbitem(modeladmin, request, queryset):
         queryset.update(public=False, updatedby=request.user)
         messages.success(request, _(u'Снято с публикации %s записей') % (total,))
     else:
-        messages.error(request, _(u'Вы должны быть куратором гербария, чтобы снять  записи с публикации'))
+        messages.error(request, _(u'Вы должны быть куратором гербария, чтобы снять записи с публикации'))
 
 
 publish_herbitem.short_description = _(u"Опубликовать записи")
