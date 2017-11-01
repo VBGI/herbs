@@ -569,7 +569,7 @@ def advice_select(request):
 def collect_label_data(q):
     result = []
     q = map(lambda x: int(x), q)
-    objs = HerbItem.objects.filter(public=True, id__in=q)
+    objs = HerbItem.objects.filter(id__in=q)
     if not objs.exists():
         return result
     lang = translation.get_language()
@@ -660,7 +660,7 @@ def make_label(request, q):
     label_data = collect_label_data(q)
 
     if not label_data:
-        return HttpResponse(_(u'Необходимо выбирать только опубликованные образцы при создании этикеток'))
+        return HttpResponse(_(u'Не выбрано ни одного образца для создания этикеток'))
 
     # Generate pdf-output
     pdf_template = PDF_DOC()
@@ -689,7 +689,7 @@ def make_bryopyte_label(request, q):
     label_data = collect_label_data(q)
 
     if not label_data:
-        return HttpResponse(_(u'Необходимо выбирать только опубликованные образцы при создании этикеток'))
+        return HttpResponse(_(u'Не выбрано ни одного образца для создания этикеток'))
 
     preprocessed_labels = []
     for label in label_data:
