@@ -7,7 +7,7 @@ from django.forms.models import model_to_dict
 from django.utils.translation import ugettext as _
 from .models import (Family, Genus, HerbItem, Country,
                      DetHistory, Species, SpeciesSynonym, Additionals,
-                     HerbCounter)
+                     HerbCounter, Subdivision)
 from .forms import SearchForm, RectSelectorForm
 from .conf import settings
 from .utils import _smartify_altitude, _smartify_dates, herb_as_dict, translit
@@ -266,7 +266,12 @@ def get_data(request):
         subdivision = request.GET.get('subdivision', '')
         try:
             subdivision = int(subdivision)
-            bigquery += [Q(subdivision__id=subdivision)]
+            try:
+                thesubdiv = Subdivision.objects.get(id=subdivision)
+                subdivisions = [item.pk for item in thesubdiv.get_all_children()]
+            except Subdivision.DoesNotExist:
+                subdivisions = [subdivision]
+            bigquery += [Q(subdivision__id__in=subdivisions)]
         except (ValueError, TypeError):
             if subdivision:
                 bigquery += [Q(subdivision__name__icontains=subdivision)]

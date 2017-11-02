@@ -156,8 +156,23 @@ class Subdivision(models.Model):
     allowed_users = models.CharField(max_length=1000, default='',blank=True,
                                      verbose_name=_('пользователи'))
 
+    parent = models.ForeignKey('self', null=True, blank=True,
+                               verbose_name=_('родительский раздел'),
+                               related_name='child')
     def __str__(self):
         return self.name
+
+    def get_all_children(self):
+        result = []
+        curitem = self
+        while True:
+            if curitem.child.count():
+                result.append(curitem)
+                curitem = curitem.child
+            else:
+                result.append(curitem)
+                break
+        return result
 
     class Meta:
         ordering = ('name',)
