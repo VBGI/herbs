@@ -574,7 +574,7 @@ def advice_select(request):
 def collect_label_data(q):
     result = []
     q = map(lambda x: int(x), q)
-    objs = HerbItem.objects.filter(id__in=q)
+    objs = HerbItem.objects.filter(public=True, id__in=q)
     if not objs.exists():
         return result
     lang = translation.get_language()
