@@ -615,6 +615,7 @@ def collect_label_data(q):
                                        addsp.note])
             ddict = _smartify_species(item)
             ddict.update({'coldate': _smartify_dates(item)})
+            ddict.update({'detdate': _smartify_dates(item, prefix='identified')})
             current_family = ''
             if item.species:
                 if item.species.genus.family:

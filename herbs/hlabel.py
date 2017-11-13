@@ -141,7 +141,7 @@ class PDF_DOC(PDF_MIXIN):
                    altitude='', identified='', number='', itemid='', fieldid='',
                    acronym='', institute='', address='', gform='', addspecies='',
                    district='', note='', short_note='', gpsbased='',
-                   dethistory='', infra_rank='', infra_epithet='', logo_path=''):
+                   dethistory='', infra_rank='', infra_epithet='', logo_path='', detdate=''):
         self.pdf.rect(x, y, LABEL_WIDTH, LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
         self.pdf.image(logo_path or BGI_LOGO_IMG, w=LOGO_WIDTH, h=LOGO_HEIGHT)
@@ -568,7 +568,7 @@ class PDF_BRYOPHYTE(BARCODE):
                        coldate='', latitude='', longitude='',
                        place='', country='', region='', collected='',
                        altitude='', identified='', number='', itemid='',
-                       fieldid='', acronym='', institute='', note='',
+                       fieldid='', acronym='', institute='', note='', detdate='',
                        district='', gpsbased='', dethistory=[]):
         # -----  Insert qr-code in the center of the page ------
         insert_qr(self.pdf, DEFAULT_PAGE_WIDTH / 2.0 + QR_SIZE / 2.0,
@@ -769,6 +769,8 @@ class PDF_BRYOPHYTE(BARCODE):
 
         if identified:
             det_info = 'Det. ' + translit(identified, 'ru', reversed=True)
+            if detdate:
+                det_info += ' (%s);' % detdate
         else:
             det_info = ''
 
