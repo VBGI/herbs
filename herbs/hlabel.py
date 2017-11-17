@@ -729,7 +729,7 @@ class PDF_BRYOPHYTE(BARCODE):
                                     (' ' + hist_item['species']['infra_epithet'] if hist_item['species']['infra_epithet'] else '') +\
                                     ' ' + hist_item['species']['spauth']
                         histlines.append(histline)
-                    _note += '; '.join(histlines)
+                    _note +=  'ID history: ' + '; '.join(histlines)
                 addinfo.append([addind, _note.strip()])
                 addind += 1
                 self.pdf.set_xy(_x, _y)
@@ -745,32 +745,32 @@ class PDF_BRYOPHYTE(BARCODE):
             leg_info = ''
 
         if coldate:
-            leg_info += ' (%s);' % coldate
+            leg_info += ' (%s)' % coldate
 
         latlon_info = ''
 
         if latitude:
             if float(latitude) >= 0.0:
-                latlon_info += 'Lat.: %s' % latitude + u'\N{DEGREE SIGN}N;'
+                latlon_info += 'Lat.: %s' % latitude + u'\N{DEGREE SIGN}N '
             else:
-                latlon_info += 'Lat.: {0: .5f}'.format(abs(float(latitude))) + u'\N{DEGREE SIGN}S;'
+                latlon_info += 'Lat.: {0: .5f}'.format(abs(float(latitude))) + u'\N{DEGREE SIGN}S '
 
         if longitude:
             if float(longitude) >= 0.0:
-                latlon_info += ' Lon.: %s' % longitude + u'\N{DEGREE SIGN}E;'
+                latlon_info += ' Lon.: %s' % longitude + u'\N{DEGREE SIGN}E '
             else:
-                latlon_info += ' Lon.: {0: .5f}'.format(abs(float(longitude))) + u'\N{DEGREE SIGN}W;'
+                latlon_info += ' Lon.: {0: .5f}'.format(abs(float(longitude))) + u'\N{DEGREE SIGN}W '
 
         if altitude:
-            latlon_info += ' Alt.: %s m a.s.l.;' % translit(altitude, 'ru', reversed=True)
+            latlon_info += ' Alt.: %s m a.s.l.' % translit(altitude, 'ru', reversed=True)
 
         if (latitude or longitude or altitude) and gpsbased:
-            latlon_info += ' [GPS-based];'
+            latlon_info += ' [GPS-based]'
 
         if identified:
             det_info = 'Det. ' + translit(identified, 'ru', reversed=True)
             if detdate:
-                det_info += ' (%s);' % detdate
+                det_info += ' (%s)' % detdate
         else:
             det_info = ''
 
@@ -782,7 +782,7 @@ class PDF_BRYOPHYTE(BARCODE):
 
 
 
-        pos_info = '; '.join([x.strip() for x in [smartify_language(region, lang='en'),
+        pos_info = '. '.join([x.strip() for x in [smartify_language(region, lang='en'),
                                            smartify_language(district, lang='en'),
                                            latlon_info] if x])
 
@@ -790,17 +790,22 @@ class PDF_BRYOPHYTE(BARCODE):
         self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -
                             BRYOPHYTE_MARGIN_EXTRA, 5, pos_info)
 
-        self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
-        self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -
-                            BRYOPHYTE_MARGIN_EXTRA, 5, leg_info)
-
-        main_info = '; '.join([x.strip() for x in [smartify_language(note, lang='en'),
-                                                   smartify_language(place, lang='en')
-                                                   ] if x])
+        if note.strip()[-1] == '.':
+            _aux = ' '
+        else:
+            _aux = '. '
+        main_info = _aux.join([x.strip() for x in [smartify_language(note, lang='en'),
+                                 smartify_language(place, lang='en')
+                                 ] if x])
 
         self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
         self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -
                             BRYOPHYTE_MARGIN_EXTRA, 5, main_info)
+
+        self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
+        if leg_info:
+            self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN, 5,
+                            leg_info)
 
         self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
         if det_info:
