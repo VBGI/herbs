@@ -123,7 +123,7 @@ def _lat_repr(latitude):
 def _lon_repr(longitude):
     res = ''
     if longitude:
-        res += '{0: .5f}'.format(abs(float(longitude)))
+        res += '{0:.5f}'.format(abs(float(longitude)))
         if float(longitude) >= 0.0:
             res += u'\N{DEGREE SIGN}E'
         else:
