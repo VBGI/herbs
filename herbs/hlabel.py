@@ -16,7 +16,7 @@ msgs = {'org':   'Herbarium',
         'col': 'Collector(s):',
         'det': 'Identifier(s):',
         'diden': 'Date Ident.:',
-        'alt': 'Altitude:',
+        'alt': 'Altitude, m. a.s.l.:',
         'country': 'Country:',
         'region': 'Region:'
         }
@@ -108,6 +108,27 @@ def insert_qr(pdf, x, y, code='1234567', lw=LABEL_WIDTH, lh=LABEL_HEIGHT):
             os.remove(temp_name)
         except IOError:
             pass
+
+
+def _lat_repr(latitude):
+    res = ''
+    if latitude:
+        res += '{0: .5f}'.format(abs(float(latitude)))
+        if float(latitude) >= 0.0:
+            res += u'\N{DEGREE SIGN}N'
+        else:
+             res += u'\N{DEGREE SIGN}S'
+    return res
+
+def _lon_repr(longitude):
+    res = ''
+    if longitude:
+        res += '{0: .5f}'.format(abs(float(longitude)))
+        if float(longitude) >= 0.0:
+            res += u'\N{DEGREE SIGN}E'
+        else:
+            res += u'\N{DEGREE SIGN}W'
+    return res
 
 
 class PDF_MIXIN(object):
@@ -349,8 +370,8 @@ class PDF_DOC(PDF_MIXIN):
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         if latitude and longitude:
             self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
-            self.pdf.cell(0, 0, 'LAT=' + str(latitude) + u'\N{DEGREE SIGN},' +
-                          ' LON=' + str(longitude) + u'\N{DEGREE SIGN}')
+            self.pdf.cell(0, 0, 'LAT=' + _lat_repr(latitude) + ',' +
+                          ' LON=' + _lon_repr(longitude))
         # ----------------------------------------------
 
         # ----------- Date found -----------------------
@@ -750,16 +771,10 @@ class PDF_BRYOPHYTE(BARCODE):
         latlon_info = ''
 
         if latitude:
-            if float(latitude) >= 0.0:
-                latlon_info += 'Lat.: %s' % latitude + u'\N{DEGREE SIGN}N '
-            else:
-                latlon_info += 'Lat.: {0: .5f}'.format(abs(float(latitude))) + u'\N{DEGREE SIGN}S '
+            latlon_info += 'Lat.: ' + _lat_repr(latitude) + ' '
 
         if longitude:
-            if float(longitude) >= 0.0:
-                latlon_info += ' Lon.: %s' % longitude + u'\N{DEGREE SIGN}E '
-            else:
-                latlon_info += ' Lon.: {0: .5f}'.format(abs(float(longitude))) + u'\N{DEGREE SIGN}W '
+            latlon_info += 'Lon.: ' + _lon_repr(longitude) + ' '
 
         if altitude:
             latlon_info += ' Alt.: %s m a.s.l.' % translit(altitude, 'ru', reversed=True)
