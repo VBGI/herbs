@@ -36,11 +36,22 @@ class HerbItemMixin(models.Model, BasicNameMixin):
                  ('G', 'Life form')
                  )
 
+
+    TYPE_STATUSES = (('H', 'HOLOTYPUS'),
+                     ('I', 'ISOTYPUS'),
+                     ('P', 'PARATYPUS'),
+                     ('L', 'LECTOTYPUS')
+                     )
+
     species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
                                 verbose_name=_('вид'), related_name='herbitem')
 
     short_note = models.CharField(max_length=300, default='', blank=True,
                                   verbose_name=_('Примечание к виду'))
+
+    type_status = models.CharField(max_length=1, blank=True, null=True,
+                                   choices=TYPE_STATUSES,
+                                   verbose_name=_('типовой статус'))
 
     significance = models.CharField(max_length=5, default='',
                                     blank=True, choices=SIGNIFICANCE,

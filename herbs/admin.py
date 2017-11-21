@@ -281,6 +281,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 readonly_fields.remove('public')
             if 'itemcode' in readonly_fields:
                 readonly_fields.remove('itemcode')
+            if 'type_status' in readonly_fields:
+                readonly_fields.remove('type_status')
         elif request.user.has_perm('herbs.can_set_code'):
             if 'itemcode' in readonly_fields:
                 readonly_fields.remove('itemcode')
@@ -289,6 +291,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
                 readonly_fields.append('public')
             if 'itemcode' not in readonly_fields:
                 readonly_fields.append('itemcode')
+            if 'type_status' not in readonly_fields:
+                readonly_fields.append('type_status')
         if request.user.is_superuser:
             readonly_fields.remove('acronym')
             readonly_fields.remove('subdivision')

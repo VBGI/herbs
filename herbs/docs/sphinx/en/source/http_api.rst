@@ -161,6 +161,7 @@ has the following attributes:
   an expert (a user having some privileges),
   'Deleted' |---| the species name is probably obsolete and should be avoided,
   'From plantlist' |---| the species was imported from the http://theplantlist.org;
+- **type_status** |---| type status of the collection;
 - **species_fullname** |---| full species name, e.g. Genus + species epithet + species authorship;
 - **significance** |---| measure of ambiguity regarding the main species (possible values: "", aff., cf.);
 - **id** |---| integer identifier of a herbarium record, it is unique;
