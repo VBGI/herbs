@@ -15,9 +15,17 @@ IMAGE_FILE_PATTERN = re.compile(r'[A-Z]{1,10}\d+(_?\d{1,2})\.[tT][iI][fF]{1,2}')
 ACRONYM_PATTERN = re.compile(r'^([A-Z]{1,10})\d+.*')
 
 IMAGE_CONVERSION_OPTS = {
-                        'fs': {'size': ''},
-                        'ms': {'size': r'50%'},
-                        'ss': {'size': r'300x300>'}
+#                        'fs': {'size': '', 'format': 'png', 'extra': []},
+                        'fs': {'size': r'', 'format': 'jpg',
+                               'extra': ['-strip', '-interlace', 'Plane',
+                                         '-sampling-factor', r'4:2:0',
+                                         '-quality',
+                                         r'90%']}
+                        # 'ss': {'size': '300x300^', 'format': 'jpg',
+                        #        'extra': ['-strip', '-interlace', 'Plane',
+                        #                  '-sampling-factor', r'4:2:0',
+                        #                  '-quality',
+                        #                  r'90%']}
                         }
 
 SOURCE_IMAGE_PATHS = ['/home/dmitry/workspace/herbs/herbs/management/source',
@@ -113,12 +121,12 @@ def easy_process():
         else:
             tiffstack.seek(0)
         print('Appropriate tiff layer extracted...')
-        temp_image_name = bname.split('.')[0] + '.png'
-        tiffstack.save(os.path.join(TMP_FOLDER, temp_image_name))
+        temp_image_name = bname.split('.')[0]
+        tiffstack.save(os.path.join(TMP_FOLDER, temp_image_name + '.png'))
         print('Temporary image file is created: ', os.path.join(TMP_FOLDER,
                                                                 temp_image_name))
         cmd_stack = ['convert']
-        cmd_stack.append(os.path.join(TMP_FOLDER, temp_image_name))
+        cmd_stack.append(os.path.join(TMP_FOLDER, temp_image_name + '.png'))
 
         # check if rotation needed
         rotation = tiffstack.width >= tiffstack.height
@@ -134,16 +142,21 @@ def easy_process():
                 cmd_stack_cur.append('-resize')
                 cmd_stack_cur.append(IMAGE_CONVERSION_OPTS[subim]['size'])
 
+            if IMAGE_CONVERSION_OPTS[subim]['extra']:
+                cmd_stack_cur.extend(IMAGE_CONVERSION_OPTS[subim]['extra'])
+
             cmd_stack_cur.append(os.path.join(OUTPUT_IMAGE_PATH,
                                               get_acronym_name(temp_image_name),
-                                              subim, temp_image_name))
+                                              subim, temp_image_name + '.' +
+                                              IMAGE_CONVERSION_OPTS[subim]['format']
+                                              ))
             _p = subprocess.Popen(cmd_stack_cur)
             _p.wait()
             print('Generating ', subim, 'image for', temp_image_name)
 
       # delete processed image
         try:
-            os.remove(os.path.join(TMP_FOLDER, temp_image_name))
+            os.remove(os.path.join(TMP_FOLDER, temp_image_name + '.png'))
             os.remove(tmp_image)
             print('Temporary files were removed...')
         except IOError:
