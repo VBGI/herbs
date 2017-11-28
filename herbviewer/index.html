@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body{background-color: #4D642D;}
+
+    h1{
+    color: white;
+    text-align: center;
+    }
+    
+    
+    #herbs-viewer-container{
+    width: 100%;
+    }
+
+    @media (min-width:960px) {
+        #herbs-centred{
+        margin: 0 auto;
+        width: 60%;
+    }} 
+   
+    @media (max-width:960px) and (min-width: 600px) {
+        #herbs-centred{
+        margin: 0 auto;
+        width: 80%;
+    }
+    
+    } 
+    
+    @media (max-width:600px)  and (min-width: 300px) {
+        #herbs-centred{
+        margin: 0 auto;
+        width: 70%;
+    }}  
+
+    @media (max-width: 300px) {
+        #herbs-centred{
+        margin: 0 auto;
+        width: 50%;
+    }} 
+
+    #osdragon-viewer{
+    width: 100%;
+    height: 700px;
+    background-color: #C3D6AA;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px  7px 5px #EAF7D9;
+    }
+    
+    
+    #image-loader{
+    margin: 0 auto;
+    width: 100%;
+    height: 200px;
+    background-image: url(custom/ajax-loader.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+    }
+    
+    #download-link{
+    dislay: inline;
+    margin-top: -1em;
+    margin-bottom: 1em;
+    height: 1em;
+    
+    }
+    
+    #download-link > a{
+        border-radius:3px;
+        font-weight: bold;
+        text-align: right;
+        padding: 3px;
+        cursor: pointer;
+        color: red;
+        position: relative;
+        float:right;
+        display: block;
+        clear: both;
+        -webkit-transition: background-color 0.5s ease-out;
+        -moz-transition: background-color 0.5s ease-out;
+        -o-transition: background-color 0.5s ease-out;
+        transition: background-color 0.5s ease-out;
+    }
+    
+    #download-link>a:hover{
+        background:#EAF7D9;
+        box-shadow: 0px 0px  7px 5px #EAF7D9;
+    }
+    </style>
+  </head>
+<body>
+
+
+<script type="text/javascript">
+function getSearchParameters() {
+      var prmstr = window.location.search.substr(1);
+      return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};}
+function transformToAssocArray( prmstr ) {
+    var params = {};
+    var prmarr = prmstr.split("&");
+    for ( var i = 0; i < prmarr.length; i++) {
+        var tmparr = prmarr[i].split("=");
+        params[tmparr[0]] = tmparr[1];
+    }
+    return params;}
+
+var params = getSearchParameters();
+var imageUrl = params.baseurl + params.image;
+</script>
+
+<div id="herbs-viewer-container">
+    <div id="herbs-centred">
+        <h1><img src="custom/bgi_logo_white.png" style="margin-right: 10px">Botanical Garden-Institue FEB RAS</h1>
+        <div id="download-link"><a id='herbimage-download' download>Download</a></div>
+        <div id="osdragon-viewer">
+         <div id="image-loader"></div>
+        </div>
+    </div>
+</div>
+<script src="openseadragon.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var downloadLink = document.getElementById("herbimage-download");
+downloadLink.setAttribute('href', params.baseurl + params.image);
+    var viewer = OpenSeadragon({
+        id: "osdragon-viewer",
+        prefixUrl: "images/",
+        tileSources: {
+        type: 'image',
+        url:  imageUrl,
+        buildPyramid: false}
+        
+    });
+    
+viewer.addHandler('open', function(){
+    var el = document.getElementById("image-loader");
+    el.parentNode.removeChild(el);
+})    
+    
+</script>
+</body>
+</html>
