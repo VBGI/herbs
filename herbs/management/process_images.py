@@ -15,17 +15,25 @@ IMAGE_FILE_PATTERN = re.compile(r'[A-Z]{1,10}\d+(_?\d{1,2})\.[tT][iI][fF]{1,2}')
 ACRONYM_PATTERN = re.compile(r'^([A-Z]{1,10})\d+.*')
 
 IMAGE_CONVERSION_OPTS = {
-#                        'fs': {'size': '', 'format': 'png', 'extra': []},
                         'fs': {'size': r'', 'format': 'jpg',
                                'extra': ['-strip', '-interlace', 'Plane',
                                          '-sampling-factor', r'4:2:0',
                                          '-quality',
-                                         r'90%']}
-                        # 'ss': {'size': '300x300^', 'format': 'jpg',
-                        #        'extra': ['-strip', '-interlace', 'Plane',
-                        #                  '-sampling-factor', r'4:2:0',
-                        #                  '-quality',
-                        #                  r'90%']}
+                                         r'90%'],
+                               'overwrite': False},
+                         'ms': {'size': r'60%', 'format': 'jpg',
+                                'extra': ['-strip', '-interlace', 'Plane',
+                                          '-sampling-factor', r'4:2:0',
+                                          '-quality',
+                                          r'90%'],
+                                'overwrite': False
+                                },
+                         'ss': {'size': r'30%', 'format': 'jpg',
+                                'extra': ['-strip', '-interlace', 'Plane',
+                                          '-sampling-factor', r'4:2:0',
+                                          '-quality',
+                                          r'90%'],
+                                'overwrite': False}
                         }
 
 SOURCE_IMAGE_PATHS = ['/home/dmitry/workspace/herbs/herbs/management/source',
@@ -104,8 +112,7 @@ def easy_process():
         print('Copying the file:', imfile)
         bname = os.path.basename(imfile)
         tmp_image = os.path.join(TMP_FOLDER, bname)
-        shutil.copyfile(imfile, tmp_image,
-                        follow_symlinks=False)
+        shutil.copyfile(imfile, tmp_image, follow_symlinks=False)
         tiffstack = Image.open(tmp_image)
         if tiffstack.n_frames > 1:
             tfw_array = []
@@ -133,28 +140,33 @@ def easy_process():
         tiffstack.close()
 
         for subim in IMAGE_CONVERSION_OPTS:
-            cmd_stack_cur = cmd_stack.copy()
-            if rotation:
-                cmd_stack_cur.append('-rotate')
-                cmd_stack_cur.append('270')
+            destination_file = os.path.join(OUTPUT_IMAGE_PATH,
+                                            get_acronym_name(temp_image_name),
+                                            subim, temp_image_name + '.' +
+                                            IMAGE_CONVERSION_OPTS[subim]['format']
+                                            )
+            if not os.path.isfile(destination_file) or IMAGE_CONVERSION_OPTS[subim]['overwrite']:
+                cmd_stack_cur = cmd_stack.copy()
+                if rotation:
+                    cmd_stack_cur.append('-rotate')
+                    cmd_stack_cur.append('270')
 
-            if IMAGE_CONVERSION_OPTS[subim]['size']:
-                cmd_stack_cur.append('-resize')
-                cmd_stack_cur.append(IMAGE_CONVERSION_OPTS[subim]['size'])
+                if IMAGE_CONVERSION_OPTS[subim]['size']:
+                    cmd_stack_cur.append('-resize')
+                    cmd_stack_cur.append(IMAGE_CONVERSION_OPTS[subim]['size'])
 
-            if IMAGE_CONVERSION_OPTS[subim]['extra']:
-                cmd_stack_cur.extend(IMAGE_CONVERSION_OPTS[subim]['extra'])
+                if IMAGE_CONVERSION_OPTS[subim]['extra']:
+                    cmd_stack_cur.extend(IMAGE_CONVERSION_OPTS[subim]['extra'])
 
-            cmd_stack_cur.append(os.path.join(OUTPUT_IMAGE_PATH,
-                                              get_acronym_name(temp_image_name),
-                                              subim, temp_image_name + '.' +
-                                              IMAGE_CONVERSION_OPTS[subim]['format']
-                                              ))
-            _p = subprocess.Popen(cmd_stack_cur)
-            _p.wait()
-            print('Generating ', subim, 'image for', temp_image_name)
 
-      # delete processed image
+                cmd_stack_cur.append(destination_file)
+                _p = subprocess.Popen(cmd_stack_cur)
+                _p.wait()
+                print('Generating ', subim, 'image for', temp_image_name)
+            else:
+                print("The file ", destination_file, "already exists.")
+
+
         try:
             os.remove(os.path.join(TMP_FOLDER, temp_image_name + '.png'))
             os.remove(tmp_image)
