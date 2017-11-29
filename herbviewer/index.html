@@ -2,6 +2,7 @@
 <html>
   <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
   <style>
     body{background-color: #4D642D;}
 
@@ -63,7 +64,7 @@
     #download-link{
     dislay: inline;
     margin-top: -1em;
-    margin-bottom: 1em;
+    margin-bottom: 2.8em;
     height: 1em;
     
     }
@@ -74,7 +75,7 @@
         text-align: right;
         padding: 3px;
         cursor: pointer;
-        color: red;
+        color: orange;
         position: relative;
         float:right;
         display: block;
@@ -88,6 +89,25 @@
     #download-link>a:hover{
         background:#EAF7D9;
         box-shadow: 0px 0px  7px 5px #EAF7D9;
+    }
+
+    .change-resolution{
+        height: 2em;
+        width: 6em;
+        text-align: center;
+        font-size: 1em
+        }
+
+    input.change-resolution: hover{
+        background-color: red;
+    }
+
+    .current-resolution{
+        background-color: gray;
+    }
+
+    #download-link > input{
+    cursor: pointer;
     }
     </style>
   </head>
@@ -108,13 +128,24 @@ function transformToAssocArray( prmstr ) {
     return params;}
 
 var params = getSearchParameters();
-var imageUrl = params.baseurl + params.image;
+var baseurl = params.baseurl;
+var image = params.image;
+var resolution = params.resolution;
+var imageUrl = baseurl +'/' + resolution + '/' + image;
+function changeResolution(el){
+window.location.href = location.origin + location.pathname + '?' + 'baseurl=' + baseurl + '&' +'resolution=' + el.getAttribute("data-resolution") + '&' + 'image=' + image;}
 </script>
 
 <div id="herbs-viewer-container">
     <div id="herbs-centred">
         <h1><img src="custom/bgi_logo_white.png" style="margin-right: 10px">Botanical Garden-Institue FEB RAS</h1>
-        <div id="download-link"><a id='herbimage-download' download>Download</a></div>
+        <div id="download-link">
+            <div style="color: yellow">Resolution: </div>
+            <input class="change-resolution" type="button" value="Low" data-resolution="ss" onclick="changeResolution(this)"/>
+            <input class="change-resolution" type="button" value="Medium" data-resolution="ms" onclick="changeResolution(this)"/>
+            <input class="change-resolution" type="button" value="High" data-resolution="fs" onclick="changeResolution(this)"/>
+            <a id='herbimage-download' download>Download</a>
+        </div>
         <div id="osdragon-viewer">
          <div id="image-loader"></div>
         </div>
@@ -124,7 +155,7 @@ var imageUrl = params.baseurl + params.image;
 
 <script type="text/javascript">
 var downloadLink = document.getElementById("herbimage-download");
-downloadLink.setAttribute('href', params.baseurl + params.image);
+downloadLink.setAttribute('href', params.baseurl + '/' + resolution +'/' + params.image);
     var viewer = OpenSeadragon({
         id: "osdragon-viewer",
         prefixUrl: "images/",
@@ -137,9 +168,18 @@ downloadLink.setAttribute('href', params.baseurl + params.image);
     
 viewer.addHandler('open', function(){
     var el = document.getElementById("image-loader");
-    el.parentNode.removeChild(el);
-})    
-    
+    el.parentNode.removeChild(el);})
+
+var inpEls = document.getElementsByClassName("change-resolution");
+
+for (var i=0; i<inpEls.length; i++){
+    if (inpEls[i].getAttribute("data-resolution") == resolution){
+            inpEls[i].style.borderStyle = "inset";
+        }
+    }
+
+
+
 </script>
 </body>
 </html>
