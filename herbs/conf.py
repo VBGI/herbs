@@ -36,5 +36,7 @@ class HerbsAppConf(AppConf):
                                   ('herbcounter__count', _(u'Число просмотров'))
                                   ]
 
+    SOURCE_IMAGE_PATHS = '/home/scidam/webapps/herbviewer/snapshots/'
+
     class Meta:
         prefix = 'herbs'

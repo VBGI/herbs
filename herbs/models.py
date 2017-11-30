@@ -120,6 +120,8 @@ class HerbItemMixin(models.Model, BasicNameMixin):
     uhash =  models.CharField(blank=True, default='',
                               max_length=32, editable=False)
 
+    has_images = models.BooleanField(default=False, editable=False)
+
     created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
     updated = models.DateField(auto_now=True, verbose_name=_('сохранен'))
     createdby = models.ForeignKey(settings.AUTH_USER_MODEL,
