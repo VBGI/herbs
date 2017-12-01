@@ -208,8 +208,9 @@ Created: 30 Aug, 2016
        var coldate = item.collected_s;
        var collectors  = item.collectedby;
 			 var species = item.species;
-       var identifiers = item.identifiedby; 
+       var identifiers = item.identifiedby;
        var idstr = itemcode + '/' + herbid + fieldid;
+       var has_images = item.has_images
 
 		if (index % 2 == 0) { %>
     <tr class="herbitem-even" id="herbitem-<%= herbid %>"  onclick="showHerbitem(<%= herbid %>)" title="{%trans 'Количество просмотров:' %} <%= herbhits %>">

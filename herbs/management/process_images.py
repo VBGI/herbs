@@ -33,7 +33,14 @@ IMAGE_CONVERSION_OPTS = {
                                           '-sampling-factor', r'4:2:0',
                                           '-quality',
                                           r'90%'],
+                                'overwrite': False},
+                         'ts': {'size': '150', 'format': 'jpg',
+                                'extra': ['-strip', '-interlace', 'Plane',
+                                          '-sampling-factor', r'4:2:0',
+                                          '-quality',
+                                          r'80%'],
                                 'overwrite': False}
+
                         }
 
 SOURCE_IMAGE_PATHS = ['/home/dmitry/workspace/herbs/herbs/management/source',

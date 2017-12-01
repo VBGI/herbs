@@ -68,3 +68,18 @@ display: inline;
 margin-right: 7px;
 }
 
+
+#herbitem-image-wrapper {
+	display: table;
+	margin: 0 auto;
+}
+
+
+#herbitem-image-wrapper > ul {
+	min-width: 200px;
+	list-style: none;
+	padding-top: 20px;
+	}
+	#herbitem-image-wrapper > ul li {
+		display: inline;
+	}

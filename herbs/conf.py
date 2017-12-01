@@ -37,6 +37,10 @@ class HerbsAppConf(AppConf):
                                   ]
 
     SOURCE_IMAGE_PATHS = '/home/scidam/webapps/herbviewer/snapshots/'
+    SOURCE_IMAGE_THUMB = 'ts'
+    SOURCE_IMAGE_URL = 'http://botsad.ru/herbarium/view/snapshots'
+    SOURCE_IMAGE_VIEWER = 'http://botsad.ru/herbarium/view/'
+    SOURCE_IMAGE_URL_RELATIVE = 'snapshots'
 
     class Meta:
         prefix = 'herbs'

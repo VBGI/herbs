@@ -114,48 +114,20 @@
       {%if curobj.note %}<p><strong>{%trans "Примечание"%}:</strong>&nbsp;{{curobj.note|smart_language}}</p>{%endif%}
 
       {% if curobj.has_images%}
-      <script type="text/javascript" > //make automatic queries for images
-
-
-      function imageExists(image_url){
-        var http = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest() : XDomainRequest();
-        http.open('HEAD', image_url, false);
-        http.send();
-        return http.status != 404;
-        }
-
-      var baseUrl = "{{base_herbitem_image_url}}"; //TODO: needs to be defined in the main view
-      var acronym = "{{curobj.acronym.name}}";
-      var id = {{curobj.pk}};
-      var allowed_inds = [1, 2];
-
-      var theurl = '';
-
-
-      var resHtml = ''
-        for (var j=1; j<allowed_inds.length; j++){
-            var imgid = (allowed_inds[j] === "") ? "" : ("_" + parseInt(allowed_inds[j]));
-            theurl = baseUrl + '/' + acronym + '/' + 'ts' +'/' + acronym + id + imgid +  '.jpg';
-            if (imageExists(theurl)){
-              resHtml += '<li><a href=""><img src='+ theurl +'></a></li>'
-              }
-          }
-       if (resHtml.length > 0){
-          resHtml = '<ul>' + resHtml + '</ul>' ;
-          }
-
-      </script>
-      <div id="image-container" style="width: 100%"></div>
-      <script type="text/javascript" >
-        var el=document.getElementById("image-container");
-        el.innerHTML = resHtml;
-      </script>
+      <hr>
+        <div id="herbitem-image-wrapper">
+      <ul>
+      {% for im in image_urls %}
+      <li>
+        <a href="{{im.1}}"><img src="{{im.0}}"></a>
+      </li>
+      {%endfor%}
+      </ul>
+        </div>
       {%else%}
       <hr>
-      <h3>{%trans "Изображния не загружены" %}</h3>
+      <h3 style="text-align: center">{%trans "Изображния не загружены" %}</h3>
       {%endif%}
-
-      <noscript>{%trans "Для корректного отображения изображений гербарных образцов должен быть включен JavaScript."%}</noscript>
       <p><i>{% trans "Последнее изменение"%}:</i>&nbsp;{{curobj.updated}}</p>
       {%if curobj.herbcounter %}
       <p><i>{% trans "Число обращений"%}:</i>&nbsp;{{curobj.herbcounter.all.0.count}}</p>

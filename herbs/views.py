@@ -433,7 +433,7 @@ def json_api(request):
 @csrf_exempt
 def show_herbs(request):
     '''
-    Get herbitems view
+    Show all specimen records
     '''
     if not request.is_ajax():
         return HttpResponse(_(u'Допустимы только XMLHttp-запросы'))
@@ -464,7 +464,8 @@ def show_herbs(request):
                     'collected_s': item.collected_s,
                     'identifiedby': item.identifiedby if lang == 'ru' else translit(item.identifiedby, 'ru', reversed=True),
                     'created': str(item.created),
-                    'updated': str(item.updated)
+                    'updated': str(item.updated),
+                    'has_images': True if item.has_images else False
                     })
 
         # ------------------------------------------------------------------
@@ -501,8 +502,31 @@ def show_herbitem(request, inum):
         translation.activate('ru')
     else:
         translation.activate(clang)
+
+
     try:
         hobj = HerbItem.objects.get(id=inum)
+
+        # ---------- get image urls
+
+        if hobj.has_images:
+            urls = []
+            splitted = hobj.has_images.split(',')
+            baseurl = '/'.join(s.strip('/') for s in
+                           [getattr(main_settings, 'HERBS_SOURCE_IMAGE_URL_RELATIVE', ''),
+                            hobj.acronym.name])
+            for im in splitted:
+                getpars = '&'.join(["baseurl=%s" % baseurl,
+                            "resolution=ss",
+                            "image=%s" % os.path.basename(im)
+                            ])
+                urls.append(getattr(main_settings, 'HERBS_SOURCE_IMAGE_VIEWER', '') + '?' + getpars)
+            image_urls = [(x, y) for x,y in zip(splitted, urls)]
+        else:
+            image_urls = []
+
+        #--------------------------
+
         if hobj.public:
             if hobj.herbcounter.exists():
                 hc = hobj.herbcounter.all()[0]
@@ -510,7 +534,7 @@ def show_herbitem(request, inum):
                 hc.save()
             else:
                 HerbCounter.objects.create(herbitem=hobj, count=1)
-        context.update({'curobj': hobj})
+        context.update({'curobj': hobj, 'image_urls': image_urls})
     except HerbItem.DoesNotExist:
         context.update({'error': _(u'Гербарного образца с id=%s не было найдено') % inum})
     result = render_to_string('herbitem_details.html', context,

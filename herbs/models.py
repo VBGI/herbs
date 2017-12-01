@@ -10,10 +10,11 @@ from geoposition.fields import GeopositionField
 from django.core.exceptions import PermissionDenied
 from .utils import  _smartify_dates
 
-
 SIGNIFICANCE = (('aff.', 'affinis'),
                 ('cf.', 'confertum')
                 )
+
+
 
 
 class BasicNameMixin(object):
@@ -120,7 +121,7 @@ class HerbItemMixin(models.Model, BasicNameMixin):
     uhash =  models.CharField(blank=True, default='',
                               max_length=32, editable=False)
 
-    has_images = models.BooleanField(default=False, editable=False)
+    has_images = models.TextField(default='', editable=False)
 
     created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
     updated = models.DateField(auto_now=True, verbose_name=_('сохранен'))
@@ -176,15 +177,12 @@ class Subdivision(models.Model):
         return self.name
 
     def get_all_children(self):
-        result = []
-        curitem = self
-        while True:
-            if curitem.child.count():
-                result.append(curitem)
-                curitem = curitem.child
-            else:
-                result.append(curitem)
-                break
+        result = list()
+        result.append(self)
+        for c in Subdivision.objects.filter(parent=self):
+            _r = c.get_all_children()
+            if 0 < len(_r):
+                result.extend(_r)
         return result
 
     class Meta:
@@ -410,6 +408,7 @@ class HerbItem(HerbItemMixin):
             raise PermissionDenied(_('нельзя удалить опубликованные объекты'))
         else:
             super(HerbItem, self).delete(*args, **kwargs)
+
 
 
 class HerbCounter(models.Model):
