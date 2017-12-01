@@ -141,9 +141,8 @@
 
 .. code:: python
 
-    [
-    ('http://someresource.com/path/to/image1', 'image1 type', 'meta information1'),
-    ('http://someresource.com/path/to/image2', 'image2 type', 'meta information2'),
+    ['http://someresource.com/path/to/image1.jpg',
+     'http://someresource.com/path/to/image2.jpg'
     ...
     ]
 
