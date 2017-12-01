@@ -344,7 +344,7 @@ function showHerbitem(herbid){
   $("#herbitem-tabs").tabs('option','active',1);
   el.unbind("click");
   el.click(function(){
-    var win = window.open('{{herbitem_personal_url}}' + herbid, '_blank');
+    var win = window.open($("#herbitem-iframe").attr('src'), '_blank');
       if (win) {
          win.focus();
           } else {
