@@ -197,8 +197,9 @@ has the following attributes:
 - **dethistory** |---| an array; history of species identifications for this herbarium record;
 - **additionals** |---| some herbarium records could include more than one species, this array describes them;
 - **images** |---| a list of images related to the herbarium record ([] |--| an empty list, means that no images
-  attached to the herbarium record were found); the list is formatted as follows:
+  attached to the herbarium record were found);
 
+.. the list is formatted as follows:
         - *http://...* |--| first field of image record; it is a path (link), where the image could be downloaded;
         - *image type* |--| allowed values are either 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of the surrounding ecosystem etc.);
                             's' = 'sheet' |--| snapshot of the herbarium sheet;

@@ -118,9 +118,7 @@
         <div id="herbitem-image-wrapper">
       <ul>
       {% for im in image_urls %}
-      <li>
-        <a href="{{im.1}}"><img src="{{im.0}}"></a>
-      </li>
+      <li><a href="{{im.1}}"><img src="{{im.0}}" alt="{{curobj}}"></a></li>
       {%endfor%}
       </ul>
         </div>

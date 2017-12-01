@@ -210,12 +210,12 @@ Created: 30 Aug, 2016
 			 var species = item.species;
        var identifiers = item.identifiedby;
        var idstr = itemcode + '/' + herbid + fieldid;
-       var has_images = item.has_images
+       var has_images = item.has_images;
 
 		if (index % 2 == 0) { %>
     <tr class="herbitem-even" id="herbitem-<%= herbid %>"  onclick="showHerbitem(<%= herbid %>)" title="{%trans 'Количество просмотров:' %} <%= herbhits %>">
 			<td><%= idstr %></td>
-			<td><%= species %></td>
+	<%	if (has_images) { %>   <td><%= species %> <img src="{{STATIC_URL}}/images/photo.png" style="float: right"></td> <% } else { %> <td><%= species %></td> <% } %>
 			<td><%= coldate %></td>
 			<td><%= collectors %></td>
 			<td><%= identifiers %></td>
@@ -223,7 +223,7 @@ Created: 30 Aug, 2016
    <%	} else { %>
     <tr class="herbitem-odd" id="herbitem-<%= herbid %>" onclick="showHerbitem(<%= herbid %>);" title="{%trans 'Количество просмотров:' %} <%= herbhits %>">
 			<td><%= idstr %></td>
-			<td><%= species %></td>
+   <%	if (has_images) { %>   <td><%= species %> <img src="{{STATIC_URL}}/images/photo.png" style="float: right"></td> <% } else { %> <td><%= species %></td> <% } %>
 			<td><%= coldate %></td>
 			<td><%= collectors %></td>
 			<td><%= identifiers %></td>
