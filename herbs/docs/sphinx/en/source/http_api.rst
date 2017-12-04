@@ -82,6 +82,8 @@ List of allowed GET-parameters:
 - **fieldid** |---| field code/number; (matching condition: case insensitive, a sub-string of the record corresponding field);
 - **itemcode** |---| storage number (matching condition: case insensitive, a sub-string of the record corresponding field);
 - **authorship** |---| authorship of the main species (matching condition: case insensitive, a sub-string of the record corresponding field);
+- **imonly** |---| allowed values are false or true; absence of the parameter in GET-request is treateda as its `false` value;
+                   when filtering with **imonly=true** records having images will be shown only.
 
 .. _ISO3166-1-en: https://en.wikipedia.org/wiki/ISO_3166-1
 .. _ISO3166-1-ru: https://ru.wikipedia.org/wiki/ISO_3166-1
