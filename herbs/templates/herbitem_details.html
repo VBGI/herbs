@@ -36,7 +36,14 @@
       </div>  
       {%if not error%}
         {%if curobj.public %}
-      <div id="herbitem-text-container"> 
+      <div id="herbitem-text-container">
+      <p><strong>{%trans "Уникальный код образца" %}:</strong>&nbsp;{{curobj.pk}}</p>
+      {%if curobj.itemcode %}
+        <p><strong>{%trans "Инвентарный номер" %}:</strong>&nbsp;{{curobj.itemcode}}</p>
+      {%endif%}
+      {%if curobj.fieldid %}
+        <p><strong>{%trans "Полевой номер" %}:</strong>&nbsp;{{curobj.fieldid}}</p>
+      {%endif%}
       <p><strong>{%trans "Семейство"%}:</strong>&nbsp;{{curobj.species.genus.family.get_full_name|capfirst}}</p>
       <p><strong>{%trans "Род"%}:</strong>&nbsp;<i>{{curobj.species.genus.get_full_name|capfirst}}</i></p>
         {%if curobj.species %}
