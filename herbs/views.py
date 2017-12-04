@@ -290,6 +290,18 @@ def get_data(request):
                                                           bigquery)).exclude(public=False)
         else:
             objects_filtered = HerbItem.objects.filter(public=True)
+
+        images_only = request.GET.get('imonly', False)
+        if images_only == 'true':
+            images_only = True
+        elif images_only == 'false':
+            images_only = False
+        else:
+            images_only = False
+
+        if images_only:
+            objects_filtered = objects_filtered.exclude(has_images__isnull=True)
+
         if not objects_filtered.exists():
             msg = _(u"Ни одного элемента не удовлетворяет условиям поискового запроса")
             warnings.append(msg)
@@ -358,7 +370,7 @@ def json_api(request):
                               'country', 'colstart', 'colend', 'acronym',
                               'subdivision', 'synonyms', 'additionals', 'latl',
                               'latu', 'lonl', 'lonu', 'additionals', 'fieldid',
-                              'authorship'))
+                              'authorship', 'imonly'))
 
     if request.method == 'POST':
         context['errors'].append('Only GET-requests is allowed')

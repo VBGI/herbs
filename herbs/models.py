@@ -121,7 +121,7 @@ class HerbItemMixin(models.Model, BasicNameMixin):
     uhash =  models.CharField(blank=True, default='',
                               max_length=32, editable=False)
 
-    has_images = models.TextField(default='', editable=False)
+    has_images = models.TextField(editable=False, null=True)
 
     created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
     updated = models.DateField(auto_now=True, verbose_name=_('сохранен'))

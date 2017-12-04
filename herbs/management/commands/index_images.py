@@ -32,8 +32,7 @@ class Command(BaseCommand):
     args = ''
     help = 'Index all herbarium images'
     def handle(self, *args, **options):
-        HerbItem.objects.all().update(has_images='')
-
+        HerbItem.objects.all().update(has_images=None)
         result = {}
         for image in get_all_image_files():
             bname = os.path.basename(image)
