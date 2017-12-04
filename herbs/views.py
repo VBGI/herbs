@@ -678,6 +678,7 @@ def collect_label_data(q):
                         'short_note': item.short_note or '',
                         'gpsbased': item.gpsbased,
                         'dethistory':  _dethistory,
+                        'type_status': item.get_type_status_display(),
                         'logo_path': os.path.join(getattr(main_settings,
                                                           'MEDIA_ROOT', ''),
                                                   str(item.acronym.logo)) if item.acronym else ''
