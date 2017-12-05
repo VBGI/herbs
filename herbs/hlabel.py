@@ -7,6 +7,7 @@ import qrcode
 import os
 from .utils import translit, smartify_language
 
+from HTMLParser import HTMLParser
 
 msgs = {'org':   'Herbarium',
         'descr': 'of the %s (%s)',
@@ -131,6 +132,31 @@ def _lon_repr(longitude):
     return res
 
 
+class CustomParser(HTMLParser, object):
+    def __init__(self, *args, **kwargs):
+        self._stack_ = ['']
+        self._data_ = []
+        super(CustomParser, self).__init__(*args, **kwargs)
+
+    def handle_starttag(self, tag, attrs):
+        self._stack_.append(tag)
+
+    def handle_endtag(self, tag):
+        if tag in self._stack_:
+            self._stack_.reverse()
+            self._stack_.remove(tag)
+            self._stack_.reverse()
+
+    def handle_data(self, data):
+        self._data_.append((data, ''.join(self._stack_)))
+
+    @property
+    def parsed(self):
+        return self._data_
+
+
+
+
 class PDF_MIXIN(object):
     def __init__(self, orientation='L'):
         self.pdf = FPDF(orientation=orientation)
@@ -152,6 +178,64 @@ class PDF_MIXIN(object):
 
     def create_file(self, fname):
         self.pdf.output(fname, dest='F')
+
+
+    def smarty_print(self, txt, y,  left_position=0,
+                     first_indent=10, right_position=10,
+                     line_nums=4, force=False, font_size=10):
+
+        def choose_font(fs=''):
+            if fs == '':
+                return 'DejaVu'
+            elif fs == 'i':
+                return 'DejaVui'
+            elif fs == 'b':
+                return 'DejaVub'
+            elif fs == 'bi' or fs == 'ib':
+                return 'DejaVubi'
+            else:
+                return 'DejaVu'
+
+        parser = CustomParser()
+        done = False
+        while not done:
+            parser.feed(txt)
+            line_number = 0
+            lines = [[]]
+            cline_width = 0
+            for item in parser.parsed:
+                self.pdf.set_font(choose_font(item[-1]), '', font_size)
+                if line_number == 0:
+                    allowed_line_length = right_position - left_position - first_indent
+                else:
+                    allowed_line_length = right_position - left_position
+                for word in item[0].split():
+                    current_width = self.pdf.get_string_width(item[0] + ' ')
+                    cline_width += current_width
+                    if cline_width < allowed_line_length:
+                        lines[-1].append((word, choose_font(item[-1])))
+                    else:
+                        lines.append([])
+                        lines[-1].append((word, choose_font(item[-1])))
+                        cline_width = 0
+                        line_number += 1
+            if font_size < 2:
+                done = True
+            if line_number > line_nums and force:
+                font_size -= 1
+            else:
+                done = True
+
+
+        self.pdf.set_xy(left_position + first_indent, self.goto(y, self._ln))
+        for line in lines:
+            for item in line:
+                self.pdf.set_font(item[-2], '', font_size)
+                self.pdf
+            self._ln += 1
+
+
+
 
 
 class PDF_DOC(PDF_MIXIN):
@@ -613,8 +697,8 @@ class PDF_BRYOPHYTE(BARCODE):
             self.pdf.cell(0, 0, field_string)
 
         if type_status:
-            self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN - 5,
-                            self.goto(self._ln))
+            self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN - BRYOPHYTE_MARGIN_EXTRA,
+                            self.goto(self._ln) - 2)
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
             self.pdf.cell(0, 0, type_status)
             self._ln += 1
