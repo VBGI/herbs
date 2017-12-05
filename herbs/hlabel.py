@@ -698,10 +698,12 @@ class PDF_BRYOPHYTE(BARCODE):
             self.pdf.cell(0, 0, field_string)
 
         if type_status:
+            self.pdf.set_text_color(255, 0, 0)
             self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN - BRYOPHYTE_MARGIN_EXTRA,
                             self.goto(self._ln) - 2)
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
             self.pdf.cell(0, 0, type_status)
+            self.pdf.set_text_color(0, 0, 0)
             self._ln += 1
 
         addinfo = []
