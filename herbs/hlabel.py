@@ -226,16 +226,17 @@ class PDF_MIXIN(object):
             else:
                 done = True
 
+        xpos = left_position + first_indent
 
-        self.pdf.set_xy(left_position + first_indent, self.goto(y, self._ln))
         for line in lines:
+            ypos = self.goto(y, self._ln)
             for item in line:
-                self.pdf.set_font(item[-2], '', font_size)
-                self.pdf
+                self.pdf.set_font(item[-1], '', font_size)
+                self.pdf.set_xy(xpos, ypos)
+                self.pdf.cell(item[0] + ' ')
+                xpos += self.pdf.get_string_width(item[0] + ' ')
             self._ln += 1
-
-
-
+            xpos = left_position
 
 
 class PDF_DOC(PDF_MIXIN):
