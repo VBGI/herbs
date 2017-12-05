@@ -178,7 +178,7 @@ def herb_as_dict(hitem):
     result.update({'dethistory': dethistory})
     additionals = prefill_related_species(hitem, 'additionals')
     result.update({'additionals': additionals})
-    result.update({'images': hitem.has_images.split(',')})
+    result.update({'images': hitem.has_images.split(',') if hitem.has_images else []})
     return result
 
 # -------------- Transliterate customization -------
