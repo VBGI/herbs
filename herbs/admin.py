@@ -265,17 +265,16 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super(HerbItemAdmin, self).get_readonly_fields(request, obj)
-        readonly_fields = list(readonly_fields)
-        if 'acronym' not in readonly_fields:
-            readonly_fields.append('acronym')
-        if 'subdivision' not in readonly_fields:
-            readonly_fields.append('subdivision')
+        readonly_fields = set(readonly_fields)
+        readonly_fields.update(['acronym', 'subdivision',
+                                'public', 'itemcode', 'type_status'])
         if obj:
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
                 if request.user.has_perm('herbs.can_set_publish'):
                     readonly_fields.remove('public')
                 return readonly_fields
+
         if request.user.has_perm('herbs.can_set_publish'):
             if 'public' in readonly_fields:
                 readonly_fields.remove('public')
@@ -286,17 +285,11 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         elif request.user.has_perm('herbs.can_set_code'):
             if 'itemcode' in readonly_fields:
                 readonly_fields.remove('itemcode')
-        else:
-            if 'public' not in readonly_fields:
-                readonly_fields.append('public')
-            if 'itemcode' not in readonly_fields:
-                readonly_fields.append('itemcode')
-            if 'type_status' not in readonly_fields:
-                readonly_fields.append('type_status')
+
         if request.user.is_superuser:
             readonly_fields.remove('acronym')
             readonly_fields.remove('subdivision')
-        return readonly_fields
+        return list(readonly_fields)
 
     def get_inline_instances(self, request, obj=None):
         inlines = [DetHistoryAdminInline, AdditionalsAdminInline]
