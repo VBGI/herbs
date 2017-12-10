@@ -61,25 +61,6 @@ def get_all_image_files(sources=SOURCE_IMAGE_PATHS):
                     yield abspath
 
 
-# def get_images(source=OUTPUT_IMAGE_PATH):
-#     _all_folders = []
-#     for dir_, dirnames, filenames in os.walk(source):
-#         for _dir in dirnames:
-#             if ACRONYM_PATTERN.match(_dir):
-#                 _all_folders.append(os.path.join(dir_, _dir))
-#     data = pd.DataFrame({'filename' : [],
-#                          'md5': []})
-#     for folder in _all_folders:
-#         _ = os.path.join(folder, 'data.csv')
-#         if os.path.isfile(_):
-#             new_data = pd.read_csv(_)
-#             try:
-#                 data = pd.concat([data, new_data], axis=0, ignore_index=True)
-#             except:
-#                 print('Illegal file format: ', _)
-#     return data
-
-
 def create_folder_safely(folder ='', source=OUTPUT_IMAGE_PATH):
 
     if not folder: return
@@ -111,8 +92,6 @@ def check_image_exists(image_name):
                                     )
         res.append(os.path.isfile(destination_file) and not IMAGE_CONVERSION_OPTS[subim]['overwrite'])
     return all(res)
-
-
 
 
 def easy_process():

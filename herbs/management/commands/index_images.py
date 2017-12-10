@@ -2,8 +2,10 @@ from django.core.management.base import BaseCommand
 
 try:
     from herbs.models import HerbItem
+    from herbs.management.process_images import IMAGE_CONVERSION_OPTS
 except ImportError:
     from bgi.herbs.models import HerbItem
+    from bgi.herbs.management.process_images import IMAGE_CONVERSION_OPTS
 
 import re, os
 
@@ -51,8 +53,9 @@ class Command(BaseCommand):
                 items = None
 
             if items:
-                baseurl = '/'.join(s.strip('/') for s in [image_url_,
-                                                          ac_, image_thumb_])
-                images = map(lambda x: baseurl + '/' + x,
-                             result[(id_, ac_)])
+                images = []
+                for key in IMAGE_CONVERSION_OPTS.keys():
+                    baseurl = '/'.join(s.strip('/') for s in [image_url_,
+                                                          ac_, key])
+                    images.append(baseurl + '/' + result[(id_, ac_)][0])
                 items.update(has_images=','.join(images))
