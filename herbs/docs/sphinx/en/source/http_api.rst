@@ -201,6 +201,37 @@ has the following attributes:
 - **images** |---| a list of images related to the herbarium record ([] |--| an empty list, means that no images
   attached to the herbarium record were found);
 
+
+.. note::
+
+    Images from the **images** array are provided in several resolutions.
+    Currently, the system stores images of different resolutions in directories
+    named `ss` |--| small size (30% of original size); `ms` |--| medium size (60% original size);
+    `fs` |--| full size (original size).
+
+    Therefore, each image url includes one of the following components
+    ` /ts/ `,` /ss/ `, ` /ms/ ` или ` /fs/ `. These components point to
+    resolution of the image available from this url.
+
+
+.. note::
+
+    All images are saved as jpeg via `ImageMagick`_ image processing utilities with the following parameters:
+
+    .. code:: python
+
+        '-strip', '-interlace', 'Plane',
+        '-sampling-factor', r'4:2:0',
+        '-quality',
+        r'90%'
+
+    It comes from practice that such compression don't significantly impact on images.
+    In the save time, compression is very important and allows to save a lot of storage space.
+
+
+.. _ImageMagick: http://imagemagick.org
+
+
 .. the list is formatted as follows:
         - *http://...* |--| first field of image record; it is a path (link), where the image could be downloaded;
         - *image type* |--| allowed values are either 'p' or 's'; 'p' = 'place' |--| the image is related to the place of collection (e.g. snapshot of the surrounding ecosystem etc.);
@@ -213,11 +244,12 @@ has the following attributes:
 
 List of images attached to the herbarium record (example):
 
-
 .. code:: python
 
-    ['http://someresource.com/path/to/image1.jpg',
-     'http://someresource.com/path/to/image2.jpg'
+    ['http://botsad.ru/herbarium/view/snapshots/VBGI/ss/VBGI32618_1.jpg',
+     'http://botsad.ru/herbarium/view/snapshots/VBGI/ts/VBGI32618_1.jpg',
+     'http://botsad.ru/herbarium/view/snapshots/VBGI/ms/VBGI32618_1.jpg',
+     'http://botsad.ru/herbarium/view/snapshots/VBGI/fs/VBGI32618_1.jpg'
     ...
     ]
 

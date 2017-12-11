@@ -368,7 +368,7 @@ class Species(TaxonMixin):
             return ' '.join([capfirst(self.genus.name),
                               super(Species, self).get_full_name()])
         else:
-            return  ' '.join([capfirst(self.genus.name), self.name,
+            return ' '.join([capfirst(self.genus.name), self.name,
                               self.authorship,
                               self.get_infra_rank_display(),
                               self.infra_epithet,
