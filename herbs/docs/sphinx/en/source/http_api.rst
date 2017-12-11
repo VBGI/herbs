@@ -210,8 +210,8 @@ has the following attributes:
     `fs` |--| full size (original size).
 
     Therefore, each image url includes one of the following components
-    ` /ts/ `,` /ss/ `, ` /ms/ ` или ` /fs/ `. These components point to
-    resolution of the image available from this url.
+    ` /ts/ `, ` /ss/ `, ` /ms/ ` или ` /fs/ `. These components denote resolution of the image
+    available from the url.
 
 
 .. note::
