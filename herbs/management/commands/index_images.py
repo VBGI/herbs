@@ -57,5 +57,5 @@ class Command(BaseCommand):
                 for key in IMAGE_CONVERSION_OPTS.keys():
                     baseurl = '/'.join(s.strip('/') for s in [image_url_,
                                                           ac_, key])
-                    images.append(baseurl + '/' + result[(id_, ac_)][0])
+                    images.extend(map(lambda x: baseurl + '/' + x, result[(id_, ac_)]))
                 items.update(has_images=','.join(images))
