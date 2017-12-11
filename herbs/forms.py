@@ -266,7 +266,9 @@ class SpeciesForm(forms.ModelForm):
                     _("название подвидового эпитета должно состоять только из латинских букв"))
 
         # Check all fields
-        # TODO: Prevent fields changing if published herbitems exist
+        # TODO: Prevent fields changing if published herbitems exist; clarification needed
+        
+
 
         form_data['name'] = name
         form_data['infra_epithet'] = infra_epithet
