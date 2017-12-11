@@ -533,7 +533,7 @@ def show_herbitem(request, inum):
                             "image=%s" % os.path.basename(im)
                             ])
                 urls.append(getattr(main_settings, 'HERBS_SOURCE_IMAGE_VIEWER', '') + '?' + getpars)
-            image_urls = [(x, y) for x, y in zip(splitted, urls) if ('/' + ts +'/') in y]
+            image_urls = [(x, y) for x, y in zip(splitted, urls) if ('/' + ts +'/') in x]
         else:
             image_urls = []
 
