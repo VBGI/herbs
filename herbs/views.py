@@ -520,8 +520,8 @@ def show_herbitem(request, inum):
         hobj = HerbItem.objects.get(id=inum)
 
         # ---------- get image urls
-
         if hobj.has_images:
+            ts = getattr(main_settings, 'HERBS_SOURCE_IMAGE_THUMB', '')
             urls = []
             splitted = hobj.has_images.split(',')
             baseurl = '/'.join(s.strip('/') for s in
@@ -533,7 +533,7 @@ def show_herbitem(request, inum):
                             "image=%s" % os.path.basename(im)
                             ])
                 urls.append(getattr(main_settings, 'HERBS_SOURCE_IMAGE_VIEWER', '') + '?' + getpars)
-            image_urls = [(x, y) for x,y in zip(splitted, urls)]
+            image_urls = [(x, y) for x, y in zip(splitted, urls) if ('/' + ts +'/') in y]
         else:
             image_urls = []
 
