@@ -613,7 +613,7 @@ class BARCODE(PDF_MIXIN):
         code = str(acronym).upper() + str(id)
         self.pdf.code39('*' + code + '*', x, y, w=BARCODE_ITEM_WIDTH,
                         h=BARCODE_ITEM_HEIGHT)
-        barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(code)
+        barcodesize = 5.0 * BARCODE_ITEM_WIDTH * (len(code) + 2)
         self.pdf.set_font('DejaVu', '', fs)
         cw = self.pdf.get_string_width(code)
         self.pdf.set_xy(x + barcodesize / 2.0 - cw / 2.0,
@@ -641,7 +641,7 @@ class BARCODE(PDF_MIXIN):
         _x, _y = BARCODE_INITX, BARCODE_INITY
         for code in codes:
             code_string = str(code['acronym']).upper() + str(code['id'])
-            barwidth = 5.0 * BARCODE_ITEM_WIDTH * len(code_string)
+            barwidth = 5.0 * BARCODE_ITEM_WIDTH * (len(code_string) + 2)
             barheight = BARCODE_ITEM_HEIGHT + 5
             if (_x + barwidth + hsep < BARCODE_PAGE_WIDTH):
                 if (_y + barheight + vsep < BARCODE_PAGE_HEIGHT):
