@@ -611,11 +611,13 @@ class BARCODE(PDF_MIXIN):
     def put_barcode(self, acronym, id, institute,  x, y):
         fs = BARCODE_FONTSIZE
         code = str(acronym).upper() + str(id)
-        self.pdf.code39(code, x, y, w=BARCODE_ITEM_WIDTH, h=BARCODE_ITEM_HEIGHT)
+        self.pdf.code39('*' + code + '*', x, y, w=BARCODE_ITEM_WIDTH,
+                        h=BARCODE_ITEM_HEIGHT)
         barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(code)
         self.pdf.set_font('DejaVu', '', fs)
         cw = self.pdf.get_string_width(code)
-        self.pdf.set_xy(x + barcodesize / 2.0 - cw / 2.0, y + BARCODE_ITEM_HEIGHT + 3)
+        self.pdf.set_xy(x + barcodesize / 2.0 - cw / 2.0,
+                        y + BARCODE_ITEM_HEIGHT + 3)
         self.pdf.cell(0, 0, code)
         fs -= 1
         self.pdf.set_font('DejaVu', '', fs)
