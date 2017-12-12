@@ -253,7 +253,7 @@ def smartify_language(value, lang=''):
             ru_value = b
             en_value = a
         else:
-            return value
+            ru_value, en_value = a, b
 
         if lang == 'ru':
             return ru_value
