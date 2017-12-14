@@ -23,6 +23,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings as main_settings
 
+from collections import Counter
 import json
 import re
 import gc
@@ -610,80 +611,82 @@ def advice_select(request):
 def collect_label_data(q):
     result = []
     q = map(lambda x: int(x), q)
-    objs = HerbItem.objects.filter(public=True, id__in=q)
-    if not objs.exists():
+    objects = HerbItem.objects.filter(public=True, id__in=q)
+    if not objects.exists():
         return result
+    cn = Counter(q)
+    objs = [[obj]*cn[obj.pk] for obj in objects]
+    objs = sum(objs, [])
     lang = translation.get_language()
     translation.activate('en')
-    if objs.exists():
-        for item in objs:
-            history = DetHistory.objects.filter(herbitem=item)
-            if not item.identifiedby:
-                try:
-                    dhist = history.latest('identified_s')
-                    identified = dhist.identifiedby
-                except DetHistory.DoesNotExist:
-                    identified = ''
-            else:
-                identified = item.identifiedby
+    for item in objs:
+        history = DetHistory.objects.filter(herbitem=item)
+        if not item.identifiedby:
+            try:
+                dhist = history.latest('identified_s')
+                identified = dhist.identifiedby
+            except DetHistory.DoesNotExist:
+                identified = ''
+        else:
+            identified = item.identifiedby
 
-            _dethistory = []
-            if history.exists():
-                for hist_obj in history:
-                    if hist_obj.species:
-                        _sp_hist = _smartify_species(hist_obj)
-                        _dethistory.append(
-                            {
-            'identifiedby': hist_obj.identifiedby,
-            'identified': _smartify_dates(hist_obj, prefix='identified'),
-            'species': _sp_hist
-                            }
-                                           )
+        _dethistory = []
+        if history.exists():
+            for hist_obj in history:
+                if hist_obj.species:
+                    _sp_hist = _smartify_species(hist_obj)
+                    _dethistory.append(
+                        {
+        'identifiedby': hist_obj.identifiedby,
+        'identified': _smartify_dates(hist_obj, prefix='identified'),
+        'species': _sp_hist
+                        }
+                                       )
 
-            addspecies = []
-            addsps_obj = Additionals.objects.filter(herbitem=item)
-            if addsps_obj.exists():
-                for addsp in addsps_obj:
-                    addspecies.append([addsp.get_basic_name(),
-                                       addsp.species.authorship,
-                                       addsp.species.get_infra_rank_display(),
-                                       addsp.species.infra_epithet,
-                                       addsp.note])
-            ddict = _smartify_species(item)
-            ddict.update({'coldate': _smartify_dates(item)})
-            ddict.update({'detdate': _smartify_dates(item, prefix='identified')})
-            current_family = ''
-            if item.species:
-                if item.species.genus.family:
-                    current_family = item.species.genus.family.name.upper()
-            ddict.update({'family': current_family,
-                        'country': item.country.name_en if item.country else '',
-                        'region': item.region,
-                        'altitude': _smartify_altitude(item.altitude),
-                        'latitude': '{0:.5f}'.format(item.coordinates.latitude) if item.coordinates else '',
-                        'longitude': '{0:.5f}'.format(item.coordinates.longitude) if item.coordinates else '',
-                        'place': item.detailed,
-                        'collected': item.collectedby,
-                        'identified': identified,
-                        'itemid': '%s' % item.pk,
-                        'number': '%s' % item.itemcode or '*',
-                        'acronym': item.acronym.name if item.acronym else '',
-                        'address': item.acronym.address if item.acronym else '',
-                        'institute': item.acronym.institute if item.acronym else '',
-                        'gform': item.devstage or '',
-                        'fieldid': item.fieldid or '',
-                        'addspecies': addspecies,
-                        'district': item.district or '',
-                        'note': item.note or '',
-                        'short_note': item.short_note or '',
-                        'gpsbased': item.gpsbased,
-                        'dethistory':  _dethistory,
-                        'type_status': item.get_type_status_display(),
-                        'logo_path': os.path.join(getattr(main_settings,
-                                                          'MEDIA_ROOT', ''),
-                                                  str(item.acronym.logo)) if item.acronym else ''
-                          })
-            result.append(ddict)
+        addspecies = []
+        addsps_obj = Additionals.objects.filter(herbitem=item)
+        if addsps_obj.exists():
+            for addsp in addsps_obj:
+                addspecies.append([addsp.get_basic_name(),
+                                   addsp.species.authorship,
+                                   addsp.species.get_infra_rank_display(),
+                                   addsp.species.infra_epithet,
+                                   addsp.note])
+        ddict = _smartify_species(item)
+        ddict.update({'coldate': _smartify_dates(item)})
+        ddict.update({'detdate': _smartify_dates(item, prefix='identified')})
+        current_family = ''
+        if item.species:
+            if item.species.genus.family:
+                current_family = item.species.genus.family.name.upper()
+        ddict.update({'family': current_family,
+                    'country': item.country.name_en if item.country else '',
+                    'region': item.region,
+                    'altitude': _smartify_altitude(item.altitude),
+                    'latitude': '{0:.5f}'.format(item.coordinates.latitude) if item.coordinates else '',
+                    'longitude': '{0:.5f}'.format(item.coordinates.longitude) if item.coordinates else '',
+                    'place': item.detailed,
+                    'collected': item.collectedby,
+                    'identified': identified,
+                    'itemid': '%s' % item.pk,
+                    'number': '%s' % item.itemcode or '*',
+                    'acronym': item.acronym.name if item.acronym else '',
+                    'address': item.acronym.address if item.acronym else '',
+                    'institute': item.acronym.institute if item.acronym else '',
+                    'gform': item.devstage or '',
+                    'fieldid': item.fieldid or '',
+                    'addspecies': addspecies,
+                    'district': item.district or '',
+                    'note': item.note or '',
+                    'short_note': item.short_note or '',
+                    'gpsbased': item.gpsbased,
+                    'dethistory':  _dethistory,
+                    'type_status': item.get_type_status_display(),
+                    'logo_path': os.path.join(getattr(main_settings,
+                                                      'MEDIA_ROOT', ''),
+                                              str(item.acronym.logo)) if item.acronym else ''
+                      })
+        result.append(ddict)
     translation.activate(lang)
     return result
 
