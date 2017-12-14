@@ -932,7 +932,8 @@ class PDF_BRYOPHYTE(BARCODE):
 
 
         # Barcode insertion
-        barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() + str(itemid))
+        barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() +
+                                                     str(itemid) + '**')
         self.put_barcode(acronym, itemid, institute,
                             DEFAULT_PAGE_WIDTH - barcodesize - BRYOPHYTE_LEFT_MARGIN,
                             DEFAULT_PAGE_HEIGHT - 20)
