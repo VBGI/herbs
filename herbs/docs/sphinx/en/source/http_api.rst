@@ -208,10 +208,11 @@ has the following attributes:
     Currently, the system stores images of different resolutions in directories
     named `ss` |--| small size (30% of original size); `ms` |--| medium size (60% original size);
     `fs` |--| full size (original size).
+    
 
-    Therefore, each image url includes one of the following components
-    ` /ts/ `, ` /ss/ `, ` /ms/ ` или ` /fs/ `. These components denote resolution of the image
-    available from the url.
+Therefore, each image url includes one of the following components
+` /ts/ `, ` /ss/ `, ` /ms/ ` или ` /fs/ `. These components denote resolution of the image
+available from the url.
 
 
 .. note::
