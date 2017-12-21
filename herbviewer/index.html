@@ -164,9 +164,13 @@ downloadLink.setAttribute('href', params.baseurl + '/' + resolution +'/' + param
         prefixUrl: "images/",
         tileSources: {
         type: 'image',
-        url:  imageUrl,
-        buildPyramid: false}
-        
+        url:  imageUrl},
+        showNavigator:  true,
+        navigatorPosition: "ABSOLUTE",
+        navigatorTop:      "40px",
+        navigatorLeft:     "4px",
+        navigatorHeight:   "140px",
+        navigatorWidth:    "100px",
     });
     
 viewer.addHandler('open', function(){
