@@ -400,8 +400,8 @@ class PDF_DOC(PDF_MIXIN):
                                 self.goto(y, self._ln))
                 self.pdf.cell(0, 0, region)
 
-        prepare = []
-        if place:
+        if place.strip():
+            prepare = []
             place = smartify_language(place, lang='en')
             self._ln += 1
             self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
@@ -934,6 +934,7 @@ class PDF_BRYOPHYTE(BARCODE):
         # Barcode insertion
         barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() +
                                                      str(itemid) + '**')
+        # TODO: Move barcode down!
         self.put_barcode(acronym, itemid, institute,
                             DEFAULT_PAGE_WIDTH - barcodesize - BRYOPHYTE_LEFT_MARGIN,
                             DEFAULT_PAGE_HEIGHT - 20)
