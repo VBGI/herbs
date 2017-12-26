@@ -697,7 +697,10 @@ class PDF_BRYOPHYTE(BARCODE):
         self._change_font_size()
 
     def check_resize_required(self, w, bw):
-        return (self.pdf.get_x() + w) >= (DEFAULT_PAGE_WIDTH - BRYOPHYTE_LEFT_MARGIN - bw)
+        a = (self.pdf.get_x() + w) >= (DEFAULT_PAGE_WIDTH -
+                                       BRYOPHYTE_LEFT_MARGIN - bw)
+        b = (self.pdf.get_y() >= (DEFAULT_PAGE_HEIGHT - BARCODE_ITEM_HEIGHT - 5))
+        return a and b
 
 
     def generate_label(self, allspecies=[],
@@ -969,19 +972,19 @@ class PDF_BRYOPHYTE(BARCODE):
                     self.pdf.cell(0, 0, '(' + str(ind) + ')')
                     self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + 5, _y - 2)
                     self.pdf.set_font('DejaVu', '', self._nfs)
+                    self.pdf.multi_cell(label_width - 4,
+                                        self._lh * 0.6, _note)
                     resize_required = \
                         self.check_resize_required(
                             self.pdf.get_string_width(_note),
                             barcode_width)
-                    self.pdf.multi_cell(label_width - 4,
-                                        self._lh * 0.6, _note)
                     _y = self.pdf.get_y()
                     _y += 3
 
             if ((self.pdf.get_y() < DEFAULT_PAGE_HEIGHT) or (self._sfs < BRYOPHYTE_MIN_FSIZE)) and not resize_required:
                 done = True
             else:
-                self._sfs -= 0.5
+                self._sfs -= 0.25
 
             # Barcode insertion
             self.put_barcode(acronym, itemid, institute,
@@ -997,8 +1000,8 @@ class PDF_BRYOPHYTE(BARCODE):
 
 if __name__ == '__main__':
     def test_bryophyte():
-        test_pars = {'allspecies': [('specimen%s'%x, 'auth%s'%x, 'add%s'%x, 'ieps%s'%x, ('note%s'%x)*11)
-                         for x in map(str, range(8))],
+        test_pars = {'allspecies': [('specimen%s'%x, 'auth%s'%x, 'add%s'%x, 'ieps%s'%x, ('note%s'%x)*50)
+                         for x in map(str, range(4))],
                      'coldate': '20 Jul 2000',
                      'latitude': '12.1232',
                      'longitude': '-43.243212',
