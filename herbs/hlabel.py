@@ -692,8 +692,13 @@ class PDF_BRYOPHYTE(BARCODE):
         return y + BRYOPHYTE_TOP_MARGIN + self._lh * n + inter
 
     def clear_page(self):
-        self.pdf.pages[self.pdf.page] = ''
+        self.pdf.page -= 1
+        self.pdf._beginpage('P')
         self._change_font_size()
+
+    def check_resize_required(self, w, bw):
+        return (self.pdf.get_x() + w) >= (DEFAULT_PAGE_WIDTH - BRYOPHYTE_LEFT_MARGIN - bw)
+
 
     def generate_label(self, allspecies=[],
                        coldate='', latitude='', longitude='',
@@ -701,8 +706,14 @@ class PDF_BRYOPHYTE(BARCODE):
                        altitude='', identified='', number='', itemid='',
                        fieldid='', acronym='', institute='', note='', detdate='',
                        district='', gpsbased='', dethistory=[], type_status=''):
+
+        label_width = DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN
+        #  get barcode width
+        barcode_width = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() +
+                                                     str(itemid) + '**')
         done = False
         while not done:
+            resize_required = False
             self.clear_page()
             # -----  Insert qr-code in the center of the page ------
             insert_qr(self.pdf, DEFAULT_PAGE_WIDTH / 2.0 + QR_SIZE / 2.0,
@@ -747,7 +758,7 @@ class PDF_BRYOPHYTE(BARCODE):
                 if ir:
                     irw = self.pdf.get_string_width(ir)
                     iepw = self.pdf.get_string_width(iep)
-                    if spw + 2 + irw > DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN:
+                    if spw + 2 + irw > label_width:
                         self._ln += 1
                         self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
                                         self.goto(self._ln))
@@ -764,7 +775,7 @@ class PDF_BRYOPHYTE(BARCODE):
                                         self.goto(self._ln))
                         self.pdf.cell(0,0, iep)
                         cur_cell_width = irw + 4 + iepw + spaw
-                    elif spw + 2 + irw + iepw > DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN:
+                    elif spw + 2 + irw + iepw > label_width:
                         self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
                                         self.goto(self._ln))
                         self.pdf.set_font('DejaVub', '', self._sfs)
@@ -780,7 +791,7 @@ class PDF_BRYOPHYTE(BARCODE):
                         self.pdf.set_font('DejaVu', '', self._sfs)
                         self.pdf.cell(0, 0, auth)
                         cur_cell_width = spaw + iepw + 2
-                    elif spaw + spw + 2 + irw + iepw > DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN:
+                    elif spaw + spw + 2 + irw + iepw > label_width:
                         self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
                                         self.goto(self._ln))
                         self.pdf.set_font('DejaVub', '', self._sfs)
@@ -814,9 +825,9 @@ class PDF_BRYOPHYTE(BARCODE):
                                 self.goto(self._ln))
                     fline = []
                     sline = []
-                    if spaw + spw + 2 > DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN:
+                    if spaw + spw + 2 > label_width:
                         for word in auth.split():
-                            if self.pdf.get_string_width(' '.join(fline + [word])) + spw + 2 <= DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN:
+                            if self.pdf.get_string_width(' '.join(fline + [word])) + spw + 2 <= label_width:
                                 fline.append(word)
                             else:
                                 sline.append(word)
@@ -897,7 +908,7 @@ class PDF_BRYOPHYTE(BARCODE):
 
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
             self.pdf.set_font('DejaVubi', '', self._sfs)
-            self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN,
+            self.pdf.multi_cell(label_width,
                                 self._lh, smartify_language(country, lang='en'))
             self.pdf.set_font('DejaVu', '', self._sfs)
 
@@ -908,7 +919,7 @@ class PDF_BRYOPHYTE(BARCODE):
                                                latlon_info] if x])
 
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
-            self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -
+            self.pdf.multi_cell(label_width -
                                 BRYOPHYTE_MARGIN_EXTRA, self._lh, pos_info)
 
             if note.strip():
@@ -923,18 +934,27 @@ class PDF_BRYOPHYTE(BARCODE):
                                      ] if x])
 
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
-            self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN -
+            self.pdf.multi_cell(label_width -
                                 BRYOPHYTE_MARGIN_EXTRA, self._lh, main_info)
 
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
             if leg_info:
-                self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN, self._lh,
+                resize_required = \
+                    self.check_resize_required(
+                        self.pdf.get_string_width(leg_info),
+                        barcode_width)
+                self.pdf.multi_cell(label_width, self._lh,
                                 leg_info)
+
 
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
             if det_info:
-                self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN,
+                resize_required = \
+                    self.check_resize_required(self.pdf.get_string_width(det_info),
+                                               barcode_width)
+                self.pdf.multi_cell(label_width,
                                     self._lh, det_info)
+
 
             if addinfo:
                 self.pdf.set_font('DejaVu', '', self._nnfs)
@@ -949,24 +969,25 @@ class PDF_BRYOPHYTE(BARCODE):
                     self.pdf.cell(0, 0, '(' + str(ind) + ')')
                     self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + 5, _y - 2)
                     self.pdf.set_font('DejaVu', '', self._nfs)
-                    self.pdf.multi_cell(DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN - 4,
+                    resize_required = \
+                        self.check_resize_required(
+                            self.pdf.get_string_width(_note),
+                            barcode_width)
+                    self.pdf.multi_cell(label_width - 4,
                                         self._lh * 0.6, _note)
                     _y = self.pdf.get_y()
                     _y += 3
 
-            if (self.pdf.get_y() < DEFAULT_PAGE_HEIGHT) or (self._sfs < BRYOPHYTE_MIN_FSIZE):
+            if ((self.pdf.get_y() < DEFAULT_PAGE_HEIGHT) or (self._sfs < BRYOPHYTE_MIN_FSIZE)) and not resize_required:
                 done = True
             else:
                 self._sfs -= 0.5
 
             # Barcode insertion
-            barcodesize = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() +
-                                                         str(itemid) + '**')
-
             self.put_barcode(acronym, itemid, institute,
-                                DEFAULT_PAGE_WIDTH - barcodesize - BRYOPHYTE_LEFT_MARGIN,
+                                DEFAULT_PAGE_WIDTH - barcode_width - BRYOPHYTE_LEFT_MARGIN,
                                 DEFAULT_PAGE_HEIGHT - 15)
-            
+
     def generate_labels(self, labels):
         for label in labels:
             self.generate_label(**label)
@@ -976,7 +997,7 @@ class PDF_BRYOPHYTE(BARCODE):
 
 if __name__ == '__main__':
     def test_bryophyte():
-        test_pars = {'allspecies': [('specimen%s'%x, 'auth%s'%x, 'add%s'%x, 'ieps%s'%x, 'note%s'%x)
+        test_pars = {'allspecies': [('specimen%s'%x, 'auth%s'%x, 'add%s'%x, 'ieps%s'%x, ('note%s'%x)*11)
                          for x in map(str, range(8))],
                      'coldate': '20 Jul 2000',
                      'latitude': '12.1232',
