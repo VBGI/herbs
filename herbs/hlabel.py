@@ -679,8 +679,7 @@ class PDF_BRYOPHYTE(BARCODE):
 
     def __init__(self):
         super(PDF_BRYOPHYTE, self).__init__(orientation='P')
-        self._sfs = SMALL_FONT_SIZE
-        self._change_font_size()
+
 
     def _change_font_size(self):
         self._nfs = self._sfs * BRYOPHYTE_NOTE_FSIZE / float(SMALL_FONT_SIZE)
@@ -697,11 +696,10 @@ class PDF_BRYOPHYTE(BARCODE):
         self._change_font_size()
 
     def check_resize_required(self, w, bw):
-        a = (self.pdf.get_x() + w) >= (DEFAULT_PAGE_WIDTH -
-                                       BRYOPHYTE_LEFT_MARGIN - bw)
-        b = (self.pdf.get_y() >= (DEFAULT_PAGE_HEIGHT - BARCODE_ITEM_HEIGHT - 5))
+        a = ((self.pdf.get_x() + w) >= (DEFAULT_PAGE_WIDTH -
+                                       BRYOPHYTE_LEFT_MARGIN - bw))
+        b = (self.pdf.get_y() >= (DEFAULT_PAGE_HEIGHT - BARCODE_ITEM_HEIGHT - 11))
         return a and b
-
 
     def generate_label(self, allspecies=[],
                        coldate='', latitude='', longitude='',
@@ -709,6 +707,8 @@ class PDF_BRYOPHYTE(BARCODE):
                        altitude='', identified='', number='', itemid='',
                        fieldid='', acronym='', institute='', note='', detdate='',
                        district='', gpsbased='', dethistory=[], type_status=''):
+        self._sfs = SMALL_FONT_SIZE
+        self._change_font_size()
 
         label_width = DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN
         #  get barcode width
@@ -716,7 +716,7 @@ class PDF_BRYOPHYTE(BARCODE):
                                                      str(itemid) + '**')
         done = False
         while not done:
-            resize_required = False
+            resize_required = []
             self.clear_page()
             # -----  Insert qr-code in the center of the page ------
             insert_qr(self.pdf, DEFAULT_PAGE_WIDTH / 2.0 + QR_SIZE / 2.0,
@@ -942,19 +942,20 @@ class PDF_BRYOPHYTE(BARCODE):
 
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
             if leg_info:
-                resize_required = \
+                resize_required.append(
                     self.check_resize_required(
                         self.pdf.get_string_width(leg_info),
-                        barcode_width)
+                        barcode_width))
                 self.pdf.multi_cell(label_width, self._lh,
                                 leg_info)
 
 
+
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
             if det_info:
-                resize_required = \
+                resize_required.append(
                     self.check_resize_required(self.pdf.get_string_width(det_info),
-                                               barcode_width)
+                                               barcode_width))
                 self.pdf.multi_cell(label_width,
                                     self._lh, det_info)
 
@@ -974,14 +975,15 @@ class PDF_BRYOPHYTE(BARCODE):
                     self.pdf.set_font('DejaVu', '', self._nfs)
                     self.pdf.multi_cell(label_width - 4,
                                         self._lh * 0.6, _note)
-                    resize_required = \
+                    resize_required.append(
                         self.check_resize_required(
                             self.pdf.get_string_width(_note),
-                            barcode_width)
+                            barcode_width))
                     _y = self.pdf.get_y()
                     _y += 3
 
-            if ((self.pdf.get_y() < DEFAULT_PAGE_HEIGHT) or (self._sfs < BRYOPHYTE_MIN_FSIZE)) and not resize_required:
+
+            if ((self.pdf.get_y() < DEFAULT_PAGE_HEIGHT) or (self._sfs < BRYOPHYTE_MIN_FSIZE)) and not any(resize_required):
                 done = True
             else:
                 self._sfs -= 0.25
@@ -1000,8 +1002,8 @@ class PDF_BRYOPHYTE(BARCODE):
 
 if __name__ == '__main__':
     def test_bryophyte():
-        test_pars = {'allspecies': [('specimen%s'%x, 'auth%s'%x, 'add%s'%x, 'ieps%s'%x, ('note%s'%x)*50)
-                         for x in map(str, range(4))],
+        test_pars = {'allspecies': [('specimen%s'%x, 'auth%s'%x, 'add%s'%x, 'ieps%s'%x, ('note%s'%x)*20)
+                         for x in map(str, range(6))],
                      'coldate': '20 Jul 2000',
                      'latitude': '12.1232',
                      'longitude': '-43.243212',
@@ -1017,7 +1019,7 @@ if __name__ == '__main__':
                      'acronym': 'VBGI',
                      'institute': 'Botanical Garden Institute',
                      'note': 'This speciemen was never been collected, be careful',
-                     'detdate': '13 Feb 2018',
+                     'detdate': '13 Feb 2018 - 13 Feb 2018 -13 Feb 2018',
                      'district': 'Dirty place behind in the yard',
                      'gpsbased': 'True',
                      'dethistory': [],
