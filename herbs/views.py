@@ -784,17 +784,20 @@ def make_barcodes(request, q):
 
     q = map(lambda x: int(x), q)
 
-    objs = HerbItem.objects.filter(id__in=q)
+    cn = Counter(q)
+    objects = HerbItem.objects.filter(id__in=q)
+    objs = [[obj] * cn[obj.pk] for obj in objects]
+    objs = sum(objs, [])
 
-    if not objs.exists():
+    if not objects.exists():
         return HttpResponse(_(u'Пустой или неправильно сформированный запрос'))
+
     array = []
-    if objs.exists():
-        for item in objs:
-            array.append({'acronym': item.acronym.name if item.acronym else '',
-                          'id': item.pk,
-                          'institute': item.acronym.institute if item.acronym else ''
-                          })
+    for item in objs:
+        array.append({'acronym': item.acronym.name if item.acronym else '',
+                      'id': item.pk,
+                      'institute': item.acronym.institute if item.acronym else ''
+                      })
     # NOw, we are ready to produce pdf-output
     pdf_template = BARCODE()
     pdf_template.spread_codes(array)
