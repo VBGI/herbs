@@ -748,12 +748,14 @@ def make_bryopyte_label(request, q):
                        label['spauth'],
                        label['infra_rank'],
                        label['infra_epithet'],
+                       label['infra_authorship'],
                        label['short_note'] or '']] + label['addspecies']
         label.pop('short_note', None)
         label.pop('addspecies', None)
         label.pop('spauth', None)
         label.pop('infra_rank', None)
         label.pop('infra_epithet', None)
+        label.pop('infra_authorship', None)
         label.pop('species', None)
         label.update({'allspecies': allspecies})
         preprocessed_labels.append(label)
@@ -822,5 +824,6 @@ def _smartify_species(item):
         authorship = ''
     return {'spauth': authorship, 'species': species,
             'infra_rank': item.species.get_infra_rank_display(),
-            'infra_epithet': item.species.infra_epithet}
+            'infra_epithet': item.species.infra_epithet,
+            'infra_authorship': item.species.infra_authorship}
 
