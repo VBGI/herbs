@@ -267,9 +267,6 @@ class SpeciesForm(forms.ModelForm):
 
         # Check all fields
         # TODO: Prevent fields changing if published herbitems exist; clarification needed
-
-
-
         form_data['name'] = name
         form_data['infra_epithet'] = infra_epithet
         return form_data
