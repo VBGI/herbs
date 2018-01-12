@@ -366,12 +366,12 @@ def json_api(request):
         'warnings': [],
         'data': [],
     }
-    allowed_parameters = set(('family', 'genus', 'id', 'species_epithet',
+    allowed_parameters = {'family', 'genus', 'id', 'species_epithet',
                               'itemcode', 'identifiedby', 'place', 'collectedby',
                               'country', 'colstart', 'colend', 'acronym',
                               'subdivision', 'synonyms', 'additionals', 'latl',
                               'latu', 'lonl', 'lonu', 'additionals', 'fieldid',
-                              'authorship', 'imonly'))
+                              'authorship', 'imonly'}
 
     if request.method == 'POST':
         context['errors'].append('Only GET-requests is allowed')
@@ -500,7 +500,6 @@ def show_herbs(request):
                    'has_next': False,
                    'pagenumber': page,
                    'pagecount': num_pages,
-                   'total': 0,
                    'errors': errors,
                    'warnings': warnings}
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder), content_type="application/json;charset=utf-8")
