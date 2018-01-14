@@ -650,6 +650,7 @@ def collect_label_data(q):
                                    addsp.species.authorship,
                                    addsp.species.get_infra_rank_display(),
                                    addsp.species.infra_epithet,
+                                   addsp.species.infra_authorship,
                                    addsp.note])
         ddict = _smartify_species(item)
         ddict.update({'coldate': _smartify_dates(item)})
