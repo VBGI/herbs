@@ -12,6 +12,7 @@ from .models import (Family, Genus, HerbItem, Species,
 from django.forms.util import ErrorList
 from .conf import settings, HerbsAppConf
 
+
 CS = getattr(settings,
              '%s_CH_SIZE' % HerbsAppConf.Meta.prefix.upper(), 80)
 
@@ -270,3 +271,9 @@ class SpeciesForm(forms.ModelForm):
         form_data['name'] = name
         form_data['infra_epithet'] = infra_epithet
         return form_data
+
+
+class SendImage(forms.Form):
+    image = forms.FileField(label=_("Выберите гербарное изображение"),
+                            required=False)
+    overwrite = forms.BooleanField(label=_("Перезаписать"), required=False)

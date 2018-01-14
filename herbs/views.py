@@ -7,8 +7,8 @@ from django.forms.models import model_to_dict
 from django.utils.translation import ugettext as _
 from .models import (Family, Genus, HerbItem, Country,
                      DetHistory, Species, SpeciesSynonym, Additionals,
-                     HerbCounter, Subdivision)
-from .forms import SearchForm, RectSelectorForm
+                     HerbCounter, Subdivision, HerbAcronym)
+from .forms import SearchForm, RectSelectorForm, SendImage
 from .conf import settings
 from .utils import _smartify_altitude, _smartify_dates, herb_as_dict, translit
 from streamingjson import JSONEncoder as JSONStreamer
@@ -36,6 +36,8 @@ except (ImportError,ImproperlyConfigured):
     cache = None
 
 
+allowed_image_pat=re.compile(settings.HERBS_SOURCE_IMAGE_PATTERN)
+acronym_pat_ = re.compile(r'([A-Z]{1,10})(\d+)')
 digit_pat = re.compile(r'\d+')
 
 class EchoData(object):
@@ -809,6 +811,57 @@ def make_barcodes(request, q):
     gc.collect()
     return response
 
+
+@login_required
+@never_cache
+def upload_image(request):
+    herbimage = settings.HERBS_IMAGE_SESSION_NAME
+    form = SendImage(request)
+    request.session._get_or_create_session_key()
+    error = ''
+    value = request.session.get(herbimage, 'completed_or_new')
+    # if session is in cache and file uploading not completed: show the message
+    # show the form and upload status
+    if request.is_ajax():
+        # get current status of the uploading.
+        if value == 'completed_or_new':
+            # return the string,that the loading is completed
+        else:
+            # return the string, uploading status.
+            # return the value
+
+    if request.FILES and value == 'completed_or_new':
+        for filename, file in request.FILES.iteritems():
+            fname = os.path.basename(request.FILES[filename].name)
+
+            # validate file name
+            if not allowed_image_pat.match(os.path.basename(fname)):
+                # show error here!!!This image isn't allowed, and will'nt be saved.
+                error = _('Неправильное имя или формат файла')
+            else:
+                facronym, obj_id = acronym_pat_.findall(fname)[-1]
+
+            if request.user.is_superuser and not error:
+                handle_file(request, afile)
+
+            if not error:
+                if HerbAcronym.objects.filter(name__iexact=facronym,
+                       allowed_users__icontains=request.user.username).exists():
+                    handle_file(request, afile)
+            else:
+                error = _('Ваша учетная запись принадлежит другому акрониму. Загрузка данного файла невозможна.')
+
+    elif request.FILES and value != 'completed_or_new':
+        # Do something interesting...
+        # show form existing form, and status
+
+    #Show a new form (new session is initialized)
+
+
+
+
+
+
 def _smartify_species(item):
     if item.species:
         if item.species.genus:
@@ -825,4 +878,6 @@ def _smartify_species(item):
             'infra_rank': item.species.get_infra_rank_display(),
             'infra_epithet': item.species.infra_epithet,
             'infra_authorship': item.species.infra_authorship}
+
+
 

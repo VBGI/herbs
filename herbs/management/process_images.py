@@ -2,7 +2,6 @@
 
 import re
 import os
-import pandas as pd
 import subprocess
 import shutil
 from PIL import Image
