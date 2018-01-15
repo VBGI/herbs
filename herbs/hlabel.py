@@ -1032,12 +1032,12 @@ class PDF_BRYOPHYTE(BARCODE):
                     self.pdf.cell(0, 0, '(' + str(ind) + ')')
                     self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + 5, _y - 2)
                     self.pdf.set_font('DejaVu', '', self._nfs)
-                    self.pdf.multi_cell(label_width - 4,
-                                        self._lh * 0.6, _note)
                     resize_required.append(
                         self.check_resize_required(
                             self.pdf.get_string_width(_note),
                             barcode_width))
+                    self.pdf.multi_cell(label_width - 4,
+                                        self._lh * 0.6, _note)
                     _y = self.pdf.get_y()
                     _y += 3
 
@@ -1062,8 +1062,8 @@ class PDF_BRYOPHYTE(BARCODE):
 if __name__ == '__main__':
     def test_bryophyte():
         test_pars = {'allspecies': [('Genus specimen%s'%x, 'auth%s'%x, 'subsp%s'%x,
-                                     'long_subspecies_name%s'%x, 'iauthorhip%s'%x, ('note%s'%x)*1)
-                         for x in map(str, range(4))],
+                                     'long_subspecies_name%s'%x, 'iauthorhip%s'%x, ('note%s'%x)*10)
+                         for x in map(str, range(2))],
                      'coldate': '20 Jul 2000',
                      'latitude': '12.1232',
                      'longitude': '-43.243212',
