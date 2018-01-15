@@ -15,12 +15,42 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+<style>
 
+    body {
+    background-color: white;
+    }
+
+</style>
 
 </head>
 <body>
-<h1>Hello, world!</h1>
+<div class="container">
+    <div class="row">
+        <div class="col"><p></p></div>
+    </div>
+    <div class="row">
+      <div class="col-sm-2">
 
+     </div>
+         <div class="col-sm-8 justify-content-center bg-info" style="min-height: 500px;">
+             <form>
+                 {{form}}
+                 <input type="submit" value="Загрузить">
+             </form>
+             {%if error%}
+             <div class="alert alert-danger" role="alert"> {{error}}
+             </div>
+             {%endif%}
+             {%if status%}
+             <div class="alert alert-success" role="alert"> {{status}}
+             </div>
+             {%endif%}
+         </div>
+     <div class="col-sm-2">
+     </div>
+    </div>
+</div>
 
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
