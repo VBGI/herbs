@@ -652,6 +652,7 @@ def collect_label_data(q):
                                    addsp.species.authorship,
                                    addsp.species.get_infra_rank_display(),
                                    addsp.species.infra_epithet,
+                                   addsp.species.infra_authorship,
                                    addsp.note])
         ddict = _smartify_species(item)
         ddict.update({'coldate': _smartify_dates(item)})
@@ -812,54 +813,82 @@ def make_barcodes(request, q):
     return response
 
 
+def handle_image(request, afile):
+    fname = os.path.basename(afile.name)
+    herbimage = settings.HERBS_IMAGE_SESSION_NAME
+    with open(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname),
+              'wb+') as destination:
+        ind = 0
+        skey = request.session._get_or_create_session_key() + '_'
+        for chunk in afile.chunks():
+            destination.write(chunk)
+            request.session[herbimage] = afile.DEFAULT_CHUNK_SIZE * ind
+        request.session[herbimage] = 'completed_or_new'
+
+
 @login_required
 @never_cache
 def upload_image(request):
     herbimage = settings.HERBS_IMAGE_SESSION_NAME
     form = SendImage(request)
-    request.session._get_or_create_session_key()
     error = ''
+    status = ''
+    overwrite = request.GET.get('overwrite', False)
     value = request.session.get(herbimage, 'completed_or_new')
     # if session is in cache and file uploading not completed: show the message
     # show the form and upload status
+    if value != 'completed_or_new':
+        status = _('Загружено: ') + \
+                 '%s' % value
+    else:
+        status = _('Файл загружен.')
+
     if request.is_ajax():
-        # get current status of the uploading.
-        if value == 'completed_or_new':
-            # return the string,that the loading is completed
-        else:
-            # return the string, uploading status.
-            # return the value
+        return HttpResponse(json.dumps({'status': status, 'error': error}),
+                                        content_type="application/json;charset=utf-8")
 
     if request.FILES and value == 'completed_or_new':
-        for filename, file in request.FILES.iteritems():
-            fname = os.path.basename(request.FILES[filename].name)
+        for filename, afile in request.FILES.iteritems():
+            fname = os.path.basename(afile.name)
 
             # validate file name
             if not allowed_image_pat.match(os.path.basename(fname)):
                 # show error here!!!This image isn't allowed, and will'nt be saved.
                 error = _('Неправильное имя или формат файла')
+                break
             else:
                 facronym, obj_id = acronym_pat_.findall(fname)[-1]
 
-            if request.user.is_superuser and not error:
-                handle_file(request, afile)
-
             if not error:
-                if HerbAcronym.objects.filter(name__iexact=facronym,
+                if not overwrite:
+                    exists = is_exists(fname)
+                    #TODO: is exists should be implemented!!!
+                else:
+                    exists = False
+
+                if exists:
+                    error = _('Файл уже существует. '
+                              'Чтобы перезаписать существующий файл '
+                              'отметьте галочку <перезаписать>.')
+                    break
+
+                if request.user.is_superuser:
+                    handle_image(request, afile)
+                else:
+                    if HerbAcronym.objects.filter(name__iexact=facronym,
                        allowed_users__icontains=request.user.username).exists():
-                    handle_file(request, afile)
-            else:
-                error = _('Ваша учетная запись принадлежит другому акрониму. Загрузка данного файла невозможна.')
+                        handle_image(request, afile)
+                    else:
+                        error = _('Ваша учетная запись принадлежит другому акрониму.'
+                          'Загрузка данного файла невозможна.')
+            break
 
-    elif request.FILES and value != 'completed_or_new':
-        # Do something interesting...
-        # show form existing form, and status
-
-    #Show a new form (new session is initialized)
-
-
-
-
+    result = render_to_string('herbimage.html', {'error': error,
+                                                 'status': status,
+                                                 'form': form
+                                                 },
+                              context_instance=RequestContext(request))
+    return HttpResponse(result)
 
 
 def _smartify_species(item):

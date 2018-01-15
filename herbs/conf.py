@@ -43,6 +43,7 @@ class HerbsAppConf(AppConf):
     SOURCE_IMAGE_URL_RELATIVE = 'snapshots'
     SOURCE_IMAGE_PATTERN = r'^[A-Z]{1,10}\d+(_?\d{1,2})\.([tT][iI][fF]{1,2}$|[jJ][pP][eE]?[gG]$)'
     IMAGE_SESSION_NAME = 'herbimage'
+    IMAGE_SOURCE_TMP = '/home/scidam/tmp/herbsnapshots'
 
 
     class Meta:
