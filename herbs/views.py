@@ -842,6 +842,7 @@ def is_exists(acronym, id):
 
 @login_required
 @never_cache
+@csrf_exempt
 def upload_image(request):
     herbimage = settings.HERBS_IMAGE_SESSION_NAME
     form = SendImage(request)

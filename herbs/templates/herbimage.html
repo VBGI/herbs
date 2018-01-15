@@ -34,7 +34,7 @@
 
      </div>
          <div class="col-sm-8 justify-content-center bg-info" style="min-height: 500px;">
-             <form>
+             <form method="GET" action="{%url 'image_uploader' %}">
                  {{form}}
                  <input type="submit" value="Загрузить">
              </form>
@@ -52,8 +52,36 @@
     </div>
 </div>
 
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script>
+var checkUploading = function() {
+        var request = $.ajax({
+                    type:"post",
+                    url:"{%url 'image_uploader' %}",
+                });
+
+        request.done(function(data){
+         var statusPat = /\D*/i;
+
+         if (data['error'].length>0){
+          $(".alert-danger").html(data['error']);
+          clearInterval(periodicQuery);
+           }
+
+         if (data['status'].length>0){
+          $(".alert-success").html(data['status']);
+
+          }
+
+         if (data['status'].match(statusPat)){
+            $(".alert-success").html(data['status']);
+            clearInterval(periodicQuery);
+         }
+        });
+};
+var periodicQuery = setInterval(checkUploading, 3); // check image uploading every 3 sec.
+</script>
+
 </body>
 </html>

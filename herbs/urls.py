@@ -2,12 +2,22 @@
 
 from django.conf.urls import *
 
-from bgi.herbs.views import (get_item_data, advice_select, show_herbs,
-                             make_label, show_herbitem, json_api,
-                             make_barcodes, make_bryopyte_label
-                             )
+try:
+    from bgi.herbs.views import (get_item_data, advice_select, show_herbs,
+                                 make_label, show_herbitem, json_api,
+                                 make_barcodes, make_bryopyte_label,
+                                 upload_image
+                                 )
+    from bgi.herbs import init_herbs
 
-from bgi.herbs import init_herbs
+except ImportError:
+    from .views import (get_item_data, advice_select, show_herbs,
+                        make_label, show_herbitem, json_api,
+                        make_barcodes, make_bryopyte_label,
+                        upload_image
+                        )
+    from . import init_herbs
+
 
 init_herbs()
 
@@ -19,5 +29,6 @@ urlpatterns = patterns('',
    url(r'^envpdf/([,\d]{1,1500})', make_bryopyte_label, name='herbitembryo'),
    url(r'^bars/([,\d]{1,1500})', make_barcodes, name='herbitembarcodes'),
    url(r'^[a-zA-Z]*(\d{1,15})', show_herbitem),
-   url(r'^json/', json_api)
+   url(r'^json/', json_api),
+   url(r'^imload/', upload_image, name="image_uploader")
                        )
