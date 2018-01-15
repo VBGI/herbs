@@ -137,11 +137,11 @@ def easy_process():
                 tiffstack.seek(0)
             print('Appropriate tiff layer extracted...')
             temp_image_name = bname.split('.')[0]
-            tiffstack.save(os.path.join(TMP_FOLDER, temp_image_name + '.png'))
+            tiffstack.save(os.path.join(TMP_FOLDER, temp_image_name + '.jpg'))
             print('Temporary image file is created: ', os.path.join(TMP_FOLDER,
                                                                     temp_image_name))
             cmd_stack = ['convert']
-            cmd_stack.append(os.path.join(TMP_FOLDER, temp_image_name + '.png'))
+            cmd_stack.append(os.path.join(TMP_FOLDER, temp_image_name + '.jpg'))
 
             # check if rotation needed
             rotation = tiffstack.width >= tiffstack.height
@@ -176,7 +176,7 @@ def easy_process():
 
 
             try:
-                os.remove(os.path.join(TMP_FOLDER, temp_image_name + '.png'))
+                os.remove(os.path.join(TMP_FOLDER, temp_image_name + '.jpg'))
                 os.remove(tmp_image)
                 print('Temporary files were removed...')
             except IOError:
