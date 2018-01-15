@@ -826,6 +826,20 @@ def handle_image(request, afile):
         request.session[herbimage] = 'completed_or_new'
 
 
+def is_exists(acronym, id):
+    if cache:
+        file_set = cache.get(settings.HERBS_SOURCE_IMAGE_LIST_KEY, None)
+        if file_set is None:
+            file_set = ','.join({j for j in sum([c for a, b, c in os.path.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
+            cache.set(settings.HERBS_SOURCE_IMAGE_LIST_KEY,
+                      file_set,
+                      settings.HERBS_SOURCE_IMAGE_LIST_KEY_TIMEOUT)
+    else:
+        file_set = ','.join({j for j in sum([c for a, b, c in os.path.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
+    return (acronym + id) in file_set
+
+
+
 @login_required
 @never_cache
 def upload_image(request):
@@ -850,7 +864,6 @@ def upload_image(request):
     if request.FILES and value == 'completed_or_new':
         for filename, afile in request.FILES.iteritems():
             fname = os.path.basename(afile.name)
-
             # validate file name
             if not allowed_image_pat.match(os.path.basename(fname)):
                 # show error here!!!This image isn't allowed, and will'nt be saved.
@@ -861,8 +874,7 @@ def upload_image(request):
 
             if not error:
                 if not overwrite:
-                    exists = is_exists(fname)
-                    #TODO: is exists should be implemented!!!
+                    exists = is_exists(facronym, obj_id)
                 else:
                     exists = False
 
