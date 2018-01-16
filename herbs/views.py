@@ -821,6 +821,7 @@ def handle_image(request, afile):
         ind = 0
         skey = request.session._get_or_create_session_key() + '_'
         for chunk in afile.chunks():
+            print("here am I")
             destination.write(chunk)
             request.session[herbimage] = afile.DEFAULT_CHUNK_SIZE * ind
         request.session[herbimage] = 'completed_or_new'
@@ -830,12 +831,12 @@ def is_exists(acronym, id):
     if cache:
         file_set = cache.get(settings.HERBS_SOURCE_IMAGE_LIST_KEY, None)
         if file_set is None:
-            file_set = ','.join({j for j in sum([c for a, b, c in os.path.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
+            file_set = ','.join({j for j in sum([c for a, b, c in os.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
             cache.set(settings.HERBS_SOURCE_IMAGE_LIST_KEY,
                       file_set,
                       settings.HERBS_SOURCE_IMAGE_LIST_KEY_TIMEOUT)
     else:
-        file_set = ','.join({j for j in sum([c for a, b, c in os.path.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
+        file_set = ','.join({j for j in sum([c for a, b, c in os.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
     return (acronym + id) in file_set
 
 
@@ -848,15 +849,16 @@ def upload_image(request):
     form = SendImage(request)
     error = ''
     status = ''
-    overwrite = request.GET.get('overwrite', False)
+    overwrite = request.POST.get('overwrite', '')
+    overwrite = True if overwrite == 'on' else False
     value = request.session.get(herbimage, 'completed_or_new')
     # if session is in cache and file uploading not completed: show the message
     # show the form and upload status
     if value != 'completed_or_new':
-        status = _('Загружено: ') + \
+        status = _(u'Загружено: ') + \
                  '%s' % value
     else:
-        status = _('Файл загружен.')
+        status = _(u'Файл загружен.')
 
     if request.is_ajax():
         return HttpResponse(json.dumps({'status': status, 'error': error}),
@@ -868,7 +870,7 @@ def upload_image(request):
             # validate file name
             if not allowed_image_pat.match(os.path.basename(fname)):
                 # show error here!!!This image isn't allowed, and will'nt be saved.
-                error = _('Неправильное имя или формат файла')
+                error = _(u'Неправильное имя или формат файла')
                 break
             else:
                 facronym, obj_id = acronym_pat_.findall(fname)[-1]
@@ -880,24 +882,24 @@ def upload_image(request):
                     exists = False
 
                 if exists:
-                    error = _('Файл уже существует. '
-                              'Чтобы перезаписать существующий файл '
-                              'отметьте галочку <перезаписать>.')
+                    error = _(u'Файл уже существует. '
+                              u'Чтобы перезаписать существующий файл '
+                              u'отметьте галочку <перезаписать>.')
                     break
 
                 if request.user.is_superuser:
+                    print("I am pover")
                     handle_image(request, afile)
                 else:
                     if HerbAcronym.objects.filter(name__iexact=facronym,
                        allowed_users__icontains=request.user.username).exists():
                         handle_image(request, afile)
                     else:
-                        error = _('Ваша учетная запись принадлежит другому акрониму.'
-                          'Загрузка данного файла невозможна.')
+                        error = _(u'Ваша учетная запись принадлежит другому акрониму.'
+                          u'Загрузка данного файла невозможна.')
             break
 
     result = render_to_string('herbimage.html', {'error': error,
-                                                 'status': status,
                                                  'form': form
                                                  },
                               context_instance=RequestContext(request))

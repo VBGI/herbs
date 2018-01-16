@@ -1,3 +1,4 @@
+{%load i18n %}
 <!DOCTYPE html>
 <head>
 <title>{%trans "Сервис загрузки гербарных изображний"%}</title>
@@ -34,9 +35,9 @@
 
      </div>
          <div class="col-sm-8 justify-content-center bg-info" style="min-height: 500px;">
-             <form method="GET" action="{%url 'image_uploader' %}">
-                 {{form}}
-                 <input type="submit" value="Загрузить">
+             <form action="{% url 'image_uploader' %}" method="post" enctype="multipart/form-data">
+                 {{form.as_p}}
+                 <p><input type="submit" value="Загрузить"></p>
              </form>
              {%if error%}
              <div class="alert alert-danger" role="alert"> {{error}}
@@ -65,22 +66,33 @@ var checkUploading = function() {
          var statusPat = /\D*/i;
 
          if (data['error'].length>0){
+         $(".alert-danger").show();
           $(".alert-danger").html(data['error']);
           clearInterval(periodicQuery);
            }
 
          if (data['status'].length>0){
+         $(".alert-success").show();
           $(".alert-success").html(data['status']);
 
           }
 
          if (data['status'].match(statusPat)){
+            $(".alert-success").show();
             $(".alert-success").html(data['status']);
             clearInterval(periodicQuery);
          }
         });
 };
 var periodicQuery = setInterval(checkUploading, 3); // check image uploading every 3 sec.
+
+$(document).ready(function(){
+
+$("*:file,*:submit").click(function(){
+$(".alert-success").hide();
+$(".alert-danger").hide();
+});
+})
 </script>
 
 </body>
