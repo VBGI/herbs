@@ -821,24 +821,71 @@ def handle_image(request, afile):
         ind = 0
         skey = request.session._get_or_create_session_key() + '_'
         for chunk in afile.chunks():
-            print("here am I")
             destination.write(chunk)
             request.session[herbimage] = afile.DEFAULT_CHUNK_SIZE * ind
         request.session[herbimage] = 'completed_or_new'
 
+def get_pending_images(acronym=''):
 
-def is_exists(acronym, id):
     if cache:
-        file_set = cache.get(settings.HERBS_SOURCE_IMAGE_LIST_KEY, None)
-        if file_set is None:
-            file_set = ','.join({j for j in sum([c for a, b, c in os.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
-            cache.set(settings.HERBS_SOURCE_IMAGE_LIST_KEY,
-                      file_set,
+        cval = cache.get(settings.HERBS_SOURCE_IMAGE_LIST_KEY, '')
+        if cval:
+            imgs = json.loads(cval)
+        else:
+            imgs = [j for j in sum(
+                [c for a, b, c in os.walk(settings.HERBS_IMAGE_SOURCE_TMP)],
+                []) if j.startswith(acronym)]
+            cache.get(settings.HERBS_SOURCE_IMAGE_LIST_KEY, json.dumps(imgs),
                       settings.HERBS_SOURCE_IMAGE_LIST_KEY_TIMEOUT)
     else:
-        file_set = ','.join({j for j in sum([c for a, b, c in os.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
-    return (acronym + id) in file_set
+        imgs = [j for j in sum(
+            [c for a, b, c in os.walk(settings.HERBS_IMAGE_SOURCE_TMP)],
+            []) if j.startswith(acronym)]
+    return imgs
 
+def is_exists(acronym, id):
+    file_set1 = ','.join(get_pending_images(acronym))
+    file_set2 = ','.join({j for j in sum(
+        [c for a, b, c in os.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
+    fileset = ','.join([file_set1, file_set2])
+    return (acronym + id) in fileset
+
+
+@login_required
+@csrf_exempt
+def validate_image(request, filename=None):
+    error = ''
+    if not filename:
+        filename = request.POST.get('filename', '')
+
+    if filename:
+        overwrite = request.POST.get('overwrite', '')
+        overwrite = True if overwrite == 'on' else False
+        if not allowed_image_pat.match(os.path.basename(filename)):
+            error = _(u'Неправильное имя или формат файла')
+        else:
+            facronym, obj_id = acronym_pat_.findall(filename)[-1]
+
+        if not overwrite and not error:
+            exists = is_exists(facronym, obj_id)
+        else:
+            exists = False
+
+        if exists and not error:
+           error = _(u'Файл уже существует. '
+                     u'Чтобы перезаписать существующий файл '
+                     u'отметьте галочку <перезаписать>.')
+
+        if not request.user.is_superuser and not error:
+            if not HerbAcronym.objects.filter(name__iexact=facronym,
+                                          allowed_users__icontains=request.user.username).exists():
+                error = _(u'Ваша учетная запись принадлежит другому акрониму.'
+                          u'Загрузка данного файла невозможна.')
+
+    if request.is_ajax():
+        return HttpResponse(json.dumps({'error': error}),
+                            content_type="application/json;charset=utf-8")
+    return error
 
 
 @login_required
@@ -846,63 +893,68 @@ def is_exists(acronym, id):
 @csrf_exempt
 def upload_image(request):
     herbimage = settings.HERBS_IMAGE_SESSION_NAME
-    form = SendImage(request)
     error = ''
-    status = ''
-    overwrite = request.POST.get('overwrite', '')
-    overwrite = True if overwrite == 'on' else False
+    status = _(u'Файл загружен.')
     value = request.session.get(herbimage, 'completed_or_new')
-    # if session is in cache and file uploading not completed: show the message
-    # show the form and upload status
+
     if value != 'completed_or_new':
         status = _(u'Загружено: ') + \
                  '%s' % value
-    else:
-        status = _(u'Файл загружен.')
 
     if request.is_ajax():
-        return HttpResponse(json.dumps({'status': status, 'error': error}),
-                                        content_type="application/json;charset=utf-8")
+        return HttpResponse(json.dumps({'status': status}),
+                            content_type="application/json;charset=utf-8")
 
-    if request.FILES and value == 'completed_or_new':
-        for filename, afile in request.FILES.iteritems():
-            fname = os.path.basename(afile.name)
-            # validate file name
-            if not allowed_image_pat.match(os.path.basename(fname)):
-                # show error here!!!This image isn't allowed, and will'nt be saved.
-                error = _(u'Неправильное имя или формат файла')
-                break
-            else:
-                facronym, obj_id = acronym_pat_.findall(fname)[-1]
+    if request.user.is_superuser:
+        pending = get_pending_images()
+    else:
+        if HerbAcronym.objects.filter(allowed_users__icontains=request.user.username).exists():
+            acronym = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)[0].name
+            pending = get_pending_images(acronym)
+        else:
+            acronym = ''
+            pending = []
 
-            if not error:
-                if not overwrite:
-                    exists = is_exists(facronym, obj_id)
-                else:
-                    exists = False
-
-                if exists:
-                    error = _(u'Файл уже существует. '
-                              u'Чтобы перезаписать существующий файл '
-                              u'отметьте галочку <перезаписать>.')
-                    break
-
-                if request.user.is_superuser:
-                    print("I am pover")
+    if request.method == "POST":
+        if value != 'completed_or_new':
+            result = render_to_string('herbimage.html', {
+                'form': SendImage(),
+                'status': status
+            }, context_instance=RequestContext(request))
+            return HttpResponse(result)
+        form = SendImage(request.POST)
+        if request.FILES:
+            for filename, afile in request.FILES.iteritems():
+                fname = os.path.basename(afile.name)
+                error = validate_image(request, fname)
+                if not error:
                     handle_image(request, afile)
+                    if request.user.is_superuser:
+                        pending = get_pending_images()
+                    elif acronym:
+                        pending = get_pending_images(acronym)
                 else:
-                    if HerbAcronym.objects.filter(name__iexact=facronym,
-                       allowed_users__icontains=request.user.username).exists():
-                        handle_image(request, afile)
-                    else:
-                        error = _(u'Ваша учетная запись принадлежит другому акрониму.'
-                          u'Загрузка данного файла невозможна.')
-            break
-
-    result = render_to_string('herbimage.html', {'error': error,
-                                                 'form': form
-                                                 },
-                              context_instance=RequestContext(request))
+                    status = ''
+                break
+            result = render_to_string('herbimage.html', {
+                'form': form,
+                'status': status,
+                'error': error,
+                'pending': pending
+            }, context_instance=RequestContext(request))
+    else:
+        form = SendImage()
+        if value != 'completed_or_new':
+            result = render_to_string('herbimage.html', {
+                                                         'form': form,
+                                                         'status': status,
+                                                         'pending': pending
+                                                         },
+                                      context_instance=RequestContext(request))
+        else:
+            result = render_to_string('herbimage.html', {'form': form,
+                                                         'pending': pending},
+                                      context_instance=RequestContext(request))
     return HttpResponse(result)
 
 
