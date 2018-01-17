@@ -827,8 +827,7 @@ def handle_image(request, afile):
     try:
         os.rename(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname+'.part'),
                   os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname))
-        os.remove(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname+'.part'))
-    except IOError:
+    except (OSError, IOError):
         pass
 
 def get_pending_images(acronym=''):
