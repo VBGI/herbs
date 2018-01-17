@@ -8,8 +8,7 @@ from PIL import Image
 import numpy as np
 
 # ------------- Common constants ------------
-
-IMAGE_FILE_PATTERN = re.compile(r'[A-Z]{1,10}\d+(_?\d{1,2})\.[tT][iI][fF]{1,2}')
+IMAGE_FILE_PATTERN = re.compile(r'^[A-Z]{1,10}\d+(_?\d{1,2})\.([tT][iI][fF]{1,2}$|[jJ][pP][eE]?[gG]$)')
 
 ACRONYM_PATTERN = re.compile(r'^([A-Z]{1,10})\d+.*')
 
@@ -159,7 +158,7 @@ def easy_process():
                                                 IMAGE_CONVERSION_OPTS[subim]['format']
                                                 )
                 if not os.path.isfile(destination_file) or IMAGE_CONVERSION_OPTS[subim]['overwrite']\
-                        or imfile in SOURCE_REMOTE_PATTERN:
+                        or SOURCE_REMOTE_PATTERN in imfile:
                     cmd_stack_cur = cmd_stack.copy()
                     if rotation:
                         cmd_stack_cur.append('-rotate')
