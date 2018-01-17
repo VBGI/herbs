@@ -15,6 +15,7 @@ ACRONYM_PATTERN = re.compile(r'^([A-Z]{1,10})\d+.*')
 
 DEFAULT_TMP_FORMAT = '.jpg'
 
+
 IMAGE_CONVERSION_OPTS = {
                         'fs': {'size': r'', 'format': 'jpg',
                                'extra': ['-strip', '-interlace', 'Plane',
@@ -46,6 +47,7 @@ IMAGE_CONVERSION_OPTS = {
 
 SOURCE_IMAGE_PATHS = ['/home/dmitry/workspace/herbs/herbs/management/source',
                       ]
+SOURCE_REMOTE_PATTERN = 'source/remote'
 
 OUTPUT_IMAGE_PATH = '/home/dmitry/workspace/herbs/herbs/management/output'
 TMP_FOLDER = '/home/dmitry/workspace/herbs/herbs/management/tmp'
@@ -75,6 +77,7 @@ def create_folder_safely(folder ='', source=OUTPUT_IMAGE_PATH):
 def get_acronym_name(x):
     res = ACRONYM_PATTERN.findall(x)
     return res[-1] if res else ''
+
 
 
 def check_image_exists(image_name):
@@ -155,7 +158,8 @@ def easy_process():
                                                 subim, temp_image_name + '.' +
                                                 IMAGE_CONVERSION_OPTS[subim]['format']
                                                 )
-                if not os.path.isfile(destination_file) or IMAGE_CONVERSION_OPTS[subim]['overwrite']:
+                if not os.path.isfile(destination_file) or IMAGE_CONVERSION_OPTS[subim]['overwrite']\
+                        or imfile in SOURCE_REMOTE_PATTERN:
                     cmd_stack_cur = cmd_stack.copy()
                     if rotation:
                         cmd_stack_cur.append('-rotate')
