@@ -183,6 +183,7 @@ def easy_process():
                 try:
                     print("Trying to remove original file...")
                     os.remove(imfile)
+                    print("The file is successfully removed (%s)." % os.path.basename(imfile))
                 except:
                     print("Couldn't remove the file: ", imfile)
             try:
