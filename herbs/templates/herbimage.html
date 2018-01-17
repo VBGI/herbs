@@ -25,6 +25,15 @@
     padding: 10px;
     }
 
+  #preloader {
+  background: url("{{STATIC_URL}}/images/herbitem-loader.gif") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+  height: 32px;
+  width: 32px;
+  z-index: 100;
+}
+
+
+
 </style>
 
 </head>
@@ -46,8 +55,9 @@
           </div>
           {%endif%}
      </div>
-         <div class="col-sm-8 justify-content-center bg-info" style="min-height: 500px;">
-             <h1 style="text-align:center">{%trans "Форма загрузки герабрных изображений" %}</h1>
+         <div id="main-content" class="col-sm-8 justify-content-center bg-info" style="min-height: 500px;">
+             <h1 style="text-align:center">{%trans "Загрузка герабрных изображений" %}</h1>
+             <h3 style="text-aling: center">{%trans "" %}</h3>
              <form action="{% url 'image_uploader' %}" method="post" enctype="multipart/form-data">
                  {{form.as_p}}
                  <p><input type="submit" value="Загрузить"></p>
@@ -73,6 +83,11 @@
 $(document).ready(function(){
 $(".alert-danger").hide();
 $("input[type=submit]").hide();
+
+$("input[type=submit]").click(function(){
+$('<div id="preloader"></div>').appendTo("#main-content")
+});
+
 
 $("*:file,*:submit").click(function(){
 $(".alert-success").hide();
