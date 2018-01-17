@@ -816,7 +816,7 @@ def make_barcodes(request, q):
 def handle_image(request, afile):
     fname = os.path.basename(afile.name)
     herbimage = settings.HERBS_IMAGE_SESSION_NAME
-    with open(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname),
+    with open(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname+'.part'),
               'wb+') as destination:
         ind = 0
         skey = request.session._get_or_create_session_key() + '_'
@@ -824,6 +824,12 @@ def handle_image(request, afile):
             destination.write(chunk)
             request.session[herbimage] = afile.DEFAULT_CHUNK_SIZE * ind
         request.session[herbimage] = 'completed_or_new'
+    try:
+        os.rename(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname+'.part'),
+                  os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname))
+        os.remove(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname+'.part'))
+    except IOError:
+        pass
 
 def get_pending_images(acronym=''):
 
