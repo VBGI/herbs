@@ -20,7 +20,7 @@ echo "Mounting local source directory"
 sudo mount -t cifs "//fileserver/exchange/Herbarium_Tanya" source/local -o username=dmitry,workgroup=123,ro,password=123
 
 echo "Mounting remote source directory"
-sshfs scidam@myremote:/home/scidam/tmp/ ./source/remote
+sshfs scidam@myremote:/home/scidam/tmp/herbsnapshots ./source/remote
 
 
 python process_images.py
