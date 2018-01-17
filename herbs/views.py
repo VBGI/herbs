@@ -13,7 +13,7 @@ from .conf import settings
 from .utils import _smartify_altitude, _smartify_dates, herb_as_dict, translit
 from streamingjson import JSONEncoder as JSONStreamer
 from django.utils.text import capfirst
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.utils import translation, timezone
 from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
@@ -893,7 +893,7 @@ def validate_image(request, filename=None):
     return error
 
 
-@login_required
+@permission_required('herbs.can_set_publish')
 @never_cache
 @csrf_exempt
 def upload_image(request):
