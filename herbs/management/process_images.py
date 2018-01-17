@@ -124,32 +124,36 @@ def easy_process():
 
         if not check_image_exists(bname):
             shutil.copyfile(imfile, tmp_image, follow_symlinks=False)
-            tiffstack = Image.open(tmp_image)
-            if tiffstack.n_frames > 1:
-                tfw_array = []
-                tfw_frames = []
-                for k in range(tiffstack.n_frames):
-                    try:
-                        tiffstack.seek(k)
-                        tfw_array.append(tiffstack.width)
-                        tfw_frames.append(k)
-                    except EOFError:
-                        pass
-                tiffstack.seek(tfw_frames[np.argmax(tfw_array)])
-            else:
-                tiffstack.seek(0)
+            
+            imagestack = Image.open(tmp_image)
+
+            if hasattr(imagestack, 'n_frames'):
+                if imagestack.n_frames > 1:
+                    tfw_array = []
+                    tfw_frames = []
+                    for k in range(imagestack.n_frames):
+                        try:
+                            imagestack.seek(k)
+                            tfw_array.append(imagestack.width)
+                            tfw_frames.append(k)
+                        except EOFError:
+                            pass
+                    imagestack.seek(tfw_frames[np.argmax(tfw_array)])
+                else:
+                    imagestack.seek(0)
+                
             print('Appropriate tiff layer extracted...')
             temp_image_name = bname.split('.')[0]
 
-            tiffstack.save(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
+            imagestack.save(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
             print('Temporary image file is created: ', os.path.join(TMP_FOLDER,
                                                                     temp_image_name))
             cmd_stack = ['convert']
             cmd_stack.append(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
 
             # check if rotation needed
-            rotation = tiffstack.width >= tiffstack.height
-            tiffstack.close()
+            rotation = imagestack.width >= imagestack.height
+            imagestack.close()
             copyflag = False
             for subim in IMAGE_CONVERSION_OPTS:
                 destination_file = os.path.join(OUTPUT_IMAGE_PATH,
