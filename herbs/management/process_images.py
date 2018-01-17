@@ -118,7 +118,7 @@ def easy_process():
     print("Image sub-folders created successfully...")
 
     for imfile in source_images:
-        print('Copying the file:', imfile)
+        print('Processing the file:', imfile)
         bname = os.path.basename(imfile)
         tmp_image = os.path.join(TMP_FOLDER, bname)
 
@@ -150,7 +150,7 @@ def easy_process():
             # check if rotation needed
             rotation = tiffstack.width >= tiffstack.height
             tiffstack.close()
-
+            copyflag = False
             for subim in IMAGE_CONVERSION_OPTS:
                 destination_file = os.path.join(OUTPUT_IMAGE_PATH,
                                                 get_acronym_name(temp_image_name),
@@ -174,16 +174,17 @@ def easy_process():
                     cmd_stack_cur.append(destination_file)
                     _p = subprocess.Popen(cmd_stack_cur)
                     _p.wait()
-
-                    print("Image is created and uploaded (%s)." % temp_image_name)
-                    try:
-                        print("File is copied. Trying to remove original one...")
-                        os.remove(imfile)
-                    except:
-                        print("Couldn't remove the file: ", imfile)
+                    copyflag = True
                 else:
                     print("The file ", destination_file, "already exists.")
 
+            if copyflag:
+                print("Image is created and uploaded (%s)." % temp_image_name)
+                try:
+                    print("Trying to remove original file...")
+                    os.remove(imfile)
+                except:
+                    print("Couldn't remove the file: ", imfile)
             try:
                 os.remove(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
                 os.remove(tmp_image)
@@ -191,7 +192,7 @@ def easy_process():
             except IOError:
                 pass
         else:
-            print('File %s alredy exists' % bname)
+            print('The file %s alredy exists' % bname)
 
 easy_process()
 
