@@ -2,7 +2,6 @@
 
 import re
 import os
-import pandas as pd
 import subprocess
 import shutil
 from PIL import Image
@@ -13,6 +12,8 @@ import numpy as np
 IMAGE_FILE_PATTERN = re.compile(r'[A-Z]{1,10}\d+(_?\d{1,2})\.[tT][iI][fF]{1,2}')
 
 ACRONYM_PATTERN = re.compile(r'^([A-Z]{1,10})\d+.*')
+
+DEFAULT_TMP_FORMAT = '.jpg'
 
 IMAGE_CONVERSION_OPTS = {
                         'fs': {'size': r'', 'format': 'jpg',
@@ -137,11 +138,12 @@ def easy_process():
                 tiffstack.seek(0)
             print('Appropriate tiff layer extracted...')
             temp_image_name = bname.split('.')[0]
-            tiffstack.save(os.path.join(TMP_FOLDER, temp_image_name + '.jpg'))
+
+            tiffstack.save(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
             print('Temporary image file is created: ', os.path.join(TMP_FOLDER,
                                                                     temp_image_name))
             cmd_stack = ['convert']
-            cmd_stack.append(os.path.join(TMP_FOLDER, temp_image_name + '.jpg'))
+            cmd_stack.append(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
 
             # check if rotation needed
             rotation = tiffstack.width >= tiffstack.height
@@ -166,19 +168,23 @@ def easy_process():
                     if IMAGE_CONVERSION_OPTS[subim]['extra']:
                         cmd_stack_cur.extend(IMAGE_CONVERSION_OPTS[subim]['extra'])
 
-
                     cmd_stack_cur.append(destination_file)
                     _p = subprocess.Popen(cmd_stack_cur)
                     _p.wait()
-                    print('Generating ', subim, 'image for', temp_image_name)
+
+                    print("Image is created and uploaded (%s)." % temp_image_name)
+                    try:
+                        print("File is copied. Trying to remove original one...")
+                        os.remove(imfile)
+                    except:
+                        print("Couldn't remove the file: ", imfile)
                 else:
                     print("The file ", destination_file, "already exists.")
 
-
             try:
-                os.remove(os.path.join(TMP_FOLDER, temp_image_name + '.jpg'))
+                os.remove(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
                 os.remove(tmp_image)
-                print('Temporary files were removed...')
+                print('Temporary files were deleted...')
             except IOError:
                 pass
         else:

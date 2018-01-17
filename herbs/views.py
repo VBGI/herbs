@@ -7,8 +7,8 @@ from django.forms.models import model_to_dict
 from django.utils.translation import ugettext as _
 from .models import (Family, Genus, HerbItem, Country,
                      DetHistory, Species, SpeciesSynonym, Additionals,
-                     HerbCounter, Subdivision)
-from .forms import SearchForm, RectSelectorForm
+                     HerbCounter, Subdivision, HerbAcronym)
+from .forms import SearchForm, RectSelectorForm, SendImage
 from .conf import settings
 from .utils import _smartify_altitude, _smartify_dates, herb_as_dict, translit
 from streamingjson import JSONEncoder as JSONStreamer
@@ -36,6 +36,8 @@ except (ImportError,ImproperlyConfigured):
     cache = None
 
 
+allowed_image_pat=re.compile(settings.HERBS_SOURCE_IMAGE_PATTERN)
+acronym_pat_ = re.compile(r'([A-Z]{1,10})(\d+)')
 digit_pat = re.compile(r'\d+')
 
 class EchoData(object):
@@ -810,6 +812,152 @@ def make_barcodes(request, q):
     gc.collect()
     return response
 
+
+def handle_image(request, afile):
+    fname = os.path.basename(afile.name)
+    herbimage = settings.HERBS_IMAGE_SESSION_NAME
+    with open(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname),
+              'wb+') as destination:
+        ind = 0
+        skey = request.session._get_or_create_session_key() + '_'
+        for chunk in afile.chunks():
+            destination.write(chunk)
+            request.session[herbimage] = afile.DEFAULT_CHUNK_SIZE * ind
+        request.session[herbimage] = 'completed_or_new'
+
+def get_pending_images(acronym=''):
+
+    if cache:
+        cval = cache.get(settings.HERBS_SOURCE_IMAGE_LIST_KEY, '')
+        if cval:
+            imgs = json.loads(cval)
+        else:
+            imgs = [j for j in sum(
+                [c for a, b, c in os.walk(settings.HERBS_IMAGE_SOURCE_TMP)],
+                []) if j.startswith(acronym)]
+            cache.get(settings.HERBS_SOURCE_IMAGE_LIST_KEY, json.dumps(imgs),
+                      settings.HERBS_SOURCE_IMAGE_LIST_KEY_TIMEOUT)
+    else:
+        imgs = [j for j in sum(
+            [c for a, b, c in os.walk(settings.HERBS_IMAGE_SOURCE_TMP)],
+            []) if j.startswith(acronym)]
+    return imgs
+
+def is_exists(acronym, id):
+    file_set1 = ','.join(get_pending_images(acronym))
+    file_set2 = ','.join({j for j in sum(
+        [c for a, b, c in os.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
+    fileset = ','.join([file_set1, file_set2])
+    return (acronym + id) in fileset
+
+
+@login_required
+@csrf_exempt
+def validate_image(request, filename=None):
+    error = ''
+    if not filename:
+        filename = request.POST.get('filename', '')
+
+    if filename:
+        overwrite = request.POST.get('overwrite', '')
+        overwrite = True if overwrite == 'on' else False
+        if not allowed_image_pat.match(os.path.basename(filename)):
+            error = _(u'Неправильное имя или формат файла')
+        else:
+            facronym, obj_id = acronym_pat_.findall(filename)[-1]
+
+        if not overwrite and not error:
+            exists = is_exists(facronym, obj_id)
+        else:
+            exists = False
+
+        if exists and not error:
+           error = _(u'Файл уже существует. '
+                     u'Чтобы перезаписать существующий файл '
+                     u'отметьте галочку <перезаписать>.')
+
+        if not request.user.is_superuser and not error:
+            if not HerbAcronym.objects.filter(name__iexact=facronym,
+                                          allowed_users__icontains=request.user.username).exists():
+                error = _(u'Ваша учетная запись принадлежит другому акрониму.'
+                          u'Загрузка данного файла невозможна.')
+
+    if request.is_ajax():
+        return HttpResponse(json.dumps({'error': error}),
+                            content_type="application/json;charset=utf-8")
+    return error
+
+
+@login_required
+@never_cache
+@csrf_exempt
+def upload_image(request):
+    herbimage = settings.HERBS_IMAGE_SESSION_NAME
+    error = ''
+    status = _(u'Файл загружен.')
+    value = request.session.get(herbimage, 'completed_or_new')
+
+    if value != 'completed_or_new':
+        status = _(u'Загружено: ') + \
+                 '%s' % value
+
+    if request.is_ajax():
+        return HttpResponse(json.dumps({'status': status}),
+                            content_type="application/json;charset=utf-8")
+
+    if request.user.is_superuser:
+        pending = get_pending_images()
+    else:
+        if HerbAcronym.objects.filter(allowed_users__icontains=request.user.username).exists():
+            acronym = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)[0].name
+            pending = get_pending_images(acronym)
+        else:
+            acronym = ''
+            pending = []
+
+    if request.method == "POST":
+        if value != 'completed_or_new':
+            result = render_to_string('herbimage.html', {
+                'form': SendImage(),
+                'status': status
+            }, context_instance=RequestContext(request))
+            return HttpResponse(result)
+        form = SendImage(request.POST)
+        if request.FILES:
+            for filename, afile in request.FILES.iteritems():
+                fname = os.path.basename(afile.name)
+                error = validate_image(request, fname)
+                if not error:
+                    handle_image(request, afile)
+                    if request.user.is_superuser:
+                        pending = get_pending_images()
+                    elif acronym:
+                        pending = get_pending_images(acronym)
+                else:
+                    status = ''
+                break
+            result = render_to_string('herbimage.html', {
+                'form': form,
+                'status': status,
+                'error': error,
+                'pending': pending
+            }, context_instance=RequestContext(request))
+    else:
+        form = SendImage()
+        if value != 'completed_or_new':
+            result = render_to_string('herbimage.html', {
+                                                         'form': form,
+                                                         'status': status,
+                                                         'pending': pending
+                                                         },
+                                      context_instance=RequestContext(request))
+        else:
+            result = render_to_string('herbimage.html', {'form': form,
+                                                         'pending': pending},
+                                      context_instance=RequestContext(request))
+    return HttpResponse(result)
+
+
 def _smartify_species(item):
     if item.species:
         if item.species.genus:
@@ -826,4 +974,6 @@ def _smartify_species(item):
             'infra_rank': item.species.get_infra_rank_display(),
             'infra_epithet': item.species.infra_epithet,
             'infra_authorship': item.species.infra_authorship}
+
+
 
