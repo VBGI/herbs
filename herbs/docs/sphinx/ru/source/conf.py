@@ -89,6 +89,8 @@ todo_include_todos = False
 #
 html_theme = 'classic'
 
+
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -125,7 +127,10 @@ latex_elements = {
 
     # Additional stuff for the LaTeX preamble.
     #
-    # 'preamble': '',
+    'preamble': r'''\usepackage{caption}   
+            \captionsetup[figure]{labelfont={bf},labelformat={empty},labelsep=period,name={}}
+             ''',
+
 
     # Latex figure (float) alignment
     #
