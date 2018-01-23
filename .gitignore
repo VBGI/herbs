@@ -13,3 +13,6 @@ testprj/media
 herbs/docs/sphinx/ru/build
 herbs/docs/sphinx/en/build
 .ipynb_checkpoints
+herbs/management/output
+herbs/management/source
+herbs/management/tmp
