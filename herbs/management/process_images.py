@@ -6,6 +6,10 @@ import subprocess
 import shutil
 from PIL import Image
 import numpy as np
+import shelve
+
+
+dbcache = shelve.open("herbcache.dat")
 
 # ------------- Common constants ------------
 IMAGE_FILE_PATTERN = re.compile(r'^[A-Z]{1,10}\d+(_?\d{1,2})\.([tT][iI][fF]{1,2}$|[jJ][pP][eE]?[gG]$)')
@@ -78,13 +82,15 @@ def get_acronym_name(x):
     return res[-1] if res else ''
 
 
-
-def check_image_exists(image_name):
+def check_image_exists(image_name, overwrite={s: IMAGE_CONVERSION_OPTS[s]['overwrite'] for s in IMAGE_CONVERSION_OPTS}):
     '''Check for existence of the image
 
     :param image_name:
     :return: true if image_name already exists
     '''
+    if image_name in dbcache:
+        return dbcache[image_name]
+
     res = []
     image_name = '.'.join(image_name.split('.')[:-1])
     for subim in IMAGE_CONVERSION_OPTS:
@@ -93,7 +99,14 @@ def check_image_exists(image_name):
                                     subim, image_name + '.' +
                                     IMAGE_CONVERSION_OPTS[subim]['format']
                                     )
-        res.append(os.path.isfile(destination_file) and not IMAGE_CONVERSION_OPTS[subim]['overwrite'])
+        res.append(os.path.isfile(destination_file) and not overwrite[subim])
+
+    if all(res):
+        dbcache[image_name] = all(res)
+    else:
+        if image_name in dbcache:
+            del dbcache[image_name]
+
     return all(res)
 
 
@@ -109,7 +122,6 @@ def easy_process():
         create_folder_safely(acro)
 
     print("Acronym folders created successfully...")
-
     for subf in IMAGE_CONVERSION_OPTS:
         for acro in available_acronyms:
             create_folder_safely(subf,
@@ -118,15 +130,17 @@ def easy_process():
     print("Image sub-folders created successfully...")
 
     for imfile in source_images:
-        print('Processing the file:', imfile)
         bname = os.path.basename(imfile)
         tmp_image = os.path.join(TMP_FOLDER, bname)
 
         if not check_image_exists(bname):
-            shutil.copyfile(imfile, tmp_image, follow_symlinks=False)
-            
-            imagestack = Image.open(tmp_image)
+            try:
+                shutil.copyfile(imfile, tmp_image, follow_symlinks=False)
+            except:
+                print("Image %s was dropped." % imfile)
+                continue
 
+            imagestack = Image.open(tmp_image)
             if hasattr(imagestack, 'n_frames'):
                 if imagestack.n_frames > 1:
                     tfw_array = []
@@ -199,5 +213,6 @@ def easy_process():
         else:
             print('The file %s alredy exists' % bname)
 
-easy_process()
 
+easy_process()
+dbcache.close()
