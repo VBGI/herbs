@@ -16,3 +16,4 @@ herbs/docs/sphinx/en/build
 herbs/management/output
 herbs/management/source
 herbs/management/tmp
+herbcache*
