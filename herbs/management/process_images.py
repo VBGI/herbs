@@ -9,7 +9,7 @@ import numpy as np
 import shelve
 
 
-dbcache = shelve.open("herbcache.dat")
+dbcache = shelve.open("herbcache")
 
 # ------------- Common constants ------------
 IMAGE_FILE_PATTERN = re.compile(r'^[A-Z]{1,10}\d+(_?\d{1,2})\.([tT][iI][fF]{1,2}$|[jJ][pP][eE]?[gG]$)')
@@ -88,11 +88,10 @@ def check_image_exists(image_name, overwrite={s: IMAGE_CONVERSION_OPTS[s]['overw
     :param image_name:
     :return: true if image_name already exists
     '''
+    image_name = '.'.join(image_name.split('.')[:-1])
     if image_name in dbcache:
         return dbcache[image_name]
-
     res = []
-    image_name = '.'.join(image_name.split('.')[:-1])
     for subim in IMAGE_CONVERSION_OPTS:
         destination_file = os.path.join(OUTPUT_IMAGE_PATH,
                                     get_acronym_name(image_name),
@@ -100,13 +99,11 @@ def check_image_exists(image_name, overwrite={s: IMAGE_CONVERSION_OPTS[s]['overw
                                     IMAGE_CONVERSION_OPTS[subim]['format']
                                     )
         res.append(os.path.isfile(destination_file) and not overwrite[subim])
-
     if all(res):
         dbcache[image_name] = all(res)
     else:
         if image_name in dbcache:
             del dbcache[image_name]
-
     return all(res)
 
 
