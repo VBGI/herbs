@@ -254,7 +254,7 @@ class PDF_DOC(PDF_MIXIN):
     def _add_label(self, x, y, family='', species='', spauth='',
                    coldate='', latitude='', longitude='',
                    place='', country='', region='', collected='',
-                   altitude='', identified='', number='', itemid='', fieldid='',
+                   altitude='', identifiedby=[''], number='', itemid='', fieldid='',
                    acronym='', institute='', address='', gform='', addspecies='',
                    district='', note='', short_note='', gpsbased='',
                    dethistory='', infra_rank='', infra_epithet='', logo_path='',
@@ -504,7 +504,7 @@ class PDF_DOC(PDF_MIXIN):
         # ----------------------------------------------
 
         # --------------- Identified by ----------------
-        identified = translit(identified, 'ru', reversed=True)
+        identifiedby = translit(identifiedby[0], 'ru', reversed=True)
         self._ln += 1
         self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
         self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
@@ -514,7 +514,7 @@ class PDF_DOC(PDF_MIXIN):
         self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
         ss = 0
         fline = []
-        for k in identified.split():
+        for k in identifiedby.split():
             ss += self.pdf.get_string_width(k + ' ')
             if ss < (LABEL_WIDTH - tw - 1 - 2 * PADDING_X-QR_SIZE):
                 fline.append(k)
@@ -605,7 +605,7 @@ class PDF_DOC(PDF_MIXIN):
                     'country': u'Россия',
                     'place': u'Никому неизвестное село глубоко в лесу; На горе росли цветы небывалой красоты, мы собрали их в дождливую погоду и было очень прохладно',
                     'collected': u'Один М.С., Другой Б.В., Третий А.А., Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой',
-                    'identified': u'Один, Другой',
+                    'identifiedby': [u'Один, Другой'],
                     'number': '17823781', 'itemid': '12312', 'fieldid': '123456789asdfghj',
                     'acronym': 'VBGI',
                     'institute': 'Botanical Garden-Institute FEB RAS',
@@ -704,7 +704,7 @@ class PDF_BRYOPHYTE(BARCODE):
     def generate_label(self, allspecies=[],
                        coldate='', latitude='', longitude='',
                        place='', country='', region='', collected='',
-                       altitude='', identified='', number='', itemid='',
+                       altitude='', identifiedby=[], number='', itemid='',
                        fieldid='', acronym='', institute='', note='', detdate='',
                        district='', gpsbased='', dethistory=[], type_status=''):
         self._sfs = SMALL_FONT_SIZE
@@ -905,15 +905,23 @@ class PDF_BRYOPHYTE(BARCODE):
                         self.pdf.cell(0, 0, ' '.join(sline))
                         cur_cell_width = self.pdf.get_string_width(' '.join(sline))
 
-                if _note or (dethistory and mainind == 1):
+                if _note or (dethistory and mainind == 1) or len(identifiedby) > 1:
+                    _note = _note.strip()
                     self.pdf.set_font('DejaVu', '', self._nnfs)
                     _y = self.pdf.get_y()
                     _x = self.pdf.get_x()
                     self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + cur_cell_width + 1,
                                     _y - 1)
                     self.pdf.cell(0, 0, '(' + str(addind) + ')')
+                    if len(identifiedby) > 1 and mainind > 1:
+                        if _note and identifiedby[0] != identifiedby[mainind - 1]:
+                            if _note[-1] in [';', '.', ',']:
+                                _note = _note[:-1]
+                            _note += '; '
+                            _note += 'det. ' + identifiedby[mainind - 1]
+                        elif identifiedby[0] != identifiedby[mainind - 1]:
+                            _note += 'Det. ' + identifiedby[mainind - 1]
                     if dethistory and mainind == 1:
-                        _note = _note.strip()
                         if _note:
                             if _note[-1] in [';', '.', ',']:
                                 _note = _note[:-1]
@@ -930,7 +938,8 @@ class PDF_BRYOPHYTE(BARCODE):
                             ' ' + hist_item['species']['infra_authorship']
                             histlines.append(histline)
                         _note +=  'ID history: ' + '; '.join(histlines)
-                    addinfo.append([addind, _note.strip()])
+                    if _note.strip():
+                        addinfo.append([addind, _note.strip()])
                     addind += 1
                     self.pdf.set_xy(_x, _y)
                 self._ln += 1
@@ -961,8 +970,8 @@ class PDF_BRYOPHYTE(BARCODE):
             if (latitude or longitude or altitude) and gpsbased:
                 latlon_info += ' [GPS-based]'
 
-            if identified:
-                det_info = 'Det. ' + translit(identified, 'ru', reversed=True)
+            if identifiedby:
+                det_info = 'Det. ' + translit(identifiedby[0], 'ru', reversed=True)
                 if detdate:
                     det_info += ' (%s)' % detdate
             else:
@@ -1063,7 +1072,7 @@ if __name__ == '__main__':
     def test_bryophyte():
         test_pars = {'allspecies': [('Genus specimen%s'%x, 'auth%s'%x, 'subsp%s'%x,
                                      'long_subspecies_name%s'%x, 'iauthorhip%s'%x, ('note%s'%x)*10)
-                         for x in map(str, range(2))],
+                         for x in map(str, range(3))],
                      'coldate': '20 Jul 2000',
                      'latitude': '12.1232',
                      'longitude': '-43.243212',
@@ -1072,7 +1081,7 @@ if __name__ == '__main__':
                      'region': 'Just test data',
                      'collected': '12 Jan 2018',
                      'altitude': '1100',
-                     'identified': '13 Jan 2018',
+                     'identifiedby': ['Kislov', 'Ivanov', 'Anotonov'],
                      'number': '12315',
                      'itemid': '144',
                      'fieldid': 'fox-3',
@@ -1101,6 +1110,7 @@ if __name__ == '__main__':
 
 
     test_bryophyte()
+    test_barcode()
 
 
 

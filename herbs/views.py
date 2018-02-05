@@ -625,11 +625,11 @@ def collect_label_data(q):
         if not item.identifiedby:
             try:
                 dhist = history.latest('identified_s')
-                identified = dhist.identifiedby
+                identifiedby = dhist.identifiedby
             except DetHistory.DoesNotExist:
-                identified = ''
+                identifiedby = ['']
         else:
-            identified = item.identifiedby
+            identifiedby = [item.identifiedby]
 
         _dethistory = []
         if history.exists():
@@ -654,6 +654,7 @@ def collect_label_data(q):
                                    addsp.species.infra_epithet,
                                    addsp.species.infra_authorship,
                                    addsp.note])
+                identifiedby.append(addsp.identifiedby)
         ddict = _smartify_species(item)
         ddict.update({'coldate': _smartify_dates(item)})
         ddict.update({'detdate': _smartify_dates(item, prefix='identified')})
@@ -669,7 +670,7 @@ def collect_label_data(q):
                     'longitude': '{0:.5f}'.format(item.coordinates.longitude) if item.coordinates else '',
                     'place': item.detailed,
                     'collected': item.collectedby,
-                    'identified': identified,
+                    'identifiedby': identifiedby,
                     'itemid': '%s' % item.pk,
                     'number': '%s' % item.itemcode or '*',
                     'acronym': item.acronym.name if item.acronym else '',
