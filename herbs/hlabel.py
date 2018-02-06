@@ -907,12 +907,6 @@ class PDF_BRYOPHYTE(BARCODE):
 
                 if _note or (dethistory and mainind == 1) or len(identifiedby) > 1:
                     _note = _note.strip()
-                    self.pdf.set_font('DejaVu', '', self._nnfs)
-                    _y = self.pdf.get_y()
-                    _x = self.pdf.get_x()
-                    self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + cur_cell_width + 1,
-                                    _y - 1)
-                    self.pdf.cell(0, 0, '(' + str(addind) + ')')
                     if len(identifiedby) > 1 and mainind > 1:
                         if _note and identifiedby[0] != identifiedby[mainind - 1]:
                             if _note[-1] in [';', '.', ',']:
@@ -939,9 +933,16 @@ class PDF_BRYOPHYTE(BARCODE):
                             histlines.append(histline)
                         _note +=  'ID history: ' + '; '.join(histlines)
                     if _note.strip():
+                        self.pdf.set_font('DejaVu', '', self._nnfs)
+                        _y = self.pdf.get_y()
+                        _x = self.pdf.get_x()
+                        self.pdf.set_xy(
+                            BRYOPHYTE_LEFT_MARGIN + cur_cell_width + 1,
+                            _y - 1)
+                        self.pdf.cell(0, 0, '(' + str(addind) + ')')
                         addinfo.append([addind, _note.strip()])
-                    addind += 1
-                    self.pdf.set_xy(_x, _y)
+                        addind += 1
+                        self.pdf.set_xy(_x, _y)
                 self._ln += 1
 
             self.pdf.set_font('DejaVu', '', self._sfs)
@@ -1071,7 +1072,7 @@ class PDF_BRYOPHYTE(BARCODE):
 if __name__ == '__main__':
     def test_bryophyte():
         test_pars = {'allspecies': [('Genus specimen%s'%x, 'auth%s'%x, 'subsp%s'%x,
-                                     'long_subspecies_name%s'%x, 'iauthorhip%s'%x, ('note%s'%x)*10)
+                                     'long_subspecies_name%s'%x, 'iauthorhip%s'%x, '')
                          for x in map(str, range(3))],
                      'coldate': '20 Jul 2000',
                      'latitude': '12.1232',
@@ -1081,7 +1082,7 @@ if __name__ == '__main__':
                      'region': 'Just test data',
                      'collected': '12 Jan 2018',
                      'altitude': '1100',
-                     'identifiedby': ['Kislov', 'Ivanov', 'Anotonov'],
+                     'identifiedby': ['Kislov', 'Firsov', 'Anotonov'],
                      'number': '12315',
                      'itemid': '144',
                      'fieldid': 'fox-3',
@@ -1110,7 +1111,7 @@ if __name__ == '__main__':
 
 
     test_bryophyte()
-    test_barcode()
+
 
 
 
