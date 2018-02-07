@@ -1,5 +1,6 @@
 from ajax_select import register, LookupChannel
-from .models import Family, Genus, Species, Country, HerbItem
+from .models import (Family, Genus, Species, Country, HerbItem,
+                    DetHistory, Additionals)
 from .conf import settings, HerbsAppConf
 from django.db.models import Count
 from django.utils.encoding import force_text
@@ -47,7 +48,30 @@ class SpeciesLookup(LookupChannel):
     
     def format_item_display(self, obj):
         url = reverse('admin:%s_%s_change' % (obj._meta.app_label,  obj._meta.module_name),  args=[obj.id])
-        return escape(force_text(obj)) + u'<a href="%s" target="_blank"> (Edit sp.) </a>' % (url, )
+        if obj:
+            total = HerbItem.objects.filter(species=obj).count() + \
+                    DetHistory.objects.filter(species=obj).exclude(
+                    herbitem__isnull=True).count() + \
+                    Additionals.objects.filter(species=obj).exclude(
+                    herbitem__isnull=True).count()
+        else:
+            total = 0
+        result = escape(force_text(obj)) +\
+                 u'<a href="%s" target="_blank"> (Edit sp.) </a>' % (url,)
+        result += '<br/>  Sp. occurence in the DB: %s' % total
+        return result
+
+    def format_match(self, obj):
+        if obj:
+            total = HerbItem.objects.filter(species=obj).count() + \
+                    DetHistory.objects.filter(species=obj).exclude(
+                    herbitem__isnull=True).count() + \
+                    Additionals.objects.filter(species=obj).exclude(
+                    herbitem__isnull=True).count()
+        else:
+            total = 0
+        return escape(force_text(obj)) + '&nbsp; (%s)' % total
+
 
 @register('country')
 class CountryLookup(LookupChannel):
