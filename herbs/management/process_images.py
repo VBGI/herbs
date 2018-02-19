@@ -56,8 +56,6 @@ OUTPUT_IMAGE_PATH = '/home/dmitry/workspace/herbs/herbs/management/output'
 TMP_FOLDER = '/home/dmitry/workspace/herbs/herbs/management/tmp'
 # --------------------------------------------
 
-
-
 def get_all_image_files(sources=SOURCE_IMAGE_PATHS):
     for dirpath in sources:
         for dir_, dirnames, filenames in os.walk(dirpath):
@@ -66,6 +64,7 @@ def get_all_image_files(sources=SOURCE_IMAGE_PATHS):
                     abspath = os.path.join(dir_, filename)
                     yield abspath
 
+REMOTE_FILES = ''.join(get_all_image_files(sources=[SOURCE_REMOTE_PATTERN]))
 
 def create_folder_safely(folder ='', source=OUTPUT_IMAGE_PATH):
 
@@ -88,9 +87,16 @@ def check_image_exists(image_name, overwrite={s: IMAGE_CONVERSION_OPTS[s]['overw
     :param image_name:
     :return: true if image_name already exists
     '''
+    remote_flag = image_name in REMOTE_FILES
     image_name = '.'.join(image_name.split('.')[:-1])
     if image_name in dbcache:
-        return dbcache[image_name]
+        if remote_flag:
+            del dbcache[image_name]
+            return False
+        else:
+            return dbcache[image_name]
+    elif remote_flag:
+        return False
     res = []
     for subim in IMAGE_CONVERSION_OPTS:
         destination_file = os.path.join(OUTPUT_IMAGE_PATH,
@@ -129,7 +135,6 @@ def easy_process():
     for imfile in source_images:
         bname = os.path.basename(imfile)
         tmp_image = os.path.join(TMP_FOLDER, bname)
-
         if not check_image_exists(bname):
             try:
                 shutil.copyfile(imfile, tmp_image, follow_symlinks=False)
@@ -165,42 +170,35 @@ def easy_process():
             # check if rotation needed
             rotation = imagestack.width >= imagestack.height
             imagestack.close()
-            copyflag = False
             for subim in IMAGE_CONVERSION_OPTS:
                 destination_file = os.path.join(OUTPUT_IMAGE_PATH,
                                                 get_acronym_name(temp_image_name),
                                                 subim, temp_image_name + '.' +
                                                 IMAGE_CONVERSION_OPTS[subim]['format']
                                                 )
-                if not os.path.isfile(destination_file) or IMAGE_CONVERSION_OPTS[subim]['overwrite']\
-                        or SOURCE_REMOTE_PATTERN in imfile:
-                    cmd_stack_cur = cmd_stack.copy()
-                    if rotation:
-                        cmd_stack_cur.append('-rotate')
-                        cmd_stack_cur.append('270')
+                cmd_stack_cur = cmd_stack.copy()
+                if rotation:
+                    cmd_stack_cur.append('-rotate')
+                    cmd_stack_cur.append('270')
 
-                    if IMAGE_CONVERSION_OPTS[subim]['size']:
-                        cmd_stack_cur.append('-resize')
-                        cmd_stack_cur.append(IMAGE_CONVERSION_OPTS[subim]['size'])
+                if IMAGE_CONVERSION_OPTS[subim]['size']:
+                    cmd_stack_cur.append('-resize')
+                    cmd_stack_cur.append(IMAGE_CONVERSION_OPTS[subim]['size'])
 
-                    if IMAGE_CONVERSION_OPTS[subim]['extra']:
-                        cmd_stack_cur.extend(IMAGE_CONVERSION_OPTS[subim]['extra'])
+                if IMAGE_CONVERSION_OPTS[subim]['extra']:
+                    cmd_stack_cur.extend(IMAGE_CONVERSION_OPTS[subim]['extra'])
 
-                    cmd_stack_cur.append(destination_file)
-                    _p = subprocess.Popen(cmd_stack_cur)
-                    _p.wait()
-                    copyflag = True
-                else:
-                    print("The file ", destination_file, "already exists.")
+                cmd_stack_cur.append(destination_file)
+                _p = subprocess.Popen(cmd_stack_cur)
+                _p.wait()
+            print("Image is created and uploaded (%s)." % temp_image_name)
+            try:
+                print("Trying to remove original file...")
+                os.remove(imfile)
+                print("The file is successfully removed (%s)." % os.path.basename(imfile))
+            except:
+                print("Couldn't remove the file: ", imfile)
 
-            if copyflag:
-                print("Image is created and uploaded (%s)." % temp_image_name)
-                try:
-                    print("Trying to remove original file...")
-                    os.remove(imfile)
-                    print("The file is successfully removed (%s)." % os.path.basename(imfile))
-                except:
-                    print("Couldn't remove the file: ", imfile)
             try:
                 os.remove(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
                 os.remove(tmp_image)
