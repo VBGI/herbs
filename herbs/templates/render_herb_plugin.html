@@ -194,11 +194,11 @@ Created: 30 Aug, 2016
 <table id="herbitem-table" style="max-width: 690px;">
    <thead>
     <tr style="height:3em;">
-     <td>  {% trans "Код сбора"%} <br> {% trans "(комбинированный)"%} </td>
-     <td>  {% trans "Вид"%} </td>
-     <td>  {% trans "Дата сбора"%} </td>
-     <td>  {% trans "Коллектор(ы)"%} </td>
-     <td>  {% trans "Определил(и)"%} </td> 
+     <td>  {% trans "Код образца" %} </td>
+     <td>  {% trans "Вид" %} </td>
+     <td>  {% trans "Дата сбора" %} </td>
+     <td>  {% trans "Коллектор(ы)" %} </td>
+     <td>  {% trans "Определил(и)" %} </td>
 </tr> 
    </thead>
 	<tbody>
@@ -208,11 +208,12 @@ Created: 30 Aug, 2016
 			 var fieldid  = (item.fieldid == '') ? '': ('/' + String(item.fieldid));
        var herbid = item.id;
        var herbhits = item.herbhits;
+       var herbacronym = item.acronym;
        var coldate = item.collected_s;
        var collectors  = item.collectedby;
-			 var species = item.species;
+       var species = item.species;
        var identifiers = item.identifiedby;
-       var idstr = itemcode + '/' + herbid + fieldid;
+       var idstr = herbacronym + herbid;
        var has_images = item.has_images;
 
 		if (index % 2 == 0) { %>
@@ -283,7 +284,6 @@ return res;
 
 
 function createSearchResult(idata){
-// idata -- assumed to be a plain object (converted from json response)
 var sftempl = _.template($("#searchform-template").html());
 var maptempl = _.template($("#herbitem-map-template").html());
 var table = sftempl({items:idata.herbitems, has_previous: idata.has_previous,
@@ -400,17 +400,16 @@ function csvDownloader(response, status, xhr) {
     }; 
 
 function herbitemFind(csvFlag){
-	var family = getornone('#family-input');
-	var genus = getornone('#genus-input');
-	var species = $('#species-input').val();
-	var itemcode = $("#itemcode-input").val();
-	var identifiedby = $("#identifiedby-input").val();
-	var collectedby = $("#collectedby-input").val();
-	var country = getornone("#country-input");
-	var colstart = $("#colstart-input").val();
+  var family = getornone('#family-input');
+  var genus = getornone('#genus-input');
+  var species = $('#species-input').val();
+  var itemcode = $("#itemcode-input").val();
+  var identifiedby = $("#identifiedby-input").val();
+  var collectedby = $("#collectedby-input").val();
+  var country = getornone("#country-input");
+  var colstart = $("#colstart-input").val();
   var colend = $("#colend-input").val();
   var place = $("#place-input").val();
-
   var acronym = $("#herbitem-acronym").val();
   var pagcount = $("#herbitem-pagination").val();
   var subdivision = $("#herbitem-subdivision").val();

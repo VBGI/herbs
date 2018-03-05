@@ -480,7 +480,8 @@ def show_herbs(request):
                     'identifiedby': item.identifiedby if lang == 'ru' else translit(item.identifiedby, 'ru', reversed=True),
                     'created': str(item.created),
                     'updated': str(item.updated),
-                    'has_images': True if item.has_images else False
+                    'has_images': True if item.has_images else False,
+                     'acronym': item.acronym.name if item.acronym else 'NO_ACRONYM'
                     })
 
         # ------------------------------------------------------------------
