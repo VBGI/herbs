@@ -240,15 +240,16 @@ class SpeciesForm(forms.ModelForm):
             raise forms.ValidationError(_("нужно определить подвидовой ранг или оставить поле подвидовой эпитет пустым"))
 
         if infra_epithet:
-            infra_epithet = infra_epithet.strip().lower()
+            infra_epithet = infra_epithet.strip()
 
         if name:
             name = name.strip().lower()
+
         if authorship:
-            authorship = authorship.strip().lower()
+            authorship = authorship.strip()
 
         if infra_authorship:
-            authorship = authorship.strip()
+            infra_authorship = infra_authorship.strip()
 
         if name and genus and self.instance and status != 'D':
             if Species.objects.filter(name=name,

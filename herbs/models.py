@@ -346,6 +346,7 @@ class Species(TaxonMixin):
                    ('F',  'f.'),
                    ('P', 'subf.'),
                    ('W', 'subvar.')
+                   ('G', 'subg.')
                    )
     genus = models.ForeignKey(Genus, null=True, blank=False,
                               verbose_name=_('род'),
