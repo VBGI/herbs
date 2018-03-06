@@ -265,7 +265,7 @@ class SpeciesForm(forms.ModelForm):
             raise forms.ValidationError(_("название таксона должно состоять только из латинских букв"))
 
         if infra_epithet:
-            if not taxon_name_pat.match(infra_epithet):
+            if not taxon_name_pat.match(infra_epithet.lower()):
                 raise forms.ValidationError(
                     _("название подвидового эпитета должно состоять только из латинских букв"))
 
