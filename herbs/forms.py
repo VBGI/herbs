@@ -241,6 +241,8 @@ class SpeciesForm(forms.ModelForm):
 
         if infra_epithet:
             infra_epithet = infra_epithet.strip()
+            if infra_rank != 'G':
+                infra_epithet = infra_epithet.lower()
 
         if name:
             name = name.strip().lower()
@@ -267,7 +269,6 @@ class SpeciesForm(forms.ModelForm):
                 raise forms.ValidationError(
                     _("название подвидового эпитета должно состоять только из латинских букв"))
 
-        # Check all fields
         # TODO: Prevent fields changing if published herbitems exist; clarification needed
         form_data['name'] = name
         form_data['infra_epithet'] = infra_epithet
