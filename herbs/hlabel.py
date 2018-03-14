@@ -5,6 +5,8 @@ import fpdf
 import tempfile
 import qrcode
 import os
+from django.conf import settings
+from PIL import Image
 
 if __name__ == '__main__':
     from transliterate import translit
@@ -261,23 +263,53 @@ class PDF_DOC(PDF_MIXIN):
                    detdate='', type_status='', infra_authorship=''):
         self.pdf.rect(x, y, LABEL_WIDTH, LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
-        self.pdf.image(logo_path or BGI_LOGO_IMG, w=LOGO_WIDTH, h=LOGO_HEIGHT)
 
+        if logo_path:
+            impath = os.path.join(settings.MEDIA_ROOT, logo_path)
+            try:
+                w, h = Image.open(impath).size
+                logo_w = float(w) / h * LOGO_HEIGHT
+            except:
+                logo_w = LOGO_WIDTH
+        else:
+                logo_w = LOGO_WIDTH
+        self.pdf.image(logo_path or BGI_LOGO_IMG, w=logo_w, h=LOGO_HEIGHT)
+
+        # ------------- Herbarium title -------------
         self.pdf.set_font('DejaVu', '', TITLE_FONT_SIZE + 2)
-        self.pdf.set_xy(x + PADDING_X + LOGO_WIDTH, self.goto(y, self._ln))
-        self.pdf.cell(LABEL_WIDTH - LOGO_WIDTH-2 * PADDING_X, 0, msgs['org'],
+        self.pdf.set_xy(x + PADDING_X + logo_w, self.goto(y, self._ln))
+        self.pdf.cell(LABEL_WIDTH - logo_w-2 * PADDING_X, 0, msgs['org'],
                       align='C')
-        self.pdf.set_font_size(REGULAR_FONT_SIZE)
+        # -------------------------------------------
+
+
+        # ----------- Select font size for address and institution name
+
+        institute_fs = REGULAR_FONT_SIZE
+        institution = msgs['descr'] % (institute, acronym)
+        self.pdf.set_font_size(institute_fs)
+        while self.pdf.get_string_width(institution) > (LABEL_WIDTH - logo_w - 2 * PADDING_X):
+            institute_fs -= 1
+            self.pdf.set_font_size(institute_fs)
         self._ln += 1
-        self.pdf.set_xy(x + PADDING_X + LOGO_WIDTH, self.goto(y, self._ln))
-        self.pdf.cell(LABEL_WIDTH - LOGO_WIDTH - 2 * PADDING_X, 0,
+        self.pdf.set_xy(x + PADDING_X + logo_w, self.goto(y, self._ln))
+        self.pdf.cell(LABEL_WIDTH - logo_w - 2 * PADDING_X, 0,
                       msgs['descr'] % (institute, acronym),
                       align='C')
-        self.pdf.set_font_size(SMALL_FONT_SIZE)
+
+        addr_fs = SMALL_FONT_SIZE
+        self.pdf.set_font_size(addr_fs)
+        while self.pdf.get_string_width(address) > (
+                LABEL_WIDTH - logo_w - 2 * PADDING_X):
+                addr_fs -= 1
+                self.pdf.set_font_size(addr_fs)
+
         self._ln += 1
-        self.pdf.set_xy(x + PADDING_X + LOGO_WIDTH, self.goto(y, self._ln))
-        self.pdf.cell(LABEL_WIDTH - LOGO_WIDTH - 2 * PADDING_X, 0, address,
+        self.pdf.set_xy(x + PADDING_X + logo_w, self.goto(y, self._ln))
+        self.pdf.cell(LABEL_WIDTH - logo_w - 2 * PADDING_X, 0, address,
                       align='C')
+        # -------------------------------------------------
+
         self.pdf.line(x + PADDING_X, self.goto(y, 2) + 4,
                       x + LABEL_WIDTH - PADDING_X, self.goto(y, 2) + 4)
         self._ln += 1
