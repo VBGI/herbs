@@ -37,6 +37,34 @@
       {%if not error%}
         {%if curobj.public %}
       <div id="herbitem-text-container">
+        {%if pending_errors and not success %}
+        <div id="herbitem-errors-warning">
+          {%trans "Внимание: У данной гербарной записи есть непроверенные сообщения об ошибках!"%}
+        </div>
+        {%endif%}
+        <div id="herbitem-reply-content">
+              {%if success %}
+                <div id="herbitem-reply-success"> {%trans "Благодарим за сообщение о замеченной ошибке." %} <br>
+                                    {% trans "Ваше сообщение об ошибке будет проверено куратором. " %} </div>
+              {%else%}
+              <div id="herbitem-reply-img" onclick="change_vis()"> {%trans "Сообщить об ошибке" %} </div>
+              <div id="herbitem-reply-form" style="{%if empty %}display: none{%else%}display: block{%endif%}">
+                    <form method="POST" action="">
+                     {%csrf_token%}
+                     {{form.as_p}}
+                     <p><input id="herbitem-reply-button" type="submit" value="{%trans "Отправить" %}"></p>
+                    </form>
+              </div>
+              {%endif%}
+        </div>
+
+        <script type="text/javascript">
+          function change_vis() {
+          var e = document.getElementById('herbitem-reply-form');
+          e.style.display = ((e.style.display!='none') ? 'none' : 'block');
+            }
+        </script>
+
       <p><strong>{%trans "Уникальный код образца" %}:</strong>&nbsp;{{curobj.pk}}</p>
       {%if curobj.itemcode %}
         <p><strong>{%trans "Инвентарный номер" %}:</strong>&nbsp;{{curobj.itemcode}}</p>

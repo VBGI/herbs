@@ -416,3 +416,29 @@ class HerbCounter(models.Model):
     herbitem = models.ForeignKey(HerbItem, null=True, blank=True,
                                  related_name='herbcounter')
     count = models.PositiveIntegerField(default=0)
+
+
+@python_2_unicode_compatible
+class HerbReply(models.Model):
+    REPLY_STATUSES = (('F', 'FIXED'),
+                      ('N', 'NEW'),
+                      ('P', 'IN PROGRESS'),
+                      )
+    herbitem = models.ForeignKey(HerbItem, null=True, blank=True,
+                                verbose_name=_('Запись'), editable=False,
+                                related_name='herbreply')
+    email = models.EmailField(blank=True)
+    description = models.CharField(max_length=2000, default='', blank=True,
+                                   verbose_name=_('Описание'))
+    status = models.CharField(max_length=1,
+                              choices=REPLY_STATUSES, default='N',
+                              verbose_name=_('Статус'))
+    created = models.DateField(auto_now_add=True, verbose_name=_('создан'))
+
+    def __str__(self):
+        return ''.join([str(self.herbitem.pk) if self.herbitem else 'None', ': ',
+                        self.description[:50], '...'])
+
+    class Meta:
+        verbose_name = _('Сообщение об ошибке')
+        verbose_name_plural = _('Сообщения об ошибках')

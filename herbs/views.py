@@ -7,8 +7,8 @@ from django.forms.models import model_to_dict
 from django.utils.translation import ugettext as _
 from .models import (Family, Genus, HerbItem, Country,
                      DetHistory, Species, SpeciesSynonym, Additionals,
-                     HerbCounter, Subdivision, HerbAcronym)
-from .forms import SearchForm, RectSelectorForm, SendImage
+                     HerbCounter, Subdivision, HerbAcronym, HerbReply)
+from .forms import SearchForm, RectSelectorForm, SendImage, ReplyForm
 from .conf import settings
 from .utils import _smartify_altitude, _smartify_dates, herb_as_dict, translit
 from streamingjson import JSONEncoder as JSONStreamer
@@ -511,13 +511,12 @@ def show_herbs(request):
 @never_cache
 @csrf_exempt
 def show_herbitem(request, inum):
-    context = {'error': ''}
+    context = {'error': '', 'success': False}
     clang = request.POST.get('lang', 'ru')
     if clang not in ['ru', 'en']:
         translation.activate('ru')
     else:
         translation.activate(clang)
-
 
     try:
         hobj = HerbItem.objects.get(id=inum)
@@ -541,7 +540,6 @@ def show_herbitem(request, inum):
             image_urls = []
 
         #--------------------------
-
         if hobj.public:
             if hobj.herbcounter.exists():
                 hc = hobj.herbcounter.all()[0]
@@ -549,7 +547,32 @@ def show_herbitem(request, inum):
                 hc.save()
             else:
                 HerbCounter.objects.create(herbitem=hobj, count=1)
+
         context.update({'curobj': hobj, 'image_urls': image_urls})
+        form = ReplyForm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['description'].strip():
+                HerbReply.objects.get_or_create(herbitem=hobj,
+                                                description=
+                                                form.cleaned_data['description'],
+                                                email=form.cleaned_data['email']
+                                                )
+                context.update({'success': True,
+                                'empty': False})
+            else:
+                context.update({'empty': True})
+        else:
+            if request.POST.get('description', '').strip()\
+                    or request.POST.get('email', '').strip():
+                context.update({'empty': False})
+            else:
+                context.update({'empty': True})
+
+        if hobj.public:
+            if HerbReply.objects.filter(herbitem=hobj).exclude(status='F').exists():
+                context.update({'pending_errors': True})
+
+        context.update({'form': form})
     except HerbItem.DoesNotExist:
         context.update({'error': _(u'Гербарного образца с id=%s не было найдено') % inum})
     result = render_to_string('herbitem_details.html', context,

@@ -12,6 +12,11 @@ from .models import (Family, Genus, HerbItem, Species,
 from django.forms.util import ErrorList
 from .conf import settings, HerbsAppConf
 
+try:
+    from captcha.fields import ReCaptchaField
+except ImportError:
+    ReCaptchaField = None
+
 
 CS = getattr(settings,
              '%s_CH_SIZE' % HerbsAppConf.Meta.prefix.upper(), 80)
@@ -279,3 +284,11 @@ class SendImage(forms.Form):
     image = forms.FileField(label=_("Выберите гербарное изображение"),
                             required=False)
     overwrite = forms.BooleanField(label=_("Перезаписать"), required=False)
+
+
+class ReplyForm(forms.Form):
+    email = forms.EmailField(required=False, label="E-mail")
+    description = forms.CharField(widget=forms.Textarea, required=False, label=_('Описание'),
+                                  max_length=2000)
+    if ReCaptchaField:
+        captcha = ReCaptchaField(attrs={'lang': 'en'})

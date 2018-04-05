@@ -13,7 +13,7 @@ from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm, HerbItemFormSimple, AdditionalsForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
                      HerbAcronym, DetHistory, Additionals, Subdivision,
-                     SpeciesSynonym)
+                     SpeciesSynonym, HerbReply)
 from django.forms import model_to_dict
 from django.utils.text import capfirst
 from django.utils import timezone
@@ -415,6 +415,46 @@ class SpeciesAdmin(AjaxSelectAdmin):
         return readonly_fields
 
 
+class HerbReplyAdmin(admin.ModelAdmin):
+    list_display = ('id', 'email', 'created', 'status', 'species_edit_link')
+    list_filter = ('status', 'created')
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super(HerbReplyAdmin, self).get_readonly_fields(
+            request, obj)
+        readonly_fields = set(readonly_fields)
+
+        if request.user.is_superuser:
+            return list(readonly_fields)
+
+        elif request.user.has_perm('herbs.can_set_publish'):
+            query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
+            if query.exists() and obj:
+                if obj.herbitem:
+                    if query[0] == obj.herbitem.acronym:
+                        readonly_fields = readonly_fields.union({'email', 'description', 'herbitem'})
+                        return list(readonly_fields)
+        else:
+            if obj:
+                if request.user == obj.herbitem.user:
+                    readonly_fields = readonly_fields.union({'email', 'description', 'herbitem'})
+                    return list(readonly_fields)
+        readonly_fields = readonly_fields.union({'email', 'description', 'herbitem', 'status'})
+        return list(readonly_fields)
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def species_edit_link(self, obj):
+        if obj.herbitem:
+            url = reverse('admin:%s_%s_change' % ('herbs', 'herbitem'),
+                          args=[obj.herbitem.id])
+            resurl = '<a href="%s" title="Редактировать запись">Редактировать запись %s</a>'  % (url, obj.herbitem.id)
+        else:
+            resurl = '--'
+        return resurl
+    species_edit_link.allow_tags = True
+    species_edit_link.short_description = _('Запись')
 
 
 admin.site.register(Family, FamilyAdmin)
@@ -425,3 +465,4 @@ admin.site.register(HerbAcronym)
 admin.site.register(Country)
 admin.site.register(Subdivision)
 admin.site.register(SpeciesSynonym)
+admin.site.register(HerbReply, HerbReplyAdmin)
