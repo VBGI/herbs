@@ -23,7 +23,7 @@ sshfs scidam@myremote:/home/scidam/webapps/herbviewer/snapshots $homedir/output
 
 
 echo "Mounting local source directory"
-sudo mount -t cifs "//fileserver/exchange/Herbarium_" $homedir/source/local -o username=dmitry,workgroup=123,ro,password=123
+sudo mount -t cifs "//192.168.1.11/exchange/Herbarium_" $homedir/source/local -o username=dmitry,workgroup=123,ro,password=123
 
 echo "Mounting remote source directory"
 sshfs scidam@myremote:/home/scidam/tmp/herbsnapshots $homedir/source/remote
