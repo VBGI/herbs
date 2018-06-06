@@ -142,7 +142,12 @@ def easy_process():
                 print("Image %s was dropped." % imfile)
                 continue
 
-            imagestack = Image.open(tmp_image)
+            try:
+                imagestack = Image.open(tmp_image)
+            except:
+                print("Something goes wrong with the image %s" % imfile)
+                continue
+
             if hasattr(imagestack, 'n_frames'):
                 if imagestack.n_frames > 1:
                     tfw_array = []
@@ -157,7 +162,7 @@ def easy_process():
                     imagestack.seek(tfw_frames[np.argmax(tfw_array)])
                 else:
                     imagestack.seek(0)
-                
+
             print('Appropriate tiff layer extracted...')
             temp_image_name = bname.split('.')[0]
 
