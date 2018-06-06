@@ -162,11 +162,14 @@ def easy_process():
                     imagestack.seek(tfw_frames[np.argmax(tfw_array)])
                 else:
                     imagestack.seek(0)
-
             print('Appropriate tiff layer extracted...')
             temp_image_name = bname.split('.')[0]
-
-            imagestack.save(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
+            try:
+                imagestack.convert("RGB")
+                imagestack.save(os.path.join(TMP_FOLDER, temp_image_name + DEFAULT_TMP_FORMAT))
+            except OSError:
+                print("An error occured when converting the image to RGB format")
+                continue
             print('Temporary image file is created: ', os.path.join(TMP_FOLDER,
                                                                     temp_image_name))
             cmd_stack = ['convert']
