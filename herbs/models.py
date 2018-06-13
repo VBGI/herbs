@@ -276,7 +276,7 @@ class Additionals(models.Model, BasicNameMixin):
     identified_e = models.DateField(blank=True,
                                     verbose_name=_('валиден по'),
                                     null=True)
-    species = models.ForeignKey('Species', blank=True, null=True,
+    species = models.ForeignKey('Species', blank=False, null=True,
                                 verbose_name=_('вид'))
     significance = models.CharField(max_length=5, default='', null=True,
                                     blank=True, choices=SIGNIFICANCE,

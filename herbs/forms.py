@@ -164,7 +164,7 @@ class DetHistoryForm(forms.ModelForm):
 class AdditionalsForm(forms.ModelForm):
     class Meta:
         model = Additionals
-    species = AutoCompleteSelectField('species', required=False, label=_("Вид"))
+    species = AutoCompleteSelectField('species', required=True, label=_("Вид"))
     identifiedby = AutoCompleteField('identifiedby', required=False,
                                      label=_("Определелил(и)"),
                                      attrs={'size': CS})
