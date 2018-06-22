@@ -943,10 +943,12 @@ class PDF_BRYOPHYTE(BARCODE):
                         if _note and identifiedby[0] != identifiedby[mainind - 1]:
                             if _note[-1] in [';', '.', ',']:
                                 _note = _note[:-1]
-                            _note += '; '
-                            _note += 'det. ' + identifiedby[mainind - 1]
+                            if not identifiedby[mainind-1].strip():
+                                _note += '; '
+                                _note += 'det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True)
                         elif identifiedby[0] != identifiedby[mainind - 1]:
-                            _note += 'Det. ' + identifiedby[mainind - 1]
+                            if not identifiedby[mainind-1].strip():
+                                _note += 'Det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True)
                     if dethistory and mainind == 1:
                         if _note:
                             if _note[-1] in [';', '.', ',']:
@@ -1040,6 +1042,10 @@ class PDF_BRYOPHYTE(BARCODE):
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
             self.pdf.multi_cell(label_width -
                                 BRYOPHYTE_MARGIN_EXTRA, self._lh, main_info)
+
+            # check if the block above is overlapped with the barcode
+            if self.pdf.get_y() >= (DEFAULT_PAGE_HEIGHT - BARCODE_ITEM_HEIGHT - 11):
+                resize_required.append(True)
 
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
             if leg_info:
