@@ -943,11 +943,11 @@ class PDF_BRYOPHYTE(BARCODE):
                         if _note and identifiedby[0] != identifiedby[mainind - 1]:
                             if _note[-1] in [';', '.', ',']:
                                 _note = _note[:-1]
-                            if not identifiedby[mainind-1].strip():
+                            if identifiedby[mainind-1].strip():
                                 _note += '; '
                                 _note += 'det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True)
                         elif identifiedby[0] != identifiedby[mainind - 1]:
-                            if not identifiedby[mainind-1].strip():
+                            if  identifiedby[mainind-1].strip():
                                 _note += 'Det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True)
                     if dethistory and mainind == 1:
                         if _note:
