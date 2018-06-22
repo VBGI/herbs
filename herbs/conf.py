@@ -7,6 +7,10 @@ from appconf import AppConf
 
 
 class HerbsAppConf(AppConf):
+
+    SPECIES_SIGNIFICANCE = (('aff.', 'affinis'),
+                            ('cf.', 'confertum')
+                            )
     PAGINATION_COUNT = 20
     AUTOSUGGEST_NUM_TO_SHOW = 50
     AUTOSUGGEST_NUM_ADMIN = 30

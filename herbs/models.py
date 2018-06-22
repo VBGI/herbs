@@ -8,13 +8,7 @@ from django.utils.translation import gettext as _
 from django.contrib.auth import get_user_model
 from geoposition.fields import GeopositionField
 from django.core.exceptions import PermissionDenied
-from .utils import  _smartify_dates
-
-SIGNIFICANCE = (('aff.', 'affinis'),
-                ('cf.', 'confertum')
-                )
-
-
+from .utils import  _smartify_dates, SIGNIFICANCE
 
 
 class BasicNameMixin(object):

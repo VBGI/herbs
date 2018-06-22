@@ -8,6 +8,7 @@ from transliterate.contrib.languages.ru.translit_language_pack import RussianLan
 from django.utils import translation
 from .conf import settings
 
+SIGNIFICANCE = settings.HERBS_SPECIES_SIGNIFICANCE
 
 DELIMITER = settings.HERBS_BILINGUAL_DELIMITER
 

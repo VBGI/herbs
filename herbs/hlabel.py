@@ -13,7 +13,7 @@ if __name__ == '__main__':
     def smartify_language(value, lang=''):
         return value
 else:
-    from .utils import translit, smartify_language
+    from .utils import translit, smartify_language, SIGNIFICANCE
 
 try:
     from HTMLParser import HTMLParser
@@ -787,9 +787,37 @@ class PDF_BRYOPHYTE(BARCODE):
                                 self.goto(self._ln))
                 self.pdf.set_font('DejaVu', '', self._sfs)
                 spaw = self.pdf.get_string_width(auth)
-                self.pdf.set_font('DejaVubi', '', self._sfs)
-                spw = self.pdf.get_string_width(sp)
-                self.pdf.cell(0, 0, sp)
+
+                # Smart confertum and affinis printing...
+                sp_decomposed = list(map(lambda x: x.strip(), sp.split()))
+                if sp_decomposed[1] in list(map(lambda x: x[0], SIGNIFICANCE)):
+                    try:
+                        sp_genus, sp_sign, sp_epithet = sp_decomposed[:3]
+                    except ValueError:
+                        sp_genus, sp_sign, sp_epithet = '', '', ''
+
+                    self.pdf.set_font('DejaVubi', '', self._sfs)
+                    sp_genus_w = self.pdf.get_string_width(sp_genus + ' ')
+                    self.pdf.cell(0, 0, sp_genus)
+
+                    self.pdf.set_font('DejaVu', '', self._sfs)
+                    sp_sign_w = self.pdf.get_string_width(sp_sign + ' ')
+                    self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + sp_genus_w,
+                                    self.goto(self._ln))
+                    self.pdf.cell(0, 0, sp_sign)
+
+                    self.pdf.set_font('DejaVubi', '', self._sfs)
+                    sp_epithet_w = self.pdf.get_string_width(sp_epithet + ' ')
+                    self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + sp_genus_w +\
+                                    sp_sign_w, self.goto(self._ln))
+                    self.pdf.cell(0, 0, sp_epithet)
+                    spw = sp_epithet_w + sp_sign_w + sp_genus_w
+                else:
+                    self.pdf.set_font('DejaVubi', '', self._sfs)
+                    spw = self.pdf.get_string_width(sp)
+                    self.pdf.cell(0, 0, sp)
+                # --------- End of smart conf. and aff. printing...
+
                 if ir:
                     self.pdf.set_font('DejaVub', '', self._sfs)
                     irw = self.pdf.get_string_width(ir)
