@@ -1,44 +1,50 @@
 # -*- coding: utf-8 -*-
+import csv
+import gc
+import json
 import operator
-from django.http import HttpResponse, StreamingHttpResponse
+import os
+import re
+from collections import Counter
+from django.conf import settings as main_settings
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import Paginator
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q, Count
 from django.forms.models import model_to_dict
+from django.http import HttpResponse, StreamingHttpResponse
+from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.utils import translation, timezone
+from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt
+from streamingjson import JSONEncoder as JSONStreamer
+from .conf import settings
+from .forms import (SearchForm, RectSelectorForm, SendImage, ReplyForm,
+                    BulkChangeForm)
 from .models import (Family, Genus, HerbItem, Country,
                      DetHistory, Species, SpeciesSynonym, Additionals,
                      HerbCounter, Subdivision, HerbAcronym, HerbReply)
-from .forms import SearchForm, RectSelectorForm, SendImage, ReplyForm
-from .conf import settings
 from .utils import _smartify_altitude, _smartify_dates, herb_as_dict, translit
-from streamingjson import JSONEncoder as JSONStreamer
-from django.utils.text import capfirst
-from django.contrib.auth.decorators import login_required, permission_required
-from django.utils import translation, timezone
-from django.template.loader import render_to_string
-from django.views.decorators.cache import never_cache
-from django.template import RequestContext
-from django.views.decorators.csrf import csrf_exempt
-from django.core.serializers.json import DjangoJSONEncoder
-from django.core.exceptions import ImproperlyConfigured
-from django.conf import settings as main_settings
+from .labeling.hlabel import PDF_DOC, BARCODE, PDF_BRYOPHYTE
 
-from collections import Counter
-import json
-import re
-import gc
-import csv
-import os
-from .hlabel import PDF_DOC, BARCODE, PDF_BRYOPHYTE
 try:
     from django.core.cache import cache
 except (ImportError,ImproperlyConfigured):
     cache = None
 
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
 
 allowed_image_pat=re.compile(settings.HERBS_SOURCE_IMAGE_PATTERN)
 acronym_pat_ = re.compile(r'([A-Z]{1,10})(\d+)')
 digit_pat = re.compile(r'\d+')
+
 
 class EchoData(object):
     def write(self, value):
@@ -242,9 +248,9 @@ def get_data(request):
                             Q(country__name_en__icontains=data['country'])]
 
         bigquery += [Q(region__icontains=data['place'])|
-                        Q(detailed__icontains=data['place'])|
-                        Q(district__icontains=data['place'])|
-                        Q(note__icontains=data['place'])] if data['place'] else []
+                     Q(detailed__icontains=data['place'])|
+                     Q(district__icontains=data['place'])|
+                     Q(note__icontains=data['place'])] if data['place'] else []
 
         # dates
         if data['colend'] and data['colstart']:
@@ -710,7 +716,8 @@ def collect_label_data(q):
                     'dethistory':  _dethistory,
                     'type_status': item.get_type_status_display(),
                     'logo_path': os.path.join(getattr(main_settings,
-                                                      'MEDIA_ROOT', ''),
+                                                      'MEDIA_ROOT',
+                                                      ''),
                                               str(item.acronym.logo)) if item.acronym else ''
                       })
         result.append(ddict)
@@ -748,7 +755,7 @@ def make_label(request, q):
 
 @login_required
 @never_cache
-def make_bryopyte_label(request, q):
+def make_bryophyte_label(request, q):
     '''Return pdf-doc or error page otherwise'''
 
     if len(q) > 1000:
@@ -856,7 +863,6 @@ def handle_image(request, afile):
         pass
 
 def get_pending_images(acronym=''):
-
     if cache:
         cval = cache.get(settings.HERBS_SOURCE_IMAGE_LIST_KEY, '')
         if cval:
@@ -873,10 +879,26 @@ def get_pending_images(acronym=''):
             []) if j.startswith(acronym)]
     return imgs
 
+
 def is_exists(acronym, id):
     file_set1 = ','.join(get_pending_images(acronym))
-    file_set2 = ','.join({j for j in sum(
-        [c for a, b, c in os.walk(settings.HERBS_SOURCE_IMAGE_PATHS)], [])})
+
+    if settings.HERBS_SOURCE_IMAGE_FILE: #local file
+        try:
+            with open(settings.HERBS_SOURCE_IMAGE_FILE, 'r') as afile:
+                file_set2 = ','.join(afile.readlines())
+        except (FileNotFoundError, IOError):
+            file_set2 = ''
+
+    if not file_set2:
+        if settings.HERBS_SOURCE_IMAGE_FILE_LIST: # remote file
+            try:
+                afile = urlopen(settings.HERBS_SOURCE_IMAGE_FILE_LIST,
+                                timeout=settings.HERBS_SOURCE_IMAGE_FILE_LIST_TIMEOUT)
+                file_set2 = ','.join(afile.readlines())
+            except:
+                file_set2 = ''
+
     fileset = ','.join([file_set1, file_set2])
     return (acronym + id) in fileset
 
@@ -916,6 +938,140 @@ def validate_image(request, filename=None):
         return HttpResponse(json.dumps({'error': error}),
                             content_type="application/json;charset=utf-8")
     return error
+
+
+@permission_required('herbs.can_set_publish')
+@never_cache
+@csrf_exempt
+def bulk_changes(request):
+    form = BulkChangeForm(request.GET)
+    context = {'errors': [], 'message': '', 'form': form, 'verified': False}
+    acronyms = request.GET.getlist('acronym', [])
+
+    acc = list()
+    for ac in acronyms:
+        try:
+            acc.append(int(ac))
+        except ValueError:
+            pass
+    acronyms = acc
+
+    subdivisions = request.GET.getlist('subdivision', [])
+    subs = list()
+    for s in subdivisions:
+        try:
+            subs.append(int(s))
+        except ValueError:
+            pass
+    subdivisions = subs
+
+    changed = None
+    if request.user.is_superuser:
+        allowed_acronyms = HerbAcronym.objects.all()
+        allowed_subdivisions = Subdivision.objects.all()
+    elif request.user.has_perm('herbs.can_apply_bulk_changes'):
+        allowed_acronyms = HerbAcronym.objects.filter(
+            allowed_users__icontains=request.user.username)
+        allowed_subdivisions = Subdivision.objects.filter(
+            allowed_users__icontains=request.user.username)
+            # FIXME: children subdivisions!!!
+    else:
+        allowed_acronyms = []
+        allowed_subdivisions = []
+    context['acronyms'] = allowed_acronyms
+    context['subdivisions'] = allowed_subdivisions
+
+    if form.is_valid():
+        search_operation = 'exact'
+        if form.cleaned_data['as_subs']:
+            search_operation  = 'contains'
+        search_operation = ('i' if form.cleaned_data['case_insens'] else '') + search_operation
+
+    if form.is_valid() and not(acronyms or subdivisions):
+        if allowed_acronyms or allowed_subdivisions:
+            # Estimate the number of affected elements;
+            query = HerbItem.objects.filter(Q(acronym__in=allowed_acronyms)|Q(subdivision__in=allowed_subdivisions))
+            try:
+                query = query.filter(**{
+                    '%s__%s' % (form.cleaned_data['field'],
+                                search_operation):
+                                form.cleaned_data['old_value']
+                                        })
+            except:
+                context['errors'].append(_(u'Неправильное имя изменяемого поля.'
+                                           u'Такого поля нет в таблице гербарных записей,'
+                                           u'или такое значение поля отсутствует в базе.')
+                                         )
+            if not query.exists():
+                context['errors'].append(_(u'Ни одина запись базы '
+                                           u'данных не будет изменена'))
+        else:
+            context['errors'].append(_(u'Недостаточно прав для изменения '
+                                       u'какого-либо подраздела гербария'))
+        if not context['errors']:
+            context['message'] =_(u'Предварительная проверка заявленных'
+                                   u' изменений прошла успешна.'
+                                   u' Выберите акроними и/или подразделы '
+                                   u'гербария, к которым планируется применить '
+                                   u'изменения.')
+            context['verified'] = True
+
+    elif form.is_valid():
+        allowed_acronyms = [acronym.pk for acronym in allowed_acronyms\
+                            if acronym.pk in acronyms]
+        allowed_subdivisions = [subdivision.pk for subdivision in allowed_subdivisions\
+                                if subdivision.pk in subdivisions]
+        if allowed_acronyms or allowed_subdivisions:
+            q_acronyms = [Q(acronym=ac) for ac in allowed_acronyms]
+            q_subdivisions = [Q(subdivision=s) for s in allowed_subdivisions]
+            if q_acronyms:
+                query = HerbItem.objects.filter(reduce(operator.or_, q_acronyms))
+            else:
+                query = HerbItem.objects.empty()
+            if q_subdivisions:
+                query = query.filter(reduce(operator.or_, q_subdivisions))
+            query = query.filter(**{
+                '%s__%s' % (form.cleaned_data['field'], search_operation):
+                    form.cleaned_data['old_value']
+                                    })
+            if request.is_ajax():
+                # estimate changes and return the form, as a XMLHTTPResponse
+                return HttpResponse(json.dumps({'tochange': query.count()}),
+                            content_type="application/json;charset=utf-8")
+            else:
+                # actually apply changes, if no errors occurred
+                if not form.cleaned_data['as_subs']:
+                    changed = query.update(**{form.cleaned_data['field']: form.cleaned_data['new_value']})
+                else:
+                    # case insensitive replacement
+                    changed = 0
+                    for item in query:
+                        field_value = getattr(item, form.cleaned_data['field'],
+                                              None)
+                        if field_value is not None:
+                            if form.cleaned_data['case_insens']:
+                                old_value_pattern = re.compile(re.escape(form.cleaned_data['old_value']),
+                                                           re.IGNORECASE)
+                            else:
+                                old_value_pattern = re.compile(
+                                    re.escape(form.cleaned_data['old_value']))
+                            tmp = old_value_pattern.sub(form.cleaned_data['new_value'],
+                                                        field_value)
+                            setattr(item, form.cleaned_data['field'], tmp)
+                            item.save()
+                            changed += 1
+        else:
+            context['errors'].append(_(u'Не выбрано ни одного '
+                                      u'акронима или подраздела гербария.'))
+    else:
+        if not form.is_bound:
+            context['errors'].append(_(u'Неправильно заполнена форма. '
+                                       u'Проверьте правила зполнения формы '
+                                       u'и повторите попытку еще раз.'))
+    context.update({'changed': changed})
+    result = render_to_string('bulk_changes.html', context,
+                              context_instance=RequestContext(request))
+    return HttpResponse(result)
 
 
 @permission_required('herbs.can_set_publish')
@@ -1004,6 +1160,4 @@ def _smartify_species(item):
             'infra_rank': item.species.get_infra_rank_display(),
             'infra_epithet': item.species.infra_epithet,
             'infra_authorship': item.species.infra_authorship}
-
-
 

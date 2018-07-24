@@ -11,7 +11,7 @@ import re, os
 
 from django.conf import settings
 
-image_path_ = getattr(settings, 'HERBS_SOURCE_IMAGE_PATHS', '.')
+image_path_ = getattr(settings, 'HERBS_SOURCE_IMAGE_PATHS', None)
 image_thumb_ = getattr(settings, 'HERBS_SOURCE_IMAGE_THUMB', 'ts')
 image_url_ = getattr(settings, 'HERBS_SOURCE_IMAGE_URL', '')
 
@@ -21,14 +21,24 @@ image_comp_pat_ = re.compile(r'([A-Z]{1,10})(\d+)')
 
 check_path_ = re.compile(r'^[^,]+$')
 
-def get_all_image_files(sources=[image_path_]):
-    for dirpath in sources:
-        for dir_, dirnames, filenames in os.walk(dirpath):
-            for filename in filenames:
-                if image_pat_.match(filename):
-                    abspath = os.path.join(dir_, filename)
-                    yield abspath
+def get_all_image_files(sources=image_path_):
 
+    if sources:
+        for dirpath in sources:
+            for dir_, dirnames, filenames in os.walk(dirpath):
+                for filename in filenames:
+                    if image_pat_.match(filename):
+                        abspath = os.path.join(dir_, filename)
+                        yield abspath
+    else:
+        filename = getattr(settings, 'HERBS_SOURCE_IMAGE_FILE', '')
+        if filename:
+            try:
+                with open(filename, 'r') as afile:
+                    for f in afile.readlines():
+                        yield f
+            except (FileNotFoundError, IOError):
+                raise StopIteration
 
 class Command(BaseCommand):
     args = ''

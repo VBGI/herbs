@@ -4,11 +4,13 @@ import re
 from ajax_select.fields import (AutoCompleteSelectField,
                                 AutoCompleteField)
 from django import forms
+from django.forms.models import ModelFormMetaclass
 from django.utils.translation import gettext as _
 from django.utils import timezone
 from datetime import timedelta, date
 from .models import (Family, Genus, HerbItem, Species,
                      DetHistory, HerbAcronym, Additionals)
+from django.db.models.fields import FieldDoesNotExist
 from django.forms.util import ErrorList
 from .conf import settings, HerbsAppConf
 
@@ -17,6 +19,30 @@ try:
 except ImportError:
     ReCaptchaField = None
 
+from six import with_metaclass
+
+# ---------- tinymce integration
+
+# try:
+#     from tinymce.widgets import TinyMCE
+# except ImportError:
+TinyMCE = None
+
+tinymce_fieldset = {
+    'theme': 'advanced',
+    'theme_advanced_buttons1': "bold,italic",
+    'theme_advanced_buttons2': "",
+    'theme_advanced_buttons3': "",
+    'cleanup_on_startup' : True,
+    'width':'50%',
+    'height':'400px',
+    'theme_advanced_text_colors' : "000000,ff0000,0000ff",
+    'force_br_newlines': False,
+    'force_p_newlines': False,
+    'forced_root_block' : ''
+}
+
+# ------------------------------
 
 CS = getattr(settings,
              '%s_CH_SIZE' % HerbsAppConf.Meta.prefix.upper(), 80)
@@ -24,6 +50,21 @@ CS = getattr(settings,
 
 taxon_name_pat = re.compile(r'[a-z]+')
 itemcode_pat = re.compile(r'^\d+$')
+
+
+def remove_spaces(*args):
+    def wrapped(name):
+        def _clean_spaces(self, _name=name):
+            data = self.cleaned_data[_name]
+            return data.strip()
+        return _clean_spaces
+
+    class StripSpaces(ModelFormMetaclass):
+        def __new__(cls, name, bases, attrs):
+            for arg in args:
+                attrs['clean_' + arg ] = wrapped(arg)
+            return super(StripSpaces, cls).__new__(cls, name, bases, attrs)
+    return StripSpaces
 
 
 class TaxonCleanerMixin(forms.ModelForm):
@@ -47,7 +88,11 @@ class HerbItemFormSimple(forms.ModelForm):
         model = HerbItem
 
 
-class HerbItemForm(forms.ModelForm):
+class HerbItemForm(with_metaclass(remove_spaces('collectedby',
+                                                'identifiedby',
+                                                'region',
+                                                'district'),
+                                  forms.ModelForm)):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
@@ -100,7 +145,6 @@ class HerbItemForm(forms.ModelForm):
         self._verify_dates(data)
         return data
 
-
     def clean(self):
         '''Checking consistency for dates '''
         formdata = self.cleaned_data
@@ -142,9 +186,17 @@ class HerbItemForm(forms.ModelForm):
         model = HerbItem
 
     species = AutoCompleteSelectField('species', required=True, help_text=None, label=_("Вид"))
-    detailed = forms.CharField(widget=forms.Textarea, required=False, label=_('Место сбора'))
+    if TinyMCE:
+        note = forms.CharField(widget=TinyMCE(mce_attrs=tinymce_fieldset),
+                               required=False, label=_('Заметки'))
+        detailed = forms.CharField(widget=TinyMCE(mce_attrs=tinymce_fieldset),
+                                   required=False,
+                                   label=_('Место сбора'))
+    else:
+        note = forms.CharField(widget=forms.Textarea, required=False, label=_('Заметки'))
+        detailed = forms.CharField(widget=forms.Textarea, required=False,
+                                   label=_('Место сбора'))
     detailed.help_text = _("локализация, экоусловия")
-    note = forms.CharField(widget=forms.Textarea, required=False, label=_('Заметки'))
     country = AutoCompleteSelectField('country', required=False, help_text=None, label=_("Страна"))
     region = AutoCompleteField('region', required=False, help_text=None, label=_("Регион"), attrs={'size': CS})
     district = AutoCompleteField('district', required=False, help_text=None, label=_("Район"), attrs={'size': CS})
@@ -152,7 +204,7 @@ class HerbItemForm(forms.ModelForm):
     identifiedby = AutoCompleteField('identifiedby', required=False, help_text=None, label=_("Определили"), attrs={'size': CS})
 
 
-class DetHistoryForm(forms.ModelForm):
+class DetHistoryForm(with_metaclass(remove_spaces('identifiedby'),forms.ModelForm)):
     class Meta:
         model = DetHistory
     species = AutoCompleteSelectField('species', required=False, label=_("Вид"))
@@ -161,7 +213,7 @@ class DetHistoryForm(forms.ModelForm):
                                      attrs={'size': CS})
 
 
-class AdditionalsForm(forms.ModelForm):
+class AdditionalsForm(with_metaclass(remove_spaces('identifiedby'),forms.ModelForm)):
     class Meta:
         model = Additionals
     species = AutoCompleteSelectField('species', required=True, label=_("Вид"))
@@ -292,3 +344,51 @@ class ReplyForm(forms.Form):
                                   max_length=2000)
     if ReCaptchaField:
         captcha = ReCaptchaField(attrs={'lang': 'en'})
+
+
+class BulkChangeForm(forms.Form):
+    field = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),
+                            required=False, label=_('Поле'), max_length=50)
+    old_value = forms.CharField(widget=forms.Textarea(),
+                                required=False, label=_('Текущее значение'))
+    as_subs = forms.BooleanField(required=False, label=_('Искать как включение (подстроку)'))
+    case_insens = forms.BooleanField(required=False, label=_('Не учитывать регистр'))
+    new_value = forms.CharField(widget=forms.Textarea(),
+                                required=False, label=_('Новое значение'))
+    captcha = forms.CharField(max_length=50, label=_('Название поля (повторить)'),
+                              required=True)
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        cleaned_data['field'] = field_name = cleaned_data.get('field', '').strip()
+        cleaned_data['captcha'] = captcha = cleaned_data.get('captcha', '').strip()
+        cleaned_data['new_value'] = cleaned_data.get('new_value', '').strip()
+        if captcha != field_name:
+            raise forms.ValidationError(
+                _("название изменяемого поля и введеное название не совпадают"))
+        try:
+             fobj = HerbItem._meta.get_field(cleaned_data['field'])
+        except FieldDoesNotExist:
+             return cleaned_data
+        allowed_length = getattr(fobj, 'max_length', 0)
+        if len(cleaned_data['new_value']) > allowed_length and allowed_length is not 0:
+            raise forms.ValidationError(_(u'Новое значение поля превосходит'
+                                          u' его допустимую длину.'
+                                          u' Допустимая длина составляет %s символов.' % allowed_length))
+        max_chars = getattr(settings,
+                            '%s_MAX_BULK_CONTAIN_CHARS' % HerbsAppConf.Meta.prefix.upper(),
+                            5)
+        if cleaned_data['as_subs'] and len(cleaned_data['old_value']) < max_chars:
+            raise forms.ValidationError(_('Запрещается выполнять поиск включения, '
+                                          'если условие поиска содержит менее %s символов.' %
+                                          max_chars
+                                          ))
+        return cleaned_data
+
+    def clean_field(self):
+        data = self.cleaned_data['field']
+        allowed = getattr(settings, '%s_ALLOWED_FOR_BULK_CHANGE' % HerbsAppConf.Meta.prefix.upper(),
+                          None)
+        if data.strip() not in allowed:
+            raise forms.ValidationError(_(u'Недопустимое имя поля. Допустимыми являются только поля:  ') + ','.join(allowed))
+        return data

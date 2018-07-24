@@ -1,0 +1,196 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static admin_modify %}
+{% load admin_urls %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+{{ media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+<style type="text/css">
+div#herbitem-changed{
+background-color: #417690;
+margin: 10px;
+border-radius: 3px;
+padding: 10px;
+font-size: 1.5em;
+color: #f4f379;
+}
+input[type=submit]{
+height: 2em;
+font-size: 14pt;
+}
+#memo-button {
+cursor: pointer;
+padding: 3px;
+background-color: #417690;
+}
+#memo-button h3 {color: white}
+#changes-memo{display: none}
+#changes-memo ul li{
+padding: 5px;
+font-size: 1.2em;}
+</style>
+
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs" style="height: 2em;">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+</div>
+{% endblock %}
+{% endif %}
+
+{% block content %}
+
+<div id="content-main">
+{% block after_related_objects %}{% endblock %}
+{% block submit_buttons_bottom %}{% endblock %}
+    <div id="herbitem-changes-content">
+        <div id="memo-button" onclick="toggleHideShow()">
+            <h3>Чтобы прочесть памятку, кликните мышкой по этому полю!</h3>
+        </div>
+        <div id="changes-memo" >
+            <h3>Памятка:</h3>
+            <ul>
+                <li style="color: red">Множественные изменения гербарных образцов требуют осторожности.
+                    Изменения в записях происходят при нажатии кнопки "Применить",
+                    которая появляется в процессе работы с сервисом.  </li>
+                <li>Изменения в базу данных, вносимые через данный сервис, применяются
+                    к образцам независимо от их статуса публикации (т.е. как к опубликованным,
+                    так и неопубликованным образцам);</li>
+                <li>При нажатии кнопки "Запрос" система проводит проверку возможности внесения
+                    изменений, учитывая поле, его изменяемое значение и текущий набор
+                    прав пользователя, осуществляющего изменения;</li>
+                <li>Для применения изменений пользователь должен отметить акронимы
+                    и подразделы (при необходимости), к которым будут применены изменения;</li>
+                <li>Перечень акронимов и подразделов формируется исходя
+                    из прав пользователя, просматривающего страницу;</li>
+                <li>Права куратора гербарного акронима/подраздела не обязательно
+                    подразумевают права на применение массовых изменений гербарных
+                    записей через данный сервис;</li>
+                <li>У нового значения поля автоматически удаляются
+                    пробелы в начале и в конце строки.</li>
+            </ul>
+        </div>
+    <script type="text/javascript">
+    function toggleHideShow() {
+            var x = document.getElementById("changes-memo");
+            if ((x.style.display === "none")|(x.style.display == "")){
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+        }
+    </script>
+
+    {%if changed%}
+            <div id="herbitem-changed">
+            Поздравлям! Число измененных гербарных записей:  {{changed}}.
+            </div>
+    {%else%}
+        <!-- Error block-->
+        {%if errors%}
+            <ul class="errorlist">
+                {%for error in errors%}
+                <li>{{error}}</li>
+                {%endfor%}
+            </ul>
+        {%endif%}
+        <form action="" method="GET" id="herb-bulk-form">
+         {{form.as_p}}
+        {%if not verified%}
+            <p>Проверьте, возможны ли изменения гербарных записей, согласно выбранным условиям.<br>
+            Для этого нажмите кнопку "Запрос".
+            </p>
+            <p><input type="submit" value="Запрос" title="Запросить изменения гербарных записей"></p>
+        {% else %}
+            {%if acronyms%}
+            <hr>
+             <div id="herbitem-changed">
+                Гербарные записи с выбранными параметрами найдены.
+                Выберите акронимы и/или подразделы гербария,
+                к которым вы хотите применить изменения.
+            </div>
+            <h2>Гербарные акронимы</h2>
+                <ul>
+                    {%for acr in acronyms%}
+                       <li style="list-style-type: none">
+                           <input type="checkbox" name="acronym" value="{{acr.pk}}" id="{{acr.pk}}">
+                           <label for="{{acr.pk}}" style="margin-left: 1em">{{acr.name}} ({{acr.institute}})</label>
+                       </li>
+                    {%endfor%}
+                </ul>
+            {%endif%}
+            {%if subdivisions%}
+            <hr>
+            <h2>Подразделы гербария</h2>
+                <ul style="list-style-type: none">
+                    {%for s in subdivisions%}
+                     <li style="list-style-type: none">
+                         <input type="checkbox" name="subdivision" value="{{s.pk}}" id="{{s.pk}}">
+                         <label for="{{s.pk}}" style="margin-left: 1em">{{s.name}}</label>
+                     </li>
+                    {%endfor%}
+                </ul>
+            {%endif%}
+        {%endif%}
+        </form>
+
+        <!-- Check allowed  -->
+        <script type="text/javascript">
+
+        function showPending(data){
+            var tochange = parseInt(data.tochange);
+            $("#herbitem-submit").remove();
+            $("#herbitem-changed").remove();
+            if (tochange > 0) {
+               var submitField = '<input id="herbitem-submit" type="submit" value="Применить" title="Применить изменения" >';
+               var changedField = '<div id="herbitem-changed">' +
+                                  'Внимание! Число записей, к которым будут применены изменения: ' +
+                                   tochange + '</div>';
+               $("#herb-bulk-form").append(changedField)
+               $("#herb-bulk-form").append(submitField)
+                    }
+            else {
+            var changedField = '<div id="herbitem-changed">' +
+                               'Не будет изменено ни одной записи. ' +
+                               'Выберите другую конфигурацию.' +
+                               '</div>';
+            $("#herb-bulk-form").append(changedField)
+            }
+          }
+
+        $(document).ready(function(){
+          $("input[type=checkbox]").change(function(){
+          var formdata = $("#herb-bulk-form").serialize();
+          $.get("{%url 'change_herbitems'%}", formdata, showPending)
+           });
+        });
+        </script>
+
+        <!-- Fallback message -->
+        <noscript>
+            <h2 style="color:red; text-align: center">
+                Сервис внесения множественных изменения в базу электронного гербария
+                работает только при поддержке JavaScript.<br>
+                Включите JavaScript в Вашем браузере и повторите попытку.
+            </h2>
+        </noscript>
+
+        <!-- Messages block -->
+        {%if messages%}
+            <div id="herbitem-messages">
+                {{message}}
+            </div>
+        {%endif%}
+        {%endif%}
+    </div>
+</div>
+
+{% endblock %}

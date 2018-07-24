@@ -11,6 +11,23 @@ class HerbsAppConf(AppConf):
     SPECIES_SIGNIFICANCE = (('aff.', 'affinis'),
                             ('cf.', 'confertum')
                             )
+
+    # Bulk changes settings
+    ALLOWED_FOR_BULK_CHANGE = ('region', 'district', 'collectedby',
+                               'identifiedby', 'detailed', 'note')
+    MAX_BULK_CONTAIN_CHARS = 5
+
+    # Tracking changes feature
+    TRACKED_FIELDS = ('collectedby', 'identifiedby', 'region', 'district', 'species')
+    NOTIFICATION_MAILS = ('kislov@easydan.com', 'vabakalin@gmail.com',
+                          'pimenova_garden@mail.ru', 'stupnikovat@yandex.ru') # allowed emails
+    NOTIFICATION_USERS = ('scidam', 'bryophyte', 'labcrypto', 'pimenova',
+                          'stupnikova') # user's allowed for email sending
+
+    # Objects edited by these user's aren't tracked by the system
+    EXCLUDED_FROM_NOTIFICATION = ('', ) # User's excluded from notification;
+
+
     PAGINATION_COUNT = 20
     AUTOSUGGEST_NUM_TO_SHOW = 50
     AUTOSUGGEST_NUM_ADMIN = 30
@@ -40,10 +57,13 @@ class HerbsAppConf(AppConf):
                                   ('herbcounter__count', _(u'Число просмотров'))
                                   ]
 
-    SOURCE_IMAGE_PATHS = '/home/scidam/webapps/herbviewer/snapshots/'
+    SOURCE_IMAGE_PATHS = None
+    SOURCE_IMAGE_FILE = '/home/scidam/tmp/herbsnapshots/herbimages.txt'
+    SOURCE_IMAGE_FILE_LIST = 'http://herbstatic.botsad.ru/herbimages.txt'
+    SOURCE_IMAGE_FILE_LIST_TIMEOUT = 5
     SOURCE_IMAGE_THUMB = 'ts'
-    SOURCE_IMAGE_URL = 'http://botsad.ru/herbarium/view/snapshots'
-    SOURCE_IMAGE_VIEWER = 'http://botsad.ru/herbarium/view/'
+    SOURCE_IMAGE_URL = 'http://herbstatic.botsad.ru/snapshots'
+    SOURCE_IMAGE_VIEWER = 'http://herbstatic.botsad.ru/'
     SOURCE_IMAGE_URL_RELATIVE = 'snapshots'
     SOURCE_IMAGE_LIST_KEY = 'herbimages_key'
     SOURCE_IMAGE_LIST_KEY_TIMEOUT = 5
@@ -54,3 +74,5 @@ class HerbsAppConf(AppConf):
 
     class Meta:
         prefix = 'herbs'
+
+

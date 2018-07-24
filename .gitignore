@@ -17,3 +17,5 @@ herbs/management/output
 herbs/management/source
 herbs/management/tmp
 herbcache*
+herbs/management/herbimages.txt
+herbarium.pdf

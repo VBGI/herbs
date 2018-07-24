@@ -341,19 +341,10 @@ function showHerbitem(herbid){
   $("#herbitem-"+herbid).addClass("herbitem-selected");
   scrollPosition = $(document).scrollTop();
   var el = $("div.herbitem-newpage");
-  el.html("<h3>{%trans "Открыть в отдельном окне"%}</h3>");
+  el.html("<h3><a href='{{herbitem_personal_url}}" + herbid + "' target='_blank'>{%trans "Открыть в отдельном окне"%}</a></h3>");
   $("#herbitem-iframe").attr('src', '{{herbitem_personal_url}}' + herbid)
   $("#herbitem-tabs").tabs({disabled: false});
   $("#herbitem-tabs").tabs('option','active',1);
-  el.unbind("click");
-  el.click(function(){
-    var win = window.open($('#herbitem-iframe').contents().get(0).location.href, '_blank');
-      if (win) {
-         win.focus();
-          } else {
-           alert('Please allow popups for this website');
-            }
-  });
   $(document).scrollTop(0);
  }
 

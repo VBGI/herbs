@@ -9,16 +9,18 @@ from django.conf.urls import url
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
+from django.db import models
 from .forms import (FamilyForm, GenusForm, HerbItemForm, SpeciesForm,
                     DetHistoryForm, HerbItemFormSimple, AdditionalsForm)
 from .models import (Family, Genus, HerbItem, Species, Country,
                      HerbAcronym, DetHistory, Additionals, Subdivision,
-                     SpeciesSynonym, HerbReply)
+                     SpeciesSynonym, HerbReply, Notification)
 from django.forms import model_to_dict
 from django.utils.text import capfirst
 from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
+from six import string_types
 import random
 import string
 import json
@@ -110,6 +112,104 @@ class HerbItemCustomListFilter(SimpleListFilter):
             return queryset
 
 
+# ------------ Notification base bahavior --------------
+class NotificationMixin:
+    '''
+    Creates notifications according to changes in predefined model fields
+    '''
+
+    def make_notification(self, request, obj):
+        if not obj:
+            return
+        acronym = obj.acronym.name if obj.acronym else ''
+        username = request.user.username
+
+        if username in settings.HERBS_EXCLUDED_FROM_NOTIFICATION:
+            return
+
+        for field_name in settings.HERBS_TRACKED_FIELDS:
+            field_value = getattr(obj, field_name, '')
+            friendly_value = ''
+            if isinstance(field_value, models.Model):
+                field_name = field_name + '__pk'
+                friendly_value = str(field_value)
+                field_value = getattr(field_value, 'pk')
+                friendly_value += ' ({})'.format(field_value)
+                if field_value is None:
+                    field_value = ''
+            elif isinstance(field_value, string_types):
+                field_value = field_value.strip()
+                friendly_value = field_value
+            else:
+                field_value = ''
+
+            if self._notification_condition(obj.__class__,
+                                            field_name, field_value,
+                                            acronym):
+                emails = self._get_mails(obj, acronym)
+                if emails:
+                    Notification.objects.filter(tracked_field=field_name,
+                                                hitem=obj,
+                                                status='Q').delete()
+                    Notification.objects.get_or_create(
+                                                   tracked_field=field_name,
+                                                   field_value=friendly_value,
+                                                   username=username,
+                                                   hitem=obj,
+                                                   emails=emails)
+
+            else:
+                Notification.objects.filter(tracked_field=field_name,
+                                            status='Q',
+                                            hitem=obj).delete()
+
+
+    @staticmethod
+    def _notification_condition(model, field_name, field_value, acronym):
+        return model.objects.filter(**{'%s__iexact' % field_name: field_value,
+                                  'acronym__name__iexact': acronym}).count() == 1
+
+    def _get_mails(self, obj, acronym):
+        if acronym:
+            users_to_be_removed = []
+            for subd in Subdivision.objects.all():
+                users_to_be_removed.append(subd.allowed_users.split(','))
+            try:
+                usernames = HerbAcronym.objects.get(
+                    name__iexact=acronym).allowed_users.split(',')
+            except HerbAcronym.DoesNotExist:
+                usernames = []
+            # remove users belonging to subdivisions
+            users_to_be_removed = sum(users_to_be_removed, [])
+            usernames = list(set(usernames) - set(users_to_be_removed))
+        else:
+            usernames = []
+
+        if obj.subdivision:
+            subd = obj.subdivision
+            while True:
+                usernames += subd.allowed_users.split(',')
+                if subd.parent:
+                    subd = subd.parent
+                else:
+                    break
+
+        target_users = list(set(settings.HERBS_NOTIFICATION_USERS).intersection(set(usernames)))
+        final_users = []
+        if target_users:
+            umodel = get_user_model()
+            for username in target_users:
+                try:
+                    user = umodel.objects.get(username=username)
+                except umodel.DoesNotExist:
+                    continue
+                if user.has_perm('herbs.can_set_publish') and\
+                                user.email in settings.HERBS_NOTIFICATION_MAILS:
+                    final_users.append(user)
+        return ','.join([user.email for user in final_users])
+
+
+
 # -------------- Common per object permission setter ------------------------
 class PermissionMixin:
 
@@ -186,7 +286,7 @@ class GenusAdmin(AjaxSelectAdmin):
     countobjs.short_description = _('Количество объектов в БД')
 
 
-class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
+class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
     model = HerbItem
     search_fields = ('id', 'itemcode', 'fieldid', 'collectedby', 'identifiedby',
                      'species__genus__name', 'species__name')
@@ -262,6 +362,13 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin):
         except (ValueError, TypeError):
             pass
         obj.save()
+        try:
+            # try to make a notification, and
+            # fail silently if something goes wrong!
+            self.make_notification(request, obj)
+        except:
+             pass
+
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super(HerbItemAdmin, self).get_readonly_fields(request, obj)
@@ -456,6 +563,26 @@ class HerbReplyAdmin(admin.ModelAdmin):
     species_edit_link.allow_tags = True
     species_edit_link.short_description = _('Запись')
 
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('created', 'username', 'status',
+                    'tracked_field', 'field_value', 'edit_link')
+    readonly_fields = ('username', 'emails', 'tracked_field', 'field_value')
+    list_filter = ('status', 'username')
+    search_fields = ('username', 'tracked_field', 'field_value')
+
+    def edit_link(self, obj):
+        resurl = '--'
+        if obj:
+            if obj.hitem:
+                url = reverse('admin:%s_%s_change' % ('herbs', 'herbitem'),
+                              args=[obj.hitem.id])
+                resurl = '<a href="%s" title="Редактировать запись">Запись %s</a>'  % (url, obj.hitem.id)
+        return resurl
+    edit_link.allow_tags = True
+    edit_link.short_description = _('Ссылка на объект')
+
+    def has_delete_permission(self, request, obj=None):
+         return request.user.is_superuser
 
 admin.site.register(Family, FamilyAdmin)
 admin.site.register(Genus, GenusAdmin)
@@ -465,4 +592,5 @@ admin.site.register(HerbAcronym)
 admin.site.register(Country)
 admin.site.register(Subdivision)
 admin.site.register(SpeciesSynonym)
+admin.site.register(Notification, NotificationAdmin)
 admin.site.register(HerbReply, HerbReplyAdmin)

@@ -393,6 +393,7 @@ class HerbItem(HerbItemMixin):
         permissions = (('can_set_publish', _('может публиковать и назначать код')),
                        ('can_see_additionals', _('видит дополнительные виды')),
                        ('can_set_code', _('может назначать гербарный код')),
+                       ('can_apply_bulk_changes', _('массовые изменения записей'))
                        )
 
     def get_absolute_url(self):
@@ -410,6 +411,7 @@ class HerbCounter(models.Model):
     herbitem = models.ForeignKey(HerbItem, null=True, blank=True,
                                  related_name='herbcounter')
     count = models.PositiveIntegerField(default=0)
+
 
 
 @python_2_unicode_compatible
@@ -436,3 +438,30 @@ class HerbReply(models.Model):
     class Meta:
         verbose_name = _('Сообщение об ошибке')
         verbose_name_plural = _('Сообщения об ошибках')
+
+
+@python_2_unicode_compatible
+class Notification(models.Model):
+    NOTE_STATUSES = (('Q', 'Quequed'),
+                     ('S', 'Sent')
+                     )
+    emails = models.TextField(default='', blank=True)
+    created = models.DateTimeField(auto_now_add=True, verbose_name=_('создан'))
+    status = models.CharField(max_length=1, choices=NOTE_STATUSES, default='Q',
+                              verbose_name=_('Статус'))
+    tracked_field = models.CharField(max_length=50, default='', blank=True,
+                                     verbose_name=_('Поле'))
+    field_value = models.TextField(default='', verbose_name=_('Значение'))
+    username = models.CharField(max_length=50, default='',
+                                verbose_name=_('Пользователь'))
+    hitem = models.ForeignKey(HerbItem, blank=True, null=True,
+                              editable=False)
+
+    def __str__(self):
+        return '|'.join(
+            [str(self.created), self.username])
+
+    class Meta:
+        verbose_name = _('Заметка')
+        verbose_name_plural = _('Заметки')
+        ordering = ['-created']
