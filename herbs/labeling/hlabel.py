@@ -745,6 +745,9 @@ class PDF_BRYOPHYTE(BARCODE):
                                 self.goto(self._ln))
                 self.pdf.set_font('DejaVu', '', self._sfs)
                 spaw = self.pdf.get_string_width(auth)
+                if iauth:
+                    auth = ''
+                    spaw = -2
 
                 # Smart confertum and affinis printing...
                 sp_decomposed = list(map(lambda x: x.strip(), sp.split()))
