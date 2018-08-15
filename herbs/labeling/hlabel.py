@@ -770,7 +770,6 @@ class PDF_BRYOPHYTE(BARCODE):
                     self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + sp_genus_w,
                                     self.goto(self._ln))
                     self.pdf.cell(0, 0, sp_sign)
-
                     self.pdf.set_font('DejaVubi', '', self._sfs)
                     sp_epithet_w = self.pdf.get_string_width(sp_epithet + ' ')
                     self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + sp_genus_w +\
@@ -778,9 +777,20 @@ class PDF_BRYOPHYTE(BARCODE):
                     self.pdf.cell(0, 0, sp_epithet)
                     spw = sp_epithet_w + sp_sign_w + sp_genus_w
                 else:
+                    sp_genus, sp_epithet = sp_decomposed[0], ' '.join(sp_decomposed[1:])
                     self.pdf.set_font('DejaVubi', '', self._sfs)
-                    spw = self.pdf.get_string_width(sp)
-                    self.pdf.cell(0, 0, sp)
+                    sp_genus_w = self.pdf.get_string_width(sp_genus + ' ')
+                    self.pdf.cell(0, 0, sp_genus)
+                    self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + sp_genus_w,
+                                    self.goto(self._ln))
+                    if sp_epithet == 'sp.': # FIXME: Move to external settings
+                        self.pdf.set_font('DejaVub', '', self._sfs)
+                        self.pdf.cell(0, 0, sp_epithet)
+                    else:
+                        self.pdf.set_font('DejaVubi', '', self._sfs)
+                        self.pdf.cell(0, 0, sp_epithet)
+                    spw = self.pdf.get_string_width(sp_epithet) + sp_genus_w
+
                 # --------- End of smart conf. and aff. printing...
 
                 if ir:
