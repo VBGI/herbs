@@ -784,7 +784,7 @@ class PDF_BRYOPHYTE(BARCODE):
                     self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + sp_genus_w,
                                     self.goto(self._ln))
                     if sp_epithet == 'sp.': # FIXME: Move to external settings
-                        self.pdf.set_font('DejaVub', '', self._sfs)
+                        self.pdf.set_font('DejaVu', '', self._sfs)
                         self.pdf.cell(0, 0, sp_epithet)
                     else:
                         self.pdf.set_font('DejaVubi', '', self._sfs)
