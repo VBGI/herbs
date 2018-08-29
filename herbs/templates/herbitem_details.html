@@ -1,4 +1,4 @@
-{%load  thumbnail i18n staticfiles herbs_tags %}
+{%load  thumbnail i18n l10n staticfiles herbs_tags %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -80,7 +80,7 @@
           {%if  curobj.species.infra_rank %}{{curobj.species.get_infra_rank_display}} <i>
             {{curobj.species.infra_epithet}}</i> {{curobj.species.infra_authorship}} {%endif%} </p>
           {%if curobj.short_note%}
-        <p>[{%trans "Примечание:" %} {{curobj.short_note|smart_language}}]</p>
+        <p>[{%trans "Примечание:" %} {{curobj.short_note|smart_language|sanitize|safe}}]</p>
           {%endif%}
         {%endif%}
 
@@ -88,13 +88,14 @@
       <p><strong>{%trans "Дополнительные виды" %}:</strong></p>
       <ul>
         {%for item in curobj.additionals.all%}
-        <li>{{item.identifiedby|force_translit}}: <i>{{item.get_basic_name|capfirst}}</i>  {{item.species.authorship}}
+          <!-- TODO: Identifiedby printing policy: update needed -->
+        <li>{%if item.identifiedby%}{{item.identifiedby|force_translit}}:{%endif%} <i>{{item.get_basic_name|capfirst}}</i>  {{item.species.authorship}}
           {%if  item.species.infra_rank %}{{item.species.get_infra_rank_display}} <i>{{item.species.infra_epithet}}</i> {{item.species.infra_authorship}}{%endif%} {%trans "Валидность"%}:
               {%if item.identified_s and item.identified_e%}{{item.identified_s}} &mdash; {{item.identified_e}}
               {%elif item.identified_s%} {%trans "с"%} {{item.identified_s}}
               {%elif item.identified_e%} {%trans "по"%} {{item.identified_e}}
               {%else%} {%trans "не задана"%}{%endif%}
-          {%if item.note%}[{%trans "Примечание" %}: {{item.note|smart_language}}]{%endif%}
+          {%if item.note%}[{%trans "Примечание" %}: {{item.note|smart_language|sanitize|safe}}]{%endif%}
           </li>
         {%endfor%}
       </ul>
@@ -107,26 +108,30 @@
        <div id="herbitem-map" style = "width: 90%; min-height: 300px;" data-lon = "{{curobj.coordinates.longitude|stringformat:"2.5f"}}", data-lat = "{{curobj.coordinates.latitude|stringformat:"2.5f" }}"></div>
        <script type="text/javascript">
           function initMap() {
-            var markerpos = document.querySelector('#herbitem-map')
-            var mpos = markerpos.dataset
-            var herbsLatLng = {lat: parseFloat(mpos.lat) , lng: parseFloat(mpos.lon)};
+             var herbsLatLng = {lat: {{curobj.latitude|unlocalize}},
+                                lng: {{curobj.longitude|unlocalize}}
+                                };
             var herbsMap = new google.maps.Map(document.getElementById('herbitem-map'), {
-              zoom: 4,
-              center: herbsLatLng});
-          var marker = new google.maps.Marker({
-          position: herbsLatLng,
-          map: herbsMap,
-          title: "{%trans 'Место сбора'%}"
-          });
-          }
+            zoom: 4,
+            center: herbsLatLng
+                });
+
+            var marker = new google.maps.Marker({
+                position: herbsLatLng,
+                map: herbsMap,
+                title: "{%trans 'Место сбора'%}"
+                });
+            }
         </script>
-        <script async defer src="//maps.googleapis.com/maps/api/js?signed_in=true&callback=initMap"></script>
+        <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_3-gteTrZllW9zGCes2o1HT9ylM6QRXk&callback=initMap">
+        </script>
         {%endif%}
 
       {%if curobj.country %}<p><strong>{%trans "Страна"%}:</strong>&nbsp;{{curobj.country|smart_language}}</p>{%endif%}
       {%if curobj.region %}<p><strong>{%trans "Регион"%}:</strong>&nbsp;{{curobj.region|smart_language|force_translit}}</p>{%endif%}
       {%if curobj.district %}<p><strong>{%trans "Район"%}:</strong>&nbsp;{{curobj.district|smart_language|force_translit}}</p>{%endif%}
-      {%if curobj.detailed %}<p><strong>{%trans "Дополнительно"%}:</strong>&nbsp;{{curobj.detailed|smart_language}}</p>{%endif%}
+      {%if curobj.detailed %}<p><strong>{%trans "Дополнительно"%}:</strong>&nbsp;{{curobj.detailed|smart_language|sanitize|safe}}</p>{%endif%}
       {%if curobj.altitude %}<p><strong>{%trans "Высота"%}:</strong>&nbsp;{{curobj.altitude|smart_language}}</p>{%endif%}
       {%if curobj.collectedby %}<p><strong>{%trans "Собрал(и)"%}:</strong>&nbsp;{{curobj.collectedby|force_translit}}</p>{%endif%}
       {%if curobj.colldate %}<p><strong>{%trans "Дата сбора"%}:</strong>&nbsp;{{curobj.collected_s}}{%if curobj.collected_e and curobj.collected_e != curobj.collected_s %} &mdash; {{curobj.collected_e}}{%endif%}</p>{%endif%}
@@ -138,15 +143,19 @@
       <ul>
         {%for item in curobj.dethistory.all%}
           {%if item.species %}
-        <li>{{item.identifiedby|force_translit}}:
+          <li>{{item.identifiedby|force_translit}}:
           <i>{{item.get_basic_name|capfirst}}</i>   {{item.species.authorship}}
           {%if  item.species.infra_rank %} {{item.species.get_infra_rank_display}} <i>{{item.species.infra_epithet}}</i> {{item.species.infra_authorship}} {%endif%}
-               {%if item.identified_s and item.identified_e%} ({{item.identified_s}} &mdash; {{item.identified_e}}) {%elif item.identified_s%} ({{item.identified_s}}) {%elif item.identified_e%} ({{item.identified_e}}){%else%}{%endif%}</li>
+               {%if item.identified_s and item.identified_e%} ({{item.identified_s}} &mdash; {{item.identified_e}}) {%elif item.identified_s%} ({{item.identified_s}}) {%elif item.identified_e%} ({{item.identified_e}}){%else%}{%endif%}
+          {%if item.note%}[{%trans "Примечание" %}: {{item.note|smart_language|sanitize|safe}}]{%endif%}
+          </li>
           {%endif%}
         {%endfor%}
       </ul>
       {%endif%}
-      {%if curobj.note %}<p><strong>{%trans "Примечание"%}:</strong>&nbsp;{{curobj.note|smart_language}}</p>{%endif%}
+      {%if curobj.note %}<p><strong>{%trans "Примечание"%}:</strong>&nbsp;
+       {{curobj.note|smart_language|sanitize|safe|add_point}}</p>
+      {%endif%}
 
       {% if curobj.has_images%}
       <hr>

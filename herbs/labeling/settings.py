@@ -5,7 +5,6 @@ import fpdf
 import os
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-print("PATH:", BASE_PATH)
 
 fpdf.set_global('FPDF_FONT_DIR', os.path.join(BASE_PATH, './fonts'))
 

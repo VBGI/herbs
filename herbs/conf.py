@@ -12,6 +12,9 @@ class HerbsAppConf(AppConf):
                             ('cf.', 'confertum')
                             )
 
+    # Allowed tags when the herbitem is showed
+    ALLOWED_TAGS = ('b', 'i')
+
     # Bulk changes settings
     ALLOWED_FOR_BULK_CHANGE = ('region', 'district', 'collectedby',
                                'identifiedby', 'detailed', 'note')

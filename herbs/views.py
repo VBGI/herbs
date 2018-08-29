@@ -670,7 +670,8 @@ def collect_label_data(q):
                         {
         'identifiedby': hist_obj.identifiedby,
         'identified': _smartify_dates(hist_obj, prefix='identified'),
-        'species': _sp_hist
+        'species': _sp_hist,
+        'note': hist_obj.note or ''
                         }
                                        )
 

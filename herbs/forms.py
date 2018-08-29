@@ -23,10 +23,10 @@ from six import with_metaclass
 
 # ---------- tinymce integration
 
-# try:
-#     from tinymce.widgets import TinyMCE
-# except ImportError:
-TinyMCE = None
+try:
+    from tinymce.widgets import TinyMCE
+except ImportError:
+    TinyMCE = None
 
 tinymce_fieldset = {
     'theme': 'advanced',
@@ -39,7 +39,14 @@ tinymce_fieldset = {
     'theme_advanced_text_colors' : "000000,ff0000,0000ff",
     'force_br_newlines': False,
     'force_p_newlines': False,
-    'forced_root_block' : ''
+    'forced_root_block' : '',
+    'formats': {
+                'bold': {'inline': 'b'},
+                'italic': {'inline': 'i'}
+                },
+    'invalid_elements' : "strong,em",
+    'valid_elements' : "b,i"
+
 }
 
 # ------------------------------
@@ -129,6 +136,12 @@ class HerbItemForm(with_metaclass(remove_spaces('collectedby',
         data = self.cleaned_data['identified_s']
         self._verify_dates(data)
         return data
+
+    def clean_note(self):
+        return self.cleaned_data['note'].replace('&nbsp;', ' ')
+
+    def clean_detailed(self):
+        return self.cleaned_data['detailed'].replace('&nbsp;', ' ')
 
     def clean_identified_e(self):
         data = self.cleaned_data['identified_e']

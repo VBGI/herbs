@@ -254,6 +254,8 @@ class DetHistory(models.Model, BasicNameMixin):
     significance = models.CharField(max_length=5, default='', null=True,
                                     blank=True, choices=SIGNIFICANCE,
                                     verbose_name=_('сходство'), help_text=_('степень сходства: aff. или cf.'))
+    note = models.CharField(max_length=300, blank=True, default='',
+                            verbose_name=_('примечение'))
     class Meta:
         verbose_name = _('переопределение')
         verbose_name_plural = _('переопределения')

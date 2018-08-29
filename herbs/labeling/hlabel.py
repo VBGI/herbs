@@ -113,6 +113,11 @@ class PDF_MIXIN(object):
         def strip_item(item):
             return [item[0].strip(), item[1], item[2]]
 
+        txt = txt.replace('&nbsp;', ' ')
+
+        if not txt.strip():
+            return
+
         parser = LabelParser()
         done = False
 
@@ -139,7 +144,7 @@ class PDF_MIXIN(object):
                     word_to_print = word
                     if 'post' in space_flag and ind == len(_splitted) - 1:
                         word_to_print += ' '
-                    elif 'pre' in space_flag and ind == 0: # REMOVED not lines[-1]
+                    if 'pre' in space_flag and ind == 0: # REMOVED not lines[-1]
                         word_to_print = ' ' + word_to_print
                     if len(_splitted) > 1 and ind != len(_splitted) - 1:
                         word_to_print += ' '
@@ -691,6 +696,18 @@ class PDF_BRYOPHYTE(BARCODE):
         b = (self.pdf.get_y() >= (DEFAULT_PAGE_HEIGHT - BARCODE_ITEM_HEIGHT - 11))
         return a and b
 
+    @staticmethod
+    def get_species_string(txt):
+        if not txt.strip(): return ''
+        sgns = [' ' + s[0] + ' ' for s in SIGNIFICANCE]
+        if any([j in txt for j in sgns]):
+            res = txt
+            for k in sgns:
+                if k in res:
+                    res = k.join(['<i>{}</i>'.format(x) for x in res.split(k)])
+            return res
+        return '<i>{}</i>'.format(txt)
+
     def generate_label(self, allspecies=[],
                        coldate='', latitude='', longitude='',
                        place='', country='', region='', collected='',
@@ -950,11 +967,12 @@ class PDF_BRYOPHYTE(BARCODE):
                             histline = translit(hist_item['identifiedby'], 'ru', reversed=True) + ': '
                             if hist_item['identified']:
                                 histline += '(' + hist_item['identified'] + ') '
-                            histline += ('<i>{}</i>'.format(hist_item['species']['species']) if hist_item['species']['species'] else '') + \
+                            histline += self.get_species_string(hist_item['species']['species']) + \
                             (' ' + hist_item['species']['spauth'] if hist_item['species']['spauth'] else '') + \
                             (' ' + hist_item['species']['infra_rank'] if hist_item['species']['infra_rank'] else '') +\
                             (' ' + '<i>{}</i>'.format(hist_item['species']['infra_epithet']) if hist_item['species']['infra_epithet'] else '') +\
-                            ' ' + hist_item['species']['infra_authorship']
+                            (' ' + hist_item['species']['infra_authorship'] if hist_item['species']['infra_authorship'] else '') +\
+                            (' Note: {}'.format(hist_item['note']) if hist_item['note'] else '')
                             histlines.append(histline)
                         _note +=  'ID history: ' + '; '.join(histlines)
                     if _note.strip():
@@ -1141,7 +1159,15 @@ if __name__ == '__main__':
                      'detdate': '13 Feb 2018 - 13 Feb 2018 -13 Feb 2018',
                      'district': 'Dirty place behind in the yard',
                      'gpsbased': 'True',
-                     'dethistory': [],
+                     'dethistory': [{'species': {'species' : 'Same cf. another',
+                                                 'spauth':'None',
+                                                 'infra_rank':'',
+                                                 'infra_epithet':'',
+                                                 'infra_authorship': ''},
+                                     'identifiedby': 'Dmitry',
+                                     'identified':None,
+                                     'note': 'restring'
+                                     }],
                      'type_status': 'HOLOTYPUS'}
         p = PDF_BRYOPHYTE()
         labels= []
@@ -1172,7 +1198,7 @@ if __name__ == '__main__':
 
     def test_smarty_cell():
         pdf = PDF_DOC()
-        pdf.smarty_print('s<b>a<i>m</i>p</b>le <i>t</i>ext <b>oa </b>' * 15, 20, left_position=20,
+        pdf.smarty_print('Lighted hummocky&nbsp;<i>Larix</i>&nbsp;forest.' * 5, 20, left_position=20,
                      first_indent=30, right_position=100)
         pdf.create_file('sm.pdf')
 
