@@ -4,6 +4,7 @@
 from .settings import *
 import tempfile
 import qrcode
+from bs4 import BeautifulSoup
 
 try:
     from HTMLParser import HTMLParser
@@ -66,6 +67,7 @@ def lon_repr(longitude):
 
 
 class LabelParser(HTMLParser, object):
+
     def __init__(self, *args, **kwargs):
         self._stack_ = ['']
         self._data_ = []
@@ -79,6 +81,9 @@ class LabelParser(HTMLParser, object):
             self._stack_.reverse()
             self._stack_.remove(tag)
             self._stack_.reverse()
+
+    def handle_entityref(self, name):
+        self._data_.append((BeautifulSoup('&' + name + ';', 'html.parser').text, ''.join(self._stack_)))
 
     def handle_data(self, data):
         self._data_.append((data, ''.join(self._stack_)))

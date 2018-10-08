@@ -1157,7 +1157,7 @@ if __name__ == '__main__':
                      'fieldid': 'fox-3',
                      'acronym': 'VBGI',
                      'institute': 'Botanical Garden Institute',
-                     'note': 'Th<ig>is</ig> spe<b>ciem</b>en <i>never</i> <i>been</i> collected, be アプリ明朝 '*2,
+                     'note': 'Th<ig>is</ig> spe<b>ciem</b>en Cordillera Talamanca, Refugio Nacional de Fauna Silvestre Tapanti, Sendero "Natural Arboles Ca&iacute;dos"',
                      'detdate': '13 Feb 2018 - 13 Feb 2018 -13 Feb 2018',
                      'district': 'Dirty place behind in the yard',
                      'gpsbased': 'True',
