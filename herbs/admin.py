@@ -414,8 +414,11 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                 readonly_fields.remove('itemcode')
 
         if request.user.is_superuser:
-            readonly_fields.remove('acronym')
-            readonly_fields.remove('subdivision')
+            if 'subdivision' in readonly_fields:
+                readonly_fields.remove('subdivision')
+            if 'acronym' in readonly_fields:
+               readonly_fields.remove('acronym')
+
         return list(readonly_fields)
 
     def get_inline_instances(self, request, obj=None):
