@@ -51,7 +51,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Электронный гербарий'
-copyright = '2017, Dmitry E. Kislov'
+copyright = '2018, Dmitry E. Kislov'
 author = 'Dmitry E. Kislov'
 
 # The version info for the project you're documenting, acts as replacement for
