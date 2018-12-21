@@ -53,6 +53,25 @@ publish_herbitem.short_description = _(u"Опубликовать записи")
 unpublish_herbitem.short_description = _(u"Снять с публикации")
 # ---------------------------------------------------------------------------
 
+# --------------- Auxiliary getting functions -------------------------------
+
+def get_subdivision_or_none(request):
+    subquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
+    if not subquery.exists():
+        return None
+    else:
+        return subquery[0]
+
+def get_acronym_or_none(request):
+    query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
+    if not query.exists():
+        return None
+    else:
+        return query[0]
+
+# ---------------------------------------------------------------------------
+
+
 
 # --------------- Create Pdf actions ----------------------------------------
 
@@ -95,16 +114,18 @@ class HerbItemCustomListFilter(SimpleListFilter):
     parameter_name = 'user'
 
     def lookups(self, request, model_admin):
-        query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
         res = []
-        umodel = get_user_model()
-        for item in map(lambda s: s.strip(), query[0].allowed_users.split(',')):
-            try:
-                uinstance = umodel.objects.get(username__iexact=item)
-                res.append((uinstance.id, uinstance.username))
-            except umodel.DoesNotExist:
-                pass
+        acronym = get_acronym_or_none(request)
+        if acronym:
+            umodel = get_user_model()
+            for item in map(lambda s: s.strip(), acronym.allowed_users.split(',')):
+                try:
+                    uinstance = umodel.objects.get(username__iexact=item)
+                    res.append((uinstance.id, uinstance.username))
+                except umodel.DoesNotExist:
+                    pass
         return tuple(res)
+
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(user__id__exact=self.value())
@@ -216,31 +237,31 @@ class PermissionMixin:
     def queryset(self, request):
         if request.user.is_superuser:
             return self.model.objects.all()
-        query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
-        if  request.user.has_perm('herbs.can_set_publish'):
-            subquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
-            if query.exists() and subquery.exists():
+        acronym = get_acronym_or_none(request)
+        if request.user.has_perm('herbs.can_set_publish'):
+            subdivision = get_subdivision_or_none(request)
+            if acronym and subdivision:
                 if hasattr(self.model, 'acronym'):
-                    return self.model.objects.filter(acronym__name__iexact=query[0].name,
-                                                     subdivision=subquery[0])
-            elif query.exists():
+                    return self.model.objects.filter(acronym__name__iexact=acronym.name,
+                                                     subdivision=subdivision)
+            elif acronym:
                 if hasattr(self.model, 'acronym'):
-                    return self.model.objects.filter(acronym__name__iexact=query[0].name)
+                    return self.model.objects.filter(acronym__name__iexact=acronym.name)
         return self.model.objects.filter(user=request.user)
 
     def _common_permission_manager(self, request, obj):
         if request.user.is_superuser: return True
-        query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
-        subquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
+        acronym = get_acronym_or_none(request)
+        subdivision = get_subdivision_or_none(request)
         if obj is None: return True
         if obj.user is not None:
             if request.user == obj.user: return True
         if request.user.has_perm('herbs.can_set_publish'):
-            if query.exists() and subquery.exists():
-                if obj.subdivision.pk == subquery[0].pk and obj.acronym.pk == query[0].pk:
+            if acronym and subdivision:
+                if obj.subdivision.pk == subdivision.pk and obj.acronym.pk == acronym.pk:
                     return True
-            elif query.exists():
-                if obj.acronym.pk == query[0].pk: return True
+            elif acronym:
+                if obj.acronym.pk == acronym.pk: return True
             else: return False
         else:
             return False
@@ -331,18 +352,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
 
     def save_model(self, request, obj, form, change):
         if not request.user.is_superuser:
-            query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
-            if query.exists():
-               acronym = query[0]
-            else:
-                acronym = None
+            acronym = get_acronym_or_none(request)
             if not obj.acronym:
                 obj.acronym = acronym
-            subdquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
-            if subdquery.exists():
-                subd = subdquery[0]
-            else:
-                subd = None
+            subd = get_subdivision_or_none(request)
             if not obj.subdivision:
                 obj.subdivision = subd
         if not obj.user:
@@ -382,6 +395,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                     readonly_fields.remove('public')
                 return readonly_fields
 
+
         if request.user.has_perm('herbs.can_set_publish'):
             if 'public' in readonly_fields:
                 readonly_fields.remove('public')
@@ -389,6 +403,12 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                 readonly_fields.remove('itemcode')
             if 'type_status' in readonly_fields:
                 readonly_fields.remove('type_status')
+
+            # check if the user has curator rights for acronym
+            if get_subdivision_or_none(request) is None:
+                if 'subdivision' in readonly_fields:
+                    readonly_fields.remove('subdivision')
+
         elif request.user.has_perm('herbs.can_set_code'):
             if 'itemcode' in readonly_fields:
                 readonly_fields.remove('itemcode')
@@ -535,10 +555,10 @@ class HerbReplyAdmin(admin.ModelAdmin):
             return list(readonly_fields)
 
         elif request.user.has_perm('herbs.can_set_publish'):
-            query = HerbAcronym.objects.filter(allowed_users__icontains=request.user.username)
-            if query.exists() and obj:
+            acronym = get_acronym_or_none(request)
+            if acronym and obj:
                 if obj.herbitem:
-                    if query[0] == obj.herbitem.acronym:
+                    if acronym == obj.herbitem.acronym:
                         readonly_fields = readonly_fields.union({'email', 'description', 'herbitem'})
                         return list(readonly_fields)
         else:
