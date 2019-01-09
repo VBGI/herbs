@@ -113,6 +113,11 @@ class PDF_MIXIN(object):
         def strip_item(item):
             return [item[0].strip(), item[1], item[2]]
 
+
+        def get_word_width(word, font_style, font_size ):
+            self.pdf.set_font(self.choose_font(font_style),  word, font_size)
+            return self.pdf.get_string_width(word)
+
         txt = txt.replace('&nbsp;', ' ')
 
         if not txt.strip():
@@ -126,20 +131,30 @@ class PDF_MIXIN(object):
         else:
             ypos = self.pdf.get_y() + lh / 2.0
 
-        while not done:
+        while not done: # Font chooser loop...
             parser.feed(txt)
             line_number = 0
             lines = [[]]
             cline_width = 0
             for item in parser.parsed:
-                _splitted = item[0].split() or ([' '] if item[0][:1] == ' ' else [])
-                space_flag = '' + ('post' if item[0][-1] == ' ' else '') + \
-                             ('pre' if item[0][0] == ' ' else '')
-                for ind, word in enumerate(_splitted):
-                    if line_number == 0:
+                # Should be moved somewhere... 
+                if line_number == 0:
                         allowed_line_length = right_position - left_position - first_indent
                     else:
                         allowed_line_length = right_position - left_position
+                
+                ww = get_word_width(item[0])
+                if ww <= allowed_line_length:
+                    lines.append((item[0], ww, item[-1]))
+                else:
+                    splitted = item[0].split()
+                    
+                    # split the word/item into parts
+
+
+
+                for ind, word in enumerate(_splitted):
+                    
 
                     word_to_print = word
                     if 'post' in space_flag and ind == len(_splitted) - 1:
