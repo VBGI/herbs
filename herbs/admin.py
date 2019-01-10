@@ -310,7 +310,8 @@ class GenusAdmin(AjaxSelectAdmin):
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
     model = HerbItem
     search_fields = ('id', 'itemcode', 'fieldid', 'collectedby', 'identifiedby',
-                     'species__genus__name', 'species__name')
+                     'species__genus__name', 'species__name', 'note', 
+                     'region', 'district', 'detailed')
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, create_barcodes,
                create_pdf_envelope, 'delete_selected')
     exclude = tuple()
