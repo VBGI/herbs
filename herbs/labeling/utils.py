@@ -104,10 +104,15 @@ class Word:
     def width(self, font_size):
         w = 0
         for item in self.data:
-            self.pdf_driver.set_font(self.pdf_driver.choose_font(item[-1]), item[0], font_size)
+            self.pdf_driver.pdf.set_font(self.pdf_driver.choose_font(item[-1]), item[0], font_size)
             w += self.pdf_driver.pdf.get_string_width(item[0])
         return w
 
-    def print(self):
-        raise NotImplementedError
-
+    def render(self, xpos, ypos, font_size):
+        xpos = xpos
+        for item in self.data:
+            self.pdf_driver.pdf.set_xy(xpos, ypos)
+            self.pdf_driver.pdf.set_font(self.pdf_driver.choose_font(item[-1]), item[0], font_size)
+            self.pdf_driver.pdf.cell(0, 0, item[0])
+            xpos += self.pdf_driver.pdf.get_string_width(item[0])
+        return xpos

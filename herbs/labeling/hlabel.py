@@ -114,7 +114,7 @@ class PDF_MIXIN(object):
         def strip_item(item):
             return [item[0].strip(), item[1], item[2]]
 
-        txt = txt.replace('&nbsp;', ' ')
+        txt = txt.replace('&nbsp;', ' ').replace('\n', ' ')
 
         if not txt.strip():
             return
@@ -128,15 +128,16 @@ class PDF_MIXIN(object):
             ypos = self.pdf.get_y() + lh / 2.0
 
         # -------- Splitting the text by words ----------
-        stack = list(parser.feed(txt).parsed)
+        parser.feed(txt)
+        stack = list(parser.parsed)[::-1]
         words = [[]]
         while stack:
             item = stack.pop()
             for l in item[0]:
-                if l != ' ' and l != '\n':
+                if l != ' ':
                     words[-1].append((l, item[-1]))
                 else:
-                    word.append([])
+                    words.append([])
 
         # simplify words
         prepared_words = []
@@ -145,13 +146,14 @@ class PDF_MIXIN(object):
             for s, wc in groupby(w, lambda x: x[1]):
                 word = ''
                 for j in wc:
-                    word += j
+                    word += j[0]
                 prepared_word.append((word, s))
             prepared_words.append(Word(prepared_word, self))
 
         # -----------------------------------------------
+        prepared_words = filter(lambda x: x.data, prepared_words)
 
-        while not done: # Font chooser loop...
+        while not done:
             line_number = 0
             lines = [[]]
             cline_width = 0
@@ -180,33 +182,15 @@ class PDF_MIXIN(object):
             else:
                 done = True
 
-        # printing the content: TODO: Not revisited yet!
         xpos = left_position + first_indent
         for indl, line in enumerate(lines):
-            preset = []
-            for ind, item in enumerate(line):
-                if ind == 0:
-                    preset.append(strip_item(item))
-                    if item[0].endswith(' '):
-                        preset.append(' ')
-                elif ind == len(line) - 1:
-                    if item[0].startswith(' '):
-                        preset.append(' ')
-                    preset.append(strip_item(item))
-                else:
-                    if item[0].startswith(' '):
-                        preset.append(' ')
-                    preset.append(strip_item(item))
-                    if item[0].endswith(' '):
-                        preset.append(' ')
-
-            n_spaces = preset.count(' ')
-
+            n_spaces = len(line)
             if indl == 0:
                 allowed_line_length = right_position - left_position - first_indent
             else:
                 allowed_line_length = right_position - left_position
-            cum_width = sum(map(lambda x: x[1], filter(lambda x: isinstance(x, list), preset)))
+
+            cum_width = sum(map(lambda x: x.width(font_size), line))
 
             if n_spaces:
                 sep_w = (allowed_line_length - cum_width) / float(n_spaces)
@@ -214,18 +198,13 @@ class PDF_MIXIN(object):
                 sep_w = 0
 
             if indl == len(lines) - 1:
-                self.pdf.set_font(preset[0][-1], '', font_size)
+                self.pdf.set_font(self.choose_font(''), '', font_size)
                 sep_w = self.pdf.get_string_width(' ')
 
+            for word in line:
+                xpos = word.render(xpos, ypos, font_size)
+                xpos += sep_w
 
-            for item in preset:
-                if isinstance(item, list):
-                    self.pdf.set_font(item[-1], item[0], font_size)
-                    self.pdf.set_xy(xpos, ypos)
-                    self.pdf.cell(0, 0, item[0])
-                    xpos += item[1]
-                else:
-                    xpos += sep_w
             ypos += lh
             xpos = left_position
         self.pdf.set_y(ypos - lh / 2.0)
@@ -1216,11 +1195,11 @@ if __name__ == '__main__':
 
     def test_smarty_cell():
         pdf = PDF_DOC()
-        pdf.smarty_print('Lighted hummocky&nbsp;<i>Larix</i>&nbsp;forest.' * 5, 20, left_position=20,
+        pdf.smarty_print('Lighted hummocky&nbsp;<i>Larix</i>&nbsp; forest.\n (<i>jkl</i>)not a number' * 5, 20, left_position=20,
                      first_indent=30, right_position=100)
         pdf.create_file('sm.pdf')
 
-    test_bryophyte()
+    test_smarty_cell()
 
 
 
