@@ -91,3 +91,23 @@ class LabelParser(HTMLParser, object):
     @property
     def parsed(self):
         return self._data_
+
+class Word:
+    """
+    An abstract element that can be safely printed
+    """
+
+    def __init__(self, data, pdf_driver):
+        self.data = data
+        self.pdf_driver = pdf_driver
+    
+    def width(self, font_size):
+        w = 0
+        for item in self.data:
+            self.pdf_driver.set_font(self.pdf_driver.choose_font(item[-1]), item[0], font_size)
+            w += self.pdf_driver.pdf.get_string_width(item[0])
+        return w
+
+    def print(self):
+        raise NotImplementedError
+

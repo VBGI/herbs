@@ -4,6 +4,7 @@
 from .settings import *
 from .utils import *
 from PIL import Image
+from itertools import groupby
 
 if __name__ == '__main__':
     from transliterate import translit
@@ -113,11 +114,6 @@ class PDF_MIXIN(object):
         def strip_item(item):
             return [item[0].strip(), item[1], item[2]]
 
-
-        def get_word_width(word, font_style, font_size ):
-            self.pdf.set_font(self.choose_font(font_style),  word, font_size)
-            return self.pdf.get_string_width(word)
-
         txt = txt.replace('&nbsp;', ' ')
 
         if not txt.strip():
@@ -131,55 +127,60 @@ class PDF_MIXIN(object):
         else:
             ypos = self.pdf.get_y() + lh / 2.0
 
+        # -------- Splitting the text by words ----------
+        stack = list(parser.feed(txt).parsed)
+        words = [[]]
+        while stack:
+            item = stack.pop()
+            for l in item[0]:
+                if l != ' ' and l != '\n':
+                    words[-1].append((l, item[-1]))
+                else:
+                    word.append([])
+
+        # simplify words
+        prepared_words = []
+        for w in words:
+            prepared_word = []
+            for s, wc in groupby(w, lambda x: x[1]):
+                word = ''
+                for j in wc:
+                    word += j
+                prepared_word.append((word, s))
+            prepared_words.append(Word(prepared_word, self))
+
+        # -----------------------------------------------
+
         while not done: # Font chooser loop...
-            parser.feed(txt)
             line_number = 0
             lines = [[]]
             cline_width = 0
-            for item in parser.parsed:
-                # Should be moved somewhere... 
+            for word in prepared_words:
+
                 if line_number == 0:
                         allowed_line_length = right_position - left_position - first_indent
-                    else:
+                else:
                         allowed_line_length = right_position - left_position
                 
-                ww = get_word_width(item[0])
-                if ww <= allowed_line_length:
-                    lines.append((item[0], ww, item[-1]))
+                ww = word.width(font_size)
+                
+                if cline_width + ww <= allowed_line_length:
+                    lines[-1].append(word)
+                    cline_width += ww
                 else:
-                    splitted = item[0].split()
-                    
-                    # split the word/item into parts
-
-
-
-                for ind, word in enumerate(_splitted):
-                    
-
-                    word_to_print = word
-                    if 'post' in space_flag and ind == len(_splitted) - 1:
-                        word_to_print += ' '
-                    if 'pre' in space_flag and ind == 0: # REMOVED not lines[-1]
-                        word_to_print = ' ' + word_to_print
-                    if len(_splitted) > 1 and ind != len(_splitted) - 1:
-                        word_to_print += ' '
-                    self.pdf.set_font(self.choose_font(item[-1]),
-                                      word_to_print, font_size)
-                    current_width = self.pdf.get_string_width(word_to_print)
-                    cline_width += current_width
-                    if (cline_width > allowed_line_length) and lines[-1]:
-                        lines.append([])
-                        cline_width = current_width
-                        line_number += 1
-                    lines[-1].append((word_to_print,
-                                      self.pdf.get_string_width(word_to_print.strip()),
-                                      self.choose_font(item[-1])))
+                    lines.append(list())
+                    lines[-1].append(word)
+                    cline_width = ww
+                    line_number += 1
+            
             if font_size < 2:
                 done = True
             if line_number > line_nums and force:
                 font_size -= 1
             else:
                 done = True
+
+        # printing the content: TODO: Not revisited yet!
         xpos = left_position + first_indent
         for indl, line in enumerate(lines):
             preset = []
