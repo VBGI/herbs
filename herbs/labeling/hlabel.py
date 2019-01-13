@@ -164,7 +164,7 @@ class PDF_MIXIN(object):
                 else:
                         allowed_line_length = right_position - left_position
                 
-                ww = word.width(font_size)
+                ww = word.width(font_size) + 1
                 
                 if cline_width + ww <= allowed_line_length:
                     lines[-1].append(word)
