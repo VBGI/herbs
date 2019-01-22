@@ -144,10 +144,9 @@ class PDF_MIXIN(object):
         for w in words:
             prepared_word = []
             for s, wc in groupby(w, lambda x: x[1]):
-                word = ''
-                for j in wc:
-                    word += j[0]
-                prepared_word.append((word, s))
+                word = ''.join(map(lambda x: x[0], wc))
+                if word.strip():
+                    prepared_word.append((word, s))
             prepared_words.append(Word(prepared_word, self))
 
         # -----------------------------------------------
