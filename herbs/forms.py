@@ -45,7 +45,7 @@ tinymce_fieldset = {
                 'italic': {'inline': 'i'}
                 },
     'invalid_elements' : "strong,em",
-    'valid_elements' : "b,i"
+    'valid_elements' : "b,i,sub,sup"
 
 }
 
