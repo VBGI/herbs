@@ -13,6 +13,7 @@ if __name__ == '__main__':
     SIGNIFICANCE = (('aff.', 'affinis'),
                     ('cf.', 'confertum')
                     )
+    SPECIES_ABBR = 'sp.'
     settings = None # mocking for testing ...
 else:
     from django.conf import settings
@@ -98,12 +99,12 @@ class PDF_MIXIN(object):
     def choose_font(fs='', sample=''):
         if fs == '':
             return 'DejaVu'
-        elif fs == 'i':
-            return 'DejaVui'
-        elif fs == 'b':
-            return 'DejaVub'
-        elif fs == 'bi' or fs == 'ib':
+        elif 'bi' in fs or 'ib' in fs:
             return 'DejaVubi'
+        elif 'i' in fs:
+            return 'DejaVui'
+        elif 'b' in fs:
+            return 'DejaVub'  
         else:
             return 'DejaVu'
 
@@ -745,197 +746,46 @@ class PDF_BRYOPHYTE(BARCODE):
                 self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
                 self.pdf.cell(0, 0, type_status)
                 self.pdf.set_text_color(0, 0, 0)
-                self._ln += 1
-
+            self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN, self.goto(self._ln))
             addinfo = []
             addind = 1
             mainind = 0
             for sp, auth, ir, iep, iauth, _note in allspecies:
+                html_sp = ''
                 mainind += 1
-                self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
-                                self.goto(self._ln))
-                self.pdf.set_font('DejaVu', '', self._sfs)
-                spaw = self.pdf.get_string_width(auth)
-                if iauth:
-                    auth = ''
-                    spaw = -2
-
+              
                 # Smart confertum and affinis printing...
                 sp_decomposed = list(map(lambda x: x.strip(), sp.split()))
                 if len(sp_decomposed) == 1:
-                    self.pdf.set_font('DejaVubi', '', self._sfs)
-                    spw = self.pdf.get_string_width(sp)
-                    self.pdf.cell(0, 0, sp)
+                    sp_genus, sp_sign, sp_epithet = sp, '', ''
                 elif sp_decomposed[1] in list(map(lambda x: x[0], SIGNIFICANCE)):
                     try:
                         sp_genus, sp_sign, sp_epithet = sp_decomposed[:3]
                     except ValueError:
                         sp_genus, sp_sign, sp_epithet = '', '', ''
-
-                    self.pdf.set_font('DejaVubi', '', self._sfs)
-                    sp_genus_w = self.pdf.get_string_width(sp_genus + ' ')
-                    self.pdf.cell(0, 0, sp_genus)
-
-                    self.pdf.set_font('DejaVu', '', self._sfs)
-                    sp_sign_w = self.pdf.get_string_width(sp_sign + ' ')
-                    self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + sp_genus_w,
-                                    self.goto(self._ln))
-                    self.pdf.cell(0, 0, sp_sign)
-                    self.pdf.set_font('DejaVubi', '', self._sfs)
-                    sp_epithet_w = self.pdf.get_string_width(sp_epithet + ' ')
-                    self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + sp_genus_w +\
-                                    sp_sign_w, self.goto(self._ln))
-                    self.pdf.cell(0, 0, sp_epithet)
-                    spw = sp_epithet_w + sp_sign_w + sp_genus_w
                 else:
-                    sp_genus, sp_epithet = sp_decomposed[0], ' '.join(sp_decomposed[1:])
-                    self.pdf.set_font('DejaVubi', '', self._sfs)
-                    sp_genus_w = self.pdf.get_string_width(sp_genus + ' ')
-                    self.pdf.cell(0, 0, sp_genus)
-                    self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + sp_genus_w,
-                                    self.goto(self._ln))
-                    if sp_epithet == 'sp.': # FIXME: Move to external settings
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.cell(0, 0, sp_epithet)
+                    sp_genus, sp_sign, sp_epithet = sp_decomposed[0], '', ' '.join(sp_decomposed[1:])
+                
+                html_sp += "<b><i>{}</i></b>".format(sp_genus)
+                if sp_sign:
+                    html_sp += " {}".format(sp_sign)
+                if sp_epithet:
+                    if sp_epithet == SPECIES_ABBR:
+                        html_sp += " {}".format(sp_epithet)
                     else:
-                        self.pdf.set_font('DejaVubi', '', self._sfs)
-                        self.pdf.cell(0, 0, sp_epithet)
-                    spw = self.pdf.get_string_width(sp_epithet) + sp_genus_w
+                        html_sp += " <b><i>{}</i></b>".format(sp_epithet)
 
-                # --------- End of smart conf. and aff. printing...
+                if auth and not iauth:
+                    html_sp += " {}".format(auth)
 
                 if ir:
-                    self.pdf.set_font('DejaVu', '', self._sfs)
-                    irw = self.pdf.get_string_width(ir)
-                    iauthw = self.pdf.get_string_width(iauth)
-                    self.pdf.set_font('DejaVubi', '', self._sfs)
-                    iepw = self.pdf.get_string_width(iep)
+                    html_sp += " {}".format(ir)
 
-                    if spw + 2 + spaw > label_width:
-                        self._ln += 1
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
-                                        self.goto(self._ln))
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.cell(0, 0, auth)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spaw + 2,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, ir)
-                        self.pdf.set_font('DejaVubi', '', self._sfs)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spaw + irw + 4,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, iep)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spaw + irw + iepw + 6,
-                                        self.goto(self._ln))
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.cell(0, 0, iauth)
-                        cur_cell_width = spaw + irw + iepw + 6 + iauthw
-                    elif spw + 2 + spaw + irw > label_width:
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
-                                        self.goto(self._ln))
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.cell(0, 0, auth)
-                        self._ln += 1
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, ir)
-                        self.pdf.set_font('DejaVubi', '', self._sfs)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + irw + 2,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, iep)
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + irw + iepw + 4,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, iauth)
-                        cur_cell_width = irw + 4 + iepw + iauthw
-
-                    elif spw + 2  + spaw + irw + iepw > label_width:
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
-                                        self.goto(self._ln))
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.cell(0, 0, auth)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + spaw + 4,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, ir)
-
-                        self._ln += 1
-
-                        self.pdf.set_font('DejaVubi', '', self._sfs)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, iep)
-
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + iepw + 2,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, iauth)
-                        cur_cell_width = 2 + iepw + iauthw
-
-                    elif spw + 4 + spaw + irw + iepw + iauthw > label_width:
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
-                                        self.goto(self._ln))
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.cell(0, 0, auth)
-
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + spaw + 4,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, ir)
-
-                        self.pdf.set_font('DejaVubi', '', self._sfs)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + spaw + 6 + irw,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, iep)
-
-                        self._ln += 1
-
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, iauth)
-                        cur_cell_width = iauthw
-
-                    else:
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
-                                        self.goto(self._ln))
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.cell(0, 0, auth)
-
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + spaw + 4,
-                                        self.goto(self._ln))
-                        self.pdf.cell(0, 0, ir)
-                        self.pdf.set_font('DejaVubi', '', self._sfs)
-                        self.pdf.set_xy(
-                            BRYOPHYTE_LEFT_MARGIN + spw + spaw + 6 + irw,
-                            self.goto(self._ln))
-                        self.pdf.cell(0, 0, iep)
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.set_xy(
-                            BRYOPHYTE_LEFT_MARGIN + spw + spaw + 8 + irw + iepw,
-                            self.goto(self._ln))
-                        self.pdf.cell(0, 0, iauth)
-                        cur_cell_width = spw + 8 + irw +iepw + spaw + iauthw
-                else:
-                    self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN + spw + 2,
-                                self.goto(self._ln))
-                    fline = []
-                    sline = []
-                    if spaw + spw + 2 > label_width:
-                        for word in auth.split():
-                            if self.pdf.get_string_width(' '.join(fline + [word])) + spw + 2 <= label_width:
-                                fline.append(word)
-                            else:
-                                sline.append(word)
-                    else:
-                        fline = auth.split()
-                    self.pdf.set_font('DejaVu', '', self._sfs)
-                    self.pdf.cell(0, 0, ' '.join(fline))
-                    cur_cell_width = spw + 2 + self.pdf.get_string_width(' '.join(fline))
-                    if sline:
-                        self._ln += 1
-                        self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
-                                        self.goto(self._ln))
-                        self.pdf.set_font('DejaVu', '', self._sfs)
-                        self.pdf.cell(0, 0, ' '.join(sline))
-                        cur_cell_width = self.pdf.get_string_width(' '.join(sline))
+                    if iep:
+                        html_sp += " <b><i>{}</i></b>".format(iep)
+                    
+                    if iauth:
+                        html_sp += " {}".format(iauth)
 
                 if _note or (dethistory and mainind == 1) or len(identifiedby) > 1:
                     _note = _note.strip()
@@ -972,21 +822,20 @@ class PDF_BRYOPHYTE(BARCODE):
                             histlines.append(histline)
                         _note +=  'ID history: ' + '; '.join(histlines)
                     if _note.strip():
-                        self.pdf.set_font('DejaVu', '', self._nnfs)
-                        _y = self.pdf.get_y()
-                        _x = self.pdf.get_x()
-                        self.pdf.set_xy(
-                            BRYOPHYTE_LEFT_MARGIN + cur_cell_width + 1,
-                            _y - 1)
-                        self.pdf.cell(0, 0, '(' + str(addind) + ')')
+                        html_sp += "<sup>({})</sup>".format(addind)
                         addinfo.append([addind, _note.strip()])
                         addind += 1
-                        self.pdf.set_xy(_x, _y)
-                self._ln += 1
+
+                self.smarty_print(html_sp, self._lh,
+                                  left_position=BRYOPHYTE_LEFT_MARGIN,
+                                  first_indent=0,
+                                  right_position=BRYOPHYTE_LEFT_MARGIN + label_width,
+                                  font_size=self._sfs)
+
+                #self._ln += 1
 
             self.pdf.set_font('DejaVu', '', self._sfs)
-            self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN,
-                            self.goto(self._ln))
+            #self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN, self.goto(self._ln))
 
             if collected:
                 leg_info = 'Leg. ' + translit(collected, 'ru', reversed=True)
@@ -1023,8 +872,6 @@ class PDF_BRYOPHYTE(BARCODE):
                                 self._lh, smartify_language(country, lang='en'))
             self.pdf.set_font('DejaVu', '', self._sfs)
 
-
-
             pos_info = '. '.join([x.strip() for x in [smartify_language(region, lang='en'),
                                                smartify_language(district, lang='en'),
                                                latlon_info] if x])
@@ -1037,9 +884,6 @@ class PDF_BRYOPHYTE(BARCODE):
                               right_position=BRYOPHYTE_LEFT_MARGIN + label_width,
                               font_size=self._sfs)
 
-            # TODO: Comments should be removed !
-            # self.pdf.multi_cell(label_width -
-            #                     BRYOPHYTE_MARGIN_EXTRA, self._lh, pos_info)
             if note.strip():
                 if note.strip()[-1] == '.':
                     _aux = ' '
@@ -1059,11 +903,7 @@ class PDF_BRYOPHYTE(BARCODE):
                               right_position=BRYOPHYTE_LEFT_MARGIN + label_width,
                               font_size=self._sfs)
 
-            # TODO: Comments should be removed!
-            # self.pdf.multi_cell(label_width -
-            #                     BRYOPHYTE_MARGIN_EXTRA, self._lh, main_info)
-
-            # check if the block above is overlapped with the barcode
+            # check if block overlapped with the barcode
             if self.pdf.get_y() >= (DEFAULT_PAGE_HEIGHT - BARCODE_ITEM_HEIGHT - 11):
                 resize_required.append(True)
 
@@ -1108,12 +948,9 @@ class PDF_BRYOPHYTE(BARCODE):
                                       first_indent=0,
                                       right_position=BRYOPHYTE_LEFT_MARGIN + label_width - 4,
                                       font_size=self._nfs)
-                    # TODO: Comments should be removed;
-                    # self.pdf.multi_cell(label_width - 4,
-                    #                     self._lh * 0.6, _note)
+
                     _y = self.pdf.get_y()
                     _y += 3
-
 
             if ((self.pdf.get_y() < DEFAULT_PAGE_HEIGHT) or (self._sfs < BRYOPHYTE_MIN_FSIZE)) and not any(resize_required):
                 done = True
@@ -1134,24 +971,23 @@ class PDF_BRYOPHYTE(BARCODE):
 
 if __name__ == '__main__':
     def test_bryophyte():
-        test_pars = {'allspecies': [('Genus specimen%s'%x, 'auth%s'%x, 'subsp%s'%x,
-                                     'long_subspecies_name%s'%x, 'iauthorhip%s'%x, '<i>Note</i> what about <b>sdf</b> '*7)
-                         for x in map(str, range(3))],
+        test_pars = {'allspecies': [('Genus cf. species', 'Hidden authorship', 'subsp.',
+                                     'subsp_epithet', 'Author_iep ex. et this torrent badguy', 'This is note... simple')] * 3,
                      'coldate': '20 Jul 2000',
                      'latitude': '12.1232',
                      'longitude': '-43.243212',
-                     'place': 'Unknown  은신문',
+                     'place': 'Unknown  place on the Earth',
                      'country': 'Russia',
                      'region': 'Just test data',
                      'collected': '12 Jan 2018',
                      'altitude': '1100',
-                     'identifiedby': ['Kislov', 'Firsov', 'Anotonov'],
+                     'identifiedby': ['Kislov']*3,
                      'number': '12315',
                      'itemid': '144',
                      'fieldid': 'fox-3',
                      'acronym': 'VBGI',
                      'institute': 'Botanical Garden Institute',
-                     'note': 'Th<ig>is</ig> spe<b>ciem</b>en Cordillera Talamanca, Refugio Nacional de Fauna Silvestre Tapanti, Sendero "Natural Arboles Ca&iacute;dos"',
+                     'note': 'Th<ig>is</ig> spe<b>ci<i>em</i></b>en Cordillera Talamanca, Refugio Nacional de Fauna Silvestre Tapanti, Sendero "Natural Arboles Ca&iacute;dos"',
                      'detdate': '13 Feb 2018 - 13 Feb 2018 -13 Feb 2018',
                      'district': 'Dirty place behind in the yard',
                      'gpsbased': 'True',
@@ -1164,7 +1000,7 @@ if __name__ == '__main__':
                                      'identified':None,
                                      'note': 'restring'
                                      }],
-                     'type_status': 'HOLOTYPUS'}
+                     'type_status': ''}
         p = PDF_BRYOPHYTE()
         labels= []
         for ind,label in enumerate(range(4)):
@@ -1180,7 +1016,6 @@ if __name__ == '__main__':
         my.put_barcode('VBGI', 1231231, 10, 10)
         my.create_file('barcode.pdf')
 
-
     def test_fpdf_bold():
         pdf = StyledPDF()
         pdf.add_font('sazanami-mincho', '', 'sazanami-mincho.ttf', uni=True)
@@ -1194,11 +1029,13 @@ if __name__ == '__main__':
 
     def test_smarty_cell():
         pdf = PDF_DOC()
-        pdf.smarty_print('Lighted hummocky&nbsp;<i>Larix</i>&nbsp; forest.\n (<i>jkl</i>)not a number' * 5, 20, left_position=20,
+        pdf.smarty_print('Lighted hummocky&nbsp;<i>Larix</i>&nbsp; forest. \
+                         H<sub>2</sub>O \n (<i>jkl</i>)not a\
+                         This is Note <sup>(1)</sup>' * 5, 20, left_position=20,
                      first_indent=30, right_position=100)
         pdf.create_file('sm.pdf')
 
-    test_smarty_cell()
+    test_bryophyte()
 
 
 

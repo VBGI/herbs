@@ -74,9 +74,17 @@ class LabelParser(HTMLParser, object):
         super(LabelParser, self).__init__(*args, **kwargs)
 
     def handle_starttag(self, tag, attrs):
+        if tag.lower() == 'sup':
+            tag = 'v'
+        elif tag.lower() == 'sub':
+            tag = 'n'
         self._stack_.append(tag)
 
     def handle_endtag(self, tag):
+        if tag.lower() == 'sup':
+            tag = 'v'
+        elif tag.lower() == 'sub':
+            tag = 'n'
         if tag in self._stack_:
             self._stack_.reverse()
             self._stack_.remove(tag)
@@ -92,6 +100,7 @@ class LabelParser(HTMLParser, object):
     def parsed(self):
         return self._data_
 
+
 class Word:
     """
     An abstract element that can be safely printed
@@ -101,18 +110,36 @@ class Word:
         self.data = data
         self.pdf_driver = pdf_driver
     
+    def select_font_size(self, item, font_size):
+        if 'n' in item[-1]:
+            fs = font_size * SUBSCRIPT_FS
+        elif 'v' in item[-1]:
+            fs = font_size * SUPERSCRIPT_FS
+        else:
+            fs = font_size
+        return fs
+
     def width(self, font_size):
         w = 0
         for item in self.data:
-            self.pdf_driver.pdf.set_font(self.pdf_driver.choose_font(item[-1]), item[0], font_size)
+            fs = self.select_font_size(item, font_size)
+            self.pdf_driver.pdf.set_font(self.pdf_driver.choose_font(item[-1]), item[0], fs)
             w += self.pdf_driver.pdf.get_string_width(item[0])
         return w
 
     def render(self, xpos, ypos, font_size):
         xpos = xpos
         for item in self.data:
-            self.pdf_driver.pdf.set_xy(xpos, ypos)
-            self.pdf_driver.pdf.set_font(self.pdf_driver.choose_font(item[-1]), item[0], font_size)
+            fs = self.select_font_size(item, font_size)
+            if 'n' in item[-1]:
+                shift = SUBSCRIPT_SHIFT
+            elif 'v' in item[-1]:
+                shift = SUPERSCRIPT_SHIFT
+            else:
+                shift = 0
+            self.pdf_driver.pdf.set_xy(xpos, ypos + shift)
+            self.pdf_driver.pdf.set_font(self.pdf_driver.choose_font(item[-1]), item[0], fs)
             self.pdf_driver.pdf.cell(0, 0, item[0])
+            self.pdf_driver.pdf.set_y(ypos)
             xpos += self.pdf_driver.pdf.get_string_width(item[0])
         return xpos

@@ -37,6 +37,16 @@ DEFAULT_PAGE_HEIGHT = 297.0
 HERB_URL = 'http://botsad.ru/hitem/%s'
 # ---------------------------------------------------
 
+# --------- Superscript/subscript behavior ----------
+
+SUPERSCRIPT_SHIFT = -0.6
+SUBSCRIPT_SHIFT = 0.6
+SUPERSCRIPT_FS = 0.8  # ratio of default font size
+SUBSCRIPT_FS = 0.8
+
+# --------- Species abbreviations -------------------
+SPECIES_ABBR = 'sp.'
+
 # ------------- Barcode settings --------------------
 BARCODE_ITEM_HEIGHT = 10
 BARCODE_ITEM_WIDTH = 1
