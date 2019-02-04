@@ -776,7 +776,7 @@ class PDF_BRYOPHYTE(BARCODE):
                         html_sp += " <b><i>{}</i></b>".format(sp_epithet)
 
                 if auth and not iauth:
-                    html_sp += " {}".format(auth)
+                    html_sp += " {}".format(auth.encode('utf-8'))
 
                 if ir:
                     html_sp += " {}".format(ir)
