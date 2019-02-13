@@ -785,7 +785,7 @@ class PDF_BRYOPHYTE(BARCODE):
                         html_sp += " <b><i>{}</i></b>".format(iep)
                     
                     if iauth:
-                        html_sp += " {}".format(iauth)
+                        html_sp += " {}".format(iauth.encode('utf-8'))
 
                 if _note or (dethistory and mainind == 1) or len(identifiedby) > 1:
                     _note = _note.strip()
