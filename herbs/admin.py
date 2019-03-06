@@ -520,7 +520,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
 
     def delete_model(self, request, obj):
         if request.user.is_superuser:
-            super(HerbItemAdmin, self).delete(request, obj)
+            super(HerbItemAdmin, self).delete_model(request, obj)
             return
         if obj is not None:
             if obj.status != 'D':
