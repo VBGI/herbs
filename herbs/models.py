@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 
 from django.conf import settings
 from django.db import models
@@ -38,6 +38,9 @@ class HerbItemMixin(models.Model, BasicNameMixin):
                      ('L', 'LECTOTYPUS')
                      )
 
+    STATUSES = (('D', 'DELETED'),
+                ('N', 'NORMAL'))
+
     species = models.ForeignKey('Species', on_delete=models.SET_NULL, null=True,
                                 verbose_name=_('вид'), related_name='herbitem')
 
@@ -50,7 +53,8 @@ class HerbItemMixin(models.Model, BasicNameMixin):
 
     significance = models.CharField(max_length=5, default='',
                                     blank=True, choices=SIGNIFICANCE,
-                                    verbose_name=_('сходство'), help_text=_('степень сходства: aff. или cf.'))
+                                    verbose_name=_('сходство'),
+                                    help_text=_('степень сходства: aff. или cf.'))
 
     # item specific codes (used in the herbarium store)
     itemcode = models.CharField(max_length=15, default='', null=True,
@@ -112,8 +116,8 @@ class HerbItemMixin(models.Model, BasicNameMixin):
 
     note = models.CharField(max_length=1000, blank=True, default='')
 
-    uhash =  models.CharField(blank=True, default='',
-                              max_length=32, editable=False)
+    uhash = models.CharField(blank=True, default='',
+                             max_length=32, editable=False)
 
     has_images = models.TextField(editable=False, null=True)
 
@@ -128,6 +132,9 @@ class HerbItemMixin(models.Model, BasicNameMixin):
                                   null=True, blank=True, related_name='+',
                                   editable=False, verbose_name=_('обновил'))
     public = models.BooleanField(default=False, verbose_name=_('опубликовано'))
+
+    status = models.CharField(default='N', max_length=1,
+                              blank=True, choices=STATUSES)
 
     def __unicode__(self):
         return capfirst(self.get_full_name())

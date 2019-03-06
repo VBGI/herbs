@@ -243,26 +243,31 @@ class PermissionMixin:
             if acronym and subdivision:
                 if hasattr(self.model, 'acronym'):
                     return self.model.objects.filter(acronym__name__iexact=acronym.name,
-                                                     subdivision=subdivision)
+                                                     subdivision=subdivision).exclude(status='D')
             elif acronym:
                 if hasattr(self.model, 'acronym'):
-                    return self.model.objects.filter(acronym__name__iexact=acronym.name)
-        return self.model.objects.filter(user=request.user)
+                    return self.model.objects.filter(acronym__name__iexact=acronym.name).exclude(status='D')
+        return self.model.objects.filter(user=request.user).exclude(status='D')
 
     def _common_permission_manager(self, request, obj):
-        if request.user.is_superuser: return True
+        if request.user.is_superuser:
+            return True
         acronym = get_acronym_or_none(request)
         subdivision = get_subdivision_or_none(request)
-        if obj is None: return True
+        if obj is None:
+            return True
         if obj.user is not None:
-            if request.user == obj.user: return True
+            if request.user == obj.user:
+                return True if obj.status != 'D' else False
         if request.user.has_perm('herbs.can_set_publish'):
             if acronym and subdivision:
                 if obj.subdivision.pk == subdivision.pk and obj.acronym.pk == acronym.pk:
-                    return True
+                    return True if obj.status != 'D' else False
             elif acronym:
-                if obj.acronym.pk == acronym.pk: return True
-            else: return False
+                if obj.acronym.pk == acronym.pk:
+                    return True if obj.status != 'D' else False
+            else:
+                return False
         else:
             return False
 
@@ -310,7 +315,7 @@ class GenusAdmin(AjaxSelectAdmin):
 class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
     model = HerbItem
     search_fields = ('id', 'itemcode', 'fieldid', 'collectedby', 'identifiedby',
-                     'species__genus__name', 'species__name', 'note', 
+                     'species__genus__name', 'species__name', 'note',
                      'region', 'district', 'detailed')
     actions = (publish_herbitem, unpublish_herbitem, create_pdf, create_barcodes,
                create_pdf_envelope, 'delete_selected')
@@ -320,7 +325,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
         nquery = obj.filter(public=False)
         if nquery.exists():
             n = nquery.count()
-            nquery.delete()
+            nquery.update(status='D')
             messages.success(request, _('Удалено %s гербарных объектов') % n)
         else:
             messages.error(request, _('Нечего удалять. Гербарные образцы должны быть сняты с публикации перед удалением.'))
@@ -388,7 +393,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
         readonly_fields = super(HerbItemAdmin, self).get_readonly_fields(request, obj)
         readonly_fields = set(readonly_fields)
         readonly_fields.update(['acronym', 'subdivision',
-                                'public', 'itemcode', 'type_status'])
+                                'public', 'itemcode', 'type_status',
+                                'status'])
         if obj:
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
@@ -419,7 +425,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                 readonly_fields.remove('subdivision')
             if 'acronym' in readonly_fields:
                readonly_fields.remove('acronym')
-
+            if 'status' in readonly_fields:
+                readonly_fields.remove('status')
         return list(readonly_fields)
 
     def get_inline_instances(self, request, obj=None):
@@ -455,6 +462,9 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
             def __new__(self, *args, **kwargs):
                 kwargs['request'] = request
                 return ExtendedForm(*args, **kwargs)
+        if not request.user.is_superuser:
+            if 'status' in NewModelForm.base_fields:
+                del NewModelForm.base_fields['status']
         return NewModelForm
 
     def get_list_filter(self, request):
@@ -462,7 +472,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
         if request.user.has_perm('herbs.can_set_publish'):
             list_filter += (HerbItemCustomListFilter,)
         if request.user.is_superuser:
-            list_filter = ('user','public', 'acronym')
+            list_filter = ('user', 'public', 'acronym', 'status')
         return list_filter
 
 
@@ -507,6 +517,15 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                 g.update(newdict)
                 request.GET = g
             return super(HerbItemAdmin, self).add_view(request, form_url, extra_context)
+
+    def delete_model(self, request, obj):
+        if request.user.is_superuser:
+            super(HerbItemAdmin, self).delete(request, obj)
+            return
+        if obj is not None:
+            if obj.status != 'D':
+                obj.status = 'D'
+                obj.save()
 
 
 class SpeciesAdmin(AjaxSelectAdmin):
