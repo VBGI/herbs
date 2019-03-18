@@ -394,7 +394,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
         readonly_fields = set(readonly_fields)
         readonly_fields.update(['acronym', 'subdivision',
                                 'public', 'itemcode', 'type_status',
-                                'status'])
+                                ])
         if obj:
             if obj.public:
                 readonly_fields = [field.name for field in obj.__class__._meta.fields]
@@ -425,8 +425,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                 readonly_fields.remove('subdivision')
             if 'acronym' in readonly_fields:
                readonly_fields.remove('acronym')
-            if 'status' in readonly_fields:
-                readonly_fields.remove('status')
+            #if 'status' in readonly_fields:
+            #    readonly_fields.remove('status')
         return list(readonly_fields)
 
     def get_inline_instances(self, request, obj=None):

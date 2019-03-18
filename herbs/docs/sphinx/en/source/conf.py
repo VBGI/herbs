@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Digital Herbarium'
-copyright = '2017, Dmitry E. Kislov'
+copyright = '2019, Dmitry E. Kislov'
 author = 'Dmitry E. Kislov'
 
 # The version info for the project you're documenting, acts as replacement for
