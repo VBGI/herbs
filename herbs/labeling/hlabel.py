@@ -832,7 +832,7 @@ class PDF_BRYOPHYTE(BARCODE):
                                   right_position=BRYOPHYTE_LEFT_MARGIN + label_width,
                                   font_size=self._sfs)
 
-                self._ln += 1
+                #self._ln += 1
 
             self.pdf.set_font('DejaVu', '', self._sfs)
             #self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN, self.goto(self._ln))
@@ -868,6 +868,7 @@ class PDF_BRYOPHYTE(BARCODE):
 
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN)
             self.pdf.set_font('DejaVubi', '', self._sfs)
+            self.pdf.set_y(self.pdf.get_y() + self._lh/2)
             self.pdf.multi_cell(label_width,
                                 self._lh, smartify_language(country, lang='en'))
             self.pdf.set_font('DejaVu', '', self._sfs)
