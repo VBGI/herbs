@@ -104,7 +104,7 @@ class PDF_MIXIN(object):
         elif 'i' in fs:
             return 'DejaVui'
         elif 'b' in fs:
-            return 'DejaVub'  
+            return 'DejaVub'
         else:
             return 'DejaVu'
 
@@ -163,9 +163,9 @@ class PDF_MIXIN(object):
                         allowed_line_length = right_position - left_position - first_indent
                 else:
                         allowed_line_length = right_position - left_position
-                
+
                 ww = word.width(font_size) + 1
-                
+
                 if cline_width + ww <= allowed_line_length:
                     lines[-1].append(word)
                     cline_width += ww
@@ -174,7 +174,7 @@ class PDF_MIXIN(object):
                     lines[-1].append(word)
                     cline_width = ww
                     line_number += 1
-            
+
             if font_size < 2:
                 done = True
             if line_number > line_nums and force:
@@ -753,7 +753,7 @@ class PDF_BRYOPHYTE(BARCODE):
             for sp, auth, ir, iep, iauth, _note in allspecies:
                 html_sp = ''
                 mainind += 1
-              
+
                 # Smart confertum and affinis printing...
                 sp_decomposed = list(map(lambda x: x.strip(), sp.split()))
                 if len(sp_decomposed) == 1:
@@ -765,7 +765,7 @@ class PDF_BRYOPHYTE(BARCODE):
                         sp_genus, sp_sign, sp_epithet = '', '', ''
                 else:
                     sp_genus, sp_sign, sp_epithet = sp_decomposed[0], '', ' '.join(sp_decomposed[1:])
-                
+
                 html_sp += "<b><i>{}</i></b>".format(sp_genus)
                 if sp_sign:
                     html_sp += " {}".format(sp_sign)
@@ -783,7 +783,7 @@ class PDF_BRYOPHYTE(BARCODE):
 
                     if iep:
                         html_sp += " <b><i>{}</i></b>".format(iep)
-                    
+
                     if iauth:
                         html_sp += " {}".format(iauth.encode('utf-8'))
 
@@ -832,7 +832,7 @@ class PDF_BRYOPHYTE(BARCODE):
                                   right_position=BRYOPHYTE_LEFT_MARGIN + label_width,
                                   font_size=self._sfs)
 
-                #self._ln += 1
+                self._ln += 1
 
             self.pdf.set_font('DejaVu', '', self._sfs)
             #self.pdf.set_xy(BRYOPHYTE_LEFT_MARGIN, self.goto(self._ln))
