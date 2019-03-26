@@ -958,10 +958,17 @@ class PDF_BRYOPHYTE(BARCODE):
             # insert helper url
             self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE - 4)
             urlw = self.pdf.get_string_width(HERB_URL % itemid)
-            self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - urlw / 2 - 2,
+
+
+            self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - 2,
                             DEFAULT_PAGE_HEIGHT / 2.0)
             self.pdf.rotate(180)
+            self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - urlw / 2 - 2,
+                            DEFAULT_PAGE_HEIGHT / 2.0)
             self.pdf.cell(0, 0, HERB_URL % itemid)
+            self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - 2,
+                            DEFAULT_PAGE_HEIGHT / 2.0)
+            self.pdf.rotate(-180)
 
 
     def generate_labels(self, labels):
