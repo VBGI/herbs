@@ -966,9 +966,7 @@ class PDF_BRYOPHYTE(BARCODE):
             self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - urlw / 2 - 2,
                             DEFAULT_PAGE_HEIGHT / 2.0)
             self.pdf.cell(0, 0, HERB_URL % itemid)
-            self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - 2,
-                            DEFAULT_PAGE_HEIGHT / 2.0)
-            self.pdf.rotate(-180)
+            self.pdf.rotate(0)
 
 
     def generate_labels(self, labels):
