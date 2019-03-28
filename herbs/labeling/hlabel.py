@@ -723,12 +723,6 @@ class PDF_BRYOPHYTE(BARCODE):
             # -----  Insert qr-code in the center of the page ------
             insert_qr(self.pdf, DEFAULT_PAGE_WIDTH / 2.0 + QR_SIZE / 2.0,
                       DEFAULT_PAGE_HEIGHT / 2.0, code=itemid, lh=0, lw=0)
-            # insert helper url
-            self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE - 4)
-            urlw = self.pdf.get_string_width(HERB_URL % itemid)
-            self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - urlw / 2 - 2,
-                            DEFAULT_PAGE_HEIGHT / 2.0)
-            self.pdf.cell(0, 0, HERB_URL % itemid)
             self._ln = 0
 
             if fieldid:
@@ -961,6 +955,19 @@ class PDF_BRYOPHYTE(BARCODE):
             self.put_barcode(acronym, itemid, institute,
                                 DEFAULT_PAGE_WIDTH - barcode_width - BRYOPHYTE_LEFT_MARGIN,
                                 DEFAULT_PAGE_HEIGHT - 15)
+            # insert helper url
+            self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE - 4)
+            urlw = self.pdf.get_string_width(HERB_URL % itemid)
+
+
+            self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - 2,
+                            DEFAULT_PAGE_HEIGHT / 2.0)
+            self.pdf.rotate(180)
+            self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - urlw / 2 - 2,
+                            DEFAULT_PAGE_HEIGHT / 2.0)
+            self.pdf.cell(0, 0, HERB_URL % itemid)
+            self.pdf.rotate(0)
+
 
     def generate_labels(self, labels):
         for label in labels:
