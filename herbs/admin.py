@@ -380,7 +380,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
             obj.longitude = float(lon)
         except (ValueError, TypeError):
             pass
-        obj.save()
+        obj.status = 'N'  # set status: normally created object
         try:
             # try to make a notification, and
             # fail silently if something goes wrong!
