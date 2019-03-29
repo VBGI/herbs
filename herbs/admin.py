@@ -381,6 +381,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
         except (ValueError, TypeError):
             pass
         obj.status = 'N'  # set status: normally created object
+        obj.save()
         try:
             # try to make a notification, and
             # fail silently if something goes wrong!
