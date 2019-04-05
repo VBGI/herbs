@@ -438,15 +438,16 @@ class PDF_DOC(PDF_MIXIN):
         # ----------------------------------------------
 
         # ------------- Altitude info ------------------
-        self._ln += 1
-        self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
-        self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
-        tw = self.pdf.get_string_width(msgs['alt'])
-        self.pdf.cell(0, 0, msgs['alt'])
-        self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
-        self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
-        self.pdf.cell(0, 0, translit(smartify_language(altitude, lang='en'),
-                                     'ru', reversed=True))
+        if altitude.strip():
+            self._ln += 1
+            self.pdf.set_font('DejaVub', '', SMALL_FONT_SIZE)
+            self.pdf.set_xy(x + PADDING_X, self.goto(y, self._ln))
+            tw = self.pdf.get_string_width(msgs['alt'])
+            self.pdf.cell(0, 0, msgs['alt'])
+            self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
+            self.pdf.set_xy(x + PADDING_X + 1 + tw, self.goto(y, self._ln))
+            self.pdf.cell(0, 0, translit(smartify_language(altitude, lang='en'),
+                                         'ru', reversed=True))
 
         # ------------- Coordinates found -------------
         self._ln += 1
