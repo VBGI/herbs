@@ -220,6 +220,7 @@ class PDF_DOC(PDF_MIXIN):
                    district='', note='', short_note='', gpsbased='',
                    dethistory='', infra_rank='', infra_epithet='', logo_path='',
                    detdate='', type_status='', infra_authorship=''):
+
         self.pdf.rect(x, y, LABEL_WIDTH, LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
 
@@ -288,7 +289,9 @@ class PDF_DOC(PDF_MIXIN):
                 self.pdf.cell(0, 0, 'Growth form')
             elif gform == 'D':
                 self.pdf.cell(0, 0, 'Dev.stage partly')
-        # TODO: species name fixes needed: infraspecific rank supporting
+
+        # FIXME: Species name plotting subroutine should be rewritten using
+        # smarty_printing function, as it does in case of PDF_BRYOPHYTE class.
 
         # -------------- Plot Species name ------------
         self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
@@ -324,7 +327,8 @@ class PDF_DOC(PDF_MIXIN):
             self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
             epw = self.pdf.get_string_width(infra_epithet)
             rw = self.pdf.get_string_width(infra_rank)
-            x_pos = LABEL_WIDTH / 2 - (au_w + sp_w +rw + epw + 2) / 2
+            iauw = self.pdf.get_string_width(infra_authorship)
+            x_pos = LABEL_WIDTH / 2 - (au_w + sp_w +rw + epw + iauw + 2) / 2
             scaled = False
             if x_pos > PADDING_X:
                 self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
@@ -332,6 +336,11 @@ class PDF_DOC(PDF_MIXIN):
                 self.pdf.cell(0, 0, species)
 
                 x_pos += sp_w + 1
+                self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
+                self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
+                self.pdf.cell(0, 0, author_name)
+
+                x_pos += au_w + 1
                 self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
                 self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
                 self.pdf.cell(0, 0, infra_rank)
@@ -344,28 +353,33 @@ class PDF_DOC(PDF_MIXIN):
                 x_pos += epw + 1
                 self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
                 self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
-                self.pdf.cell(0, 0, author_name)
+                self.pdf.cell(0, 0, infra_authorship)
             else:
-                x_pos = LABEL_WIDTH / 2 - sp_w / 2
+                x_pos = LABEL_WIDTH / 2 - sp_w / 2 - au_w / 2
                 self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
                 self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
                 self.pdf.cell(0, 0, species)
+
+                x_pos += sp_w + 1
+                self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
+                self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
+                self.pdf.cell(0, 0, author_name)
+
                 self._ln += 1
-                x_pos = LABEL_WIDTH  - au_w - self.pdf.get_string_width(infra_rank + ' ' + infra_epithet)
-                x_pos /= 2.0
+                x_pos = LABEL_WIDTH / 2   - (rw + epw +iauw + 2) / 2
                 self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
                 self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
                 self.pdf.cell(0, 0, infra_rank)
 
-                self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
                 x_pos += rw + 1
+                self.pdf.set_font('DejaVui', '', REGULAR_FONT_SIZE)
                 self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
                 self.pdf.cell(0, 0, infra_epithet)
 
                 x_pos += epw + 1
                 self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
                 self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
-                self.pdf.cell(0, 0, author_name)
+                self.pdf.cell(0, 0, infra_authorship)
 
                 scaled = True
         # ----------------------------------------------
@@ -603,7 +617,11 @@ class PDF_DOC(PDF_MIXIN):
                     'institute': 'Botanical Garden-Institute FEB RAS',
                     'address': '690018, Russia, Vladivosotk, Makovskogo st. 142',
                     'gform': 'G', 'addspecies':'', 'short_note': '', 'gpsbased': '',
-                    'dethistory': ''}
+                    'dethistory': '',
+                    'infra_rank' : 'var.',
+                    'infra_epithet' : 'bobs',
+                    'infra_authorship': 'Gob.'
+                    }
         llabels = [testdict] * 4
         self.tile_labels(llabels)
 
@@ -1043,7 +1061,12 @@ if __name__ == '__main__':
                      first_indent=30, right_position=100)
         pdf.create_file('sm.pdf')
 
-    test_bryophyte()
+    def test_regular_pdf():
+        pdf = PDF_DOC()
+        pdf._test_page()
+        pdf.create_file('output.pdf')
+
+    test_regular_pdf()
 
 
 
