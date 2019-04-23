@@ -184,6 +184,7 @@ class Subdivision(models.Model):
             _r = c.get_all_children()
             if 0 < len(_r):
                 result.extend(_r)
+        #FIXME: revision needed: use return list(set(result)) instead?
         return result
 
     class Meta:
