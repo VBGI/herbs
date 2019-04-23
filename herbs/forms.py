@@ -117,7 +117,7 @@ class HerbItemForm(with_metaclass(remove_spaces('collectedby',
             else:
                 query = None
             if query:
-                if mainquery.filter(acronym=query[0]).exists():
+                if mainquery.filter(acronym=query[0]).exclude(status='D').exists():
                     raise forms.ValidationError(_("запись с таким кодом уже существует"))
             if not itemcode_pat.match(data):
                 raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
