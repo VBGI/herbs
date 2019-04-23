@@ -326,21 +326,24 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
             nquery = objs.filter(public=False)
             acronym = get_acronym_or_none(request)
             subdiv = get_subdivision_or_none(request)
+
             if acronym:
                 nquery = nquery.filter(acronym=acronym)
+
             if subdiv:
                 for s in subdiv.get_all_children():
                     nquery = nquery.filter(subdivision=s)
-        else:
+
+            if nquery.exists():
+                n = nquery.count()
+                nquery.update(status='D')
+                messages.success(request, _('Удалено %s гербарных объектов') % n)
+            else:
+                messages.error(request, _('Нечего удалять. Гербарные образцы должны быть сняты с публикации перед удалением и '
+                                          'принадлежать акрониму и подразделу, на которые у пользователя имеются права редактирования.'))
+       else:
              messages.error(request, _('Удалять образцы разрешено только пользователям с правами куратора. '))
 
-        if nquery.exists():
-            n = nquery.count()
-            nquery.update(status='D')
-            messages.success(request, _('Удалено %s гербарных объектов') % n)
-        else:
-            messages.error(request, _('Нечего удалять. Гербарные образцы должны быть сняты с публикации перед удалением и '
-                                      'принадлежать акрониму и подразделу, на которые у пользователя имеются права редактирования.'))
     delete_selected.short_description = _('Удалить гербарные образцы')
 
     def get_list_display_links(self, request, list_display):
