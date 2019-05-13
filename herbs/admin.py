@@ -332,6 +332,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
 
             if subdiv:
                 for s in subdiv.get_all_children():
+                    # FIXME: Illegal subdivision behavior!!! REVISION NEEDED!
                     nquery = nquery.filter(subdivision=s)
 
             if nquery.exists():
