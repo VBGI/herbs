@@ -331,9 +331,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                 nquery = nquery.filter(acronym=acronym)
 
             if subdiv:
-                for s in subdiv.get_all_children():
-                    # FIXME: Illegal subdivision behavior!!! REVISION NEEDED!
-                    nquery = nquery.filter(subdivision=s)
+                children_id = [_.id for _ in subdiv.get_all_children()]
+                nquery = nquery.filter(subdivision__id__in=children_id)
 
             if nquery.exists():
                 n = nquery.count()
@@ -342,7 +341,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
             else:
                 messages.error(request, _('Нечего удалять. Гербарные образцы должны быть сняты с публикации перед удалением и '
                                           'принадлежать акрониму и подразделу, на которые у пользователя имеются права редактирования.'))
-       else:
+        else:
              messages.error(request, _('Удалять образцы разрешено только пользователям с правами куратора. '))
 
     delete_selected.short_description = _('Удалить гербарные образцы')
