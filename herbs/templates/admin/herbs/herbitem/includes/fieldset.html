@@ -25,7 +25,7 @@
                     {% endif %}
                     {%if perms.herbs.can_apply_bulk_changes%}
                         {%if field.field.name|is_allowed_for_changing %}
-                            <p class="help"><a href="{%url 'change_herbitems'%}?field={{field.field.name}}&old_value={%if field.field.value%}{{field.field.value}}{%else%}{{field.contents}}{%endif%}">Apply bulk changes</a></p>
+                            <p class="help"><a href="{%url 'change_herbitems'%}?field={{field.field.name}}&old_value={%if field.field.value%}{{field.field.value|urlencode}}{%else%}{{field.contents|urlencode}}{%endif%}">Apply bulk changes</a></p>
                         {%endif%}
                     {%endif%}
                 </div>
