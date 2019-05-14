@@ -352,11 +352,11 @@ class ReplyForm(forms.Form):
 class BulkChangeForm(forms.Form):
     field = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),
                             required=False, label=_('Поле'), max_length=50)
-    old_value = forms.CharField(widget=forms.Textarea(),
+    old_value = forms.CharField(widget=TinyMCE(mce_attrs=tinymce_fieldset),
                                 required=False, label=_('Текущее значение'))
     as_subs = forms.BooleanField(required=False, label=_('Искать как включение (подстроку)'))
     case_insens = forms.BooleanField(required=False, label=_('Не учитывать регистр'))
-    new_value = forms.CharField(widget=forms.Textarea(),
+    new_value = forms.CharField(widget=TinyMCE(mce_attrs=tinymce_fieldset),
                                 required=False, label=_('Новое значение'))
     captcha = forms.CharField(max_length=50, label=_('Название поля (повторить)'),
                               required=True)
