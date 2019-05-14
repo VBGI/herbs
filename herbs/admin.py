@@ -324,16 +324,15 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
     def delete_selected(self, request, objs):
         if request.user.has_perm('herbs.can_set_publish'):
             nquery = objs.filter(public=False)
-            acronym = get_acronym_or_none(request)
-            subdiv = get_subdivision_or_none(request)
+            if not request.user.is_superuser:
+                acronym = get_acronym_or_none(request)
+                subdiv = get_subdivision_or_none(request)
+                if acronym:
+                    nquery = nquery.filter(acronym=acronym)
 
-            if acronym:
-                nquery = nquery.filter(acronym=acronym)
-
-            if subdiv:
-                children_id = [_.id for _ in subdiv.get_all_children()]
-                nquery = nquery.filter(subdivision__id__in=children_id)
-
+                if subdiv:
+                    children_id = [item.id for item in subdiv.get_all_children()]
+                    nquery = nquery.filter(subdivision__id__in=children_id)
             if nquery.exists():
                 n = nquery.count()
                 nquery.update(status='D')
