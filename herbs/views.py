@@ -642,7 +642,7 @@ def advice_select(request):
 def collect_label_data(q):
     result = []
     q = map(lambda x: int(x), q)
-    objects = HerbItem.objects.filter(public=True, id__in=q).order_by('pk')
+    objects = HerbItem.objects.filter(id__in=q).order_by('pk')
     if not objects.exists():
         return result
     cn = Counter(q)
