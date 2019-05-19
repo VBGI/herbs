@@ -30,18 +30,16 @@ class Command(BaseCommand):
 
         messages = dict()
         for obj_id in [item[0] for item in cursor.fetchall()]:
-            for item in Notification.objects.filter(hitem__id=obj_id):
+            for item in Notification.objects.filter(hitem__id=obj_id, status='Q'):
                 if item.emails:
                     for email in item.emails.split(','):
-                        if email not in messages:
-                            messages.update({email: []})
-                        messages[email].append({
+                        messages.setdefault(email, list()).append({
                             'id': obj_id,
                             'date': str(item.created),
                             'username': item.username,
                             'link': 'http://botsad.ru' + reverse('admin:%s_%s_change' % ('herbs', 'herbitem'),
                               args=[obj_id])
-                        })
+                            })
                         reason = u'<{}> : <{}>'.format(HerbItem._meta.get_field(item.tracked_field.split('_')[0]).verbose_name.decode('utf-8'), item.field_value)
                         if 'reason' not in messages[email][-1]:
                             messages[email][-1].update({'reason': [reason]})
@@ -67,7 +65,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def _generate_html_message(msg):
-        html_email_temaple = '''
+        html_email_temaple = """
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml">
         <head>
@@ -117,7 +115,7 @@ class Command(BaseCommand):
          </table>
         </body>
         </html>
-        '''
+        """
         template = Template(html_email_temaple)
         context = Context({'items': msg, 'created': timezone.now()})
         return template.render(context)
