@@ -69,7 +69,8 @@ class HerbItemMixin(models.Model, BasicNameMixin):
                                blank=True)
 
     duplicates = models.CharField(max_length=500, default='', verbose_name=_('дубликаты'),
-                                  help_text=_('Перечислите акронимы, где хранятся дубликаты'))
+                                  help_text=_('Перечислите акронимы, где хранятся дубликаты'),
+                                  blank=True)
 
     acronym = models.ForeignKey('HerbAcronym', on_delete=models.SET_NULL,
                                 verbose_name=_('Акроним'),
