@@ -993,7 +993,7 @@ class PDF_BRYOPHYTE(BARCODE):
                 self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
                 dupw = self.pdf.get_string_width('Duplicates in: ' + duplicates)
                 self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - urlw / 2 - 2,
-                                DEFAULT_PAGE_HEIGHT / 2.0 + 10)
+                                DEFAULT_PAGE_HEIGHT / 2.0 - 10)
                 self.pdf.cell(0, 0, 'Duplicates in: ' + duplicates)
                 # TODO: Handling long `duplicates` strings
 
