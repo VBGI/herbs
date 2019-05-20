@@ -163,11 +163,12 @@ class HerbItemForm(with_metaclass(remove_spaces('collectedby',
         data = self.cleaned_data['duplicates']
         data = data.upper().strip()
         if data:
+            all_acronyms = settings.HERBS_INDEX_HERBARIORUM.split(',')
             if not duplicates_pat.match(data):
                 raise forms.ValidationError(_("Один или несколько гербарных акронимов не соответствуют принятому формату"))
             acronyms = map(lambda x: x.strip(),  data.split(','))
             for ac in acronyms:
-                if ac not in settings.HERBS_INDEX_HERBARIORUM:
+                if ac not in all_acronyms:
                     raise forms.ValidationError(_("Акроним {} не зарегистрирован в Index Herbariorum".format(ac)))
         return data
 
