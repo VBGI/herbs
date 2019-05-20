@@ -162,12 +162,13 @@ class HerbItemForm(with_metaclass(remove_spaces('collectedby',
     def clean_duplicates(self):
         data = self.cleaned_data['duplicates']
         data = data.upper().strip()
-        if not duplicates_pat.match(data):
-            raise forms.ValidationError(_("Один или несколько гербарных акронимов не соответствуют принятому формату"))
-        acronyms = map(lambda x: x.strip(),  data.split(','))
-        for ac in acronyms:
-            if ac not in settings.HERBS_INDEX_HERBARIORUM:
-                raise forms.ValidationError(_("Акроним {} не зарегистрирован в Index Herbariorum".format(ac)))
+        if data:
+            if not duplicates_pat.match(data):
+                raise forms.ValidationError(_("Один или несколько гербарных акронимов не соответствуют принятому формату"))
+            acronyms = map(lambda x: x.strip(),  data.split(','))
+            for ac in acronyms:
+                if ac not in settings.HERBS_INDEX_HERBARIORUM:
+                    raise forms.ValidationError(_("Акроним {} не зарегистрирован в Index Herbariorum".format(ac)))
         return data
 
     def clean(self):
