@@ -219,7 +219,7 @@ class PDF_DOC(PDF_MIXIN):
                    acronym='', institute='', address='', gform='', addspecies='',
                    district='', note='', short_note='', gpsbased='',
                    dethistory='', infra_rank='', infra_epithet='', logo_path='',
-                   detdate='', type_status='', infra_authorship=''):
+                   detdate='', type_status='', infra_authorship='', duplicates=''):
 
         self.pdf.rect(x, y, LABEL_WIDTH, LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
@@ -620,7 +620,8 @@ class PDF_DOC(PDF_MIXIN):
                     'dethistory': '',
                     'infra_rank' : 'var.',
                     'infra_epithet' : 'bobs',
-                    'infra_authorship': 'Gob.'
+                    'infra_authorship': 'Gob.',
+                    'duplicates': 'VBGI,ABGI'
                     }
         llabels = [testdict] * 4
         self.tile_labels(llabels)
@@ -727,7 +728,8 @@ class PDF_BRYOPHYTE(BARCODE):
                        place='', country='', region='', collected='',
                        altitude='', identifiedby=[], number='', itemid='',
                        fieldid='', acronym='', institute='', note='', detdate='',
-                       district='', gpsbased='', dethistory=[], type_status=''):
+                       district='', gpsbased='', dethistory=[], type_status='',
+                       duplicates=''):
         self._sfs = SMALL_FONT_SIZE
         self._change_font_size()
 
@@ -985,6 +987,16 @@ class PDF_BRYOPHYTE(BARCODE):
             self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - urlw / 2 - 2,
                             DEFAULT_PAGE_HEIGHT / 2.0)
             self.pdf.cell(0, 0, HERB_URL % itemid)
+
+            # Insert duplcates field
+            if duplicates:
+                self.pdf.set_font('DejaVu', '', SMALL_FONT_SIZE)
+                dupw = self.pdf.get_string_width('Duplicates in: ' + duplicates)
+                self.pdf.set_xy(DEFAULT_PAGE_WIDTH / 2.0 - urlw / 2 - 2,
+                                DEFAULT_PAGE_HEIGHT / 2.0 + 10)
+                self.pdf.cell(0, 0, 'Duplicates in: ' + duplicates)
+                # TODO: Handling long `duplicates` strings
+
             self.pdf.rotate(0)
 
 
@@ -1026,7 +1038,8 @@ if __name__ == '__main__':
                                      'identified':None,
                                      'note': 'restring'
                                      }],
-                     'type_status': ''}
+                     'type_status': '',
+                     'duplicates': 'ABGI,VBGI'}
         p = PDF_BRYOPHYTE()
         labels= []
         for ind,label in enumerate(range(4)):

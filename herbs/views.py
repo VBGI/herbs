@@ -93,7 +93,7 @@ def _get_rows_for_csv(queryset):
 
 @csrf_exempt
 def get_item_data(request):
-    '''Get herbitem as a json object '''
+    """Get herbitem as a json object"""
 
     context = {'error': ''}
     objid = request.GET.get('id', '')
@@ -109,7 +109,7 @@ def get_item_data(request):
 
 
 def get_data(request):
-    '''Evaluate search query and return data'''
+    """Evaluate search query and return data"""
 
     errors = []
     warnings = []
@@ -416,6 +416,7 @@ def json_api(request):
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
 
+
     # -------- Long-running http-response: check the number of connections
     if cache:
         conn = cache.get(settings.HERBS_JSON_API_CONN_KEY_NAME)
@@ -487,7 +488,7 @@ def show_herbs(request):
                     'created': str(item.created),
                     'updated': str(item.updated),
                     'has_images': True if item.has_images else False,
-                     'acronym': item.acronym.name if item.acronym else 'NO_ACRONYM'
+                    'acronym': item.acronym.name if item.acronym else 'NO_ACRONYM'
                     })
 
         # ------------------------------------------------------------------
@@ -715,6 +716,7 @@ def collect_label_data(q):
                     'short_note': item.short_note or '',
                     'gpsbased': item.gpsbased,
                     'dethistory':  _dethistory,
+                    'duplicates': item.duplicates or '',
                     'type_status': item.get_type_status_display(),
                     'logo_path': os.path.join(getattr(main_settings,
                                                       'MEDIA_ROOT',

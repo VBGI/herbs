@@ -23,6 +23,7 @@ class BasicNameMixin(object):
         else:
             return 'No species name'
 
+
 class HerbItemMixin(models.Model, BasicNameMixin):
     '''
     Common item properties
@@ -61,10 +62,14 @@ class HerbItemMixin(models.Model, BasicNameMixin):
                                 verbose_name=_('код образца'),
                                 blank=True,
                                 help_text=_('заполняется куратором гербария'))
+
     fieldid = models.CharField(max_length=20, default='',
                                verbose_name=_('полевой код'),
                                help_text=_('заполняется сборщиком'),
                                blank=True)
+
+    duplicates = models.CharField(max_length=500, default='', verbose_name=_('дубликаты'),
+                                  help_text=_('Перечислите акронимы, где хранятся дубликаты'))
 
     acronym = models.ForeignKey('HerbAcronym', on_delete=models.SET_NULL,
                                 verbose_name=_('Акроним'),
@@ -113,7 +118,6 @@ class HerbItemMixin(models.Model, BasicNameMixin):
     subdivision = models.ForeignKey('Subdivision', null=True, blank=True,
                                     verbose_name=_('подрзадел гербария'))
 
-
     note = models.CharField(max_length=1000, blank=True, default='')
 
     uhash = models.CharField(blank=True, default='',
@@ -157,7 +161,6 @@ class HerbItemMixin(models.Model, BasicNameMixin):
     def detdate(self):
         return _smartify_dates(self, prefix='identified')
 
-
     class Meta:
         abstract = True
 
@@ -182,7 +185,7 @@ class Subdivision(models.Model):
         result.append(self)
         for c in Subdivision.objects.filter(parent=self):
             _r = c.get_all_children()
-            if 0 < len(_r):
+            if len(_r) > 0:
                 result.extend(_r)
         #FIXME: revision needed: use return list(set(result)) instead?
         return result
@@ -356,7 +359,7 @@ class Species(TaxonMixin):
                               verbose_name=_('род'),
                               related_name='species')
 
-    infra_rank  = models.CharField(choices=INFRA_RANKS, blank=True, default='',
+    infra_rank = models.CharField(choices=INFRA_RANKS, blank=True, default='',
                                    verbose_name=_("подвидовой ранг"),
                                    max_length=1)
     infra_epithet = models.CharField(max_length=100, default='', blank=True,
@@ -365,7 +368,8 @@ class Species(TaxonMixin):
                                         verbose_name=_('автор подвидового эпитета'))
     status = models.CharField(max_length=1, default=SP_STATUSES[2][0], choices=SP_STATUSES,
                               blank=False, verbose_name=_('cтатус'))
-    synonym = models.ForeignKey('self', null=True, blank=True, verbose_name=_('cиноним'), related_name='synrel')
+    synonym = models.ForeignKey('self', null=True, blank=True, verbose_name=_('cиноним'),
+                                related_name='synrel')
     updated = models.DateField(auto_now=True, verbose_name=_('изменен'), blank=True)
 
     def get_full_name(self):

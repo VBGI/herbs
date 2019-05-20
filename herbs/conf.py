@@ -1,10 +1,14 @@
 #coding: utf-8
 
+import os 
 from django.conf import settings
 from django.utils.translation import ugettext as _
-
 from appconf import AppConf
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+with open(os.path.join(dir_path, 'fixtures/herbaria.dat'), 'r') as f:
+    KNOWN_HERBARIA = f.read()
 
 class HerbsAppConf(AppConf):
 
@@ -75,7 +79,7 @@ class HerbsAppConf(AppConf):
     IMAGE_SOURCE_TMP = '/home/scidam/tmp/herbsnapshots'
 
 
+    INDEX_HERBARIORUM = KNOWN_HERBARIA
+
     class Meta:
         prefix = 'herbs'
-
-

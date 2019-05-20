@@ -152,6 +152,7 @@ def herb_as_dict(hitem):
     result.update({'short_note': hitem.short_note})
     result.update({'type_status': hitem.get_type_status_display()})
     result.update({'id': hitem.pk})
+    result.update({'duplicates': hitem.duplicates})
     result.update({'gpsbased': hitem.gpsbased})
     result.update({'latitude': hitem.latitude})
     result.update({'longitude': hitem.longitude})

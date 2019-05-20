@@ -167,6 +167,7 @@ has the following attributes:
 - **species_fullname** |---| full species name, e.g. Genus + species epithet + species authorship;
 - **significance** |---| measure of ambiguity regarding the main species (possible values: "", aff., cf.);
 - **id** |---| integer identifier of a herbarium record, it is unique;
+- **duplicates** |---| the list of herbarium acronyms (see Index Herbariorum), where duplicates of this herbarium sheet are stored;
 - **gpsbased** |---| Boolean parameter, its true value means that a herbarium record
   position is obtained via the GNSS (GPS/GLONASS);
 - **latitude** |---|  latitude, degrees (WGS84);

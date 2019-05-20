@@ -54,9 +54,11 @@ tinymce_fieldset = {
 CS = getattr(settings,
              '%s_CH_SIZE' % HerbsAppConf.Meta.prefix.upper(), 80)
 
-
 taxon_name_pat = re.compile(r'[a-z]+')
 itemcode_pat = re.compile(r'^\d+$')
+duplicates_pat = re.compile(r'^[A-Z,\s]+$')
+
+
 
 
 def remove_spaces(*args):
@@ -123,7 +125,6 @@ class HerbItemForm(with_metaclass(remove_spaces('collectedby',
                 raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
         return data
 
-
     def _verify_dates(self, data):
         if data:
             if data > (timezone.now() + timedelta(days=2)).date():
@@ -156,6 +157,17 @@ class HerbItemForm(with_metaclass(remove_spaces('collectedby',
     def clean_collected_e(self):
         data = self.cleaned_data['collected_e']
         self._verify_dates(data)
+        return data
+
+    def clean_duplicates(self):
+        data = self.cleaned_data['duplicates']
+        data = data.upper().strip()
+        if not duplicates_pat.match(data):
+            raise forms.ValidationError(_("Один или несколько гербарных акронимов не соответствуют принятому формату"))
+        acronyms = map(lambda x: x.strip(),  data.split(','))
+        for ac in acronyms:
+            if ac not in settings.HERBS_INDEX_HERBARIORUM:
+                raise forms.ValidationError(_("Акроним {} не зарегистрирован в Index Herbariorum".format(ac)))
         return data
 
     def clean(self):

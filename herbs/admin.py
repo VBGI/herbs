@@ -403,12 +403,12 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
         except:
              pass
 
-
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super(HerbItemAdmin, self).get_readonly_fields(request, obj)
         readonly_fields = set(readonly_fields)
         readonly_fields.update(['acronym', 'subdivision',
                                 'public', 'itemcode', 'type_status',
+                                'duplicates'
                                 ])
         if obj:
             if obj.public:
@@ -417,7 +417,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                     readonly_fields.remove('public')
                 return readonly_fields
 
-
         if request.user.has_perm('herbs.can_set_publish'):
             if 'public' in readonly_fields:
                 readonly_fields.remove('public')
@@ -425,6 +424,8 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                 readonly_fields.remove('itemcode')
             if 'type_status' in readonly_fields:
                 readonly_fields.remove('type_status')
+            if 'duplicates' in readonly_fields:
+                readonly_fields.remove('duplicates')
 
             # check if the user has curator rights for acronym
             if get_subdivision_or_none(request) is None:
@@ -439,9 +440,10 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
             if 'subdivision' in readonly_fields:
                 readonly_fields.remove('subdivision')
             if 'acronym' in readonly_fields:
-               readonly_fields.remove('acronym')
-            #if 'status' in readonly_fields:
-            #    readonly_fields.remove('status')
+                readonly_fields.remove('acronym')
+            # if 'status' in readonly_fields:
+            #     readonly_fields.remove('status')
+
         return list(readonly_fields)
 
     def get_inline_instances(self, request, obj=None):
