@@ -721,6 +721,9 @@ class PDF_BRYOPHYTE(BARCODE):
                 if k in res:
                     res = k.join(['<i>{}</i>'.format(x) for x in res.split(k)])
             return res
+        if SPECIES_ABBR in txt:
+            res = SPECIES_ABBR.join('<i>{}</i>'.format(k) if k else '' for k in txt.split(SPECIES_ABBR))
+            return res
         return '<i>{}</i>'.format(txt)
 
     def generate_label(self, allspecies=[],
