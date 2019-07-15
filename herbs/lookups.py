@@ -52,7 +52,7 @@ class SpeciesLookup(LookupChannel):
             else:
                 res = self.model.objects.filter(genus__name__istartswith=splitted[0]).exclude(status='D')
         return res[:NS]
-    
+
     def format_item_display(self, obj):
         url = reverse('admin:%s_%s_change' % (obj._meta.app_label,  obj._meta.module_name),  args=[obj.id])
         if obj:
@@ -99,7 +99,7 @@ class DifferentValuesMixin(LookupChannel):
                       'acronym': acronym}
         else:
             kwargs = {'%s__icontains' % self.fieldname: q.lstrip()}
-        return HerbItem.objects.filter(**kwargs).values(self.fieldname).annotate(Count(self.fieldname)).values_list(self.fieldname, flat=True)[:NS]
+        return HerbItem.objects.filter(**kwargs).values(self.fieldname).annotate(num_items=Count(self.fieldname)).filter(num_items__gte=3).values_list(self.fieldname, flat=True)[:NS]
 
     def format_item_display(self, obj):
         return mark_safe('&'.join(map(escape, force_text(obj).split('&'))))
