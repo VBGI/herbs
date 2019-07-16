@@ -5,6 +5,8 @@ from .conf import settings, HerbsAppConf
 from django.db.models import Count
 from django.utils.encoding import force_text
 from django.utils.html import escape, mark_safe
+from django.utils import timezone
+from datetime import timedelta
 from django.core.urlresolvers import reverse
 import re
 
@@ -99,7 +101,8 @@ class DifferentValuesMixin(LookupChannel):
                       'acronym': acronym}
         else:
             kwargs = {'%s__icontains' % self.fieldname: q.lstrip()}
-        return HerbItem.objects.filter(**kwargs).values(self.fieldname).annotate(num_items=Count(self.fieldname)).filter(num_items__gte=3).values_list(self.fieldname, flat=True)[:NS]
+        kwargs.update({'created__gte': (timezone.now() - timedelta(days=settings.HERBS_DAYS_TO_REMEMBER)).date()})
+        return HerbItem.objects.filter(**kwargs).values(self.fieldname).annotate(num_items=Count(self.fieldname)).filter(num_items__gte=2).values_list(self.fieldname, flat=True)[:NS]
 
     def format_item_display(self, obj):
         return mark_safe('&'.join(map(escape, force_text(obj).split('&'))))

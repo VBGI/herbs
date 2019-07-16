@@ -1,6 +1,6 @@
 #coding: utf-8
 
-import os 
+import os
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from appconf import AppConf
@@ -34,6 +34,8 @@ class HerbsAppConf(AppConf):
     # Objects edited by these user's aren't tracked by the system
     EXCLUDED_FROM_NOTIFICATION = ('', ) # User's excluded from notification;
 
+    #The number of days to remember when forming pop-up hints
+    DAYS_TO_REMEMBER = 180
 
     PAGINATION_COUNT = 20
     AUTOSUGGEST_NUM_TO_SHOW = 50
