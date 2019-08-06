@@ -708,7 +708,7 @@ class PDF_BRYOPHYTE(BARCODE):
     def check_resize_required(self, w, bw):
         a = ((self.pdf.get_x() + w) >= (DEFAULT_PAGE_WIDTH -
                                        BRYOPHYTE_LEFT_MARGIN - bw))
-        b = (self.pdf.get_y() >= (DEFAULT_PAGE_HEIGHT - BARCODE_ITEM_HEIGHT - 11))
+        b = (self.pdf.get_y() >= (DEFAULT_PAGE_HEIGHT - BARCODE_ITEM_HEIGHT - 15))
         return a and b
 
     @staticmethod
