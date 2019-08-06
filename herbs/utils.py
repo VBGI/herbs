@@ -37,8 +37,11 @@ def _smartify_dates(item, prefix='collected'):
             fdate_s = DateFormat(date_s)
             fdate_e = DateFormat(date_e)
             if (date_e.month == date_s.month) and\
-                    (date_s.day == 1) and (date_e.day in
-                                           [30, 31]):
+               (date_s.day == 1) and (date_e.day in [30, 31]):
+                return fdate_s.format('M Y')
+            elif (date_e.month == date_s.month) and (date_s.month == 2) and\
+                 (date_s.day == 1) and (date_e.day in [28, 29]):
+                # NOTE: for now, we don't handle leap years however.
                 return fdate_s.format('M Y')
             else:
                 if date_s < date_e:
