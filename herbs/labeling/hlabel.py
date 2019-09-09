@@ -835,9 +835,15 @@ class PDF_BRYOPHYTE(BARCODE):
                             (' ' + hist_item['species']['spauth'] if hist_item['species']['spauth'] else '') + \
                             (' ' + hist_item['species']['infra_rank'] if hist_item['species']['infra_rank'] else '') +\
                             (' ' + '<i>{}</i>'.format(hist_item['species']['infra_epithet']) if hist_item['species']['infra_epithet'] else '') +\
-                            (' ' + hist_item['species']['infra_authorship'] if hist_item['species']['infra_authorship'] else '') +\
-                            ('. Note: {}'.format(hist_item['note']) if hist_item['note'] else '')
+                            (' ' + hist_item['species']['infra_authorship'] if hist_item['species']['infra_authorship'] else '')
+
+                            if hist_item['note']:
+                                if histline.strip().endswith('.'):
+                                    histline += ' Note: {}'.format(hist_item['note'])
+                                else:
+                                    histline += '. Note: {}'.format(hist_item['note'])
                             histlines.append(histline)
+
                         _note +=  'ID history: ' + '; '.join(histlines)
                     if _note.strip():
                         html_sp += "<sup>({})</sup>".format(addind)
