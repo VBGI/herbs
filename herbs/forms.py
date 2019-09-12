@@ -125,12 +125,14 @@ class HerbItemForm(with_metaclass(remove_spaces('collectedby',
                 raise forms.ValidationError(_("уникальный код должен либо отсутствовать, либо быть числовым"))
         return data
 
-    def _verify_dates(self, data):
-        if data:
-            if data > (timezone.now() + timedelta(days=2)).date():
+    def _verify_dates(self, d):
+        if d:
+            if d.month == timezone.now().date().month and d.day in [1, 28, 29, 30, 31]:
+                return None
+            if d > (timezone.now() + timedelta(days=2)).date():
                 raise forms.ValidationError(_("Дата не может быть больше текущей календарной даты"))
 
-            if data < date(year=1700, month=1, day=1):
+            if d < date(year=1700, month=1, day=1):
                 raise forms.ValidationError(_("Не ошибка ли это? Слишком древний образец."))
 
     def clean_identified_s(self):
