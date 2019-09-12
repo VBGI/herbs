@@ -184,18 +184,20 @@ class HerbItemForm(with_metaclass(remove_spaces('collectedby',
 
         dc1 = formdata.get('collected_s')
         dc2 = formdata.get('collected_e')
-        if d1 and d2:
-            if d2 < d1:
-                self._errors.setdefault('collected_e', ErrorList())
-                self._errors['collected_e'].append(_('дата окончания определения должна быть не раньше даты начала'))
+
         if dc1 and d1:
-            if d1 < dc1:
+            if d1 < dc1 and d1.day == 1 and d2 and d2.day in [28, 29, 30, 31] and d2.month == d1.month and d2.year >= dc1.year and d2.month>=d1.month:
+                pass
+            elif d1 < dc1 and d1.day == 1 and d2 and d2.day == 31 and d1.month == 1 and d2.month == 12 and d2.year >= dc1.year:
+                pass
+            elif d1 < dc1:
                 self._errors.setdefault('identified_s', ErrorList())
                 self._errors['identified_s'].append(_('дата определения не может быть раньше даты сбора'))
         if dc1 and dc2:
             if dc2 < dc1:
                 self._errors.setdefault('collected_e', ErrorList())
                 self._errors['collected_e'].append(_('дата окончания сбора должна быть не раньше даты начала'))
+
         ispub = formdata.get('public')
         icode = formdata.get('itemcode')
         sp = formdata.get('species')

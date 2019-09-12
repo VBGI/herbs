@@ -685,7 +685,9 @@ def collect_label_data(q):
                                    addsp.species.get_infra_rank_display(),
                                    addsp.species.infra_epithet,
                                    addsp.species.infra_authorship,
-                                   addsp.note])
+                                   addsp.note,
+                                   _smartify_dates(addsp, prefix='identified')
+                                   ])
                 identifiedby.append(addsp.identifiedby)
         ddict = _smartify_species(item)
         ddict.update({'coldate': _smartify_dates(item)})
@@ -786,7 +788,8 @@ def make_bryophyte_label(request, q):
                        label['infra_rank'],
                        label['infra_epithet'],
                        label['infra_authorship'],
-                       label['short_note'] or '']] + label['addspecies']
+                       label['short_note'] or '',
+                       '']] + label['addspecies']
         label.pop('short_note', None)
         label.pop('addspecies', None)
         label.pop('spauth', None)

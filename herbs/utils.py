@@ -41,8 +41,11 @@ def _smartify_dates(item, prefix='collected'):
                 return fdate_s.format('M Y')
             elif (date_e.month == date_s.month) and (date_s.month == 2) and\
                  (date_s.day == 1) and (date_e.day in [28, 29]):
-                # NOTE: for now, we don't handle leap years however.
+                # NOTE: we don't handle leap years however; we don't use
+                # calendar module - calendar.isleap?
                 return fdate_s.format('M Y')
+            elif (date_e.year == date_s.year) and date_s.month == 1 and date_e.month == 12 and date_s.day == 1 and date_e.day == 31:
+                return fdate_s.format('Y')
             else:
                 if date_s < date_e:
                     return fdate_s.format('d M Y') +\

@@ -768,7 +768,7 @@ class PDF_BRYOPHYTE(BARCODE):
             addinfo = []
             addind = 1
             mainind = 0
-            for sp, auth, ir, iep, iauth, _note in allspecies:
+            for sp, auth, ir, iep, iauth, _note, date_adds in allspecies:
                 html_sp = ''
                 mainind += 1
 
@@ -812,12 +812,12 @@ class PDF_BRYOPHYTE(BARCODE):
                             # UPDATE: Temporary removed, revision needed...
                             # if _note[-1] in [';', '.', ',']:
                             #     _note = _note[:-1]
-                            if identifiedby[mainind-1].strip():
+                            if identifiedby[mainind - 1].strip():
                                 _note += '; '
-                                _note += 'det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True)
+                                _note += 'det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True) + (" ({})".format(date_adds) if date_adds else "")
                         elif identifiedby[0] != identifiedby[mainind - 1]:
                             if  identifiedby[mainind-1].strip():
-                                _note += 'Det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True)
+                                _note += 'Det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True) + (" ({})".format(date_adds) if date_adds else "")
                     if dethistory and mainind == 1:
                         if _note:
                             # UPDATE: Temporary removed, revision needed...
