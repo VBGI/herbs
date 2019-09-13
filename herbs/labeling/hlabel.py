@@ -839,9 +839,9 @@ class PDF_BRYOPHYTE(BARCODE):
 
                             if hist_item['note']:
                                 if histline.strip().endswith('.'):
-                                    histline += ' Note: {}'.format(hist_item['note'])
+                                    histline += u' Note: {}'.format(hist_item['note'])
                                 else:
-                                    histline += '. Note: {}'.format(hist_item['note'])
+                                    histline += u'. Note: {}'.format(hist_item['note'])
                             histlines.append(histline)
 
                         _note +=  'ID history: ' + '; '.join(histlines)
