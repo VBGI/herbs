@@ -17,7 +17,8 @@ if __name__ == '__main__':
     settings = None # mocking for testing ...
 else:
     from django.conf import settings
-    from ..utils import translit, smartify_language, SIGNIFICANCE
+    from ..utils import (translit, smartify_language, SIGNIFICANCE,
+                         CYRILLIC_SYMBOLS)
 
 # ------------ PDF font autoselect: japanese, korean fonts support
 class StyledPDF(fpdf.FPDF):
@@ -415,7 +416,20 @@ class PDF_DOC(PDF_MIXIN):
                                 self.goto(y, self._ln))
                 self.pdf.cell(0, 0, region)
 
-        if place.strip():
+        place = place.strip()
+
+        if district.strip():
+            ds = district.strip()
+            # indetify language of place field;
+            if place:
+                if len(set(place).intersection(CYRILLIC_SYMBOLS)) > len(place) / 3.0:
+                    place = smartify_language(district.strip(), lang='ru') + '. '+ place
+                else:
+                    place = smartify_language(district.strip(), lang='en') + '. ' + place
+            else:
+                place = smartify_language(district.strip(), lang='en')
+
+        if place:
             prepare = []
             place = smartify_language(place, lang='en')
             self._ln += 1
