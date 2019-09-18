@@ -14,13 +14,13 @@ if __name__ == '__main__':
                     ('cf.', 'confertum')
                     )
     SPECIES_ABBR = 'sp.'
-    settings = None # mocking for testing ...
+    settings = None  # mocking for testing ...
 else:
     from django.conf import settings
     from ..utils import (translit, smartify_language, SIGNIFICANCE,
                          CYRILLIC_SYMBOLS)
 
-# ------------ PDF font autoselect: japanese, korean fonts support
+# ------------ PDF font autoselection: japanese, korean fonts supported
 class StyledPDF(fpdf.FPDF):
 
     def set_font(self, family, sample='', size=0):
@@ -31,7 +31,7 @@ class StyledPDF(fpdf.FPDF):
     @staticmethod
     def _test_language(s):
         ranges = {
-            'japanese' :
+            'japanese':
             [
             {"from": ord(u"\u3300"), "to": ord(u"\u33ff")},
             # compatibility ideographs
@@ -54,11 +54,11 @@ class StyledPDF(fpdf.FPDF):
                 ],
             'korean':
                 [
-                    {"from": ord(u"\uac00"), "to": ord(u"\ud7a3")}, #Hangul Syllables
-                    {"from": ord(u"\u1100"), "to": ord(u"\u11ff")}, #Hangul Jamo
-                    {"from": ord(u"\u3130"), "to": ord(u"\u318f")}, #Hangul Compatibility
-                    {"from": ord(u"\ua960"), "to": ord(u"\ua97f")}, #Hangul Jamo Extended A
-                    {"from": ord(u"\ud7b0"), "to": ord(u"\ud7ff")}, #Hangul Jamo Extended B
+                    {"from": ord(u"\uac00"), "to": ord(u"\ud7a3")},  # Hangul Syllables
+                    {"from": ord(u"\u1100"), "to": ord(u"\u11ff")},  # Hangul Jamo
+                    {"from": ord(u"\u3130"), "to": ord(u"\u318f")},  # Hangul Compatibility
+                    {"from": ord(u"\ua960"), "to": ord(u"\ua97f")},  # Hangul Jamo Extended A
+                    {"from": ord(u"\ud7b0"), "to": ord(u"\ud7ff")},  # Hangul Jamo Extended B
                 ]
                     }
 
@@ -150,8 +150,8 @@ class PDF_MIXIN(object):
                 if word.strip():
                     prepared_word.append((word, s))
             prepared_words.append(Word(prepared_word, self))
-
         # -----------------------------------------------
+
         prepared_words = filter(lambda x: x.data, prepared_words)
 
         while not done:
@@ -216,11 +216,13 @@ class PDF_DOC(PDF_MIXIN):
     def _add_label(self, x, y, family='', species='', spauth='',
                    coldate='', latitude='', longitude='',
                    place='', country='', region='', collected='',
-                   altitude='', identifiedby=[''], number='', itemid='', fieldid='',
-                   acronym='', institute='', address='', gform='', addspecies='',
-                   district='', note='', short_note='', gpsbased='',
-                   dethistory='', infra_rank='', infra_epithet='', logo_path='',
-                   detdate='', type_status='', infra_authorship='', duplicates=''):
+                   altitude='', identifiedby=[''], number='', itemid='',
+                   fieldid='', acronym='', institute='', address='',
+                   gform='', addspecies='', district='', note='',
+                   short_note='', gpsbased='', dethistory='',
+                   infra_rank='', infra_epithet='', logo_path='',
+                   detdate='', type_status='', infra_authorship='',
+                   duplicates=''):
 
         self.pdf.rect(x, y, LABEL_WIDTH, LABEL_HEIGHT, '')
         self.pdf.set_xy(x + PADDING_X, y + PADDING_Y)
@@ -329,7 +331,7 @@ class PDF_DOC(PDF_MIXIN):
             epw = self.pdf.get_string_width(infra_epithet)
             rw = self.pdf.get_string_width(infra_rank)
             iauw = self.pdf.get_string_width(infra_authorship)
-            x_pos = LABEL_WIDTH / 2 - (au_w + sp_w +rw + epw + iauw + 2) / 2
+            x_pos = LABEL_WIDTH / 2 - (au_w + sp_w + rw + epw + iauw + 2) / 2
             scaled = False
             if x_pos > PADDING_X:
                 self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
@@ -367,7 +369,7 @@ class PDF_DOC(PDF_MIXIN):
                 self.pdf.cell(0, 0, author_name)
 
                 self._ln += 1
-                x_pos = LABEL_WIDTH / 2   - (rw + epw +iauw + 2) / 2
+                x_pos = LABEL_WIDTH / 2   - (rw + epw + iauw + 2) / 2
                 self.pdf.set_font('DejaVu', '', REGULAR_FONT_SIZE)
                 self.pdf.set_xy(x + x_pos, self.goto(y, self._ln))
                 self.pdf.cell(0, 0, infra_rank)
@@ -550,7 +552,7 @@ class PDF_DOC(PDF_MIXIN):
         # -----------------------------------------------
 
         # Extra info (to get without qr reader ----------
-        self.pdf.set_font_size(SMALL_FONT_SIZE-4)
+        self.pdf.set_font_size(SMALL_FONT_SIZE - 4)
         tw = self.pdf.get_string_width(HERB_URL % itemid)
         self.pdf.set_xy(x + LABEL_WIDTH - PADDING_X - tw, y + LABEL_HEIGHT - 2)
         self.pdf.cell(0, 0, HERB_URL % itemid)
@@ -623,8 +625,11 @@ class PDF_DOC(PDF_MIXIN):
                     'region': u'Приморский край',
                     'altitude': '123 m o.s.l',
                     'country': u'Россия',
-                    'place': u'Никому неизвестное село глубоко в лесу; На горе росли цветы небывалой красоты, мы собрали их в дождливую погоду и было очень прохладно',
-                    'collected': u'Один М.С., Другой Б.В., Третий А.А., Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой',
+                    'place': u'Никому неизвестное село глубоко в лесу;'
+                             u'На горе росли цветы небывалой красоты, мы'
+                             u'собрали их в дождливую погоду и было очень прохладно',
+                    'collected': u'Один М.С., Другой Б.В., Третий А.А.,'
+                                 u'Четвертый Б.Б., Пятый И.И., Шестой В.В., Седьмой',
                     'identifiedby': [u'Один, Другой'],
                     'number': '17823781', 'itemid': '12312', 'fieldid': '123456789asdfghj',
                     'acronym': 'VBGI',
@@ -720,8 +725,7 @@ class PDF_BRYOPHYTE(BARCODE):
         self._change_font_size()
 
     def check_resize_required(self, w, bw):
-        a = ((self.pdf.get_x() + w) >= (DEFAULT_PAGE_WIDTH -
-                                       BRYOPHYTE_LEFT_MARGIN - bw))
+        a = ((self.pdf.get_x() + w) >= (DEFAULT_PAGE_WIDTH - BRYOPHYTE_LEFT_MARGIN - bw))
         b = (self.pdf.get_y() >= (DEFAULT_PAGE_HEIGHT - BARCODE_ITEM_HEIGHT - 15))
         return a and b
 
@@ -740,8 +744,7 @@ class PDF_BRYOPHYTE(BARCODE):
             return res
         return '<i>{}</i>'.format(txt)
 
-    def generate_label(self, allspecies=[],
-                       coldate='', latitude='', longitude='',
+    def generate_label(self, allspecies=[], coldate='', latitude='', longitude='',
                        place='', country='', region='', collected='',
                        altitude='', identifiedby=[], number='', itemid='',
                        fieldid='', acronym='', institute='', note='', detdate='',
@@ -751,13 +754,14 @@ class PDF_BRYOPHYTE(BARCODE):
         self._change_font_size()
 
         label_width = DEFAULT_PAGE_WIDTH - 2 * BRYOPHYTE_LEFT_MARGIN
-        #  get barcode width
-        barcode_width = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() +
-                                                     str(itemid) + '**')
+        
+        # get barcode width
+        barcode_width = 5.0 * BARCODE_ITEM_WIDTH * len(str(acronym).upper() + str(itemid) + '**')
         done = False
         while not done:
             resize_required = []
             self.clear_page()
+
             # -----  Insert qr-code in the center of the page ------
             insert_qr(self.pdf, DEFAULT_PAGE_WIDTH / 2.0 + QR_SIZE / 2.0,
                       DEFAULT_PAGE_HEIGHT / 2.0, code=itemid, lh=0, lw=0)
@@ -830,7 +834,7 @@ class PDF_BRYOPHYTE(BARCODE):
                                 _note += '; '
                                 _note += 'det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True) + (" ({})".format(date_adds) if date_adds else "")
                         elif identifiedby[0] != identifiedby[mainind - 1]:
-                            if  identifiedby[mainind-1].strip():
+                            if identifiedby[mainind-1].strip():
                                 _note += 'Det. ' + translit(identifiedby[mainind - 1], 'ru', reversed=True) + (" ({})".format(date_adds) if date_adds else "")
                     if dethistory and mainind == 1:
                         if _note:
@@ -858,7 +862,7 @@ class PDF_BRYOPHYTE(BARCODE):
                                     histline += u'. Note: {}'.format(hist_item['note'])
                             histlines.append(histline)
 
-                        _note +=  'ID history: ' + '; '.join(histlines)
+                        _note += 'ID history: ' + '; '.join(histlines)
                     if _note.strip():
                         html_sp += "<sup>({})</sup>".format(addind)
                         addinfo.append([addind, _note.strip()])
@@ -911,8 +915,8 @@ class PDF_BRYOPHYTE(BARCODE):
             self.pdf.set_font('DejaVu', '', self._sfs)
 
             pos_info = '. '.join([x.strip() for x in [smartify_language(region, lang='en'),
-                                               smartify_language(district, lang='en'),
-                                               latlon_info] if x])
+                                                      smartify_language(district, lang='en'),
+                                                      latlon_info] if x])
 
             self.pdf.set_x(BRYOPHYTE_LEFT_MARGIN + BRYOPHYTE_MARGIN_EXTRA)
 
@@ -1103,10 +1107,3 @@ if __name__ == '__main__':
         pdf.create_file('output.pdf')
 
     test_regular_pdf()
-
-
-
-
-
-
-
