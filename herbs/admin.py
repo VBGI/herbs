@@ -53,7 +53,7 @@ publish_herbitem.short_description = _(u"Опубликовать записи")
 unpublish_herbitem.short_description = _(u"Снять с публикации")
 # ---------------------------------------------------------------------------
 
-# --------------- Auxiliary getting functions -------------------------------
+# --------------- Auxiliary functions ---------------------------------------
 
 def get_subdivision_or_none(request):
     subquery = Subdivision.objects.filter(allowed_users__icontains=request.user.username)
@@ -178,7 +178,6 @@ class NotificationMixin:
                                                    username=username,
                                                    hitem=obj,
                                                    emails=emails)
-
             else:
                 Notification.objects.filter(tracked_field=field_name,
                                             status='Q',
@@ -224,11 +223,10 @@ class NotificationMixin:
                     user = umodel.objects.get(username=username)
                 except umodel.DoesNotExist:
                     continue
-                if user.has_perm('herbs.can_set_publish') and\
-                                user.email in settings.HERBS_NOTIFICATION_MAILS:
+                if user.has_perm('herbs.can_set_publish') and \
+                                 user.email in settings.HERBS_NOTIFICATION_MAILS:
                     final_users.append(user)
         return ','.join([user.email for user in final_users])
-
 
 
 # -------------- Common per object permission setter ------------------------
@@ -350,9 +348,9 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
 
     def edit_related_species(self, obj):
         if obj.species:
-            url = reverse('admin:%s_%s_change' %('herbs', 'species'),
+            url = reverse('admin:%s_%s_change' % ('herbs', 'species'),
                           args=[obj.species.pk])
-            resurl = '<a href="%s" title="%s">Edit sp.</a>'  % (url, capfirst(obj.species.get_full_name()))
+            resurl = '<a href="%s" title="%s">Edit sp.</a>' % (url, capfirst(obj.species.get_full_name()))
         else:
             resurl = '--'
         return resurl
@@ -397,11 +395,11 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
         obj.status = 'N'  # set status: normally created object
         obj.save()
         try:
-            # try to make a notification, and
-            # fail silently if something goes wrong!
             self.make_notification(request, obj)
         except:
-             pass
+            # Notifications aren't important, we can pass it silently; 
+            # everything can happen during make_notification
+            pass
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super(HerbItemAdmin, self).get_readonly_fields(request, obj)
@@ -474,6 +472,7 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
         else:
             if 'short_note' in self.exclude:
                 self.exclude = tuple()
+
         ExtendedForm = super(HerbItemAdmin, self).get_form(request, obj, **kwargs)
         class NewModelForm(ExtendedForm):
             def __new__(self, *args, **kwargs):
@@ -523,7 +522,6 @@ class HerbItemAdmin(PermissionMixin, AjaxSelectAdmin, NotificationMixin):
                 status = False
         return HttpResponse(json.dumps({'status': status}), content_type="application/json;charset=utf-8")
 
-
     def add_view(self, request, form_url='', extra_context=None):
             source_id = request.session.get('sfn',None)
             if source_id != None:
@@ -556,8 +554,8 @@ class SpeciesAdmin(AjaxSelectAdmin):
     defaultname.short_description = _('Название вида')
 
     def countobjs(self, obj):
-        res = _('Основные виды: ') + str(HerbItem.objects.filter(species=obj).count()) +\
-             ' | ' + _('Переопределенные: ') + str(DetHistory.objects.filter(species=obj).exclude(herbitem__isnull=True).count()) +\
+        res = _('Основные виды: ') + str(HerbItem.objects.filter(species=obj).count()) + \
+             ' | ' + _('Переопределенные: ') + str(DetHistory.objects.filter(species=obj).exclude(herbitem__isnull=True).count()) + \
              ' | ' + _('Дополнительные: ') + str(Additionals.objects.filter(species=obj).exclude(herbitem__isnull=True).count())
         return res
     countobjs.short_description = _('Количество объектов в БД')
@@ -575,10 +573,8 @@ class SpeciesAdmin(AjaxSelectAdmin):
             if not request.user.is_superuser and obj.status == 'A':
                 if obj.updated:
                     if obj.updated < (timezone.now() - timedelta(days=settings.HERBS_APPROVED_SPECIES_FREEZE)).date():
-                        readonly_fields = ['status', 'name', 'genus',
-                                           'authorship', 'infra_rank',
-                                           'infra_epithet', 'infra_authorship',
-                                           'synonym']
+                        readonly_fields = ['status', 'name', 'genus', 'authorship', 'infra_rank',
+                                           'infra_epithet', 'infra_authorship', 'synonym']
         return readonly_fields
 
 
@@ -616,12 +612,13 @@ class HerbReplyAdmin(admin.ModelAdmin):
         if obj.herbitem:
             url = reverse('admin:%s_%s_change' % ('herbs', 'herbitem'),
                           args=[obj.herbitem.id])
-            resurl = '<a href="%s" title="Редактировать запись">Редактировать запись %s</a>'  % (url, obj.herbitem.id)
+            resurl = '<a href="%s" title="Редактировать запись">Редактировать запись %s</a>' % (url, obj.herbitem.id)
         else:
             resurl = '--'
         return resurl
     species_edit_link.allow_tags = True
     species_edit_link.short_description = _('Запись')
+
 
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('created', 'username', 'status',
@@ -643,6 +640,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
          return request.user.is_superuser
+
 
 admin.site.register(Family, FamilyAdmin)
 admin.site.register(Genus, GenusAdmin)

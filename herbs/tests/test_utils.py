@@ -1,10 +1,11 @@
-#coding: utf-8
+# coding: utf-8
 
 from ..utils import get_authors, evaluate_taxons, evaluate_dates
 from unittest import TestCase
 from datetime import date
 
 # TODO: Structure of utils changed, tests should be updated
+
 class TaxonEvaluationTestCase(TestCase):
     
     def setUp(self):
@@ -32,7 +33,6 @@ class TaxonEvaluationTestCase(TestCase):
         res = evaluate_taxons([self.unbalanced]).pop()
         self.assertEqual(res[0], 'somefamily')
         self.assertEqual(res[1][0], 'Unbalanced parenthesis')
-
 
 
 class DateEvaluationTestCase(TestCase):
@@ -69,7 +69,3 @@ class DateEvaluationTestCase(TestCase):
     def test_no_day(self):
         res = evaluate_dates([self.no_day]).pop()
         self.assertEqual(res[0], 'Day not found')
-        
-        
-        
-        

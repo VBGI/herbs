@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _
 from django.contrib.auth import get_user_model
 from geoposition.fields import GeopositionField
 from django.core.exceptions import PermissionDenied
-from .utils import  _smartify_dates, SIGNIFICANCE
+from .utils import _smartify_dates, SIGNIFICANCE
 
 
 class BasicNameMixin(object):
@@ -25,13 +25,10 @@ class BasicNameMixin(object):
 
 
 class HerbItemMixin(models.Model, BasicNameMixin):
-    '''
-    Common item properties
-    '''
+
     BIOMORPHS = (('D', 'Development stage partly'),
                  ('G', 'Life form')
                  )
-
 
     TYPE_STATUSES = (('H', 'HOLOTYPUS'),
                      ('I', 'ISOTYPUS'),
@@ -172,7 +169,7 @@ class Subdivision(models.Model):
                             verbose_name=_('название подраздела'))
     description = models.CharField(max_length=1000, blank=True, default='',
                                    verbose_name=_('описание'))
-    allowed_users = models.CharField(max_length=1000, default='',blank=True,
+    allowed_users = models.CharField(max_length=1000, default='', blank=True,
                                      verbose_name=_('пользователи'))
 
     parent = models.ForeignKey('self', null=True, blank=True,
@@ -188,7 +185,7 @@ class Subdivision(models.Model):
             _r = c.get_all_children()
             if len(_r) > 0:
                 result.extend(_r)
-        #FIXME: revision needed: use return list(set(result)) instead?
+        # FIXME: revision needed: use return list(set(result)) instead?
         return result
 
     class Meta:
@@ -199,9 +196,10 @@ class Subdivision(models.Model):
 
 @python_2_unicode_compatible
 class Country(models.Model):
-    """Base class  for Country"""
+
     name_ru = models.CharField(max_length=150)
     name_en = models.CharField(max_length=150)
+
     def __str__(self):
         return u'{}|{}'.format(self.name_ru, self.name_en)
 
@@ -209,7 +207,6 @@ class Country(models.Model):
         ordering = ('name_ru',)
         verbose_name = _('страна')
         verbose_name_plural = _('страны')
-
 
 
 @python_2_unicode_compatible
@@ -301,7 +298,7 @@ class TaxonMixin(models.Model):
     name = models.CharField(max_length=70, default='',
                             verbose_name=_('название'))
     authorship = models.CharField(max_length=250, blank=True, default='',
-                                        verbose_name=_('авторство'))
+                                  verbose_name=_('авторство'))
     def __str__(self):
         return capfirst(self.get_full_name())
 
@@ -333,6 +330,7 @@ class Genus(TaxonMixin):
     gcode = models.CharField(max_length=6, default='',
                              verbose_name=_('De la Torre ID'),
                              blank=True)
+    
     def get_full_name(self):
         return super(Genus, self).get_full_name()
     get_full_name.short_description = _('название рода')
@@ -361,8 +359,8 @@ class Species(TaxonMixin):
                               related_name='species')
 
     infra_rank = models.CharField(choices=INFRA_RANKS, blank=True, default='',
-                                   verbose_name=_("подвидовой ранг"),
-                                   max_length=1)
+                                  verbose_name=_("подвидовой ранг"),
+                                  max_length=1)
     infra_epithet = models.CharField(max_length=100, default='', blank=True,
                                      verbose_name=_('подвидовой эпитет'))
     infra_authorship = models.CharField(max_length=100, default='', blank=True,
@@ -376,13 +374,13 @@ class Species(TaxonMixin):
     def get_full_name(self):
         if not self.infra_rank:
             return ' '.join([capfirst(self.genus.name),
-                              super(Species, self).get_full_name()])
+                             super(Species, self).get_full_name()])
         else:
             return ' '.join([capfirst(self.genus.name), self.name,
-                              self.authorship,
-                              self.get_infra_rank_display(),
-                              self.infra_epithet,
-                              self.infra_authorship]).strip()
+                             self.authorship,
+                             self.get_infra_rank_display(),
+                             self.infra_epithet,
+                             self.infra_authorship]).strip()
 
     get_full_name.short_description = _('название вида')
 
@@ -412,7 +410,7 @@ class HerbItem(HerbItemMixin):
                        )
 
     def get_absolute_url(self):
-        return  'http:' + getattr(settings, 'HERBS_HERBITEM_PAGE') + '%s' % self.id
+        return ''.join(['http:', getattr(settings, 'HERBS_HERBITEM_PAGE'), '%s' % self.id])
 
     def delete(self, *args, **kwargs):
         if self.public:
@@ -421,12 +419,9 @@ class HerbItem(HerbItemMixin):
             super(HerbItem, self).delete(*args, **kwargs)
 
 
-
 class HerbCounter(models.Model):
-    herbitem = models.ForeignKey(HerbItem, null=True, blank=True,
-                                 related_name='herbcounter')
+    herbitem = models.ForeignKey(HerbItem, null=True, blank=True, related_name='herbcounter')
     count = models.PositiveIntegerField(default=0)
-
 
 
 @python_2_unicode_compatible
@@ -436,8 +431,8 @@ class HerbReply(models.Model):
                       ('P', 'IN PROGRESS'),
                       )
     herbitem = models.ForeignKey(HerbItem, null=True, blank=True,
-                                verbose_name=_('Запись'), editable=False,
-                                related_name='herbreply')
+                                 verbose_name=_('Запись'), editable=False,
+                                 related_name='herbreply')
     email = models.EmailField(blank=True)
     description = models.CharField(max_length=2000, default='', blank=True,
                                    verbose_name=_('Описание'))
@@ -458,8 +453,7 @@ class HerbReply(models.Model):
 @python_2_unicode_compatible
 class Notification(models.Model):
     NOTE_STATUSES = (('Q', 'Quequed'),
-                     ('S', 'Sent')
-                     )
+                     ('S', 'Sent'))
     emails = models.TextField(default='', blank=True)
     created = models.DateTimeField(auto_now_add=True, verbose_name=_('создан'))
     status = models.CharField(max_length=1, choices=NOTE_STATUSES, default='Q',

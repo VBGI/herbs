@@ -41,7 +41,7 @@ try:
 except ImportError:
     from urllib.request import urlopen
 
-allowed_image_pat=re.compile(settings.HERBS_SOURCE_IMAGE_PATTERN)
+allowed_image_pat = re.compile(settings.HERBS_SOURCE_IMAGE_PATTERN)
 acronym_pat_ = re.compile(r'([A-Z]{1,10})(\d+)')
 digit_pat = re.compile(r'\d+')
 
@@ -82,8 +82,8 @@ def _get_rows_for_csv(queryset):
                 if (field == 'latitude'):
                     val = '%s' % qs_obj.coordinates.latitude if qs_obj.coordinates else ''
                 elif (field == 'longitude'):
-                    val = '%s'  % qs_obj.coordinates.longitude if qs_obj.coordinates else ''
-                elif (field =='family'):
+                    val = '%s' % qs_obj.coordinates.longitude if qs_obj.coordinates else ''
+                elif (field == 'family'):
                     val = capfirst(qs_obj.species.genus.family.name) if qs_obj.species else ''
                 else:
                     val = ''
@@ -153,8 +153,7 @@ def get_data(request):
             if species_queryset.exists():
                 syn_aux = map(lambda x: Q(json_content__contains=',' + '%s' % x + ','),
                                 species_queryset.values_list('id', flat=True))
-                intermediate = filter(bool,
-                                        sum([item.json_content.split(',') for item in SpeciesSynonym.objects.filter(reduce(operator.or_, syn_aux))], []))
+                intermediate = filter(bool, sum([item.json_content.split(',') for item in SpeciesSynonym.objects.filter(reduce(operator.or_, syn_aux))], []))
                 try:
                     intermediate =  map(int, intermediate)
                 except (ValueError, TypeError):
@@ -210,8 +209,7 @@ def get_data(request):
             if None in [latl, lonl, latu, lonu] and any([latl, lonl, latu, lonu]):
                 warnings.append(_(u'Заданы не все границы области поиска. Условия поиска по области будут проигнорированы.'))
             elif (not (-90.0 <= latl <= 90) or not (-90.0 <= latu <= 90.0) or
-                  not (-180.0 <= lonl <= 180.0) or not(-180.0 <= lonu <= 180.0))\
-                  and all([latl, lonl, latu, lonu]):
+                  not (-180.0 <= lonl <= 180.0) or not(-180.0 <= lonu <= 180.0)) and all([latl, lonl, latu, lonu]):
                 warnings.append(_(u'Границы области поиска неправдоподобны для географических координат. Условя поиска по области будут проигнорированы.'))
             elif all([latl, lonl, latu, lonu]):
                 bigquery += [Q(latitude__gte=latl) & Q(latitude__lte=latu)]
@@ -291,12 +289,9 @@ def get_data(request):
             extra_query = dethistory_query or additionals_query
 
         if extra_query and bigquery:
-            objects_filtered = HerbItem.objects.filter(reduce(operator.and_,
-                                                          bigquery)|
-                                                   extra_query).exclude(public=False)
+            objects_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery)|extra_query).exclude(public=False)
         elif bigquery:
-            objects_filtered = HerbItem.objects.filter(reduce(operator.and_,
-                                                          bigquery)).exclude(public=False)
+            objects_filtered = HerbItem.objects.filter(reduce(operator.and_, bigquery)).exclude(public=False)
         else:
             objects_filtered = HerbItem.objects.filter(public=True)
 
@@ -329,8 +324,7 @@ def get_data(request):
             if ordering_field not in [x[0] for x in settings.HERBS_SEARCHFORM_ORDERING_FIELDS]:
                 ordering_field = 'id'
             ord_string = '' if ordering_direction else '-'
-            objects_filtered = objects_filtered.order_by(ord_string\
-                                                        + ordering_field)
+            objects_filtered = objects_filtered.order_by(ord_string + ordering_field)
 
             # ---------  pagination-----------------
             pagcount = request.GET.get('pagcount', '')
@@ -374,12 +368,14 @@ def json_api(request):
         'warnings': [],
         'data': [],
     }
-    allowed_parameters = {'family', 'genus', 'id', 'species_epithet',
-                              'itemcode', 'identifiedby', 'place', 'collectedby',
-                              'country', 'colstart', 'colend', 'acronym',
-                              'subdivision', 'synonyms', 'additionals', 'latl',
-                              'latu', 'lonl', 'lonu', 'additionals', 'fieldid',
-                              'authorship', 'imonly'}
+    allowed_parameters = {
+        'family', 'genus', 'id', 'species_epithet',
+        'itemcode', 'identifiedby', 'place', 'collectedby',
+        'country', 'colstart', 'colend', 'acronym',
+        'subdivision', 'synonyms', 'additionals', 'latl',
+        'latu', 'lonl', 'lonu', 'additionals', 'fieldid',
+        'authorship', 'imonly'
+        }
 
     if request.method == 'POST':
         context['errors'].append('Only GET-requests is allowed')
@@ -415,7 +411,6 @@ def json_api(request):
             context['errors'].append("The record with the requested ID wasn't found")
         return HttpResponse(json.dumps(context, cls=DjangoJSONEncoder),
                             content_type="application/json;charset=utf-8")
-
 
     # -------- Long-running http-response: check the number of connections
     if cache:
@@ -564,13 +559,11 @@ def show_herbitem(request, inum):
                                                 form.cleaned_data['description'],
                                                 email=form.cleaned_data['email']
                                                 )
-                context.update({'success': True,
-                                'empty': False})
+                context.update({'success': True, 'empty': False})
             else:
                 context.update({'empty': True})
         else:
-            if request.POST.get('description', '').strip()\
-                    or request.POST.get('email', '').strip():
+            if request.POST.get('description', '').strip() or request.POST.get('email', '').strip():
                 context.update({'empty': False})
             else:
                 context.update({'empty': True})
@@ -582,8 +575,7 @@ def show_herbitem(request, inum):
         context.update({'form': form})
     except HerbItem.DoesNotExist:
         context.update({'error': _(u'Гербарного образца с id=%s не было найдено') % inum})
-    result = render_to_string('herbitem_details.html', context,
-                              context_instance=RequestContext(request))
+    result = render_to_string('herbitem_details.html', context, context_instance=RequestContext(request))
     return HttpResponse(result)
 
 
@@ -615,11 +607,11 @@ def advice_select(request):
                 if query:
 
                     objects = genquery.filter(family__name__iexact=dataform.cleaned_data['family'],
-                                                   name__istartswith=query,
+                                              name__istartswith=query,
                                               herbitem_count__gt=0)
                 else:
                     objects = genquery.filter(family__name__iexact=dataform.cleaned_data['family'],
-                                                   herbitem_count__gt=0)
+                                              herbitem_count__gt=0)
             else:
                 if query:
                     objects = genquery.filter(name__istartswith=query, herbitem_count__gt=0)
@@ -647,7 +639,7 @@ def collect_label_data(q):
     if not objects.exists():
         return result
     cn = Counter(q)
-    objs = [[obj]*cn[obj.pk] for obj in objects]
+    objs = [[obj] * cn[obj.pk] for obj in objects]
     objs = sum(objs, [])
     lang = translation.get_language()
     translation.activate('en')
@@ -667,15 +659,12 @@ def collect_label_data(q):
             for hist_obj in history:
                 if hist_obj.species:
                     _sp_hist = _smartify_species(hist_obj)
-                    _dethistory.append(
-                        {
-        'identifiedby': hist_obj.identifiedby,
-        'identified': _smartify_dates(hist_obj, prefix='identified'),
-        'species': _sp_hist,
-        'note': hist_obj.note or ''
-                        }
-                                       )
-
+                    _dethistory.append({
+                        'identifiedby': hist_obj.identifiedby,
+                        'identified': _smartify_dates(hist_obj, prefix='identified'),
+                        'species': _sp_hist,
+                        'note': hist_obj.note or ''
+                        })
         addspecies = []
         addsps_obj = Additionals.objects.filter(herbitem=item)
         if addsps_obj.exists():
@@ -697,33 +686,31 @@ def collect_label_data(q):
             if item.species.genus.family:
                 current_family = item.species.genus.family.name.upper()
         ddict.update({'family': current_family,
-                    'country': item.country.name_en if item.country else '',
-                    'region': item.region,
-                    'altitude': _smartify_altitude(item.altitude),
-                    'latitude': '{0:.5f}'.format(item.coordinates.latitude) if item.coordinates else '',
-                    'longitude': '{0:.5f}'.format(item.coordinates.longitude) if item.coordinates else '',
-                    'place': item.detailed,
-                    'collected': item.collectedby,
-                    'identifiedby': identifiedby,
-                    'itemid': '%s' % item.pk,
-                    'number': '%s' % item.itemcode or '*',
-                    'acronym': item.acronym.name if item.acronym else '',
-                    'address': item.acronym.address if item.acronym else '',
-                    'institute': item.acronym.institute if item.acronym else '',
-                    'gform': item.devstage or '',
-                    'fieldid': item.fieldid or '',
-                    'addspecies': addspecies,
-                    'district': item.district or '',
-                    'note': item.note or '',
-                    'short_note': item.short_note or '',
-                    'gpsbased': item.gpsbased,
-                    'dethistory':  _dethistory,
-                    'duplicates': item.duplicates or '',
-                    'type_status': item.get_type_status_display(),
-                    'logo_path': os.path.join(getattr(main_settings,
-                                                      'MEDIA_ROOT',
-                                                      ''),
-                                              str(item.acronym.logo)) if item.acronym else ''
+                      'country': item.country.name_en if item.country else '',
+                      'region': item.region,
+                      'altitude': _smartify_altitude(item.altitude),
+                      'latitude': '{0:.5f}'.format(item.coordinates.latitude) if item.coordinates else '',
+                      'longitude': '{0:.5f}'.format(item.coordinates.longitude) if item.coordinates else '',
+                      'place': item.detailed,
+                      'collected': item.collectedby,
+                      'identifiedby': identifiedby,
+                      'itemid': '%s' % item.pk,
+                      'number': '%s' % item.itemcode or '*',
+                      'acronym': item.acronym.name if item.acronym else '',
+                      'address': item.acronym.address if item.acronym else '',
+                      'institute': item.acronym.institute if item.acronym else '',
+                      'gform': item.devstage or '',
+                      'fieldid': item.fieldid or '',
+                      'addspecies': addspecies,
+                      'district': item.district or '',
+                      'note': item.note or '',
+                      'short_note': item.short_note or '',
+                      'gpsbased': item.gpsbased,
+                      'dethistory':  _dethistory,
+                      'duplicates': item.duplicates or '',
+                      'type_status': item.get_type_status_display(),
+                      'logo_path': os.path.join(getattr(main_settings,
+                                                'MEDIA_ROOT', ''), str(item.acronym.logo)) if item.acronym else ''
                       })
         result.append(ddict)
     translation.activate(lang)
@@ -799,6 +786,7 @@ def make_bryophyte_label(request, q):
         label.pop('species', None)
         label.update({'allspecies': allspecies})
         preprocessed_labels.append(label)
+
     # Generate pdf-outputmake_bryophyte_label
     pdf_template = PDF_BRYOPHYTE()
     pdf_template.generate_labels(preprocessed_labels)
@@ -854,19 +842,19 @@ def make_barcodes(request, q):
 def handle_image(request, afile):
     fname = os.path.basename(afile.name)
     herbimage = settings.HERBS_IMAGE_SESSION_NAME
-    with open(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname+'.part'),
+    with open(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname + '.part'),
               'wb+') as destination:
         ind = 0
-        skey = request.session._get_or_create_session_key() + '_'
         for chunk in afile.chunks():
             destination.write(chunk)
             request.session[herbimage] = afile.DEFAULT_CHUNK_SIZE * ind
         request.session[herbimage] = 'completed_or_new'
     try:
-        os.rename(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname+'.part'),
+        os.rename(os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname + '.part'),
                   os.path.join(settings.HERBS_IMAGE_SOURCE_TMP, fname))
     except (OSError, IOError):
         pass
+
 
 def get_pending_images(acronym=''):
     if cache:
@@ -936,7 +924,7 @@ def validate_image(request, filename=None):
 
         if not request.user.is_superuser and not error:
             if not HerbAcronym.objects.filter(name__iexact=facronym,
-                                          allowed_users__icontains=request.user.username).exists():
+                allowed_users__icontains=request.user.username).exists():
                 error = _(u'Ваша учетная запись принадлежит другому акрониму.'
                           u'Загрузка данного файла невозможна.')
 
@@ -1016,10 +1004,10 @@ def bulk_changes(request):
                                        u'какого-либо подраздела гербария'))
         if not context['errors']:
             context['message'] =_(u'Предварительная проверка заявленных'
-                                   u' изменений прошла успешна.'
-                                   u' Выберите акроними и/или подразделы '
-                                   u'гербария, к которым планируется применить '
-                                   u'изменения.')
+                                  u' изменений прошла успешна.'
+                                  u' Выберите акроними и/или подразделы '
+                                  u'гербария, к которым планируется применить '
+                                  u'изменения.')
             context['verified'] = True
 
     elif form.is_valid():
@@ -1038,12 +1026,12 @@ def bulk_changes(request):
                 query = query.filter(reduce(operator.or_, q_subdivisions))
             query = query.filter(**{
                 '%s__%s' % (form.cleaned_data['field'], search_operation):
-                    form.cleaned_data['old_value']
-                                    })
+                form.cleaned_data['old_value']
+                })
             if request.is_ajax():
                 # estimate changes and return the form, as a XMLHTTPResponse
                 return HttpResponse(json.dumps({'tochange': query.count()}),
-                            content_type="application/json;charset=utf-8")
+                                    content_type="application/json;charset=utf-8")
             else:
                 # actually apply changes, if no errors occurred
                 if not form.cleaned_data['as_subs']:
@@ -1052,12 +1040,10 @@ def bulk_changes(request):
                     # case insensitive replacement
                     changed = 0
                     for item in query:
-                        field_value = getattr(item, form.cleaned_data['field'],
-                                              None)
+                        field_value = getattr(item, form.cleaned_data['field'], None)
                         if field_value is not None:
                             if form.cleaned_data['case_insens']:
-                                old_value_pattern = re.compile(re.escape(form.cleaned_data['old_value']),
-                                                           re.IGNORECASE)
+                                old_value_pattern = re.compile(re.escape(form.cleaned_data['old_value']), re.IGNORECASE)
                             else:
                                 old_value_pattern = re.compile(
                                     re.escape(form.cleaned_data['old_value']))
@@ -1068,7 +1054,7 @@ def bulk_changes(request):
                             changed += 1
         else:
             context['errors'].append(_(u'Не выбрано ни одного '
-                                      u'акронима или подраздела гербария.'))
+                                       u'акронима или подраздела гербария.'))
     else:
         if not form.is_bound:
             context['errors'].append(_(u'Неправильно заполнена форма. '
@@ -1128,7 +1114,8 @@ def upload_image(request):
                 else:
                     status = ''
                 break
-            result = render_to_string('herbimage.html', {
+            result = render_to_string('herbimage.html',
+            {
                 'form': form,
                 'status': status,
                 'error': error,
@@ -1162,8 +1149,10 @@ def _smartify_species(item):
     else:
         species = ''
         authorship = ''
-    return {'spauth': authorship, 'species': species,
-            'infra_rank': item.species.get_infra_rank_display(),
-            'infra_epithet': item.species.infra_epithet,
-            'infra_authorship': item.species.infra_authorship}
-
+    return {
+        'spauth': authorship,
+        'species': species,
+        'infra_rank': item.species.get_infra_rank_display(),
+        'infra_epithet': item.species.infra_epithet,
+        'infra_authorship': item.species.infra_authorship
+        }

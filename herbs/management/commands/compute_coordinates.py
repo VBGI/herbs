@@ -18,6 +18,6 @@ class Command(BaseCommand):
                 obj.longitude = float(obj.coordinates.longitude)
                 obj.save()
                 count += 1
-            except (ValueError,AttributeError,TypeError):
+            except (ValueError, AttributeError, TypeError):
                 pass
         self.stdout.write('Successfully updated %s herbarium records' % count)

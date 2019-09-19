@@ -80,8 +80,27 @@ class HerbsAppConf(AppConf):
     IMAGE_SESSION_NAME = 'herbimage'
     IMAGE_SOURCE_TMP = '/home/scidam/tmp/herbsnapshots'
 
-
     INDEX_HERBARIORUM = KNOWN_HERBARIA
+
+    TINYMCE_FIELDSET = {
+        'theme': 'advanced',
+        'theme_advanced_buttons1': "bold,italic,sub,sup",
+        'theme_advanced_buttons2': "",
+        'theme_advanced_buttons3': "",
+        'cleanup_on_startup': True,
+        'width': '50%',
+        'height': '400px',
+        'theme_advanced_text_colors': "000000,ff0000,0000ff",
+        'force_br_newlines': False,
+        'force_p_newlines': False,
+        'forced_root_block': '',
+        'formats': {
+                    'bold': {'inline': 'b'},
+                    'italic': {'inline': 'i'}
+                    },
+        'invalid_elements': "strong,em",
+        'valid_elements': "b,i,sub,sup"
+    }
 
     class Meta:
         prefix = 'herbs'

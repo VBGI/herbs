@@ -45,6 +45,7 @@ def insert_qr(pdf, x, y, code='1234567', lw=LABEL_WIDTH, lh=LABEL_HEIGHT):
         except IOError:
             pass
 
+
 def lat_repr(latitude):
     res = ''
     if latitude:
@@ -52,8 +53,9 @@ def lat_repr(latitude):
         if float(latitude) >= 0.0:
             res += u'\N{DEGREE SIGN}N'
         else:
-             res += u'\N{DEGREE SIGN}S'
+            res += u'\N{DEGREE SIGN}S'
     return res
+
 
 def lon_repr(longitude):
     res = ''
@@ -109,7 +111,7 @@ class Word:
     def __init__(self, data, pdf_driver):
         self.data = data
         self.pdf_driver = pdf_driver
-    
+
     def select_font_size(self, item, font_size):
         if 'n' in item[-1]:
             fs = font_size * SUBSCRIPT_FS

@@ -23,5 +23,4 @@ urlpatterns = patterns('',
    url(r'^json/', json_api),
    url(r'^imload/', upload_image, name="image_uploader"),
    url(r'^valim/', validate_image, name="image_validator"),
-   url(r'^change/', bulk_changes, name="change_herbitems")
-                       )
+   url(r'^change/', bulk_changes, name="change_herbitems"))

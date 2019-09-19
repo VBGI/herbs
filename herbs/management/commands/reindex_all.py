@@ -21,12 +21,12 @@ class Command(BaseCommand):
             syn = sp.synonym.pk
             cur_ind = [ind for ind, el in enumerate(arrays) if cur in el] or None
             syn_ind = [ind for ind, el in enumerate(arrays) if syn in el] or None
-            
+
             if cur_ind:
                 cur_ind = cur_ind[0]
             if syn_ind:
                 syn_ind = syn_ind[0]
-            
+
             if (cur_ind == syn_ind) and (cur_ind is not None):
                 pass
             elif cur_ind and syn_ind:

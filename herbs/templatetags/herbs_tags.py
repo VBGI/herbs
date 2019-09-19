@@ -54,7 +54,7 @@ def sanitize(value):
         for item in match.contents:
             fixed_text = unicode(item)
             if fixed_text.endswith(' '):
-                item.replace_with(fixed_text[:-1] +'&nbsp;')
+                item.replace_with(fixed_text[:-1] + '&nbsp;')
             if fixed_text.startswith(' '):
                 item.replace_with('&nbsp;' + fixed_text[1:])
     return smart_text(str(content))

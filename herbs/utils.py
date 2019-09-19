@@ -1,6 +1,5 @@
 # coding: utf-8
 
-
 from django.utils.dateformat import DateFormat
 from transliterate.base import TranslitLanguagePack, registry
 from transliterate import translit

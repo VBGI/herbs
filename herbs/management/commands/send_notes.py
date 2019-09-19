@@ -54,8 +54,8 @@ class Command(BaseCommand):
             html = self._generate_html_message(messages[email])
             try:
                 mail_msg = EmailMultiAlternatives(u'Оповещение гербария от %s' % timezone.now(),
-                                        '', 'herbarium@botsad.ru',
-                                        [email], connection=get_connection(fail_silently=False))
+                                                  '', 'herbarium@botsad.ru',
+                                                  [email], connection=get_connection(fail_silently=False))
                 mail_msg.attach_alternative(html, 'text/html')
                 mail_msg.send()
                 ids = sum([x['note_ids'] for x in messages[email]], [])
@@ -119,17 +119,3 @@ class Command(BaseCommand):
         template = Template(html_email_temaple)
         context = Context({'items': msg, 'created': timezone.now()})
         return template.render(context)
-
-
-
-
-
-
-
-
-
-
-
-
-
-

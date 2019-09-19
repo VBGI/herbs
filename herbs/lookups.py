@@ -1,6 +1,6 @@
 from ajax_select import register, LookupChannel
 from .models import (Family, Genus, Species, Country, HerbItem,
-                    DetHistory, Additionals, HerbAcronym)
+                     DetHistory, Additionals, HerbAcronym)
 from .conf import settings, HerbsAppConf
 from django.db.models import Count
 from django.utils.encoding import force_text
@@ -15,15 +15,11 @@ def get_acronym(request):
     query = HerbAcronym.objects.filter(
         allowed_users__icontains=request.user.username)
     if query.exists():
-        return query[0] # TODO: only 1 acronym is accounted!!!
+        return query[0]  # NOTE: only 1 acronym used.
 
 
-NS = getattr(settings,
-             '%s_AUTOSUGGEST_NUM_ADMIN' % HerbsAppConf.Meta.prefix.upper(),
-             20)
-ACHAR = getattr(settings,
-             '%s_AUTOSUGGEST_CHAR' % HerbsAppConf.Meta.prefix.upper(),
-             3)
+NS = getattr(settings, '%s_AUTOSUGGEST_NUM_ADMIN' % HerbsAppConf.Meta.prefix.upper(), 20)
+ACHAR = getattr(settings, '%s_AUTOSUGGEST_CHAR' % HerbsAppConf.Meta.prefix.upper(), 3)
 
 
 @register('family')
@@ -50,7 +46,7 @@ class SpeciesLookup(LookupChannel):
             splitted = mq.split()
             if len(splitted) > 1:
                 res = self.model.objects.filter(genus__name__istartswith=splitted[0],
-                                             name__icontains=splitted[1]).exclude(status='D')
+                                                name__icontains=splitted[1]).exclude(status='D')
             else:
                 res = self.model.objects.filter(genus__name__istartswith=splitted[0]).exclude(status='D')
         return res[:NS]

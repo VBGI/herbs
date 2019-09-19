@@ -18,4 +18,3 @@ def init_herbs():
                 os.remove(os.path.join(BASE_URL, 'labeling', 'fonts', f))
             except:
                 pass
-

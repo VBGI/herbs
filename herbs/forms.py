@@ -27,38 +27,14 @@ try:
     from tinymce.widgets import TinyMCE
 except ImportError:
     TinyMCE = None
-
-tinymce_fieldset = {
-    'theme': 'advanced',
-    'theme_advanced_buttons1': "bold,italic,sub,sup",
-    'theme_advanced_buttons2': "",
-    'theme_advanced_buttons3': "",
-    'cleanup_on_startup' : True,
-    'width':'50%',
-    'height':'400px',
-    'theme_advanced_text_colors' : "000000,ff0000,0000ff",
-    'force_br_newlines': False,
-    'force_p_newlines': False,
-    'forced_root_block' : '',
-    'formats': {
-                'bold': {'inline': 'b'},
-                'italic': {'inline': 'i'}
-                },
-    'invalid_elements' : "strong,em",
-    'valid_elements' : "b,i,sub,sup"
-
-}
+TINYMCE_FIELDSET = getattr(settings, '%s_TINYMCE_FIELDSET' % HerbsAppConf.Meta.prefix.upper(), dict())
 
 # ------------------------------
-
-CS = getattr(settings,
-             '%s_CH_SIZE' % HerbsAppConf.Meta.prefix.upper(), 80)
+CS = getattr(settings, '%s_CH_SIZE' % HerbsAppConf.Meta.prefix.upper(), 80)
 
 taxon_name_pat = re.compile(r'[a-z]+')
 itemcode_pat = re.compile(r'^\d+$')
 duplicates_pat = re.compile(r'^[A-Z,\s]+$')
-
-
 
 
 def remove_spaces(*args):
@@ -71,7 +47,7 @@ def remove_spaces(*args):
     class StripSpaces(ModelFormMetaclass):
         def __new__(cls, name, bases, attrs):
             for arg in args:
-                attrs['clean_' + arg ] = wrapped(arg)
+                attrs['clean_' + arg] = wrapped(arg)
             return super(StripSpaces, cls).__new__(cls, name, bases, attrs)
     return StripSpaces
 
@@ -97,11 +73,8 @@ class HerbItemFormSimple(forms.ModelForm):
         model = HerbItem
 
 
-class HerbItemForm(with_metaclass(remove_spaces('collectedby',
-                                                'identifiedby',
-                                                'region',
-                                                'district'),
-                                  forms.ModelForm)):
+class HerbItemForm(with_metaclass(remove_spaces('collectedby', 'identifiedby', 'region', 'district'),
+                   forms.ModelForm)):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
@@ -218,9 +191,9 @@ class HerbItemForm(with_metaclass(remove_spaces('collectedby',
 
     species = AutoCompleteSelectField('species', required=True, help_text=None, label=_("Вид"))
     if TinyMCE:
-        note = forms.CharField(widget=TinyMCE(mce_attrs=tinymce_fieldset),
+        note = forms.CharField(widget=TinyMCE(mce_attrs=TINYMCE_FIELDSET),
                                required=False, label=_('Заметки'))
-        detailed = forms.CharField(widget=TinyMCE(mce_attrs=tinymce_fieldset),
+        detailed = forms.CharField(widget=TinyMCE(mce_attrs=TINYMCE_FIELDSET),
                                    required=False,
                                    label=_('Место сбора'))
     else:
@@ -244,7 +217,7 @@ class DetHistoryForm(with_metaclass(remove_spaces('identifiedby'),forms.ModelFor
                                      attrs={'size': CS})
 
 
-class AdditionalsForm(with_metaclass(remove_spaces('identifiedby'),forms.ModelForm)):
+class AdditionalsForm(with_metaclass(remove_spaces('identifiedby'), forms.ModelForm)):
     class Meta:
         model = Additionals
     species = AutoCompleteSelectField('species', required=True, label=_("Вид"))
@@ -370,11 +343,11 @@ class ReplyForm(forms.Form):
 class BulkChangeForm(forms.Form):
     field = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),
                             required=False, label=_('Поле'), max_length=50)
-    old_value = forms.CharField(widget=TinyMCE(mce_attrs=tinymce_fieldset),
+    old_value = forms.CharField(widget=TinyMCE(mce_attrs=TINYMCE_FIELDSET),
                                 required=False, label=_('Текущее значение'))
     as_subs = forms.BooleanField(required=False, label=_('Искать как включение (подстроку)'))
     case_insens = forms.BooleanField(required=False, label=_('Не учитывать регистр'))
-    new_value = forms.CharField(widget=TinyMCE(mce_attrs=tinymce_fieldset),
+    new_value = forms.CharField(widget=TinyMCE(mce_attrs=TINYMCE_FIELDSET),
                                 required=False, label=_('Новое значение'))
     captcha = forms.CharField(max_length=50, label=_('Название поля (повторить)'),
                               required=True)
