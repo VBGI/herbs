@@ -1,0 +1,302 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Подготовка и загрузка гербарных изображений &#8212; Документация Электронный гербарий </title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+    <link rel="next" title="Цитирование образцов" href="citing.html" />
+    <link rel="prev" title="Администрирование электронного гербария БСИ ДВО РАН" href="main.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Навигация</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="Алфавитный указатель"
+             accesskey="I">указатель</a></li>
+        <li class="right" >
+          <a href="citing.html" title="Цитирование образцов"
+             accesskey="N">вперёд</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="Администрирование электронного гербария БСИ ДВО РАН"
+             accesskey="P">назад</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Документация Электронный гербарий </a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>Подготовка и загрузка гербарных изображений<a class="headerlink" href="#id1" title="Ссылка на этот заголовок">¶</a></h1>
+<div class="contents local topic" id="id2">
+<ul class="simple">
+<li><a class="reference internal" href="#id3" id="id16">Введение</a></li>
+<li><a class="reference internal" href="#index-1" id="id17">Меню загрузки изображений</a></li>
+<li><a class="reference internal" href="#id6" id="id18">Доступ к обработанным файлам</a></li>
+<li><a class="reference internal" href="#id7" id="id19">Параметры сжатия изображений</a></li>
+<li><a class="reference internal" href="#index-2" id="id20">Названия файлов изображений</a></li>
+<li><a class="reference internal" href="#id10" id="id21">Калибровочные ячейки</a></li>
+</ul>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Предупреждение</p>
+<p class="last">Данный раздел документации был существенно переработан, в результате чего были
+установлены новые правила  задания имен гербарных изображений.</p>
+</div>
+<div class="section" id="id3">
+<h2><a class="toc-backref" href="#id16">Введение</a><a class="headerlink" href="#id3" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Поскольку каждое гербарное изображение предполагается представлять в высоком разрешении,
+что повлечет за собой увеличение требуемого места на сервере, хранение таких изображений
+будет отдельной задачей, минимально связанной с заполнением электронного гербария.</p>
+<p>Формирование финальных web-страниц гербарных образцов будет
+в этом случае осуществляться с подгрузкой
+соответствующих изображений, которые должны быть
+строго структурированными и привязанными
+к конкретным гербарным образцам, учитывая их уникальные номера и принадлежность к акронимам.</p>
+<p>С целью  такой привязки, а также удобства последующей автоматизированной
+обработки изображений (создания малых их копий для предпросмотра и т.п.)
+ниже приводится система соглашений о размещении и наименовании изображений.</p>
+</div>
+<div class="section" id="index-1">
+<span id="id4"></span><h2><a class="toc-backref" href="#id17">Меню загрузки изображений</a><a class="headerlink" href="#index-1" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Загрузка гербарных изображений в текущей реализации системы
+возможна двумя способами: централизованно, из локальной сети
+Ботанического сада-института ДВО РАН, или посредством
+Сервиса загрузки изображений, который доступен по <a class="reference external" href="https://botsad.ru/hitem/imload/">адресу</a>.</p>
+<p>Сервис загрузки изображений доступен только пользователям,
+обладающим правами куратора гербария или суперпользователя.</p>
+<p>Для пользователя, обладающего необходимыми правами для загрузки изображений,
+страница администрирования, где представлен перечень гербарных записей
+будет иметь вид, как на (<a class="reference internal" href="#pic1"><span class="std std-ref">Рис. 1</span></a>).</p>
+<div class="figure align-center" id="id11">
+<span id="pic1"></span><img alt="Загрузить изображения (кнопка)" src="_images/Screenshot_20180117_155220.png" />
+<p class="caption"><span class="caption-text">Рис. 1. Фрагмент списка образцов и дополнительное меню «Загрузить изображения» (кнопка)</span></p>
+</div>
+<p>При переходе по ссылке «Загрузить изображения» появится окно (<a class="reference internal" href="#pic2"><span class="std std-ref">Рис. 2</span></a>).</p>
+<div class="figure align-center" id="id12">
+<span id="pic2"></span><img alt="Сервис загрузки изображений (вид)" src="_images/Screenshot_20180117_161515.png" />
+<p class="caption"><span class="caption-text">Рис. 2. Сервис загрузки изображений</span></p>
+</div>
+<p>При нажатии кнопки <code class="code docutils literal"><span class="pre">Browse...</span></code> и выборе файла изображения происходит валидация
+имени изображения на предмет:</p>
+<ul class="simple">
+<li>Соответствия имени файла установленному формату;</li>
+<li>Соответствия гербарного акронима, извлеченного из имени изображения, и акронима,
+которому принадлежит пользователь, выполняющий загрузку изображения;</li>
+<li>Наличия файла с таким же уникальным номером и принадлежащим тому же акрониму;</li>
+</ul>
+<p>Загрузки файла на удаленный сервер на этапе валидации не происходит.</p>
+<p>При возникновении ошибок в процессе валидации система выведет
+сообщения об ошбике, см. например (<a class="reference internal" href="#pic3"><span class="std std-ref">Рис. 3</span></a>).</p>
+<div class="figure align-center" id="id13">
+<span id="pic3"></span><img alt="Ошибка валидации: имя файла имеет неправильный форма" src="_images/Screenshot_20180117_162302.png" />
+<p class="caption"><span class="caption-text">Рис. 3. Пример ошибки валидации: имя файла не соответствует принятому формату.</span></p>
+</div>
+<p>В случае, если файл с таким же именем уже загружен в систему,
+или находится в очереди на обработке, чтобы его заменить новым, необходимо отметить
+флаг &lt;Перезаписать&gt;.</p>
+<p>Файлы, находящиеся в очереди на обработке,
+с определенной периодичностью (ориентировочно, раз в три часа),
+автоматически конвертируются и публикуются. С этого момента они являются доступными
+всем в сети Интернет.</p>
+<p>После того, как валидация имени файла пройдена,
+будет доступна кнопка «Загрузить» (<a class="reference internal" href="#pic4"><span class="std std-ref">Рис. 4</span></a>), нажатие
+которой приведет к загрузке выбранного файла на удаленный сервер и
+постановку его в очередь на обработку.</p>
+<div class="figure align-center" id="id14">
+<span id="pic4"></span><img alt="Валидация пройдена: файл может быть загружен" src="_images/Screenshot_20180117_163611.png" />
+<p class="caption"><span class="caption-text">Рис. 4. Кнопка «Загрузить» доступна при успешной валидации имени файла</span></p>
+</div>
+<p>Поскольку файлы изображений могут быть очень большого объема (более 100 МБ),
+поэтому их загрузка на сервер может занять определенное время.</p>
+<p>По завершении загрузки, файл будет добавлен в очередь,
+а также появится уведомление (на светло-зеленом фоне), что
+«Файл загружен» (<a class="reference internal" href="#pic5"><span class="std std-ref">Рис. 5</span></a>).</p>
+<div class="figure align-center" id="id15">
+<span id="pic5"></span><img alt="Файл успешно загружен и поставлен в очередь на обработку (пример)" src="_images/Screenshot_20180117_163141.png" />
+<p class="caption"><span class="caption-text">Рис. 5. Пример успешной загрузки файла и постановки его в очередь на обработку.</span></p>
+</div>
+<p>В левой колонке «В очереди на обработку» отображаются загруженные файлы, но не прошедшие обработку.
+При этом отображаются только те файлы, которые соответствуют тому же акрониму, что и акроним, которому
+принадлежит текущий пользователь, работающий в системе. Суперпользователь может видеть все файлы,
+находящиеся в данный момент в очереди на обработку.</p>
+</div>
+<div class="section" id="id6">
+<h2><a class="toc-backref" href="#id18">Доступ к обработанным файлам</a><a class="headerlink" href="#id6" title="Ссылка на этот заголовок">¶</a></h2>
+<p>После обработки файлы доступны для свободной загрузки
+по сети Интернет.</p>
+<p>URI файла при этом формируется из его названия, акронима и пути, указанном в
+параметре <a class="reference external" href="https://github.com/VBGI/herbs/blob/master/herbs/conf.py">SOURCE_IMAGE_URL</a>. Текущее значение этого параметра</p>
+<blockquote>
+<div>SOURCE_IMAGE_URL = <cite>http://botsad.ru/herbarium/view/snapshots</cite></div></blockquote>
+<p>Например, если файл <cite>VBGI30124.tiff</cite> был загружен в систему, тогда он доступен
+по протоколу (HTTP/HTTPS) по адресам:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://botsad.ru/herbarium/view/snapshots/VBGI/ts/VBGI30124.jpg">http://botsad.ru/herbarium/view/snapshots/VBGI/ts/VBGI30124.jpg</a></li>
+<li><a class="reference external" href="http://botsad.ru/herbarium/view/snapshots/VBGI/ss/VBGI30124.jpg">http://botsad.ru/herbarium/view/snapshots/VBGI/ss/VBGI30124.jpg</a></li>
+<li><a class="reference external" href="http://botsad.ru/herbarium/view/snapshots/VBGI/ms/VBGI30124.jpg">http://botsad.ru/herbarium/view/snapshots/VBGI/ms/VBGI30124.jpg</a></li>
+<li><a class="reference external" href="http://botsad.ru/herbarium/view/snapshots/VBGI/fs/VBGI30124.jpg">http://botsad.ru/herbarium/view/snapshots/VBGI/fs/VBGI30124.jpg</a></li>
+</ul>
+<p>Фрагменты пути <cite>ts</cite>, <cite>ss</cite>, <cite>ms</cite>, <cite>fs</cite> — используются, чтобы обозначить
+размер соответствующего файла (конкретные
+значения размеров, определены в <a class="reference external" href="https://github.com/VBGI/herbs/blob/master/herbs/management/process_images.py">файле спецификации</a>: <cite>ts</cite> (thumbnail size) – минимальный размер,
+<cite>ss</cite> (small size) – маленький размер, <cite>ms</cite> (medium size) – средний размер,
+<cite>fs</cite> (full size) – полный размер.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Предупреждение</p>
+<p class="last">Веб-интерфейс (<a class="reference external" href="http://botsad.ru/herbarium">http://botsad.ru/herbarium</a>) и HTTP API интерфейс (<a class="reference external" href="http://botsad.ru/hitem/json">http://botsad.ru/hitem/json</a>)
+«узнают» о наличии новых гербарных снимков в течение суток. Однако, файл изображения становится
+доступным (по указанным в примере выше ссылкам)
+для загрузки по сети Интернет уже после своей обработки и удаления из очереди.</p>
+</div>
+</div>
+<div class="section" id="id7">
+<h2><a class="toc-backref" href="#id19">Параметры сжатия изображений</a><a class="headerlink" href="#id7" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Для конвертирования изображений используется набор утилит обработки изображений <a class="reference external" href="http://imagemagick.org">ImageMagick</a>,
+при этом параметры, используемые для сжатия, определяются в переменной конфигурации:
+<a class="reference external" href="https://github.com/VBGI/herbs/blob/master/herbs/management/process_images.py">IMAGE_CONVERSION_OPTS</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Примечание</p>
+<p>Все изображения конвертируются в формат <cite>*.jpg</cite>. Текущие параметры сжатия:</p>
+<div class="code python last highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;-strip&#39;</span><span class="p">,</span> <span class="s1">&#39;-interlace&#39;</span><span class="p">,</span> <span class="s1">&#39;Plane&#39;</span><span class="p">,</span>
+<span class="s1">&#39;-sampling-factor&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;4:2:0&#39;</span><span class="p">,</span>
+<span class="s1">&#39;-quality&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;90%&#39;</span>
+</pre></div>
+</div>
+</div>
+<p>Практика показывает, что используемый набор параметров не оказывает видимого эффекта на изображения.
+Вместе с тем, использование сжатия позволяет существенно сократить требуемое
+дисковое пространство.</p>
+</div>
+<div class="section" id="index-2">
+<span id="id9"></span><h2><a class="toc-backref" href="#id20">Названия файлов изображений</a><a class="headerlink" href="#index-2" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Файлы загружаемых изображений должны быть устанолвенного формата:</p>
+<blockquote>
+<div>ACRONYMXXXX&lt;_XX&gt;[.tiff][.tif][.jpg][.jpeg]</div></blockquote>
+<ul class="simple">
+<li>ACRONYM – название гербарного акронима (заглавными буквами), которому принадлежит
+гербарный образец; например, VBGI, SAKH, ABGI и др.</li>
+<li>XXXX – уникальный числовой код образца (<strong>ID</strong> образца, назначаемый системой);</li>
+<li><dl class="first docutils">
+<dt>&lt;_XX&gt; – опциональный код; указывается после символа <cite>_</cite>, задается пользователем, используется в случае,</dt>
+<dd>если данному гербарному сбору соответствуют несколько изображений;</dd>
+</dl>
+</li>
+<li>[.tiff][.tif][.jpg][.jpeg]  – расширение файла (регистр расширения не имеет значения),
+указывающее на его формат (одно из перечисленных в квадратных скобках значений);</li>
+</ul>
+<p>Примеры валидных имен файлов изображений:</p>
+<ul class="simple">
+<li>VBGI123.jpg</li>
+<li>VBGI123_1.jpg</li>
+<li>ABGI9933.tiff</li>
+<li>SAKH3842.jpeg</li>
+</ul>
+</div>
+<div class="section" id="id10">
+<h2><a class="toc-backref" href="#id21">Калибровочные ячейки</a><a class="headerlink" href="#id10" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Крайне рекомендуется на сканах гербарных образцов представлять калибровочные ячейки,
+и желательно, различных цветов.</p>
+<p>Калибровочные ячейки используются для автоматизированного пересчета соответствия между «количеством пикселей» и
+принятыми единицами длины, а также для автоматической цветокоррекции изображений.</p>
+<p>Калибровочные ячейки должны быть строго одинаковыми для всех изображений, размером — 1 cm x 1 cm.</p>
+<p>Установленный формат калибровочных ячеек
+можно найти по <a class="reference download internal" href="_downloads/color_cells.pdf" download=""><code class="xref download docutils literal"><span class="pre">ссылке</span></code></a></p>
+<p id="index-3">Пример гербарного изображения с калибровочными ячейками дан ниже.</p>
+<img alt="_images/VBGI30124.png" class="align-center" src="_images/VBGI30124.png" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/bgi_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Оглавление</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Подготовка и загрузка гербарных изображений</a><ul>
+<li><a class="reference internal" href="#id3">Введение</a></li>
+<li><a class="reference internal" href="#index-1">Меню загрузки изображений</a></li>
+<li><a class="reference internal" href="#id6">Доступ к обработанным файлам</a></li>
+<li><a class="reference internal" href="#id7">Параметры сжатия изображений</a></li>
+<li><a class="reference internal" href="#index-2">Названия файлов изображений</a></li>
+<li><a class="reference internal" href="#id10">Калибровочные ячейки</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Предыдущий раздел</h4>
+  <p class="topless"><a href="main.html"
+                        title="предыдущая глава">Администрирование электронного гербария БСИ ДВО РАН</a></p>
+  <h4>Следующий раздел</h4>
+  <p class="topless"><a href="citing.html"
+                        title="следующая глава">Цитирование образцов</a></p>
+  <div role="note" aria-label="source link">
+    <h3>Эта страница</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/scanning.rst.txt"
+            rel="nofollow">Исходный текст</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Быстрый поиск</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Искать" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Навигация</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="Алфавитный указатель"
+             >указатель</a></li>
+        <li class="right" >
+          <a href="citing.html" title="Цитирование образцов"
+             >вперёд</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="Администрирование электронного гербария БСИ ДВО РАН"
+             >назад</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Документация Электронный гербарий </a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Dmitry E. Kislov.
+      Создано с помощью <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+    </div>
+  </body>
+</html>

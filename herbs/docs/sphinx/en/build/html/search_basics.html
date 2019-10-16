@@ -1,0 +1,293 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Digital Herbarium: Basic Usage &#8212; Digital Herbarium  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Digital Herbarium’s HTTP-API Description" href="http_api.html" />
+    <link rel="prev" title="Welcome to Digital Herbarium’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="http_api.html" title="Digital Herbarium’s HTTP-API Description"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Digital Herbarium’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Digital Herbarium  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="digital-herbarium-basic-usage">
+<h1>Digital Herbarium: Basic Usage<a class="headerlink" href="#digital-herbarium-basic-usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<p>Accessing to the Digital Herbarium’s data is provided via the
+<a class="reference external" href="http://botsad.ru/herbarium">web-page</a>
+on the official website of the Botanical Garden Institute
+or <a class="reference internal" href="http_api.html"><span class="doc">HTTP API service</span></a>. The latter approach is used
+for making search queries automatically (from <a class="reference external" href="http://r-project.org">R</a>,
+<a class="reference external" href="http://python.org">Python</a> or other computational environment).</p>
+<p>Main features of the search service:</p>
+<ul class="simple">
+<li>search in a given time interval either by date of collection or date of identification fields;</li>
+<li>accounting species synonyms when searching;</li>
+<li>search in a given rectangular region;</li>
+<li>search within additional species (only for multispecies herbarium records);</li>
+<li>search by record codes (e.g. field number, inventory number etc.);</li>
+<li>search by the country of origin;</li>
+<li>search by taxonomic name, e.g. family, genus or species epithet;</li>
+</ul>
+</div>
+<div class="section" id="search-menu">
+<h2>Search menu<a class="headerlink" href="#search-menu" title="Permalink to this headline">¶</a></h2>
+<p>General search possibilities are available via the
+search menu from the Digital Herbarium’s web-page
+(<a class="reference internal" href="#fig1"><span class="std std-ref">Fig. 1</span></a>)</p>
+<div class="figure align-center" id="id1">
+<span id="fig1"></span><span id="index-0"></span><img alt="Basic search buttons" src="_images/1.png" />
+<p class="caption"><span class="caption-text">Fig. 1. Basic search menu</span></p>
+</div>
+<p>When search conditions are given simultaneously, the service is trying to perform an <strong>AND</strong>-type
+query; it retrieves records satisfying all search conditions. Currently  only <strong>AND</strong>-type
+search queries are available. To perform <strong>OR</strong>-type queries  it is recommended
+to use the <a class="reference internal" href="http_api.html"><span class="doc">HTTP API</span></a> service.</p>
+<p>Values of <strong>Family</strong>, <strong>Genus</strong> and <strong>Country</strong> search fields can be
+selected via drop-down menu that rises when typing.</p>
+<p>Start date of collection and end date of collection
+are filled out from pop-up calendar when the mouse is hovering
+these fields.</p>
+<p>If only start date of collection is given,  the service
+retrieves records having later dates in the
+corresponding field.</p>
+<p>If only end date of collection is given,  the service
+retrieves records having earlier dates in the
+corresponding field.</p>
+<p>If start date of collection and end date of collection are given,
+the service retrieves records if its corresponding date interval
+intersects the given.</p>
+<p>Regarding the following text fields  —
+<strong>Species epithet</strong>, <strong>Code</strong>, <strong>Collectors</strong>, <strong>Identifiers</strong>, <strong>Place of collection</strong> the
+condition satisfaction assumes containing the given value as a
+sub-string in the corresponding field (case insensitive comparison is performed).</p>
+<p>If one performs search in the  <strong>Collectors</strong> or <strong>Identifiers</strong> fields
+and fills these fields with Cyrillic letters, the service will automatically
+transliterate the given value into English (Latin letters)
+and return records satisfying both Cyrillic and transliterated values.
+If one provide the value only in Latin letters, no transliteration will be performed.
+Therefore,
+If you try, for example,
+to find records including “bakalin” as a sub-string in the field <strong>Collectors</strong>,
+the search  will return the records which field <strong>Collectors</strong> (internally <strong>Collectedby</strong> field)
+includes the string “bakalin” (reverse transliteration (to Cyrillic letters)
+in this case wouldn’t be performed);
+If you try to search “бакалин” (Cyrillic equivalent of ‘bakalin’) combined
+search results for both “bakalin” and “бакалин” queries will be returned.</p>
+<p>Boolean fields <strong>Search within synonyms</strong> and <strong>Search within additional species</strong>
+indicate that, in the first case — the search engine will take into account known (to the system)
+table of species synonyms, and in the second — the search engine do searching within additional species
+if those are provided.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">When do searching within species synonyms, the search engine uses the table of species synonyms that,
+in turn, is being dynamically rebuilt each time records in the <em>Table of known species</em> are updated. The <em>Table
+of known species</em> can include errors. This could lead
+to surprising search results. These types of drawbacks (caused by incorrectness of species synonym
+relationships) tend to disappear in future, as the <em>Table of known species</em>
+will become more error-less.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Search within synonyms works in cases when the exact names of the pair (genus, species epithet)
+are given.</p>
+</div>
+<div class="section" id="search-by-code-field">
+<h3>Search by <strong>Code</strong> field<a class="headerlink" href="#search-by-code-field" title="Permalink to this headline">¶</a></h3>
+<p>Herbarium records stored in Digital Herbarium of the BGI use triple coding system.
+Each record is provided with 1) inventory number (optional), used in the Herbarium’s storage;
+2) mandatory <strong>ID</strong> field (unique, digits only), assigned by the system automatically;
+3) field number (code), assigned by the collector (it is optional and quite arbitrary);</p>
+<p>Therefore, the table of search results includes the column <strong>Complex code</strong>, which accumulates
+codes of these three types.</p>
+<p><strong>Complex code</strong> has the following structure:</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Inventory number (if provided) or * symbol/ID code/Field code (if provided)</p>
+</div>
+<p>So, the <strong>Complex code</strong> values can look as follows:</p>
+<ul class="simple">
+<li>*/27031/M.I.38 — denotes that the inventory number isn’t provided, ID = 27031, and field code is M.I.38;</li>
+<li>42/27029 — denotes that the inventory number is 47,  ID = 27029,  field code isn’t provided;</li>
+<li>the following form of the code can take place as well: 132123/32032/F-3829-3k, where inventory number is 132123, ID is 32032 and
+field code is F-3829-3k (fake example);</li>
+</ul>
+<p>When do searching by <strong>Code</strong> one should
+provide either an inventory number, ID or field code. For example, if
+the search field’s value is “231” the search engine will
+return records including “231” as a sub-string
+in either the inventory number, ID or field code.</p>
+</div>
+</div>
+<div class="section" id="filtering-search-results">
+<h2>Filtering search results<a class="headerlink" href="#filtering-search-results" title="Permalink to this headline">¶</a></h2>
+<p>Standard filtering interface allows to restrict
+results of searching by Herbarium’s acronym, Herbarium’s subdivision
+or select desired number of items showed per
+page <a class="reference internal" href="#fig2"><span class="std std-ref">Fig. 2</span></a>.</p>
+<div class="figure align-center" id="id2">
+<span id="fig2"></span><span id="index-1"></span><img alt="Search filtering panel" src="_images/2.png" />
+<p class="caption"><span class="caption-text">Fig. 2. Search filtering menu</span></p>
+</div>
+<p>It has the following fields:</p>
+<ul class="simple">
+<li><strong>Amount</strong> —  the number of records showed per page;</li>
+<li><strong>Herbarium acronym</strong> —  filtering by Herbarium’s acronym;</li>
+<li><strong>Herbarium subdivision</strong> —  filtering by Herbarium’s subdivision;</li>
+<li><strong>Order by</strong> —  ordering rule (choose field you want to perform ordering the results);</li>
+</ul>
+<p>Results of search request with applied filter (records only under VBGI-acronym are shown) are presented
+on the <a class="reference internal" href="#fig3"><span class="std std-ref">Fig. 3</span></a>.</p>
+<div class="figure align-center" id="id3">
+<span id="fig3"></span><img alt="Search results" src="_images/3.png" />
+<p class="caption"><span class="caption-text">Fig. 3. Search results tab</span></p>
+</div>
+<p>In the tab <strong>Common Info</strong>  a table with the records satisfying
+current search and filtering conditions is shown
+(if no searching/filtering
+conditions were provided all published records are shown,
+by default the number-per-page is equal to 20).</p>
+<p>The <strong>Details</strong> tab activates when a specific
+Herbarium’s record is clicked. It shows
+minified version of the Personal web-page of the record.</p>
+<p>The <strong>Map</strong> tab is a copy of <strong>Common Info</strong> tab
+excluding records with no coordinates (records with coordinates are rendered on the Google
+map as clickable markers).</p>
+<p>One can click <strong>Previous</strong> or <strong>Next</strong> (switch page)
+to get another portion of search results.</p>
+<p>The <strong>Automatization tools</strong> tab includes general information on
+performing queries using
+<a class="reference internal" href="http_api.html"><span class="doc">automatization possibilies</span></a> provided by the web-application.</p>
+<p>Working with the map, one can filter
+search results by user-defined rectangular area.
+To do that, just initialize a rectangular area by
+pressing <a class="reference internal" href="_images/map_search_button.png"><img alt="SB" src="_images/map_search_button.png" style="width: 25px;" /></a>, edit the appeared rectangular region,
+and press <a class="reference internal" href="_images/map_search_button.png"><img alt="SB" src="_images/map_search_button.png" style="width: 25px;" /></a> again to activate the search
+(See <a class="reference internal" href="#fig4"><span class="std std-ref">Fig. 4</span></a>, <a class="reference internal" href="#fig5"><span class="std std-ref">Fig. 5</span></a>).</p>
+<div class="figure align-center" id="id4">
+<span id="fig4"></span><span id="index-2"></span><img alt="Search Herbarium's records by a region" src="_images/4.png" />
+<p class="caption"><span class="caption-text">Fig. 4. Initialize filtering region</span></p>
+</div>
+<div class="figure align-center" id="id5">
+<span id="fig5"></span><img alt="Search Herbarium's records by a region" src="_images/5.png" />
+<p class="caption"><span class="caption-text">Fig. 5. Getting results of geographical filtering/searching</span></p>
+</div>
+<p>To clear particular  search condition
+click small-trash icon near the corresponding search field.</p>
+<p>To clear all search conditions press the <a class="reference internal" href="_images/clear_button.png"><img alt="CB" src="_images/clear_button.png" style="height: 20px;" /></a> button.</p>
+<p id="index-3">Search within polygonal regions isn’t
+supported by current database backend,
+but such behavior could be emulated programmatically
+with the help of the <a class="reference internal" href="http_api.html#search-httpapi-examples"><span class="std std-ref">HTTP API Service</span></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/bgi_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Digital Herbarium: Basic Usage</a><ul>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#search-menu">Search menu</a><ul>
+<li><a class="reference internal" href="#search-by-code-field">Search by <strong>Code</strong> field</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#filtering-search-results">Filtering search results</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Digital Herbarium’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="http_api.html"
+                        title="next chapter">Digital Herbarium’s HTTP-API Description</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/search_basics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="http_api.html" title="Digital Herbarium’s HTTP-API Description"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Digital Herbarium’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Digital Herbarium  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Dmitry E. Kislov.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+    </div>
+  </body>
+</html>

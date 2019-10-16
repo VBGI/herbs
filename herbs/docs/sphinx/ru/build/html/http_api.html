@@ -1,0 +1,396 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Автоматизация поиска гербарных записей в базе данных &#8212; Документация Электронный гербарий </title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+    <link rel="next" title="Администрирование электронного гербария БСИ ДВО РАН" href="main.html" />
+    <link rel="prev" title="Базовый поиск по электронному гербарию" href="search_basics.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Навигация</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="Алфавитный указатель"
+             accesskey="I">указатель</a></li>
+        <li class="right" >
+          <a href="main.html" title="Администрирование электронного гербария БСИ ДВО РАН"
+             accesskey="N">вперёд</a> |</li>
+        <li class="right" >
+          <a href="search_basics.html" title="Базовый поиск по электронному гербарию"
+             accesskey="P">назад</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Документация Электронный гербарий </a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>Автоматизация поиска гербарных записей в базе данных<a class="headerlink" href="#id1" title="Ссылка на этот заголовок">¶</a></h1>
+<div class="contents local topic" id="id2">
+<ul class="simple">
+<li><a class="reference internal" href="#index-0" id="id14">Введение</a></li>
+<li><a class="reference internal" href="#index-1" id="id15">Параметры запросов</a></li>
+<li><a class="reference internal" href="#index-2" id="id16">Параметры ответа сервера</a><ul>
+<li><a class="reference internal" href="#index-3" id="id17">Структура массива данных</a><ul>
+<li><a class="reference internal" href="#index-4" id="id18">История переопределений и дополнительные сборы</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#index-6" id="id19">Ограничения</a></li>
+<li><a class="reference internal" href="#index-7" id="id20">Примеры</a></li>
+</ul>
+</div>
+<div class="section" id="index-0">
+<span id="id3"></span><h2><a class="toc-backref" href="#id14">Введение</a><a class="headerlink" href="#index-0" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Данный документ представляет собой описание HTTP-API (программного интерфейса по протоколу HTTP) для
+работы с электронным гербарием, работающим под управлением данного web-приложения.</p>
+<p>НTTP-API не предназначено для изменения данных, а может использоваться только для их чтения.</p>
+</div>
+<div class="section" id="index-1">
+<span id="id4"></span><h2><a class="toc-backref" href="#id15">Параметры запросов</a><a class="headerlink" href="#index-1" title="Ссылка на этот заголовок">¶</a></h2>
+<p>При формировании поисковых запросов к серверу допустимы только GET-запросы (протокол HTTP(S)).</p>
+<p>Одновременное задание полей при формировании GET-запроса приводит к поисковому запросу типа «И»: т.е. если задать одновременно <cite>colstart=2016-01-01</cite> и <cite>collectedby=Бар</cite>, то найдутся все записи, для которых начало сбора позже 1 января 2016 г и у которых в поле «Собрали» встречается последовательность символов „бар“ (без учета регистра).</p>
+<p>Формирование запросов типа „ИЛИ“ не реализовано в текущем HTTP-API, но может быть эмулировано серией дополнительных запросов к базе данных.</p>
+<p>Возможны следующие параметры GET-запроса, по которым осуществляется поиск:</p>
+<ul class="simple">
+<li><strong>family</strong> — название семейства; название семейства с точностью до регистра записи должно совпадать с запрашиваемым;</li>
+<li><strong>genus</strong> — название рода; название рода с точностью до регистра записи должно совпадать с запрашиваемым; в случае противоречивости значений параметров <strong>family</strong> и <strong>genus</strong> выводится сообщение об ошибке – отсутствии образцов, удовлетворяющих условиям поиска;</li>
+<li><strong>species_epithet</strong> — видовой эпитет; поиск осуществляется без учета регистра; условие поиска считается выполненным, если запрашиваемая строка включается в поле «видовой эптитет» основного вида гербарного сбора;</li>
+<li><strong>place</strong> — место сбора; выполнение условия поиска: включение запрашиваемой строки без учета регистра хотя бы в одно из полей данных о гербарном сборе, поля: место сбора, регион, район, примечание.</li>
+<li><strong>collectedby</strong> — коллекторы; выполнение условия поиска: включение запрашиваемой строки без учета регистра (поиск также автоматически выполняется по транслитерированной на английский язык строке);</li>
+<li><strong>identifiedby</strong> — определители; выполнение условия поиска: включение запрашиваемой строки без учета регистра (поиск также автоматически выполняется по транслитерированной на английский язык строке);</li>
+<li><strong>country</strong> — название страны, места сбора образца; включение запрашиваемой строки без учета регистра в название страны на русском или английском языках (используются названия стран, принятые в стандартах <a class="reference external" href="https://ru.wikipedia.org/wiki/ISO_3166-1">ISO3166-1-ru</a> или <a class="reference external" href="https://en.wikipedia.org/wiki/ISO_3166-1">ISO3166-1-en</a>; для Российской Федерации используется сокращенное название Россия);</li>
+<li><strong>colstart</strong> — дата начала сбора; задается в формате yyyy-mm-dd</li>
+<li><strong>colend</strong> — дата окончания сбора; формат аналогичен параметру <strong>colstart</strong>;</li>
+<li><strong>acronym</strong> — название гербарного акронима; выполнение условия поиска – точное совпадение акронима гербария без учёта регистра;</li>
+<li><strong>subdivision</strong> — название гербарного подраздела; выполнение условия поиска: включение запрашиваемой строки без учета регистра;</li>
+<li><strong>latl</strong> — минимальное значение широты сбора; допустимый диапазон значений (-90.0, 90.0); используется для поиска по прямоугольной области сбора;</li>
+<li><strong>latu</strong> — максимальное значение широты сбора; допустимый диапазон значений (-90.0, 90.0); используется для поиска по прямоугольной области сбора;</li>
+<li><strong>lonu</strong> — максимальное значение долготы сбора; допустимый диапазон значений (-180.0, 180.0); используется для поиска по прямоугольной области сбора;</li>
+<li><strong>lonl</strong> — минимальное значение долготы сбора; допустимый диапазон значений (-180.0, 180.0); используется для поиска по прямоугольной области сбора;</li>
+<li><strong>synonyms</strong> — возможные значение false или true; отсутствие параметра в GET-запросе приравнивается к false; индикатор поиска с учетом синонимов; при поиске с учетом синонимов важно задать поля <strong>genus</strong> и <strong>species_epithet</strong>; true – означает выполнять поиск по синонимам;</li>
+<li><strong>additionals</strong> — возможные значения false или true; отсутствие параметра в GET-запросе приравнивается к false; индикатор поиска по дополнительным видам внутри гербарных сборов; true – означает искать совпадения в дополнительных видах;</li>
+<li><strong>id</strong> — <strong>ID</strong> образца; при указании в запросе данного поля, все остальные поля игнорируются; возвращается информация только об образце с заданным <strong>ID</strong>, если такой был найден, в противном случае – выводится сообщение об ошибке;</li>
+<li><strong>fieldid</strong> — полевой номер образца;</li>
+<li><strong>itemcode</strong> — инвентарный номер образца (используется в гербарном хранилище);</li>
+<li><strong>authorship</strong> — авторство основного вида; условие выполняется, если строка авторства основного вида гербарного сбора содержит в себе значение передаваемое в данном параметре (сравнение производится без учета регистра записи);</li>
+<li><dl class="first docutils">
+<dt><strong>imonly</strong> — возможные значения false или true;</dt>
+<dd>отсутствие параметра в GET-запросе приравнивается к его false значению;
+фильтр <strong>imonly=true</strong> означает, что будут выведены только записи, имеющие изображения.</dd>
+</dl>
+</li>
+</ul>
+<p><strong>Замечание</strong> При поиске по полям <strong>collectedby</strong> и <strong>identifiedby</strong> выполняется только односторонняя транслитерация: т.е. если, например, задано условие поиска <cite>**collectedby** =Бакалин</cite>, то это эквивалентно поиску <cite>**collectedby** =Бакалин</cite> или
+<cite>**collectedby** =Bakalin</cite> (найдутся все записи на русском и английском языках). Если задано условие поиска <cite>**collectedby** =Bakalin</cite>, то найдутся только записи, где в поле «сборщики» встречается строка «bakalin» (без учёта регистра).</p>
+</div>
+<div class="section" id="index-2">
+<span id="id5"></span><h2><a class="toc-backref" href="#id16">Параметры ответа сервера</a><a class="headerlink" href="#index-2" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Ответ сервера на поисковый запрос представляет собой <a class="reference external" href="http://www.json.org">JSON-форматированный</a> текст, передаваемый по протоколу HTTP, и имеющий следующие параметры:</p>
+<ul class="simple">
+<li><strong>errors</strong> — массив ошибок, возникших при обработке поискового запроса.</li>
+<li><strong>warnings</strong> — массив предупреждений, возникших при обработке поискового запроса. Предупреждениями являются различные поисковые ситуации: например, отсутствие данных, удовлетворяющих текущему поисковому запросу, игнорирование тех или иных поисковых параметров, при их противоречивости и т.п.</li>
+<li><strong>data</strong> — массив структурированных данных гербарных записей, удовлетворяющих текущему поисковому запросу.</li>
+</ul>
+<div class="section" id="index-3">
+<span id="id6"></span><h3><a class="toc-backref" href="#id17">Структура массива данных</a><a class="headerlink" href="#index-3" title="Ссылка на этот заголовок">¶</a></h3>
+<p>Параметр <strong>data</strong> представляет собой массив данных, удовлетворяющих текущему поисковому зарпосу.</p>
+<p>Он имеет следующую структуру, описывающую текущий гербарный сбор:</p>
+<ul class="simple">
+<li><strong>family</strong> — название семейства (заглавными буквами, на латыни);</li>
+<li><strong>family_authorship</strong> — автор семейства;</li>
+<li><strong>genus</strong> — название рода;</li>
+<li><strong>genus_authorship</strong> — автор рода;</li>
+<li><strong>species_epithet</strong> — видовой эпитет;</li>
+<li><strong>species_id</strong> — <strong>ID</strong> вида образца; не путать с <strong>ID</strong> текущей гербарной записи. <strong>ID</strong> текущей гербарной записи однозначно характеризует данную оцифрованную гербарную запись. <strong>ID</strong> вида образца, только вид. Гербарных записей, содержащих какой-либо вид может быть много.</li>
+<li><strong>species_authorship</strong> — автор вида;</li>
+<li><strong>species_status</strong> — текущий статус вида; определяет степень признанности данного вида, точнее триплета (род, видовой эпитет, авторство вида) в научном сообществе на настоящее время. Возможные значения данного параметра 1) «Recently added» — вид недавно добавлен и, скорее, не проверялся специалистом; название вида с таким статусом может быть устаревшим, либо содержатьошибки; 2) «Approved» — название вида подтверждено специалистом; 3) «Deleted» — вид имеет ошибку в записи, или его название устарело и не используется; 4) «From plantlist» — название импортировано из базы <a class="reference external" href="http://theplantlist.org">http://theplantlist.org</a>.</li>
+<li><strong>type_status</strong> — типовой статус гербарного сбора; для мультивидовых сборов – отражает типовой статус в отношении основного вида сбора;</li>
+<li><strong>infraspecific_rank</strong> — подвидовой ранг (возможные значения: пусто, subsp., subvar., f., subf., var.);</li>
+<li><strong>infraspecific_epithet</strong> — подвидовой эпитет;</li>
+<li><strong>infraspecific_authorship</strong> — автор подвидового эпитета;</li>
+<li><strong>species_fullname</strong> — полное название вида, т.е. Род + видовой эпитет + авторство;</li>
+<li><strong>short_note</strong> — замечания к главному виду сбора (используется по необходимости в случае мультивидовых сборов);</li>
+<li><strong>significance</strong> — неопределенность знаний относительно главного вида гербарного сбора (возможные значения: пусто, aff., cf.);</li>
+<li><strong>id</strong> — уникальный идентификатор данной гербарной записи; всегда целое число;</li>
+<li><strong>gpsbased</strong> — получены ли данные о географической привязки места сбора образца с помощью GPS (значение <strong>true</strong>), либо другим способом (<strong>false</strong>); следует иметь ввиду, что у многих образцов, даже при <strong>gpsbased</strong> равном <strong>false</strong>, координаты, если таковые заданы, были получены при помощи GPS; это связано с тем, что не все отмечают соответствующее поле (<strong>gpsbased</strong>) при заполнении электронной формы образца;</li>
+<li><strong>latitude</strong> —  широта, градусы; географическая координата места сбора в системе WGS-84;</li>
+<li><strong>longitude</strong> — долгота, градусы; географическая координата места сбора в системе WGS-84;</li>
+<li><strong>fieldid</strong> — полевой номер образца;</li>
+<li><strong>duplicates</strong> — перечень акронимов гербариев (из Index Herbariorum), куда были депонированы дубликаты данного гербарного листа;</li>
+<li><strong>itemcode</strong> — инвентаризационный номер, используемый в гербарном хранилище;</li>
+<li><strong>acronym</strong> — гербарный акроним, которому принадлежит данная гербарная запись (для большинства записей поле имеет значение <strong>VBGI</strong>);</li>
+<li><strong>branch</strong> — подраздел гербария внутри акронима; иногда удобно иметь подразделы внутри общей гербарной базы: например, «гербарий грибов», «биоморфологический гербарий» и т.п.;</li>
+<li><strong>collectors</strong> — текстовая строка: сборщики образца;</li>
+<li><strong>identifiers</strong> — текстовая строка: те, кто определил вид гербарного сбора;</li>
+<li><strong>devstage</strong> — стадия развития; определена для биоморфологического гербария; возможные значения: Development stage partly, Life form, или пустое поле;</li>
+<li><strong>updated</strong> — дата последнего изменения записи в базе данных;</li>
+<li><strong>created</strong> — дата создания записи (т.е. занесения её электронную базу данных);</li>
+<li><strong>identification_started</strong> — дата начала определения вида образца;</li>
+<li><strong>identification_finished</strong> — дата окончания определения вида образца; дата определения вида задана в виде интервала, поскольку не всегда может быть указана точная дата, а например,только месяц, или время проведения какой-либо экспедиции;</li>
+<li><strong>collection_started</strong> — дата начала сбора образца;</li>
+<li><strong>collection_finished</strong> — дата окончания сбора образца; дата сбора задана в виде интервала, поскольку не всегда может быть указана точная дата, а например,только месяц, или время проведения какой-либо экспедиции;</li>
+<li><strong>country</strong> —  название страны сбора образца;</li>
+<li><strong>country_id</strong> — числовой идентификатор страны сбора образца;</li>
+<li><strong>altitude</strong> — высота над уровнем моря места сбора образца; значение представляется собой строку, не всегда однозначно определяющую реальную высоту сбора. Возможны, например, варианты: 100-300 м, 120 м, 400, 300-400 и т.п.</li>
+<li><strong>region</strong> — регион сбора;</li>
+<li><strong>district</strong> — район сбора;</li>
+<li><strong>details</strong> — экологические условия сбора, дополнительные уточнения не вошедшие в поля регион и район;</li>
+<li><strong>note</strong> — примечание; может содержать информацию о месте сбора, экологических условиях и т.п.;</li>
+<li><strong>dethistory</strong> — представляет собой массив — историю переопределений вида гербарного сбора;</li>
+<li><strong>additionals</strong> — некоторые гербарные сборы могут содержать более одного вида; данный массив описывает характеристики каждого из них.</li>
+<li><dl class="first docutils">
+<dt><strong>images</strong> — перечень изображений, относящихся к гербарной записи ([] – пустой список – означает отсутствие изображений);</dt>
+<dd>каждый элемент списка — это путь до изображения, соответствующего данному гербарному сбору.</dd>
+</dl>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Примечание</p>
+<p class="last">Изображения в списке <strong>images</strong> доступны в нескольких разрешениях.
+В текущей реализации сервиса изображения различных разрешений размещены по директориям,
+имеющим названия: <cite>ts</cite> – thumbnail size (очень маленький размер); <cite>ss</cite> – small size (30% от оригинала);
+<cite>ms</cite> – medium size (60% от оригинала); <cite>fs</cite> – full size (оригинальное разрешение).
+Таким образом, в каждом url изображения есть одна из компонент пути ` /ts/ <cite>,</cite> /ss/ <a href="#id7"><span class="problematic" id="id8">`</span></a>, ` /ms/ ` или ` /fs/ <a href="#id9"><span class="problematic" id="id10">`</span></a>,
+указывающая изображение какого разрешения соответствует данному url.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Примечание</p>
+<p>Все изображения сохранены в формате jpeg. Для этих целей используется редактор коммандной строки
+<a class="reference external" href="http://imagemagick.org">ImageMagick</a> c параметрами:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;-strip&#39;</span><span class="p">,</span> <span class="s1">&#39;-interlace&#39;</span><span class="p">,</span> <span class="s1">&#39;Plane&#39;</span><span class="p">,</span>
+<span class="s1">&#39;-sampling-factor&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;4:2:0&#39;</span><span class="p">,</span>
+<span class="s1">&#39;-quality&#39;</span><span class="p">,</span>
+<span class="sa">r</span><span class="s1">&#39;90%&#39;</span>
+</pre></div>
+</div>
+<p class="last">Практика показывает, что используемый набор параметров не оказывает видимого эффекта на изображения.
+Вместе с тем, использование сжатия позволяет существенно сократить требуемое
+дисковое пространство.</p>
+</div>
+<p>Пример вида массива <strong>images</strong>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;http://botsad.ru/herbarium/view/snapshots/VBGI/ss/VBGI32618_1.jpg&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;http://botsad.ru/herbarium/view/snapshots/VBGI/ts/VBGI32618_1.jpg&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;http://botsad.ru/herbarium/view/snapshots/VBGI/ms/VBGI32618_1.jpg&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;http://botsad.ru/herbarium/view/snapshots/VBGI/fs/VBGI32618_1.jpg&#39;</span>
+<span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p id="field-reference-label">Поля <strong>region</strong>, <strong>district</strong>, <strong>details</strong>, <strong>note</strong>, <strong>altitude</strong> могут быть заполнены с поддержкой двуязычности с использованием спецсимвола «|». Например, строка, возвращаемая в поле <strong>region</strong>, может быть такой «Russian Far East|Дальний Восток России». Это означает, что относительно символа «|» даётся русско- и англоязычный варианты строки. Дальнейшая обработка значений таких строк ложится на пользователя системы, которому решать
+какую из компонент строки относительно символа «|» оставить, а какую – удалить.
+Система HTTP-API не принимает таких решений.</p>
+<p>Структура массивов <strong>dethistory</strong> и <strong>additionals</strong> приводится ниже.</p>
+<div class="section" id="index-4">
+<span id="id11"></span><h4><a class="toc-backref" href="#id18">История переопределений и дополнительные сборы</a><a class="headerlink" href="#index-4" title="Ссылка на этот заголовок">¶</a></h4>
+<p><strong>История переопределений</strong></p>
+<p>Каждый элемент массива «История переопределений» (<strong>dethistory</strong>) представляет собой описание
+попытки определения (переопределения) вида в текущем гербарном сборе и имеет
+следующие поля (значения полей, характеризующих вид, аналогично описанным выше):</p>
+<ul class="simple">
+<li><strong>valid_from</strong> — дата валидности определения;</li>
+<li><strong>valid_to</strong> — дата окончания валидности определения; поле может быть не задано, что означает, что предполагает, что определение актуально в настоящее время;</li>
+<li><strong>family</strong> — название семейства;</li>
+<li><strong>family_authorship</strong> — авторство семейства;</li>
+<li><strong>genus</strong> — название рода;</li>
+<li><strong>genus_authorship</strong> — автор рода;</li>
+<li><strong>species_epithet</strong> — видовой эпитет;</li>
+<li><strong>species_id</strong> — <strong>ID</strong> вида образца;</li>
+<li><strong>species_authorship</strong> — автор вида;</li>
+<li><strong>species_status</strong> — текущий статус вида;</li>
+<li><strong>species_fullname</strong> — полное название вида;</li>
+<li><strong>infraspecific_rank</strong> — подвидовой ранг (возможные значения: пусто, subsp., subvar., f., subf., var.);</li>
+<li><strong>infraspecific_epithet</strong> — подвидовой эпитет;</li>
+<li><strong>infraspecific_authorship</strong> — автор подвидового эпитета;</li>
+<li><strong>significance</strong> — неопределенность знаний относительно вида (возможные значения: пусто, aff., cf.);</li>
+</ul>
+<p>Сроки валидности вида (<strong>valid_from</strong>, <strong>valid_to</strong>) позволяют корректно описать любые его последующие переопределения.</p>
+<div class="admonition note">
+<p class="first admonition-title">Примечание</p>
+<p class="last">Если в гербарном сборе представлен не один вид,
+то массив «История переопределений» представляет собой историю переопределений основного вида.</p>
+</div>
+<p id="index-5"><strong>Дополнительные виды</strong></p>
+<p>Каждый элемент массива «Дополнительные виды» (<strong>additionals</strong>) представляет собой
+описание вида, находящегося в данном гербарном сборе. Каждое из таких описаний имеет
+поля, аналогичные записям из <strong>Истории переопределений</strong>:</p>
+<ul class="simple">
+<li><strong>valid_from</strong> — дата валидности определения;</li>
+<li><strong>valid_to</strong> — дата окончания валидности определения; поле может быть не задано, что означает, что предполагает, что определение актуально в настоящее время;</li>
+<li><strong>family</strong> — название семейства;</li>
+<li><strong>family_authorship</strong> — авторство семейства;</li>
+<li><strong>genus</strong> — название рода;</li>
+<li><strong>genus_authorship</strong> — автор рода;</li>
+<li><strong>species_epithet</strong> — видовой эпитет;</li>
+<li><strong>species_id</strong> — <strong>ID</strong> вида образца;</li>
+<li><strong>species_authorship</strong> — автор вида;</li>
+<li><strong>species_status</strong> — текущий статус вида;</li>
+<li><strong>species_fullname</strong> — полное название вида;</li>
+<li><strong>infraspecific_rank</strong> — подвидовой ранг (возможные значения: пусто, subsp., subvar., f., subf., var.);</li>
+<li><strong>infraspecific_epithet</strong> — подвидовой эпитет;</li>
+<li><strong>infraspecific_authorship</strong> — автор подвидового эпитета;</li>
+<li><strong>note</strong> — примечания о текущем дополнительном сборе;</li>
+<li><strong>significance</strong> — неопределенность знаний относительно вида (возможные значения: пусто, aff., cf.);</li>
+</ul>
+<p>Таким образом, массив «Дополнительные виды» позволяет хранить информацию о видах в гербарном сборе,
+сопутствующих данному основному виду (выделенному из экспертных соображений в качестве основного),
+а указание валидности позволяет описать переопределения (если таковые имеются) каждого из таких видов.</p>
+<div class="admonition note">
+<p class="first admonition-title">Примечание</p>
+<p class="last">Поле <strong>note</strong> поддерживает режим двуязычного заполнения, поэтому в
+отношении его справедливо замечание, указанное <a class="reference internal" href="#field-reference-label"><span class="std std-ref">выше</span></a>.</p>
+</div>
+<p><em>Пояснение и интерпретация</em></p>
+<p>Рассмотрим для примера следующий массив «Дополнительных видов» (для краткости выписаны не все поля):</p>
+<div class="code Python highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="p">{</span><span class="s1">&#39;genus&#39;</span><span class="p">:</span> <span class="s1">&#39;Quercus&#39;</span><span class="p">,</span> <span class="s1">&#39;species_epithet&#39;</span><span class="p">:</span> <span class="s1">&#39;mongolica&#39;</span><span class="p">,</span> <span class="o">...</span> <span class="p">,</span><span class="s1">&#39;valid_from&#39;</span><span class="p">:</span> <span class="s1">&#39;2015-05-05&#39;</span><span class="p">,</span> <span class="s1">&#39;valid_to&#39;</span><span class="p">:</span> <span class="s1">&#39;2016-01-01&#39;</span><span class="p">},</span>
+<span class="p">{</span><span class="s1">&#39;genus&#39;</span><span class="p">:</span> <span class="s1">&#39;Quercus&#39;</span><span class="p">,</span> <span class="s1">&#39;species_epithet&#39;</span><span class="p">:</span> <span class="s1">&#39;dentata&#39;</span><span class="p">,</span> <span class="o">...</span> <span class="p">,</span><span class="s1">&#39;valid_from&#39;</span><span class="p">:</span> <span class="s1">&#39;2016-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;valid_to&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+<span class="p">{</span><span class="s1">&#39;genus&#39;</span><span class="p">:</span> <span class="s1">&#39;Betula&#39;</span><span class="p">,</span> <span class="s1">&#39;species_epithet&#39;</span><span class="p">:</span> <span class="s1">&#39;manshurica&#39;</span><span class="p">,</span> <span class="o">...</span> <span class="p">,</span><span class="s1">&#39;valid_from&#39;</span><span class="p">:</span> <span class="s1">&#39;2015-05-05&#39;</span><span class="p">,</span> <span class="s1">&#39;valid_to&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+<span class="p">{</span><span class="s1">&#39;genus&#39;</span><span class="p">:</span> <span class="s1">&#39;Betula&#39;</span><span class="p">,</span> <span class="s1">&#39;species_epithet&#39;</span><span class="p">:</span> <span class="s1">&#39;davurica&#39;</span><span class="p">,</span> <span class="o">...</span> <span class="p">,</span><span class="s1">&#39;valid_from&#39;</span><span class="p">:</span> <span class="s1">&#39;2015-05-05&#39;</span><span class="p">,</span> <span class="s1">&#39;valid_to&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Если сегодня, например, 1 сентября 2015 года (2015-09-01), то массив дополнительных видов состоит из
+<em>Quercus mongolica</em>, <em>Betula manshurica</em> и <em>Betula davurica</em>, а <em>Quercus dentata</em> является неактуальным определением
+на данный момент времени.</p>
+<p>Если сегодня 2017 год, например, 2017-01-01, то неактуальным оказывается <em>Quercus mongolica</em>,  и, таким образом,
+актуальными видовыми составляющими сбора являются <em>Quercus dentata</em>, <em>Betula manshurica</em> и <em>Betula davurica</em></p>
+</div>
+</div>
+</div>
+<div class="section" id="index-6">
+<span id="id12"></span><h2><a class="toc-backref" href="#id19">Ограничения</a><a class="headerlink" href="#index-6" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Поскольку поисковому запросу пользователя может удовлетворять большой объём данных,
+для формирования ответа сервера может потребоваться значительное время.</p>
+<p>Чтобы снизить нагрузку на сервер, вызванную вероятно долгими
+keep-alive HTTP-соединениями, действуют ограничения.</p>
+<p>Количество одновременно возможных
+соединений для сервиса автоматизированного опроса гербарной базы определяется текущим значением параметра <a class="reference external" href="https://github.com/VBGI/herbs/blob/master/herbs/conf.py">JSON_API_SIMULTANEOUS_CONN</a>.</p>
+<p>По превышении этого количества, сервер не обрабатывает поисковые запросы, а возвращает
+сообщение об ошибке.</p>
+<p>На запросы, содержащие  <strong>id</strong>, данное ограничение не действует, поскольку получение информации об объекте
+по его <strong>ID</strong>  — не ёмкая в плане ресурсов операция.</p>
+<p>Информация о  <strong>неопубликованных</strong> образцах не выводится; при попытке получить информацию о неопубликованном образце по его <strong>ID</strong>
+выводится ошибка.</p>
+</div>
+<div class="section" id="index-7">
+<span id="id13"></span><h2><a class="toc-backref" href="#id20">Примеры</a><a class="headerlink" href="#index-7" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Для проверки работы системы и получения json-ответа сервера достаточно передать поисковый запрос в url браузера.</p>
+<p>Например, переход по ссылке</p>
+<p><a class="reference external" href="http://botsad.ru/hitem/json/?genus=riccardia&amp;collectedby=bakalin">http://botsad.ru/hitem/json/?genus=riccardia&amp;collectedby=bakalin</a></p>
+<p>приведет к появлению на экране браузера json-ответа, содержащего информацию о всех сборах – представителей рода <em>Riccardia</em>,
+в строке, содержащей информацию о сборщиках которых встречается <cite>bakalin</cite>.</p>
+<p>При указании <strong>id</strong> в <strong>GET</strong> запросе, все остальные поисковые поля игнорируются и выводится информация
+о гербарном образце с указанным <strong>id</strong>:</p>
+<p><a class="reference external" href="http://botsad.ru/hitem/json?id=500">http://botsad.ru/hitem/json?id=500</a></p>
+<p><a class="reference external" href="http://botsad.ru/hitem/json?id=44">http://botsad.ru/hitem/json?id=44</a></p>
+<p><a class="reference external" href="http://botsad.ru/hitem/json?id=5">http://botsad.ru/hitem/json?id=5</a></p>
+<span class="target" id="search-httpapi-examples"></span><div class="admonition seealso" id="index-8">
+<p class="first admonition-title">См.также</p>
+<p><a class="reference external" href="https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/Python/ru/Python.ipynb">Работа с электронным гербарием из Python</a></p>
+<p class="last"><a class="reference external" href="https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/R/ru/R.ipynb">Работа с электронным гербарием из R</a></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/bgi_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Оглавление</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Автоматизация поиска гербарных записей в базе данных</a><ul>
+<li><a class="reference internal" href="#index-0">Введение</a></li>
+<li><a class="reference internal" href="#index-1">Параметры запросов</a></li>
+<li><a class="reference internal" href="#index-2">Параметры ответа сервера</a><ul>
+<li><a class="reference internal" href="#index-3">Структура массива данных</a><ul>
+<li><a class="reference internal" href="#index-4">История переопределений и дополнительные сборы</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#index-6">Ограничения</a></li>
+<li><a class="reference internal" href="#index-7">Примеры</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Предыдущий раздел</h4>
+  <p class="topless"><a href="search_basics.html"
+                        title="предыдущая глава">Базовый поиск по электронному гербарию</a></p>
+  <h4>Следующий раздел</h4>
+  <p class="topless"><a href="main.html"
+                        title="следующая глава">Администрирование электронного гербария БСИ ДВО РАН</a></p>
+  <div role="note" aria-label="source link">
+    <h3>Эта страница</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/http_api.rst.txt"
+            rel="nofollow">Исходный текст</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Быстрый поиск</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Искать" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Навигация</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="Алфавитный указатель"
+             >указатель</a></li>
+        <li class="right" >
+          <a href="main.html" title="Администрирование электронного гербария БСИ ДВО РАН"
+             >вперёд</a> |</li>
+        <li class="right" >
+          <a href="search_basics.html" title="Базовый поиск по электронному гербарию"
+             >назад</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Документация Электронный гербарий </a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Dmitry E. Kislov.
+      Создано с помощью <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+    </div>
+  </body>
+</html>

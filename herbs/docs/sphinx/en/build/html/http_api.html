@@ -1,0 +1,492 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Digital Herbarium’s HTTP-API Description &#8212; Digital Herbarium  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Herbarium Record’s citing" href="citing.html" />
+    <link rel="prev" title="Digital Herbarium: Basic Usage" href="search_basics.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="citing.html" title="Herbarium Record’s citing"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="search_basics.html" title="Digital Herbarium: Basic Usage"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Digital Herbarium  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="digital-herbarium-s-http-api-description">
+<h1>Digital Herbarium’s HTTP-API Description<a class="headerlink" href="#digital-herbarium-s-http-api-description" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#intro" id="id7">Intro</a></li>
+<li><a class="reference internal" href="#description-of-http-request-parameters" id="id8">Description of HTTP request parameters</a></li>
+<li><a class="reference internal" href="#description-of-server-response" id="id9">Description of server response</a><ul>
+<li><a class="reference internal" href="#format-of-the-data-attributes" id="id10">Format of the <strong>data</strong> attributes</a><ul>
+<li><a class="reference internal" href="#history-of-species-identifications-and-additional-species" id="id11">History of species identifications and additional species</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-usage-limitations" id="id12">Service usage limitations</a></li>
+<li><a class="reference internal" href="#examples" id="id13">Examples</a></li>
+</ul>
+</div>
+<div class="section" id="intro">
+<h2><a class="toc-backref" href="#id7">Intro</a><a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h2>
+<p>This document describes HTTP-API (Application Programming Interface over HTTP protocol)
+which can be used to get access to Digital Herbarium Database of the BGI.</p>
+<p>HTTP-API works in read-only mode.
+There is no way to make changes in the database using the API.</p>
+</div>
+<div class="section" id="description-of-http-request-parameters">
+<h2><a class="toc-backref" href="#id8">Description of HTTP request parameters</a><a class="headerlink" href="#description-of-http-request-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Only GET-requests are allowed when reffering to the HTTP API service.
+To establish connection with the service, one can use HTTP or HTTPS protocols.</p>
+<p>Requests with multiple parameters, e.g. <cite>colstart=2016-01-01</cite> and <cite>collectedby=bak</cite>,
+are treated as components of <cite>AND</cite>-type queries:
+in this example, all records collected
+after <cite>2016-01-01</cite> and including <cite>bak</cite>
+(case insensitive matching is performed)
+as a sub-string of <cite>Collectors</cite> field will be returned.</p>
+<p><cite>OR</cite>-type querying behavior can be emulated by a series of
+consequent queries to the database and isn’t natively implemented
+in the current version of the HTTP API.</p>
+<p>List of allowed GET-parameters:</p>
+<ul class="simple">
+<li><strong>family</strong> — family name (matching condition: case insensitive, the same family name as provided);</li>
+<li><dl class="first docutils">
+<dt><strong>genus</strong> —  genus name (matching condition:  case insensitive, the same genus name as provided),</dt>
+<dd>note: if the value contradicts with the family name provided in the same request,
+an error will be returned;</dd>
+</dl>
+</li>
+<li><strong>species_epithet</strong> — species epithet (matching condition:
+case insensitive, a sub-string of the record corresponding field);</li>
+<li><strong>place</strong> —  place of collection (matching condition: case insensitive,
+a sub-string occurring in one of the listed fields: <strong>Place</strong>, <strong>Region</strong>, <strong>District</strong>, <strong>Note</strong>;);</li>
+<li><strong>collectedby</strong> — collectors (matching condition: case insensitive, a sub-string of the record corresponding field);
+if the field’s value is given in Cyrillic, search will be performed (additionally) using its transliterated copy;</li>
+<li><strong>identifiedby</strong> — identifiers; (matching condition: case insensitive, a sub-string of the record corresponding field);
+if the field’s value is given in Cyrillic, search will be performed (additionally) using its transliterated copy;</li>
+<li><strong>country</strong> — country’s name (matching condition: case insensitive, a sub-string of the record corresponding field);</li>
+<li><strong>colstart</strong> — date when herbarium sample collection was started (yyyy-mm-dd);</li>
+<li><strong>colend</strong> —  date when herbarium sample collection was finished (yyyy-mm-dd);</li>
+<li><strong>acronym</strong> — acronym of the herbarium (matching condition:
+case insensitive, the same name as provided);</li>
+<li><strong>subdivision</strong> — subdivision of the herbarium (matching condition:
+case insensitive, the same name as provided);</li>
+<li><strong>latl</strong> — latitude lower bound, should be in (-90, 90);</li>
+<li><strong>latu</strong> — latitude upper bound, should be in (-90, 90);</li>
+<li><strong>lonl</strong> — longitude lower bound, should be in (-180, 180);</li>
+<li><strong>lonu</strong> — longitude upper bound, should be in (-180, 180);</li>
+<li><strong>synonyms</strong> — Boolean parameter, allowed values are <cite>false</cite> or <cite>true</cite>; absence of the parameter
+in GET-request is treated as its <cite>false</cite> value; <cite>true</cite> value (e.g. <cite>synonyms=true</cite>)
+tells the system to search records taking into account the table of species synonyms;
+<em>Note:</em> when performing search including known
+(known by the system) species synonyms one should provide
+both <strong>genus</strong> and <strong>species_epithet</strong> values,
+if only one of them is provided or both are leaved empty,
+a warning will be shown and the search condition will be ignored;</li>
+<li><strong>additionals</strong> — Boolean parameter, allowed values are <cite>false</cite> or <cite>true</cite>;
+absence of the parameter in GET-request is treated as its <cite>false</cite> value;
+<cite>true</cite> value (e.g. <cite>additionals=true</cite>) tells the system to
+search within additional species (if such is provided);
+some herbarium records could include more than one species (such records are
+referred as multispecies records);</li>
+<li><strong>id</strong> — record’s <strong>ID</strong> (matching condition: the same value as provided);
+if this parameter is provided in GET-request,
+all other search parameters are ignored and the only one record
+with the requested ID is returned (if it exists and is published);</li>
+<li><strong>fieldid</strong> — field code/number; (matching condition: case insensitive, a sub-string of the record corresponding field);</li>
+<li><strong>itemcode</strong> — storage number (matching condition: case insensitive, a sub-string of the record corresponding field);</li>
+<li><strong>authorship</strong> — authorship of the main species (matching condition: case insensitive, a sub-string of the record corresponding field);</li>
+<li><dl class="first docutils">
+<dt><strong>imonly</strong> — allowed values are false or true; absence of the parameter in GET-request is treateda as its <cite>false</cite> value;</dt>
+<dd>when filtering with <strong>imonly=true</strong> records having images will be shown only.</dd>
+</dl>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The search engine performs only one-way transliteration of
+<strong>collectedby</strong> and <strong>identifiedby</strong> fields into English language.
+So, if you try to search, e.g. <strong>collectedby=боб</strong> (that corresponds to <cite>bob</cite> in English),
+the system will find  records including (in the collectedby field)
+both <cite>боб</cite> and <cite>bob</cite> sub-strings.
+On the contrary, If you try to send <strong>collectedby=bob</strong> search query, only
+records that include <cite>bob</cite> will be found  (regardless the text case).</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Transliteration from Cyrillic (Russian) to Latin (English)
+is fully automatic
+and could be quite straightforward,
+e.g. <cite>Джон</cite> will be transliterated into something like <cite>Dzhon</cite>,
+instead of <cite>John</cite>, as it would expected.</p>
+</div>
+</div>
+<div class="section" id="description-of-server-response">
+<h2><a class="toc-backref" href="#id9">Description of server response</a><a class="headerlink" href="#description-of-server-response" title="Permalink to this headline">¶</a></h2>
+<p>The server response is a <a class="reference external" href="http://www.json.org">JSON-formatted</a> text transferred via HTTP-protocol
+and having the following attributes:</p>
+<ul class="simple">
+<li><strong>errors</strong> — array of errors (each error is a string) occurred during search request processing;</li>
+<li><strong>warnings</strong> — array of warnings (each warning is a string) occurred during search request processing;</li>
+<li><strong>data</strong> — array of structured data, i.e. result of the search query.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Warnings are informative messages that are intended to tell
+the user what went in an unexpected way during interaction with the database:
+e.g. which search parameters contradict each other,
+which parameters were ignored, which parameters weren’t
+recognized by the system etc.</p>
+</div>
+<div class="section" id="format-of-the-data-attributes">
+<h3><a class="toc-backref" href="#id10">Format of the <strong>data</strong> attributes</a><a class="headerlink" href="#format-of-the-data-attributes" title="Permalink to this headline">¶</a></h3>
+<p>The <strong>data</strong> attribute is a JSON-formatted array.
+Each item of this array describes a herbarium record and
+has the following attributes:</p>
+<ul class="simple">
+<li><strong>family</strong> — family name (Latin uppercase letters);</li>
+<li><strong>family_authorship</strong> — self explanatory parameter;</li>
+<li><strong>genus</strong> — genus name;</li>
+<li><strong>genus_authorship</strong> — self explanatory parameter;</li>
+<li><strong>species_epithet</strong> — self explanatory parameter;</li>
+<li><strong>species_id</strong> — <strong>ID</strong> of the species-level taxon (unique integer value); don’t mix with <strong>ID</strong> of the
+herbarium record. <strong>ID</strong>  of the herbarium record is unique among
+all herbarium records, <strong>ID</strong> of the species-level taxon is unique
+among all species-level taxa;</li>
+<li><strong>infraspecific_rank</strong> — allowed values:  subsp., subvar., f., subf., var. or null (i.e. left blank);</li>
+<li><strong>infraspecific_epithet</strong> — self explanatory parameter;</li>
+<li><strong>infraspecific_authorship</strong> — self explanatory parameter;</li>
+<li><strong>short_note</strong> — used in multispecies herbarium records;
+the field provides important information about the main species
+of the herbarium record (it could be empty);</li>
+<li><strong>species_authorship</strong> — self explanatory parameter;</li>
+<li><strong>species_status</strong> — current species status;
+the term “species status” is related to species-level taxon not
+herbarium record; it describes a degree of acceptance of
+species by scientific community (current state);
+possible values of <strong>species_status</strong> are ‘Recently added’ —
+the species was recently included to the database and wasn’t
+checked by an expert, ‘Approved’ — the species was approved by
+an expert (a user having some privileges),
+‘Deleted’ — the species name is probably obsolete and should be avoided,
+‘From plantlist’ — the species was imported from the <a class="reference external" href="http://theplantlist.org">http://theplantlist.org</a>;</li>
+<li><strong>type_status</strong> — type status of the collection;</li>
+<li><strong>species_fullname</strong> — full species name, e.g. Genus + species epithet + species authorship;</li>
+<li><strong>significance</strong> — measure of ambiguity regarding the main species (possible values: “”, aff., cf.);</li>
+<li><strong>id</strong> — integer identifier of a herbarium record, it is unique;</li>
+<li><strong>duplicates</strong> — the list of herbarium acronyms (see Index Herbariorum), where duplicates of this herbarium sheet are stored;</li>
+<li><strong>gpsbased</strong> — Boolean parameter, its true value means that a herbarium record
+position is obtained via the GNSS (GPS/GLONASS);</li>
+<li><strong>latitude</strong> —  latitude, degrees (WGS84);</li>
+<li><strong>longitude</strong> — longitude, degrees (WGS84);</li>
+<li><strong>fieldid</strong> — field number; an arbitrary string assigned by a collector;</li>
+<li><strong>itemcode</strong> — inventory (storage) number, a string assigned by the herbarium’s curator;
+it is used to identify the place of the record in the herbarium storage;</li>
+<li><strong>acronym</strong> — herbarium acronym (e.g. VBGI);</li>
+<li><strong>branch</strong> — herbarium branch/subdivision (e.g. “Herbarium of Fungi”, “Bryophyte Herbarium” etc.);</li>
+<li><strong>collectors</strong> — collectors;</li>
+<li><strong>identifiers</strong> — identifiers;</li>
+<li><strong>devstage</strong> — development stage; available values: Development stage partly, Life form or empty string;</li>
+<li><strong>updated</strong> — the date the record was saved/updated;</li>
+<li><strong>created</strong> —  the date the record was created;</li>
+<li><strong>identification_started</strong> — the date the species identification was stаrted;</li>
+<li><strong>identification_finished</strong> — the date the species identification was finished;</li>
+<li><strong>collection_started</strong> — the date the herbarium item was collected (first day or null if no information provided);</li>
+<li><strong>collection_finished</strong> — the date the herbarium item was collected (last day or null);</li>
+<li><strong>country</strong> —  country name;</li>
+<li><strong>country_id</strong> — unique (integer) id of the country internally assigned by the system;</li>
+<li><strong>altitude</strong> — altitude (sea level is treated as zero),
+this parameter is a string, therefore its form of altitude’s
+representation might be quite fuzzy: ‘100-300’, ‘100-300 m’, ‘100’, ‘100 m’ etc.; it is assumed that altitude value is given in meters;</li>
+<li><strong>region</strong> —  administrative region of collection;</li>
+<li><strong>district</strong> — administrative district of collection;</li>
+<li><strong>details</strong> — environmental conditions of collection, additional info;</li>
+<li><strong>note</strong> — everything that wasn’t yet included
+in the previous fields (this field could include information about the place of collection,
+details on environmental conditions etc.);</li>
+<li><strong>dethistory</strong> — an array; history of species identifications for this herbarium record;</li>
+<li><strong>additionals</strong> — some herbarium records could include more than one species, this array describes them;</li>
+<li><strong>images</strong> — a list of images related to the herbarium record ([] – an empty list, means that no images
+attached to the herbarium record were found);</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Images from the <strong>images</strong> array are provided in several resolutions.
+Currently, the system stores images of different resolutions in directories
+named <cite>ss</cite> – small size (30% of original size); <cite>ms</cite> – medium size (60% original size);
+<cite>fs</cite> – full size (original size).</p>
+</div>
+<p>Therefore, each image url includes one of the following components
+` /ts/ <a href="#id1"><span class="problematic" id="id2">`</span></a>, ` /ss/ <a href="#id3"><span class="problematic" id="id4">`</span></a>, ` /ms/ ` или ` /fs/ <a href="#id5"><span class="problematic" id="id6">`</span></a>. These components denote resolution of the image
+available from the url.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>All images are saved as jpeg via <a class="reference external" href="http://imagemagick.org">ImageMagick</a> image processing utilities with the following parameters:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;-strip&#39;</span><span class="p">,</span> <span class="s1">&#39;-interlace&#39;</span><span class="p">,</span> <span class="s1">&#39;Plane&#39;</span><span class="p">,</span>
+<span class="s1">&#39;-sampling-factor&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;4:2:0&#39;</span><span class="p">,</span>
+<span class="s1">&#39;-quality&#39;</span><span class="p">,</span>
+<span class="sa">r</span><span class="s1">&#39;90%&#39;</span>
+</pre></div>
+</div>
+<p class="last">It comes from practice that such compression don’t significantly impact on images.
+In the save time, compression is very important and allows to save a lot of storage space.</p>
+</div>
+<p>List of images attached to the herbarium record (example):</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;http://botsad.ru/herbarium/view/snapshots/VBGI/ss/VBGI32618_1.jpg&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;http://botsad.ru/herbarium/view/snapshots/VBGI/ts/VBGI32618_1.jpg&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;http://botsad.ru/herbarium/view/snapshots/VBGI/ms/VBGI32618_1.jpg&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;http://botsad.ru/herbarium/view/snapshots/VBGI/fs/VBGI32618_1.jpg&#39;</span>
+<span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition note" id="field-reference-label">
+<p class="first admonition-title">Note</p>
+<p class="last">Attributes <strong>region</strong>, <strong>district</strong>, <strong>details</strong>, <strong>note</strong>, <strong>altitude</strong>
+could be filled in bilingual mode:
+English first, than – Russian (or vice versa),
+with special symbol “|”
+separating two spellings
+(for instance, region’s value”Russian Far East|Дальний Восток России”).
+Removing unnecessary sub-strings from the left or
+the right side of the “|”  symbol couldn’t be done
+in the current implementation of the API service,
+it should be performed by the user.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Unpublished records are excluded from the search results.</p>
+</div>
+<p>Structure of <strong>dethistory</strong> and <strong>additionals</strong> arrays are described below.</p>
+<div class="section" id="history-of-species-identifications-and-additional-species">
+<h4><a class="toc-backref" href="#id11">History of species identifications and additional species</a><a class="headerlink" href="#history-of-species-identifications-and-additional-species" title="Permalink to this headline">¶</a></h4>
+<p><strong>History of species identifications</strong></p>
+<p>Each item of the array “History of species identifications” (<strong>dethistory</strong>)
+describes an attempt of identification/confirmation
+of the main species related to the herbarium record.</p>
+<p>History of species identifications (<strong>dethistory</strong>) is an array having the following fields:</p>
+<ul class="simple">
+<li><strong>valid_from</strong> — start date of assignment validity to particular species name;</li>
+<li><dl class="first docutils">
+<dt><strong>valid_to</strong> — end date of assignment validity to particular species name; empty field means that species’ name</dt>
+<dd>assignment is actual since the <strong>valid_from</strong> date;</dd>
+</dl>
+</li>
+<li><strong>family</strong> — family name;</li>
+<li><strong>family_authorship</strong> — self explanatory parameter;</li>
+<li><strong>genus</strong> — genus name;</li>
+<li><strong>genus_authorship</strong> — self explanatory parameter;</li>
+<li><strong>species_epithet</strong> — self explanatory parameter;</li>
+<li><strong>species_id</strong> — <strong>ID</strong> of the species-level taxon;</li>
+<li><strong>species_authorship</strong> — self explanatory parameter;</li>
+<li><strong>species_status</strong> —  status of the species-level taxon;</li>
+<li><strong>species_fullname</strong> — full species name (Genus name + species epithet + species authorship);</li>
+<li><strong>infraspecific_rank</strong> — allowed values:  subsp., subvar., f., subf., var. or null (i.e. left blank);</li>
+<li><strong>infraspecific_epithet</strong> — self explanatory parameter;</li>
+<li><strong>infraspecific_authorship</strong> — self explanatory parameter;</li>
+<li><strong>significance</strong> — measure of ambiguity regarding the current species (possible values: “”, aff., cf.);</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If herbarium record/sheet include more than one species,
+than “history of species identifications” is related to the main
+species of the record only.</p>
+</div>
+<p><strong>Additional species</strong></p>
+<p>“Additional species” (<strong>additionals</strong>) is an array describing all the species
+(except the main species) attached to the current herbarium record/sheet.
+It is non-empty only for multispecies herbarium records.
+Each element of the <strong>additionals</strong> array has the following fields
+(fields have almost the same meaning as for <strong>dethistory</strong> array):</p>
+<ul class="simple">
+<li><strong>valid_from</strong> — beginning date of validity of identification;</li>
+<li><dl class="first docutils">
+<dt><strong>valid_to</strong> — ending date of validity of identification;</dt>
+<dd>empty field means that species’ name assignment to the herbarium record is actual since <strong>valid_from</strong> date;</dd>
+</dl>
+</li>
+<li><strong>family</strong> — family name;</li>
+<li><strong>family_authorship</strong> — self explanatory parameter;</li>
+<li><strong>genus</strong> — genus name;</li>
+<li><strong>genus_authorship</strong> — self explanatory parameter;</li>
+<li><strong>species_epithet</strong> — self explanatory parameter;</li>
+<li><strong>species_id</strong> — <strong>ID</strong> of the species-level taxon;</li>
+<li><strong>species_authorship</strong> — self explanatory parameter;</li>
+<li><strong>species_status</strong> —  status of the species-level taxon;</li>
+<li><strong>species_fullname</strong> — full species name;</li>
+<li><strong>significance</strong> — measure of ambiguity regard the current species (possible values: “”, aff., cf.);</li>
+<li><strong>infraspecific_rank</strong> — allowed values:  subsp., subvar., f., subf., var. or null (i.e. left blank);</li>
+<li><strong>infraspecific_epithet</strong> — self explanatory parameter;</li>
+<li><strong>infraspecific_authorship</strong> — self explanatory parameter;</li>
+<li><strong>note</strong> — additional information about the current species;</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <strong>note</strong> field could be filled out bilingually (e.g. using the “|” symbol);
+So, it behaves like described <a class="reference internal" href="#field-reference-label"><span class="std std-ref">early</span></a>.</p>
+</div>
+<p><em>Example</em></p>
+<p>Let us consider an example of <strong>additionals</strong> array (not all fields are shown for short):</p>
+<div class="code Python highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="p">{</span><span class="s1">&#39;genus&#39;</span><span class="p">:</span> <span class="s1">&#39;Quercus&#39;</span><span class="p">,</span> <span class="s1">&#39;species_epithet&#39;</span><span class="p">:</span> <span class="s1">&#39;mongolica&#39;</span><span class="p">,</span> <span class="o">...</span> <span class="p">,</span><span class="s1">&#39;valid_from&#39;</span><span class="p">:</span> <span class="s1">&#39;2015-05-05&#39;</span><span class="p">,</span> <span class="s1">&#39;valid_to&#39;</span><span class="p">:</span> <span class="s1">&#39;2016-01-01&#39;</span><span class="p">},</span>
+<span class="p">{</span><span class="s1">&#39;genus&#39;</span><span class="p">:</span> <span class="s1">&#39;Quercus&#39;</span><span class="p">,</span> <span class="s1">&#39;species_epithet&#39;</span><span class="p">:</span> <span class="s1">&#39;dentata&#39;</span><span class="p">,</span> <span class="o">...</span> <span class="p">,</span><span class="s1">&#39;valid_from&#39;</span><span class="p">:</span> <span class="s1">&#39;2016-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;valid_to&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+<span class="p">{</span><span class="s1">&#39;genus&#39;</span><span class="p">:</span> <span class="s1">&#39;Betula&#39;</span><span class="p">,</span> <span class="s1">&#39;species_epithet&#39;</span><span class="p">:</span> <span class="s1">&#39;manshurica&#39;</span><span class="p">,</span> <span class="o">...</span> <span class="p">,</span><span class="s1">&#39;valid_from&#39;</span><span class="p">:</span> <span class="s1">&#39;2015-05-05&#39;</span><span class="p">,</span> <span class="s1">&#39;valid_to&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+<span class="p">{</span><span class="s1">&#39;genus&#39;</span><span class="p">:</span> <span class="s1">&#39;Betula&#39;</span><span class="p">,</span> <span class="s1">&#39;species_epithet&#39;</span><span class="p">:</span> <span class="s1">&#39;davurica&#39;</span><span class="p">,</span> <span class="o">...</span> <span class="p">,</span><span class="s1">&#39;valid_from&#39;</span><span class="p">:</span> <span class="s1">&#39;2015-05-05&#39;</span><span class="p">,</span> <span class="s1">&#39;valid_to&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Interpretation:</p>
+<p>So, if today is 2015, 1 Sept, than the array includes
+<em>Quercus mongolica</em>, <em>Betula manshurica</em> and <em>Betula davurica</em>, but <em>Quercus dentata</em> should be treated
+as out-of-date for this date.</p>
+<p>If today is 2017,  1 Jan, than out-of-date status should be assigned to <em>Quercus mongolica</em>,
+and, therefore, actual set of species includes
+<em>Quercus dentata</em>, <em>Betula manshurica</em> и <em>Betula davurica</em>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="service-usage-limitations">
+<h2><a class="toc-backref" href="#id12">Service usage limitations</a><a class="headerlink" href="#service-usage-limitations" title="Permalink to this headline">¶</a></h2>
+<p>Due to the long processing time needed to handle each HTTP-request,
+there are some restrictions on creating
+such (long running) keep-alive HTTP-connections (when using the HTTP API Service).</p>
+<p>The number of allowed simultaneous connections to the service is determined by
+<a class="reference external" href="https://github.com/VBGI/herbs/blob/master/herbs/conf.py">JSON_API_SIMULTANEOUS_CONN</a> value.</p>
+<p>When the number of simultaneous connections is exceeded, the server doesn’t process
+search requests, but an error message  is returned.</p>
+<p>This behavior isn’t related to search-by-id queries.
+Search-by-id queries are evaluated quickly and have no special limitations.</p>
+<p>Attempt to get data for unpublished record by its <strong>ID</strong> leads to an error message.</p>
+</div>
+<div class="section" id="examples">
+<h2><a class="toc-backref" href="#id13">Examples</a><a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>To test the service, one can build a search request
+using web-browser (just follow the links below):</p>
+<p><a class="reference external" href="http://botsad.ru/hitem/json/?genus=riccardia&amp;collectedby=bakalin">http://botsad.ru/hitem/json/?genus=riccardia&amp;collectedby=bakalin</a></p>
+<p>Following the link will lead to json-response that includes all known
+(and published) herbarium records of genus <em>Riccardia</em> collected by <cite>bakalin</cite>.</p>
+<p>Searching by <strong>ID</strong> (<cite>colstart</cite> will be ignored):</p>
+<p><a class="reference external" href="http://botsad.ru/hitem/json?id=500&amp;colstart=2016-01-01">http://botsad.ru/hitem/json?id=500&amp;colstart=2016-01-01</a></p>
+<p><a class="reference external" href="http://botsad.ru/hitem/json?id=44">http://botsad.ru/hitem/json?id=44</a></p>
+<p><a class="reference external" href="http://botsad.ru/hitem/json?id=5">http://botsad.ru/hitem/json?id=5</a></p>
+<div class="admonition seealso" id="search-httpapi-examples">
+<p class="first admonition-title">See also</p>
+<p><a class="reference external" href="https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/Python/en/Python.ipynb">Accessing Digital Herbarium using Python</a></p>
+<p class="last"><a class="reference external" href="https://nbviewer.jupyter.org/github/VBGI/herbs/blob/master/herbs/docs/tutorial/R/en/R.ipynb">Accessing Digital Herbarium using R</a></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/bgi_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Digital Herbarium’s HTTP-API Description</a><ul>
+<li><a class="reference internal" href="#intro">Intro</a></li>
+<li><a class="reference internal" href="#description-of-http-request-parameters">Description of HTTP request parameters</a></li>
+<li><a class="reference internal" href="#description-of-server-response">Description of server response</a><ul>
+<li><a class="reference internal" href="#format-of-the-data-attributes">Format of the <strong>data</strong> attributes</a><ul>
+<li><a class="reference internal" href="#history-of-species-identifications-and-additional-species">History of species identifications and additional species</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-usage-limitations">Service usage limitations</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="search_basics.html"
+                        title="previous chapter">Digital Herbarium: Basic Usage</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="citing.html"
+                        title="next chapter">Herbarium Record’s citing</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/http_api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="citing.html" title="Herbarium Record’s citing"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="search_basics.html" title="Digital Herbarium: Basic Usage"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Digital Herbarium  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Dmitry E. Kislov.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+    </div>
+  </body>
+</html>

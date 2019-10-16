@@ -1,0 +1,22 @@
+\begin{sphinxtheindex}
+\def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+
+  \bigletter C
+  \item citing, \hyperpage{18}
+
+  \indexspace
+  \bigletter M
+  \item map, \hyperpage{6}
+
+  \indexspace
+  \bigletter R
+  \item rectangular area, \hyperpage{6}
+
+  \indexspace
+  \bigletter S
+  \item search by region, \hyperpage{6}
+  \item search form, \hyperpage{3}
+  \item search in a region, \hyperpage{6}
+  \item search results filtering, \hyperpage{6}
+
+\end{sphinxtheindex}
