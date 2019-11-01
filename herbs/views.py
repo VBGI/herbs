@@ -212,12 +212,12 @@ def get_data(request):
                   not (-180.0 <= lonl <= 180.0) or not(-180.0 <= lonu <= 180.0)) and all([latl, lonl, latu, lonu]):
                 warnings.append(_(u'Границы области поиска неправдоподобны для географических координат. Условя поиска по области будут проигнорированы.'))
             elif all([latl, lonl, latu, lonu]):
-                bigquery += [Q(latitude__gte=latl) & Q(latitude__lte=latu)]
-                if lonu < lonl:
-                    bigquery += [(Q(longitude__gte=lonl) & Q(longitude__lte=180.0)) |
-                                 (Q(longitude__gte=-180.0) & Q(longitude__lte=lonu))]
-                else:
-                    bigquery += [Q(longitude__gte=lonl) & Q(longitude__lte=lonu)]
+                bigquery += [Q(latitude__gte=latl) & Q(latitude__lte=latu) & Q(longitude__gte=lonl) & Q(longitude__lte=lonu)]
+                # if lonu < lonl:
+                #     bigquery += [(Q(longitude__gte=lonl) & Q(longitude__lte=180.0)) |
+                #                  (Q(longitude__gte=-180.0) & Q(longitude__lte=lonu))]
+                # else:
+                #     bigquery += [Q(longitude__gte=lonl) & Q(longitude__lte=lonu)]
         else:
             warnings.append(_(u'Область на карте задана нeкорректно. Условия поиска по области будут проигнорированы.'))
 
